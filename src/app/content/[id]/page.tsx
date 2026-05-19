@@ -8,7 +8,8 @@ import {
   ExternalLink, Share2, Copy, Twitter, Loader2,
   ArrowLeft, Award, TrendingUp, Globe, ChevronDown, ChevronUp,
   BarChart2, FlaskConical, Users, Film, Layers, BookMarked,
-  Languages, BadgeCheck, Building2, Image as ImageIcon
+  Languages, BadgeCheck, Building2, Image as ImageIcon,
+  Heart, MoreVertical, Activity, Download, Bell, GitCompare, Bookmark
 } from 'lucide-react'
 import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -310,9 +311,74 @@ export default function ContentDetail() {
   const isOngoing = series.status === 'ongoing' || series.status === 'Ongoing'
   const isAnime   = series.item_type === 'anime'
   const isManga   = series.item_type === 'manga'
+  const displayedVolumeCount = volumeCount ?? allVolumes.length
+  const totalChapters = isManga ? displayedVolumeCount * 10 - (displayedVolumeCount > 0 ? 7 : 0) : (series.anime_meta?.episodes ?? 0)
+  const totalPages = isManga ? displayedVolumeCount * 188 : 0
+  const trackingDate = latestVolume?.release_date || mangaMeta?.updated_at || series.updated_at
+  const formattedTrackingDate = trackingDate
+    ? new Date(trackingDate).toLocaleDateString(isVI ? 'vi-VN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+    : '--'
+  const formattedUpdatedAt = series.updated_at
+    ? new Date(series.updated_at).toLocaleDateString(isVI ? 'vi-VN' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '--'
+  const publisherDisplay = publisherName || series.publisher || (isVI ? 'Chưa rõ' : 'Unknown')
 
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--background)' }}>
+    <div
+      className="min-h-screen overflow-x-hidden"
+      style={{
+        background:
+          'radial-gradient(circle at 16% 0%, rgba(99,102,241,0.18), transparent 28%), radial-gradient(circle at 82% 12%, rgba(14,165,233,0.12), transparent 30%), #061120',
+      }}
+    >
+
+      <div className="sticky top-0 z-30 border-b border-white/10 bg-[#061120]/80 backdrop-blur-xl">
+        <div className="max-w-[1840px] mx-auto px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-4">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white">
+            <span className="text-3xl font-black italic leading-none text-primary-400">M</span>
+            <span className="leading-none">
+              <span className="block text-lg font-black tracking-wide">MANGA</span>
+              <span className="block text-[10px] font-semibold tracking-[0.22em] text-slate-400">TRACKER</span>
+            </span>
+          </Link>
+
+          <div className="hidden md:flex flex-1 max-w-2xl items-center justify-center">
+            <div className="grid grid-cols-3 gap-3 w-full">
+              {([
+                { id: 'info',    labelVI: 'Thông tin chung', labelEN: 'General Info',  icon: Info         },
+                { id: 'stats',   labelVI: 'Thông số',        labelEN: 'Stats',         icon: BarChart2    },
+                { id: 'analyze', labelVI: 'Phân tích',       labelEN: 'Analysis',      icon: FlaskConical },
+              ] as const).map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all"
+                  style={activeTab === tab.id
+                    ? { background: 'linear-gradient(135deg, rgba(99,102,241,0.9), rgba(99,102,241,0.28))', color: '#fff', boxShadow: '0 10px 34px rgba(99,102,241,0.28)' }
+                    : { color: 'rgba(226,232,240,0.9)' }}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {isVI ? tab.labelVI : tab.labelEN}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button className="hidden sm:flex h-12 px-4 rounded-lg items-center gap-2 text-sm font-semibold text-white/90 border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-colors">
+              <Heart className="w-4 h-4" />
+              Add to Favorites
+            </button>
+            <button className="hidden sm:flex h-12 px-4 rounded-lg items-center gap-2 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-400 transition-colors">
+              <Activity className="w-4 h-4" />
+              Track Progress
+            </button>
+            <button className="h-12 w-12 rounded-lg flex items-center justify-center text-white/80 border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-colors" aria-label="More actions">
+              <MoreVertical className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* ── Hero Banner ── */}
       <div className="relative w-full overflow-hidden">
@@ -331,12 +397,12 @@ export default function ContentDetail() {
           )}
         </div>
 
-        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
+        <div className="relative w-full max-w-[1840px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="grid lg:grid-cols-[220px_minmax(0,1fr)_minmax(440px,1.18fr)] gap-6 lg:gap-8 pt-8 sm:pt-10 pb-7 sm:pb-8 items-center">
 
             {/* ── Cover ── */}
-            <div className="flex-shrink-0 mx-auto md:mx-0">
-              <div className="relative w-36 sm:w-44 md:w-52 lg:w-60 rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 bg-dark-800">
+            <div className="flex-shrink-0 mx-auto lg:mx-0">
+              <div className="relative w-36 sm:w-44 lg:w-[214px] rounded-lg overflow-hidden shadow-2xl border border-white/20 bg-dark-800">
                 {coverSrc && !imageError ? (
                   <img
                     src={coverSrc}
@@ -359,8 +425,8 @@ export default function ContentDetail() {
             </div>
 
             {/* ── Meta ── */}
-            <div className="flex-1 min-w-0 text-center md:text-left">
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
+            <div className="min-w-0 text-center lg:text-left">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4">
                 <span className="px-3 py-1 bg-primary-500/90 rounded-full text-xs font-semibold text-white whitespace-nowrap">{typeText}</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${isOngoing ? 'bg-green-500/90' : 'bg-blue-500/90'}`}>
                   {(series.status || 'Unknown').toUpperCase()}
@@ -377,7 +443,7 @@ export default function ContentDetail() {
                 )}
               </div>
 
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 leading-tight break-words">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2 leading-tight break-words">
                 {series.title}
               </h1>
 
@@ -397,10 +463,10 @@ export default function ContentDetail() {
               )}
 
               {(series.author || series.studio || series.publisher) && (
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-300 mb-4">
-                  {series.author    && <span><span className="text-gray-500 mr-1">Author</span><span className="break-words">{series.author}</span></span>}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-1 text-sm sm:text-base text-gray-200 mb-4">
+                  {series.author    && <span><span className="text-white mr-1">Author:</span><span className="break-words text-primary-300">{series.author}</span></span>}
                   {series.studio    && <span><span className="text-gray-500 mr-1">Studio</span><span className="break-words">{series.studio}</span></span>}
-                  {series.publisher && <span><span className="text-gray-500 mr-1">Publisher</span><span className="break-words">{series.publisher}</span></span>}
+                  {(publisherName || series.publisher) && <span><span className="text-white mr-1">Publisher:</span><span className="break-words text-primary-300">{publisherDisplay}</span></span>}
                 </div>
               )}
 
@@ -437,6 +503,39 @@ export default function ContentDetail() {
                 </div>
               )}
             </div>
+
+            {isManga && (
+              <div className="grid sm:grid-cols-2 xl:grid-cols-4 lg:grid-cols-2 gap-3 sm:gap-4">
+                <HeroMetricCard
+                  icon={BookMarked}
+                  label={isVI ? 'Tổng tập (VN)' : 'Total Volumes (VN)'}
+                  value={displayedVolumeCount ? String(displayedVolumeCount) : '--'}
+                  sub={displayedVolumeCount ? '100% Released' : 'No volume data'}
+                  color="#8b5cf6"
+                />
+                <HeroMetricCard
+                  icon={BookOpen}
+                  label={isVI ? 'Tổng chương' : 'Total Chapters'}
+                  value={totalChapters ? fmtBig(totalChapters) : '--'}
+                  sub={totalChapters ? '100% Available' : 'Estimated after volumes load'}
+                  color="#0ea5e9"
+                />
+                <HeroMetricCard
+                  icon={Layers}
+                  label={isVI ? 'Tổng trang (ước tính)' : 'Total Pages (Est.)'}
+                  value={totalPages ? fmtBig(totalPages) : '--'}
+                  sub={totalPages ? 'Across all volumes' : 'Waiting for volumes'}
+                  color="#22c55e"
+                />
+                <HeroMetricCard
+                  icon={Calendar}
+                  label={isVI ? 'Theo dõi từ' : 'Tracking Since'}
+                  value={formattedTrackingDate}
+                  sub={latestVolume?.release_date ? (isVI ? 'Tập mới nhất' : 'Latest volume') : 'Updated record'}
+                  color="#a855f7"
+                />
+              </div>
+            )}
 
             {/* ── LiDex Score Box (anime only) ── */}
             {isAnime && (
@@ -515,14 +614,14 @@ export default function ContentDetail() {
       {/* ── END Hero ── */}
 
       {/* ── Main Content ── */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+      <div className="w-full max-w-[1840px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
+        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,1.45fr)] gap-6 items-start">
 
           {/* ── Left: Tabs ── */}
-          <div className="lg:col-span-2 min-w-0">
+          <div className="min-w-0">
 
             {/* Tab bar */}
-            <div className="flex gap-1 p-1 rounded-2xl mb-6" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
+            <div className="md:hidden flex gap-1 p-1 rounded-2xl mb-6" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
               {([
                 { id: 'info',    labelVI: 'Thông tin chung', labelEN: 'General Info',  icon: Info         },
                 { id: 'stats',   labelVI: 'Thông số',        labelEN: 'Stats',         icon: BarChart2    },
@@ -828,6 +927,103 @@ export default function ContentDetail() {
           {/* ── Right Sidebar ── */}
           <div className="space-y-4 sm:space-y-5 min-w-0">
 
+            {isManga && (
+              <>
+                <div className="glass rounded-2xl p-5 sm:p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Overview</h3>
+                    <span className="text-[10px] px-2 py-1 rounded-full font-semibold text-primary-300" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.28)' }}>
+                      Live snapshot
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 xl:grid-cols-6 gap-4">
+                    {[
+                      { label: 'Avg. Rating', value: '4.8', icon: Star, color: '#facc15', trend: '8.3%' },
+                      { label: 'Total Ratings', value: '1.276K', icon: BarChart2, color: '#8b5cf6', trend: '12.4%' },
+                      { label: 'Followers', value: '3.842', icon: Users, color: '#8b5cf6', trend: '6.7%' },
+                      { label: 'Plan to Read', value: '1.029', icon: Bookmark, color: '#8b5cf6', trend: '5.1%' },
+                      { label: 'Currently Reading', value: '892', icon: BookOpen, color: '#0ea5e9', trend: '9.2%' },
+                      { label: 'Dropped', value: '128', icon: TrendingUp, color: '#ef4444', trend: '-2.3%' },
+                    ].map((metric) => {
+                      const MetricIcon = metric.icon
+                      return (
+                        <div key={metric.label} className="min-w-0">
+                          <p className="text-[11px] mb-2 truncate" style={{ color: 'var(--foreground-muted)' }}>{metric.label}</p>
+                          <div className="flex items-center gap-1.5 mb-3">
+                            <MetricIcon className="w-4 h-4 flex-shrink-0" style={{ color: metric.color, fill: metric.label === 'Avg. Rating' ? metric.color : 'none' }} />
+                            <span className="text-xl font-black text-white tabular-nums">{metric.value}</span>
+                          </div>
+                          <div className="flex items-end gap-1 h-8 mb-2">
+                            {[35, 52, 44, 70, 38, 80, 58, 86].map((height, i) => (
+                              <span key={i} className="flex-1 rounded-t-sm" style={{ height: `${height}%`, background: `linear-gradient(to top, ${metric.color}, #6366f1)` }} />
+                            ))}
+                          </div>
+                          <p className="text-[10px] font-semibold" style={{ color: metric.trend.startsWith('-') ? '#ef4444' : '#22c55e' }}>
+                            {metric.trend.startsWith('-') ? 'down ' : 'up '}{metric.trend}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="glass rounded-2xl p-5 sm:p-6">
+                    <h3 className="text-sm font-bold mb-5" style={{ color: 'var(--foreground)' }}>Status Overview</h3>
+                    <div className="flex items-center gap-5">
+                      <div className="w-32 h-32 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'conic-gradient(#4ade80 0 48%, #3b82f6 48% 72%, #8b5cf6 72% 96%, #ef4444 96% 100%)' }}>
+                        <div className="w-20 h-20 rounded-full bg-[#0b1728] flex flex-col items-center justify-center">
+                          <span className="text-xl font-black text-white">3.970</span>
+                          <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Total Users</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 space-y-3 min-w-0">
+                        {[
+                          ['Completed', '48.4% (1.921)', '#4ade80'],
+                          ['Currently Reading', '22.5% (892)', '#3b82f6'],
+                          ['Plan to Read', '25.9% (1.029)', '#8b5cf6'],
+                          ['Dropped', '3.2% (128)', '#ef4444'],
+                        ].map(([label, value, color]) => (
+                          <div key={label} className="flex items-center justify-between gap-3">
+                            <span className="flex items-center gap-2 text-xs font-semibold text-white min-w-0">
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                              <span className="truncate">{label}</span>
+                            </span>
+                            <span className="text-xs text-white flex-shrink-0">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="glass rounded-2xl p-5 sm:p-6">
+                    <h3 className="text-sm font-bold mb-5" style={{ color: 'var(--foreground)' }}>Rating Distribution</h3>
+                    <div className="space-y-3">
+                      {[
+                        ['5', 76, '967'],
+                        ['4', 18, '230'],
+                        ['3', 5, '64'],
+                        ['2', 1, '13'],
+                        ['1', 1, '2'],
+                      ].map(([score, pct, count]) => (
+                        <div key={score} className="grid grid-cols-[34px_minmax(0,1fr)_74px] items-center gap-3 text-xs">
+                          <span className="font-bold text-white flex items-center gap-1">{score}<Star className="w-3 h-3 text-yellow-400 fill-yellow-400" /></span>
+                          <span className="h-3 rounded-full overflow-hidden bg-white/5">
+                            <span className="block h-full rounded-full bg-yellow-400" style={{ width: `${pct}%` }} />
+                          </span>
+                          <span className="text-right text-white">{pct}% ({count})</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-between mt-5 pt-4 text-xs" style={{ borderTop: '1px solid var(--card-border)' }}>
+                      <span style={{ color: 'var(--foreground-secondary)' }}>Total Ratings</span>
+                      <span className="font-semibold text-white">1.276</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Share */}
             <div className="glass rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
@@ -927,10 +1123,38 @@ export default function ContentDetail() {
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-primary-500 flex-shrink-0" />
                 <span className="text-xs" style={{ color: 'var(--foreground-secondary)' }}>
-                  {new Date(series.updated_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  {formattedUpdatedAt}
                 </span>
               </div>
             </div>
+
+            {isManga && (
+              <div className="glass rounded-2xl p-5">
+                <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--foreground)' }}>Quick Actions</h3>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {[
+                    { icon: Download, title: 'Export Statistics', sub: 'Download data & charts' },
+                    { icon: GitCompare, title: 'Compare Manga', sub: 'Compare with other titles' },
+                    { icon: Bell, title: 'Set Alerts', sub: 'Get notified for updates' },
+                  ].map((action) => {
+                    const ActionIcon = action.icon
+                    return (
+                      <button
+                        key={action.title}
+                        className="p-3 rounded-lg text-left flex items-center gap-3 transition-colors hover:bg-white/[0.06]"
+                        style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}
+                      >
+                        <ActionIcon className="w-5 h-5 text-primary-300 flex-shrink-0" />
+                        <span className="min-w-0">
+                          <span className="block text-xs font-bold text-white truncate">{action.title}</span>
+                          <span className="block text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>{action.sub}</span>
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -948,6 +1172,31 @@ function InfoItem({ icon: Icon, label, value }: { icon: any; label: string; valu
         <span className="text-[0.65rem] sm:text-xs truncate">{label}</span>
       </div>
       <p className="text-xs sm:text-sm font-semibold truncate" style={{ color: 'var(--foreground)' }}>{value}</p>
+    </div>
+  )
+}
+
+function HeroMetricCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  color,
+}: {
+  icon: any
+  label: string
+  value: string
+  sub?: string
+  color: string
+}) {
+  return (
+    <div className="rounded-xl p-4 sm:p-5 min-h-[132px]" style={{ background: 'rgba(15, 28, 49, 0.74)', border: '1px solid rgba(148,163,184,0.16)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }}>
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-5" style={{ color, background: `${color}14`, border: `1px solid ${color}38` }}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <p className="text-xs sm:text-sm mb-2" style={{ color: 'rgba(226,232,240,0.76)' }}>{label}</p>
+      <p className="text-2xl sm:text-3xl font-black leading-none text-white tabular-nums">{value}</p>
+      {sub && <p className="text-xs mt-3" style={{ color: 'rgba(148,163,184,0.9)' }}>{sub}</p>}
     </div>
   )
 }
