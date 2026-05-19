@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, useId } from 'react'
+import { useRef, useState, useEffect, useId, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -62,13 +62,11 @@ const COMPONENT_META: { key: keyof LiDexScoreBreakdown; label: string; weight: n
   { key: 'studio',           label: 'Studio Rep.',        weight:  5 },
 ]
 
-// ── Language code → readable label ───────────────────────────────────────────
 const LANG_LABELS: Record<string, string> = {
   ja: 'Japanese', ko: 'Korean', zh: 'Chinese',
   vi: 'Vietnamese', th: 'Thai', en: 'English',
 }
 
-// ── Demographic → readable label ──────────────────────────────────────────────
 const DEMO_LABELS: Record<string, string> = {
   shounen: 'Shounen', shoujo: 'Shoujo',
   seinen: 'Seinen',   josei: 'Josei', none: 'General',
@@ -82,27 +80,41 @@ export default function ContentDetail() {
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState<string | null>(null)
   const [imageError,   setImageError]   = useState(false)
-  const [coverSrc,     setCoverSrc]     = useState<string | null>(null)   // ← latest volume cover
+  const [coverSrc,     setCoverSrc]     = useState<string | null>(null)
   const [synopsisExpanded, setSynopsisExpanded] = useState(false)
   const [copied,       setCopied]       = useState(false)
   const [lidexScore,   setLidexScore]   = useState<LiDexScoreBreakdown | null>(null)
   const [scoreLoading, setScoreLoading] = useState(false)
   const [activeTab,    setActiveTab]    = useState<'info' | 'stats' | 'analyze'>('info')
 
-  // Manga-specific enrichment pulled directly from Supabase
   const [mangaMeta,    setMangaMeta]    = useState<any>(null)
   const [latestVolume, setLatestVolume] = useState<any>(null)
   const [volumeCount,  setVolumeCount]  = useState<number | null>(null)
   const [publisherName,setPublisherName]= useState<string | null>(null)
   const [seriesLinks,  setSeriesLinks]  = useState<any[]>([])
-  const [allVolumes,   setAllVolumes]   = useState<any[]>([]) // <--- NEW STATE FOR STATS
+  const [allVolumes,   setAllVolumes]   = useState<any[]>([])
 
   const { locale } = useLocale()
   const isVI       = locale === 'vi'
   const seriesId   = params.id ? parseInt(params.id as string) : undefined
   const bannerImage = series?.banner_url || series?.cover_url
 
-  // ── Load series ──────────────────────────────────────────────────────────────
+  // ── Derived hero stats ────────────────────────────────────────────────────
+  // Average price from all volumes that have a price set
+  const mangaAvgPrice = useMemo(() => {
+    const priced = allVolumes.filter(v => Number(v.price) > 0)
+    if (!priced.length) return null
+    return Math.round(priced.reduce((a, v) => a + Number(v.price), 0) / priced.length)
+  }, [allVolumes])
+
+  // Year of the very first release — allVolumes is sorted DESC so last item is oldest
+  const firstReleaseYear = useMemo(() => {
+    if (!allVolumes.length) return null
+    const oldest = allVolumes[allVolumes.length - 1]
+    return oldest?.release_date ? new Date(oldest.release_date).getFullYear() : null
+  }, [allVolumes])
+
+  // ── Load series ───────────────────────────────────────────────────────────
   useEffect(() => {
     async function loadData() {
       if (!seriesId) { setError('No series ID provided'); setLoading(false); return }
@@ -119,12 +131,11 @@ export default function ContentDetail() {
     loadData()
   }, [seriesId])
 
-  // ── Manga-specific: fetch manga_meta + latest volume cover ───────────────────
+  // ── Manga-specific enrichment ─────────────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type !== 'manga') return
 
     async function loadMangaEnrichment() {
-      // 1. manga_meta — only fields that are actually populated (no MangaDex data yet)
       const { data: meta } = await supabase
         .from('manga_meta')
         .select('series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at')
@@ -132,8 +143,6 @@ export default function ContentDetail() {
         .single()
       if (meta) {
         setMangaMeta(meta)
-
-        // 2. Resolve publisher name from vn_publisher_id
         if (meta.vn_publisher_id) {
           const { data: pub } = await supabase
             .from('publishers')
@@ -144,20 +153,17 @@ export default function ContentDetail() {
         }
       }
 
-      // 3. All non-special volumes ordered DESC by volume_number
       const { data: vols } = await supabase
         .from('volumes')
         .select('id, volume_number, release_date, cover_url, price, currency, is_special')
         .eq('series_id', series.id)
-        .eq('is_special', false) 
+        .eq('is_special', false)
         .not('volume_number', 'is', null)
         .order('volume_number', { ascending: false })
 
       if (vols && vols.length > 0) {
-        setAllVolumes(vols) // <--- SAVE FULL LIST FOR STATS
+        setAllVolumes(vols)
         setVolumeCount(vols.length)
-        // The latest volume is always vols[0] (highest number).
-        // For the displayed cover, walk from the latest downward until we find one with a cover_url.
         const withCover = vols.find((v: any) => v.cover_url)
         setLatestVolume(vols[0])
         setCoverSrc(withCover?.cover_url || series.cover_url || null)
@@ -166,7 +172,6 @@ export default function ContentDetail() {
         setCoverSrc(series.cover_url || null)
       }
 
-      // 4. series_links — fetch links for the latest volume only
       const latestVol = vols && vols.length > 0 ? vols[0] : null
       if (latestVol) {
         const { data: links } = await supabase
@@ -183,16 +188,13 @@ export default function ContentDetail() {
     loadMangaEnrichment()
   }, [series])
 
-  // ── Anime: set cover from series directly ────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type === 'manga') return
     setCoverSrc(series.cover_url || null)
   }, [series])
 
-  // ── Anime: fetch series_links ─────────────────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type !== 'anime') return
-
     async function loadAnimeLinks() {
       const { data: links } = await supabase
         .from('series_links')
@@ -202,11 +204,9 @@ export default function ContentDetail() {
         .order('sort_order', { ascending: true })
       if (links) setSeriesLinks(links)
     }
-
     loadAnimeLinks()
   }, [series])
 
-  // ── Calculate LiDex Score (anime only) ──────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type !== 'anime' || !series.anime_meta) return
 
@@ -311,6 +311,9 @@ export default function ContentDetail() {
   const isAnime   = series.item_type === 'anime'
   const isManga   = series.item_type === 'manga'
 
+  // Resolved display score: anime prefers mean_score, manga uses series.score
+  const displayScore = series.anime_meta?.mean_score ?? series.score ?? null
+
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--background)' }}>
 
@@ -360,6 +363,8 @@ export default function ContentDetail() {
 
             {/* ── Meta ── */}
             <div className="flex-1 min-w-0 text-center md:text-left">
+
+              {/* Badges */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
                 <span className="px-3 py-1 bg-primary-500/90 rounded-full text-xs font-semibold text-white whitespace-nowrap">{typeText}</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${isOngoing ? 'bg-green-500/90' : 'bg-blue-500/90'}`}>
@@ -377,10 +382,12 @@ export default function ContentDetail() {
                 )}
               </div>
 
+              {/* Title */}
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 leading-tight break-words">
                 {series.title}
               </h1>
 
+              {/* Alt titles */}
               {(series.title_vi || series.title_native) && (
                 <div className="mb-3">
                   {series.title_vi     && <p className="text-base sm:text-lg text-gray-300 mb-0.5 break-words">{series.title_vi}</p>}
@@ -388,22 +395,102 @@ export default function ContentDetail() {
                 </div>
               )}
 
-              {series.score && (
-                <div className="flex items-center justify-center md:justify-start gap-1.5 mb-4">
-                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
-                  <span className="text-lg sm:text-xl font-bold text-white">{series.score}</span>
-                  <span className="text-xs text-gray-400">/100</span>
-                </div>
-              )}
-
-              {(series.author || series.studio || series.publisher) && (
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-300 mb-4">
+              {/* Author / Studio / Publisher */}
+              {(series.author || series.studio || series.publisher || publisherName) && (
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-300 mb-3">
                   {series.author    && <span><span className="text-gray-500 mr-1">Author</span><span className="break-words">{series.author}</span></span>}
                   {series.studio    && <span><span className="text-gray-500 mr-1">Studio</span><span className="break-words">{series.studio}</span></span>}
-                  {series.publisher && <span><span className="text-gray-500 mr-1">Publisher</span><span className="break-words">{series.publisher}</span></span>}
+                  {(publisherName || series.publisher) && (
+                    <span>
+                      <span className="text-gray-500 mr-1">Publisher</span>
+                      <span className="break-words">{publisherName || series.publisher}</span>
+                    </span>
+                  )}
                 </div>
               )}
 
+              {/* ── Score + metadata strip ──────────────────────────────────────────
+                  Replaces the old standalone score display.
+                  Each segment only renders if the underlying data is present —
+                  no conditional text, no placeholders.
+
+                  Manga  → score | X Vols. | Latest VN Vol.: Vol. N | First Release: YYYY
+                  Anime  → score | N eps.  | Season YEAR
+              ── */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1.5 text-sm mb-4">
+
+                {/* Score (shared) */}
+                {displayScore != null && (
+                  <>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 flex-shrink-0" />
+                      <span className="font-bold text-white tabular-nums">{displayScore}</span>
+                      <span className="text-gray-400 text-xs">/100</span>
+                    </span>
+                    <span className="text-gray-600 select-none" aria-hidden>|</span>
+                  </>
+                )}
+
+                {/* Manga: volume count — from volumeCount state */}
+                {isManga && volumeCount != null && (
+                  <>
+                    <span className="text-gray-300">
+                      {volumeCount} {isVI ? 'tập' : 'Vols.'}
+                    </span>
+                    {latestVolume?.volume_number != null && (
+                      <span className="text-gray-600 select-none" aria-hidden>|</span>
+                    )}
+                  </>
+                )}
+
+                {/* Manga: latest VN volume — from latestVolume state */}
+                {isManga && latestVolume?.volume_number != null && (
+                  <>
+                    <span className="text-gray-300">
+                      <span className="text-gray-500 text-xs mr-1">
+                        {isVI ? 'Tập mới nhất' : 'Latest VN Vol.'}
+                      </span>
+                      Vol.&nbsp;{latestVolume.volume_number}
+                    </span>
+                    {firstReleaseYear != null && (
+                      <span className="text-gray-600 select-none" aria-hidden>|</span>
+                    )}
+                  </>
+                )}
+
+                {/* Manga: first release year — derived from oldest volume's release_date */}
+                {isManga && firstReleaseYear != null && (
+                  <span className="text-gray-300">
+                    <span className="text-gray-500 text-xs mr-1">
+                      {isVI ? 'Phát hành đầu tiên' : 'First Release'}
+                    </span>
+                    {firstReleaseYear}
+                  </span>
+                )}
+
+                {/* Anime: episodes — from series.anime_meta.episodes */}
+                {isAnime && series.anime_meta?.episodes != null && (
+                  <>
+                    <span className="text-gray-300">
+                      {series.anime_meta.episodes}&nbsp;{isVI ? 'tập' : 'eps.'}
+                    </span>
+                    {series.anime_meta?.season && (
+                      <span className="text-gray-600 select-none" aria-hidden>|</span>
+                    )}
+                  </>
+                )}
+
+                {/* Anime: season + year — from series.anime_meta */}
+                {isAnime && series.anime_meta?.season && (
+                  <span className="text-gray-300">
+                    {series.anime_meta.season}
+                    {series.anime_meta.season_year ? ` ${series.anime_meta.season_year}` : ''}
+                  </span>
+                )}
+
+              </div>
+
+              {/* Genres */}
               {series.genres && series.genres.length > 0 && (
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2">
                   {series.genres.slice(0, 6).map((genre: string, i: number) => (
@@ -414,6 +501,7 @@ export default function ContentDetail() {
                 </div>
               )}
 
+              {/* Synopsis */}
               {(series.description || series.description_vi) && (
                 <div className="mt-4 max-w-2xl">
                   <div className="relative">
@@ -438,7 +526,12 @@ export default function ContentDetail() {
               )}
             </div>
 
-            {/* ── LiDex Score Box (anime only) ── */}
+            {/* ── Right hero panel ─────────────────────────────────────────────
+                Anime  → existing LiDex Score box (unchanged)
+                Manga  → 2×2 stat cards using real fetched data only
+            ── */}
+
+            {/* Anime: LiDex Score box — unchanged */}
             {isAnime && (
               <div className="flex-shrink-0 mx-auto md:mx-0 w-52 sm:w-56">
                 <div
@@ -449,7 +542,6 @@ export default function ContentDetail() {
                     <TrendingUp className="w-4 h-4 text-primary-400 flex-shrink-0" />
                     <span className="text-xs font-bold uppercase tracking-widest text-gray-300">LiDex Score</span>
                   </div>
-
                   <div className="p-4">
                     {scoreLoading ? (
                       <div className="flex flex-col items-center py-4 gap-2">
@@ -476,7 +568,6 @@ export default function ContentDetail() {
                             {scoreGrade(lidexScore.total)}
                           </div>
                         </div>
-
                         <div className="space-y-2">
                           {COMPONENT_META.map(({ key, label, weight }) => {
                             const val = lidexScore[key] as number
@@ -498,13 +589,65 @@ export default function ContentDetail() {
                             )
                           })}
                         </div>
-
                         <p className="text-[0.6rem] text-gray-600 text-center mt-3">Composite of 7 signals</p>
                       </>
                     ) : (
                       <p className="text-xs text-gray-500 text-center py-4">Score unavailable</p>
                     )}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Manga: 2×2 stat cards
+                Only mounts after allVolumes has loaded (length > 0).
+                Card 1 — Total Volumes (VN)  : volumeCount
+                Card 2 — Latest Vol.          : latestVolume.volume_number + release_date month/year
+                Card 3 — Avg. Price           : mangaAvgPrice (null-safe, hides "VND" sub when —)
+                Card 4 — First Release        : firstReleaseYear from oldest volume's release_date
+            */}
+            {isManga && allVolumes.length > 0 && (
+              <div className="flex-shrink-0 mx-auto md:mx-0 w-52 sm:w-56">
+                <div className="grid grid-cols-2 gap-2.5">
+
+                  <HeroStatCard
+                    label={isVI ? 'Số tập (VN)' : 'Total Volumes (VN)'}
+                    value={volumeCount != null ? String(volumeCount) : '—'}
+                    sub={
+                      series.status === 'completed' || series.status === 'Completed'
+                        ? (isVI ? '100% Phát hành' : '100% Released')
+                        : (isVI ? 'Đang phát hành' : 'Ongoing')
+                    }
+                    color="#818cf8"
+                  />
+
+                  <HeroStatCard
+                    label={isVI ? 'Tập mới nhất' : 'Latest Vol.'}
+                    value={latestVolume?.volume_number != null ? `Vol. ${latestVolume.volume_number}` : '—'}
+                    sub={
+                      latestVolume?.release_date
+                        ? new Date(latestVolume.release_date).toLocaleDateString(
+                            isVI ? 'vi-VN' : 'en-US',
+                            { month: 'short', year: 'numeric' }
+                          )
+                        : undefined
+                    }
+                    color="#34d399"
+                  />
+
+                  <HeroStatCard
+                    label={isVI ? 'Giá trung bình' : 'Avg. Price'}
+                    value={mangaAvgPrice != null ? mangaAvgPrice.toLocaleString('vi-VN') : '—'}
+                    sub={mangaAvgPrice != null ? 'VND' : undefined}
+                    color="#fbbf24"
+                  />
+
+                  <HeroStatCard
+                    label={isVI ? 'Phát hành đầu tiên' : 'First Release'}
+                    value={firstReleaseYear != null ? String(firstReleaseYear) : '—'}
+                    color="#94a3b8"
+                  />
+
                 </div>
               </div>
             )}
@@ -546,7 +689,6 @@ export default function ContentDetail() {
             {activeTab === 'info' && (
               <div className="space-y-6 animate-in fade-in duration-200">
 
-                {/* Base info grid */}
                 <div className="glass rounded-2xl p-5 sm:p-6">
                   <div className="flex items-center gap-2 mb-5">
                     <Info className="w-5 h-5 text-primary-500 flex-shrink-0" />
@@ -561,8 +703,6 @@ export default function ContentDetail() {
                       <InfoItem icon={Award} label={isVI ? 'Nhà xuất bản' : 'Publisher'} value={publisherName || series.publisher} />
                     )}
                     {series.studio && <InfoItem icon={Layers} label="Studio" value={series.studio} />}
-
-                    {/* Anime-specific */}
                     {series.anime_meta?.format       && <InfoItem icon={Film}       label="Format"                       value={series.anime_meta.format} />}
                     {series.anime_meta?.season       && <InfoItem icon={Calendar}   label={isVI ? 'Mùa' : 'Season'}     value={`${series.anime_meta.season} ${series.anime_meta.season_year || ''}`} />}
                     {series.anime_meta?.episodes     && <InfoItem icon={Layers}     label={isVI ? 'Số tập' : 'Episodes'} value={String(series.anime_meta.episodes)} />}
@@ -570,7 +710,6 @@ export default function ContentDetail() {
                   </div>
                 </div>
 
-                {/* ── Manga-specific enrichment ── */}
                 {isManga && (
                   <div className="glass rounded-2xl p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-5">
@@ -625,7 +764,6 @@ export default function ContentDetail() {
                       />
                     </div>
 
-                    {/* ── Latest volume detail row ── */}
                     {latestVolume && (
                       <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
                         <div className="flex items-center gap-2 mb-3">
@@ -676,7 +814,6 @@ export default function ContentDetail() {
                   </div>
                 )}
 
-                {/* Tags */}
                 {series.tags && series.tags.length > 0 && (
                   <div className="glass rounded-2xl p-5 sm:p-6">
                     <div className="flex items-center gap-2 mb-4">
@@ -700,7 +837,6 @@ export default function ContentDetail() {
             {activeTab === 'stats' && (
               <div className="space-y-6 animate-in fade-in duration-200">
                 {series.anime_meta ? (
-                  /* --- Existing Anime Stats --- */
                   <>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <StatBig label="Điểm trung bình" value={series.anime_meta.mean_score ? `${series.anime_meta.mean_score}` : '—'} sub="/100" color="#fbbf24" />
@@ -708,7 +844,6 @@ export default function ContentDetail() {
                       <StatBig label="Yêu thích"       value={series.anime_meta.favourites  ? fmtBig(series.anime_meta.favourites) : '—'} color="#ec4899" />
                       <StatBig label="Lượt xem"        value={series.anime_meta.average_score ? `${series.anime_meta.average_score}` : '—'} color="#22c55e" />
                     </div>
-
                     {series.anime_meta.status_distribution && (
                       <div className="glass rounded-2xl p-5 sm:p-6">
                         <div className="flex items-center gap-2 mb-5">
@@ -718,7 +853,6 @@ export default function ContentDetail() {
                         <StatusDistribution data={series.anime_meta.status_distribution} />
                       </div>
                     )}
-
                     {series.anime_meta.score_distribution && (
                       <div className="glass rounded-2xl p-5 sm:p-6">
                         <div className="flex items-center gap-2 mb-5">
@@ -728,11 +862,9 @@ export default function ContentDetail() {
                         <ScoreDistribution data={series.anime_meta.score_distribution} />
                       </div>
                     )}
-
                     <RadarChart series={series} />
                   </>
                 ) : isManga ? (
-                  /* --- NEW MANGA STATS SECTION --- */
                   <MangaStats volumes={allVolumes} locale={locale} />
                 ) : (
                   <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3">
@@ -753,7 +885,6 @@ export default function ContentDetail() {
                         <FlaskConical className="w-5 h-5 text-primary-500" />
                         <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>LiDex Score — Phân tích tổng hợp</h2>
                       </div>
-
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
                         <div className="flex items-end gap-3">
                           <span className="text-7xl font-black leading-none" style={{ color: scoreColor(lidexScore.total) }}>
@@ -774,7 +905,6 @@ export default function ContentDetail() {
                           </p>
                         </div>
                       </div>
-
                       <div className="space-y-4">
                         {COMPONENT_META.map(({ key, label, weight }) => {
                           const val = lidexScore[key] as number
@@ -800,7 +930,6 @@ export default function ContentDetail() {
                         })}
                       </div>
                     </div>
-
                     <div className="rounded-2xl p-4 sm:p-5" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                       <p className="text-xs leading-relaxed" style={{ color: 'var(--foreground-muted)' }}>
                         <span className="font-bold" style={{ color: 'var(--foreground-secondary)' }}>Phương pháp:</span>{' '}
@@ -828,7 +957,6 @@ export default function ContentDetail() {
           {/* ── Right Sidebar ── */}
           <div className="space-y-4 sm:space-y-5 min-w-0">
 
-            {/* Share */}
             <div className="glass rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Share2 className="w-4 h-4 text-primary-500 flex-shrink-0" />
@@ -848,71 +976,34 @@ export default function ContentDetail() {
               </div>
             </div>
 
-            {/* External Links */}
             <div className="glass rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <ExternalLink className="w-4 h-4 text-primary-500 flex-shrink-0" />
                 <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Liên kết ngoài' : 'External Links'}</h3>
               </div>
               <div className="space-y-2">
-                {isManga ? (
-                  <>
-                    {seriesLinks.length > 0 ? (
-                      seriesLinks.map((link: any, i: number) => {
-                        const dotColor =
-                          link.link_type === 'purchase' ? '#22c55e' :
-                          link.link_type === 'official' ? '#6366f1' :
-                          link.link_type === 'stream'   ? '#f59e0b' : '#94a3b8'
-                        return (
-                          <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
-                            style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                              <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
-                                {link.label}
-                              </span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
-                        {isVI ? 'Không có liên kết' : 'No links'}
-                      </p>
-                    )}
-                  </>
-                ) : isAnime ? (
-                  <>
-                    {seriesLinks.length > 0 ? (
-                      seriesLinks.map((link: any, i: number) => {
-                        const dotColor =
-                          link.link_type === 'anilist'   ? '#02a9ff' :
-                          link.link_type === 'stream'   ? '#f59e0b' :
-                          link.link_type === 'official' ? '#6366f1' :
-                          link.link_type === 'trailer'  ? '#ef4444' :
-                          link.link_type === 'purchase' ? '#22c55e' : '#94a3b8'
-                        return (
-                          <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
-                            style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                              <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
-                                {link.label}
-                              </span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
-                        {isVI ? 'Không có liên kết' : 'No links'}
-                      </p>
-                    )}
-                  </>
+                {(isManga || isAnime) && seriesLinks.length > 0 ? (
+                  seriesLinks.map((link: any, i: number) => {
+                    const dotColor =
+                      link.link_type === 'purchase' ? '#22c55e' :
+                      link.link_type === 'official' ? '#6366f1' :
+                      link.link_type === 'anilist'  ? '#02a9ff' :
+                      link.link_type === 'stream'   ? '#f59e0b' :
+                      link.link_type === 'trailer'  ? '#ef4444' : '#94a3b8'
+                    return (
+                      <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
+                        style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
+                          <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                            {link.label}
+                          </span>
+                        </div>
+                        <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
+                      </a>
+                    )
+                  })
                 ) : (
                   <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
                     {isVI ? 'Không có liên kết' : 'No links'}
@@ -921,7 +1012,6 @@ export default function ContentDetail() {
               </div>
             </div>
 
-            {/* Last updated */}
             <div className="glass rounded-2xl p-5">
               <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--foreground)' }}>{isVI ? 'Cập nhật lần cuối' : 'Last Updated'}</h3>
               <div className="flex items-center gap-2">
@@ -939,6 +1029,52 @@ export default function ContentDetail() {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
+
+/**
+ * HeroStatCard
+ * Glassmorphism card for the manga hero stat 2×2 grid.
+ * Receives pre-computed real values — never called with placeholder data.
+ */
+function HeroStatCard({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string
+  value: string
+  sub?: string
+  color: string
+}) {
+  return (
+    <div
+      className="rounded-xl p-3 flex flex-col gap-1"
+      style={{
+        background: 'rgba(15,23,42,0.75)',
+        border: '1px solid rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(12px)',
+      }}
+    >
+      <p
+        className="text-[10px] font-semibold uppercase tracking-wider leading-tight"
+        style={{ color: 'rgba(255,255,255,0.4)' }}
+      >
+        {label}
+      </p>
+      <p
+        className="text-xl sm:text-2xl font-black leading-none tabular-nums"
+        style={{ color }}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="text-[10px] font-medium" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          {sub}
+        </p>
+      )}
+    </div>
+  )
+}
 
 function InfoItem({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
   return (
@@ -1140,12 +1276,10 @@ function ScoreDistribution({ data }: { data: Record<string, number> | string }) 
   )
 }
 
-// ── NEW: Manga Stats Component ───────────────────────────────────────────────
+// ── Manga Stats ────────────────────────────────────────────────────────────────
 
 function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
   const isVI = locale === 'vi'
-  
-  // Calculate basic stats
   const prices = volumes.map(v => v.price || 0).filter(p => p > 0)
   const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0
   const maxPrice = prices.length ? Math.max(...prices) : 0
@@ -1164,8 +1298,6 @@ function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
 
   return (
     <div className="space-y-6">
-      
-      {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatBig label={isVI ? 'Tổng tập' : 'Total Vols'} value={String(volumes.length)} color="#6366f1" />
         <StatBig label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? avgPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#fbbf24" />
@@ -1173,7 +1305,6 @@ function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
         <StatBig label={isVI ? 'Giá thấp nhất' : 'Min Price'} value={minPrice ? minPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#4ade80" />
       </div>
 
-      {/* Pricing Chart */}
       <div className="glass rounded-2xl p-5 sm:p-6">
         <div className="flex items-center gap-2 mb-5">
           <TrendingUp className="w-5 h-5 text-primary-500" />
@@ -1184,64 +1315,47 @@ function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
         <PricingLineChart volumes={volumes} />
       </div>
 
-      {/* Release Schedule Carousel */}
       <ReleaseSchedule volumes={volumes} locale={locale} />
-
     </div>
   )
 }
 
-// ── Release Schedule Carousel ─────────────────────────────────────────────
+// ── Release Schedule ──────────────────────────────────────────────────────────
 
 function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }) {
   const isVI = locale === 'vi'
   const sorted = [...volumes].sort((a, b) => (a.volume_number || 0) - (b.volume_number || 0))
-
-  const VISIBLE = 5 // cards shown at once
+  const VISIBLE = 5
   const [startIdx, setStartIdx] = useState(0)
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
   const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({})
 
   const canPrev = startIdx > 0
   const canNext = startIdx + VISIBLE < sorted.length
-
   const prev = () => setStartIdx(i => Math.max(0, i - 1))
   const next = () => setStartIdx(i => Math.min(sorted.length - VISIBLE, i + 1))
-
   const visible = sorted.slice(startIdx, startIdx + VISIBLE)
 
   if (sorted.length === 0) return null
 
   return (
     <div className="glass rounded-2xl p-5 sm:p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-primary-500 flex-shrink-0" />
           <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
             {isVI ? 'Lịch phát hành' : 'Release Schedule'}
           </h2>
-          <span
-            className="ml-1 text-[11px] px-2 py-0.5 rounded-full font-semibold"
-            style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}
-          >
+          <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full font-semibold"
+            style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}>
             {sorted.length} {isVI ? 'tập' : 'vols'}
           </span>
         </div>
-
-        {/* Nav buttons */}
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={prev}
-            disabled={!canPrev}
+          <button onClick={prev} disabled={!canPrev}
             className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{
-              background: canPrev ? 'var(--background-secondary)' : 'transparent',
-              border: '1px solid var(--card-border)',
-              color: 'var(--foreground-secondary)',
-            }}
-            aria-label="Previous volumes"
-          >
+            style={{ background: canPrev ? 'var(--background-secondary)' : 'transparent', border: '1px solid var(--card-border)', color: 'var(--foreground-secondary)' }}
+            aria-label="Previous volumes">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M9 11L5 7L9 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -1249,17 +1363,10 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
           <span className="text-xs tabular-nums px-1" style={{ color: 'var(--foreground-muted)', minWidth: 52, textAlign: 'center' }}>
             {startIdx + 1}–{Math.min(startIdx + VISIBLE, sorted.length)} / {sorted.length}
           </span>
-          <button
-            onClick={next}
-            disabled={!canNext}
+          <button onClick={next} disabled={!canNext}
             className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{
-              background: canNext ? 'var(--background-secondary)' : 'transparent',
-              border: '1px solid var(--card-border)',
-              color: 'var(--foreground-secondary)',
-            }}
-            aria-label="Next volumes"
-          >
+            style={{ background: canNext ? 'var(--background-secondary)' : 'transparent', border: '1px solid var(--card-border)', color: 'var(--foreground-secondary)' }}
+            aria-label="Next volumes">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -1267,87 +1374,53 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
         </div>
       </div>
 
-      {/* Carousel track */}
       <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${VISIBLE}, 1fr)` }}>
         {visible.map((vol, localI) => {
           const globalI = startIdx + localI
           const isActive = activeIdx === globalI
           const hasImg = vol.cover_url && !imgErrors[globalI]
           const date = vol.release_date
-            ? new Date(vol.release_date).toLocaleDateString(isVI ? 'vi-VN' : 'en-US', {
-                year: 'numeric', month: 'short', day: 'numeric',
-              })
+            ? new Date(vol.release_date).toLocaleDateString(isVI ? 'vi-VN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })
             : null
 
           return (
-            <div
-              key={vol.id || globalI}
-              onClick={() => setActiveIdx(isActive ? null : globalI)}
-              className="flex flex-col cursor-pointer group"
-              style={{ minWidth: 0 }}
-            >
-              {/* Cover */}
-              <div
-                className="relative rounded-xl overflow-hidden mb-2 transition-all duration-200"
+            <div key={vol.id || globalI} onClick={() => setActiveIdx(isActive ? null : globalI)}
+              className="flex flex-col cursor-pointer group" style={{ minWidth: 0 }}>
+              <div className="relative rounded-xl overflow-hidden mb-2 transition-all duration-200"
                 style={{
                   aspectRatio: '2/3',
-                  border: isActive
-                    ? '2px solid #6366f1'
-                    : '1px solid var(--card-border)',
+                  border: isActive ? '2px solid #6366f1' : '1px solid var(--card-border)',
                   boxShadow: isActive ? '0 0 0 3px #6366f125' : 'none',
                   background: 'var(--background-secondary)',
                   transform: isActive ? 'translateY(-2px)' : 'none',
-                }}
-              >
+                }}>
                 {hasImg ? (
-                  <img
-                    src={vol.cover_url}
-                    alt={`Vol. ${vol.volume_number}`}
+                  <img src={vol.cover_url} alt={`Vol. ${vol.volume_number}`}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    onError={() => setImgErrors(prev => ({ ...prev, [globalI]: true }))}
-                  />
+                    onError={() => setImgErrors(prev => ({ ...prev, [globalI]: true }))} />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-1.5"
                     style={{ background: 'linear-gradient(135deg, #6366f115, #818cf815)' }}>
                     <BookOpen className="w-6 h-6 text-primary-400 opacity-60" />
-                    <span className="text-[10px] font-bold text-primary-400 opacity-60">
-                      Vol.{vol.volume_number}
-                    </span>
+                    <span className="text-[10px] font-bold text-primary-400 opacity-60">Vol.{vol.volume_number}</span>
                   </div>
                 )}
-
-                {/* Volume badge overlay */}
-                <div
-                  className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white"
-                  style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-                >
+                <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white"
+                  style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
                   #{vol.volume_number}
                 </div>
-
-                {/* Hover overlay */}
-                <div
-                  className="absolute inset-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
-                  style={{ background: 'rgba(99,102,241,0.08)' }}
-                />
+                <div className="absolute inset-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
+                  style={{ background: 'rgba(99,102,241,0.08)' }} />
               </div>
-
-              {/* Info below card */}
               <div className="px-0.5">
-                <p
-                  className="text-[11px] font-semibold leading-tight mb-0.5 truncate"
-                  style={{ color: isActive ? '#6366f1' : 'var(--foreground)' }}
-                >
+                <p className="text-[11px] font-semibold leading-tight mb-0.5 truncate"
+                  style={{ color: isActive ? '#6366f1' : 'var(--foreground)' }}>
                   {isVI ? 'Tập' : 'Vol.'} {vol.volume_number}
                 </p>
-                {date ? (
-                  <p className="text-[10px] leading-tight" style={{ color: 'var(--foreground-muted)' }}>
-                    {date}
-                  </p>
-                ) : (
-                  <p className="text-[10px] italic" style={{ color: 'var(--foreground-muted)', opacity: 0.5 }}>
-                    {isVI ? 'Chưa có ngày' : 'No date'}
-                  </p>
-                )}
+                {date
+                  ? <p className="text-[10px] leading-tight" style={{ color: 'var(--foreground-muted)' }}>{date}</p>
+                  : <p className="text-[10px] italic" style={{ color: 'var(--foreground-muted)', opacity: 0.5 }}>{isVI ? 'Chưa có ngày' : 'No date'}</p>
+                }
                 {vol.price && (
                   <p className="text-[11px] font-bold tabular-nums mt-0.5" style={{ color: 'var(--foreground-secondary)' }}>
                     {Number(vol.price).toLocaleString('vi-VN')} ₫
@@ -1359,23 +1432,16 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
         })}
       </div>
 
-      {/* Dot pagination */}
       {sorted.length > VISIBLE && (
         <div className="flex justify-center gap-1.5 mt-4">
           {Array.from({ length: Math.ceil(sorted.length / VISIBLE) }, (_, pageI) => {
             const isCurrentPage = Math.floor(startIdx / VISIBLE) === pageI
             return (
-              <button
-                key={pageI}
+              <button key={pageI}
                 onClick={() => setStartIdx(Math.min(pageI * VISIBLE, sorted.length - VISIBLE))}
                 className="rounded-full transition-all duration-200"
-                style={{
-                  width: isCurrentPage ? 20 : 6,
-                  height: 6,
-                  background: isCurrentPage ? '#6366f1' : 'var(--card-border)',
-                }}
-                aria-label={`Go to page ${pageI + 1}`}
-              />
+                style={{ width: isCurrentPage ? 20 : 6, height: 6, background: isCurrentPage ? '#6366f1' : 'var(--card-border)' }}
+                aria-label={`Go to page ${pageI + 1}`} />
             )
           })}
         </div>
@@ -1384,73 +1450,60 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
   )
 }
 
-// ── UPDATED: Polished Line Chart for Pricing ───────────────────────────────
+// ── Pricing Line Chart ────────────────────────────────────────────────────────
 
 function PricingLineChart({ volumes }: { volumes: Volume[] }) {
   const svgRef = useRef<SVGSVGElement>(null)
   const lineRef = useRef<SVGPathElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, price: 0, volNumber: 0 })
   const gradId = useId().replace(/:/g, "")
- 
+
   const sorted = [...volumes].sort((a, b) => (a.volume_number ?? 0) - (b.volume_number ?? 0))
   const prices = sorted.map(v => parseFloat(String(v.price)) || 0)
   if (prices.length === 0) return null
- 
+
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
-  const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
   const priceRange = maxPrice - minPrice
   const firstPrice = prices[0]
   const lastPrice = prices[prices.length - 1]
   const delta = lastPrice - firstPrice
   const deltaPct = firstPrice ? (delta / firstPrice) * 100 : 0
- 
-  // Smart Y padding: if all prices are identical, pad ±500; otherwise ±25%
+
   const yPad = priceRange < 1 ? 500 : priceRange * 0.25
   const yMin = minPrice - yPad
   const yMax = maxPrice + yPad
   const yRange = yMax - yMin
- 
-  const W = 680
-  const H = 220
+
+  const W = 680, H = 220
   const pad = { top: 24, right: 32, bottom: 36, left: 72 }
   const cW = W - pad.left - pad.right
   const cH = H - pad.top - pad.bottom
- 
-  const xOf = (i: number) =>
-    pad.left + (sorted.length > 1 ? (i / (sorted.length - 1)) * cW : cW / 2)
-  const yOf = (v: number) =>
-    pad.top + cH - ((v - yMin) / yRange) * cH
- 
+
+  const xOf = (i: number) => pad.left + (sorted.length > 1 ? (i / (sorted.length - 1)) * cW : cW / 2)
+  const yOf = (v: number) => pad.top + cH - ((v - yMin) / yRange) * cH
+
   const points = sorted.map((vol, i) => ({
-    x: xOf(i),
-    y: yOf(parseFloat(String(vol.price))),
-    price: parseFloat(String(vol.price)),
-    vol,
+    x: xOf(i), y: yOf(parseFloat(String(vol.price))),
+    price: parseFloat(String(vol.price)), vol,
   }))
- 
+
   const lineD = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ")
-  const areaD =
-    lineD +
-    ` L${points[points.length - 1].x},${pad.top + cH} L${pad.left},${pad.top + cH} Z`
- 
+  const areaD = lineD + ` L${points[points.length - 1].x},${pad.top + cH} L${pad.left},${pad.top + cH} Z`
+
   const NUM_TICKS = 5
   const yTicks = Array.from({ length: NUM_TICKS + 1 }, (_, i) => ({
     v: yMin + (yRange * i) / NUM_TICKS,
     y: yOf(yMin + (yRange * i) / NUM_TICKS),
   }))
- 
-  // Show at most 6 x-axis labels, always including first and last
+
   const xStep = Math.max(1, Math.floor(sorted.length / 6))
-  const showXLabel = (i: number) =>
-    i === 0 || i === sorted.length - 1 || i % xStep === 0
- 
+  const showXLabel = (i: number) => i === 0 || i === sorted.length - 1 || i % xStep === 0
+
   const minIdx = prices.indexOf(minPrice)
   const maxIdx = prices.indexOf(maxPrice)
- 
   const fmt = (v: number) => Math.round(v).toLocaleString("vi-VN")
- 
-  // Line draw animation on mount
+
   useEffect(() => {
     const line = lineRef.current
     if (!line) return
@@ -1462,56 +1515,33 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
       line.style.strokeDashoffset = "0"
     })
   }, [lineD])
- 
+
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = svgRef.current
     if (!svg) return
     const rect = svg.getBoundingClientRect()
     const mx = ((e.clientX - rect.left) / rect.width) * W
-    let closest = 0
-    let minD = Infinity
-    points.forEach((p, i) => {
-      const d = Math.abs(p.x - mx)
-      if (d < minD) { minD = d; closest = i }
-    })
+    let closest = 0, minD = Infinity
+    points.forEach((p, i) => { const d = Math.abs(p.x - mx); if (d < minD) { minD = d; closest = i } })
     const p = points[closest]
-    setTooltip({
-      visible: true,
-      x: (p.x / W) * 100,
-      y: (p.y / H) * 100,
-      price: p.price,
-      volNumber: sorted[closest].volume_number,
-    })
+    setTooltip({ visible: true, x: (p.x / W) * 100, y: (p.y / H) * 100, price: p.price, volNumber: sorted[closest].volume_number })
   }
- 
-  const deltaLabel =
-    Math.abs(deltaPct) < 0.001
-      ? "Không đổi"
-      : `${delta > 0 ? "+" : ""}${deltaPct.toFixed(2)}%`
- 
-  const badgeClass =
-    Math.abs(deltaPct) < 0.001
-      ? "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
-      : delta > 0
-      ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-      : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
- 
-  const trendIcon =
-    Math.abs(deltaPct) < 0.001 ? "▸" : delta > 0 ? "▲" : "▼"
- 
+
+  const deltaLabel = Math.abs(deltaPct) < 0.001 ? "Không đổi" : `${delta > 0 ? "+" : ""}${deltaPct.toFixed(2)}%`
+  const badgeClass = Math.abs(deltaPct) < 0.001
+    ? "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+    : delta > 0 ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+    : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+  const trendIcon = Math.abs(deltaPct) < 0.001 ? "▸" : delta > 0 ? "▲" : "▼"
+
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-1">
-            Lịch sử giá (VNĐ)
-          </p>
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-1">Lịch sử giá (VNĐ)</p>
           <p className="text-xl font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
             {fmt(minPrice)}
-            {priceRange > 0 && (
-              <span className="text-neutral-400 dark:text-neutral-600 mx-2">–</span>
-            )}
+            {priceRange > 0 && <span className="text-neutral-400 dark:text-neutral-600 mx-2">–</span>}
             {priceRange > 0 && fmt(maxPrice)}
           </p>
         </div>
@@ -1524,129 +1554,53 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
           </span>
         </div>
       </div>
- 
-      {/* Chart */}
+
       <div className="relative w-full">
-        {/* Tooltip */}
         {tooltip.visible && (
-          <div
-            className="absolute pointer-events-none z-10 rounded-lg px-3 py-2 text-xs -translate-y-full -translate-x-1/2"
-            style={{
-              left: `${Math.min(tooltip.x, 80)}%`,
-              top: `${tooltip.y}%`,
-              background: 'var(--background-secondary)',
-              border: '1px solid var(--card-border)',
-            }}
-          >
+          <div className="absolute pointer-events-none z-10 rounded-lg px-3 py-2 text-xs -translate-y-full -translate-x-1/2"
+            style={{ left: `${Math.min(tooltip.x, 80)}%`, top: `${tooltip.y}%`, background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
             <div className="mb-0.5" style={{ color: 'var(--foreground-muted)' }}>Vol.{tooltip.volNumber}</div>
-            <div className="font-medium text-sm tabular-nums" style={{ color: 'var(--foreground)' }}>
-              {fmt(tooltip.price)} ₫
-            </div>
+            <div className="font-medium text-sm tabular-nums" style={{ color: 'var(--foreground)' }}>{fmt(tooltip.price)} ₫</div>
           </div>
         )}
- 
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${W} ${H}`}
-          className="w-full h-auto overflow-visible"
-          preserveAspectRatio="xMidYMid meet"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}
-        >
+
+        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full h-auto overflow-visible"
+          preserveAspectRatio="xMidYMid meet" onMouseMove={handleMouseMove}
+          onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}>
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
               <stop offset="90%" stopColor="#3b82f6" stopOpacity="0" />
             </linearGradient>
           </defs>
- 
-          {/* Grid lines */}
           {yTicks.map((tick, i) => (
-            <line
-              key={i}
-              x1={pad.left} y1={tick.y}
-              x2={W - pad.right} y2={tick.y}
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-neutral-100 dark:text-neutral-800"
-            />
+            <line key={i} x1={pad.left} y1={tick.y} x2={W - pad.right} y2={tick.y}
+              stroke="currentColor" strokeWidth="1" className="text-neutral-100 dark:text-neutral-800" />
           ))}
- 
-          {/* Y-axis labels */}
           {yTicks.map((tick, i) => (
-            <text
-              key={i}
-              x={pad.left - 10}
-              y={tick.y + 4}
-              textAnchor="end"
-              fontSize="11"
-              fontFamily="monospace"
-              className="fill-neutral-400 dark:fill-neutral-600"
-            >
-              {fmt(tick.v)}
-            </text>
+            <text key={i} x={pad.left - 10} y={tick.y + 4} textAnchor="end" fontSize="11" fontFamily="monospace"
+              className="fill-neutral-400 dark:fill-neutral-600">{fmt(tick.v)}</text>
           ))}
- 
-          {/* Area */}
           <path d={areaD} fill={`url(#${gradId})`} />
- 
-          {/* Line */}
-          <path
-            ref={lineRef}
-            d={lineD}
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
- 
-          {/* Data points */}
+          <path ref={lineRef} d={lineD} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           {points.map((p, i) => {
             const isMin = i === minIdx && priceRange > 0
             const isMax = i === maxIdx && priceRange > 0
             const color = isMin ? "#ef4444" : isMax ? "#22c55e" : "#3b82f6"
-            const r = isMin || isMax ? 6 : 5
             return (
               <g key={i}>
-                {/* Invisible hit area */}
                 <circle cx={p.x} cy={p.y} r={12} fill="transparent" />
-                <circle
-                  cx={p.x} cy={p.y} r={r}
-                  fill="white"
-                  className="fill-white dark:fill-neutral-950"
-                  stroke={color}
-                  strokeWidth="2.5"
-                  style={{ pointerEvents: "none" }}
-                />
-                {isMin && (
-                  <text x={p.x} y={p.y + 18} textAnchor="middle" fontSize="10" fill="#ef4444" fontWeight="500">
-                    ▼ min
-                  </text>
-                )}
-                {isMax && (
-                  <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill="#22c55e" fontWeight="500">
-                    ▲ max
-                  </text>
-                )}
+                <circle cx={p.x} cy={p.y} r={isMin || isMax ? 6 : 5}
+                  fill="white" className="fill-white dark:fill-neutral-950"
+                  stroke={color} strokeWidth="2.5" style={{ pointerEvents: "none" }} />
+                {isMin && <text x={p.x} y={p.y + 18} textAnchor="middle" fontSize="10" fill="#ef4444" fontWeight="500">▼ min</text>}
+                {isMax && <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill="#22c55e" fontWeight="500">▲ max</text>}
               </g>
             )
           })}
- 
-          {/* X-axis labels */}
-          {sorted.map((vol, i) =>
-            showXLabel(i) ? (
-              <text
-                key={i}
-                x={xOf(i)}
-                y={H - 8}
-                textAnchor="middle"
-                fontSize="11"
-                className="fill-neutral-400 dark:fill-neutral-600"
-              >
-                Vol.{vol.volume_number}
-              </text>
-            ) : null
+          {sorted.map((vol, i) => showXLabel(i)
+            ? <text key={i} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize="11" className="fill-neutral-400 dark:fill-neutral-600">Vol.{vol.volume_number}</text>
+            : null
           )}
         </svg>
       </div>
