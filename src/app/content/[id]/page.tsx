@@ -82,20 +82,19 @@ export default function ContentDetail() {
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState<string | null>(null)
   const [imageError,   setImageError]   = useState(false)
-  const [coverSrc,     setCoverSrc]     = useState<string | null>(null)   // ← latest volume cover
+  const [coverSrc,     setCoverSrc]     = useState<string | null>(null)
   const [synopsisExpanded, setSynopsisExpanded] = useState(false)
   const [copied,       setCopied]       = useState(false)
   const [lidexScore,   setLidexScore]   = useState<LiDexScoreBreakdown | null>(null)
   const [scoreLoading, setScoreLoading] = useState(false)
   const [activeTab,    setActiveTab]    = useState<'info' | 'stats' | 'analyze'>('info')
 
-  // Manga-specific enrichment pulled directly from Supabase
   const [mangaMeta,    setMangaMeta]    = useState<any>(null)
   const [latestVolume, setLatestVolume] = useState<any>(null)
   const [volumeCount,  setVolumeCount]  = useState<number | null>(null)
   const [publisherName,setPublisherName]= useState<string | null>(null)
   const [seriesLinks,  setSeriesLinks]  = useState<any[]>([])
-  const [allVolumes,   setAllVolumes]   = useState<any[]>([]) // <--- NEW STATE FOR STATS
+  const [allVolumes,   setAllVolumes]   = useState<any[]>([])
 
   const { locale } = useLocale()
   const isVI       = locale === 'vi'
@@ -119,12 +118,11 @@ export default function ContentDetail() {
     loadData()
   }, [seriesId])
 
-  // ── Manga-specific: fetch manga_meta + latest volume cover ───────────────────
+  // ── Manga-specific enrichment ────────────────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type !== 'manga') return
 
     async function loadMangaEnrichment() {
-      // 1. manga_meta — only fields that are actually populated (no MangaDex data yet)
       const { data: meta } = await supabase
         .from('manga_meta')
         .select('series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at')
@@ -132,8 +130,6 @@ export default function ContentDetail() {
         .single()
       if (meta) {
         setMangaMeta(meta)
-
-        // 2. Resolve publisher name from vn_publisher_id
         if (meta.vn_publisher_id) {
           const { data: pub } = await supabase
             .from('publishers')
@@ -144,7 +140,6 @@ export default function ContentDetail() {
         }
       }
 
-      // 3. All non-special volumes ordered DESC by volume_number
       const { data: vols } = await supabase
         .from('volumes')
         .select('id, volume_number, release_date, cover_url, price, currency, is_special')
@@ -154,10 +149,8 @@ export default function ContentDetail() {
         .order('volume_number', { ascending: false })
 
       if (vols && vols.length > 0) {
-        setAllVolumes(vols) // <--- SAVE FULL LIST FOR STATS
+        setAllVolumes(vols)
         setVolumeCount(vols.length)
-        // The latest volume is always vols[0] (highest number).
-        // For the displayed cover, walk from the latest downward until we find one with a cover_url.
         const withCover = vols.find((v: any) => v.cover_url)
         setLatestVolume(vols[0])
         setCoverSrc(withCover?.cover_url || series.cover_url || null)
@@ -166,7 +159,6 @@ export default function ContentDetail() {
         setCoverSrc(series.cover_url || null)
       }
 
-      // 4. series_links — fetch links for the latest volume only
       const latestVol = vols && vols.length > 0 ? vols[0] : null
       if (latestVol) {
         const { data: links } = await supabase
@@ -183,16 +175,15 @@ export default function ContentDetail() {
     loadMangaEnrichment()
   }, [series])
 
-  // ── Anime: set cover from series directly ────────────────────────────────────
+  // ── Anime: set cover ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type === 'manga') return
     setCoverSrc(series.cover_url || null)
   }, [series])
 
-  // ── Anime: fetch series_links ─────────────────────────────────────────────────
+  // ── Anime: fetch links ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type !== 'anime') return
-
     async function loadAnimeLinks() {
       const { data: links } = await supabase
         .from('series_links')
@@ -202,11 +193,10 @@ export default function ContentDetail() {
         .order('sort_order', { ascending: true })
       if (links) setSeriesLinks(links)
     }
-
     loadAnimeLinks()
   }, [series])
 
-  // ── Calculate LiDex Score (anime only) ──────────────────────────────────────
+  // ── LiDex Score (anime only) ─────────────────────────────────────────────────
   useEffect(() => {
     if (!series || series.item_type !== 'anime' || !series.anime_meta) return
 
@@ -700,7 +690,6 @@ export default function ContentDetail() {
             {activeTab === 'stats' && (
               <div className="space-y-6 animate-in fade-in duration-200">
                 {series.anime_meta ? (
-                  /* --- Existing Anime Stats --- */
                   <>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <StatBig label="Điểm trung bình" value={series.anime_meta.mean_score ? `${series.anime_meta.mean_score}` : '—'} sub="/100" color="#fbbf24" />
@@ -732,7 +721,6 @@ export default function ContentDetail() {
                     <RadarChart series={series} />
                   </>
                 ) : isManga ? (
-                  /* --- NEW MANGA STATS SECTION --- */
                   <MangaStats volumes={allVolumes} locale={locale} />
                 ) : (
                   <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3">
@@ -856,63 +844,59 @@ export default function ContentDetail() {
               </div>
               <div className="space-y-2">
                 {isManga ? (
-                  <>
-                    {seriesLinks.length > 0 ? (
-                      seriesLinks.map((link: any, i: number) => {
-                        const dotColor =
-                          link.link_type === 'purchase' ? '#22c55e' :
-                          link.link_type === 'official' ? '#6366f1' :
-                          link.link_type === 'stream'   ? '#f59e0b' : '#94a3b8'
-                        return (
-                          <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
-                            style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                              <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
-                                {link.label}
-                              </span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
-                        {isVI ? 'Không có liên kết' : 'No links'}
-                      </p>
-                    )}
-                  </>
+                  seriesLinks.length > 0 ? (
+                    seriesLinks.map((link: any, i: number) => {
+                      const dotColor =
+                        link.link_type === 'purchase' ? '#22c55e' :
+                        link.link_type === 'official' ? '#6366f1' :
+                        link.link_type === 'stream'   ? '#f59e0b' : '#94a3b8'
+                      return (
+                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
+                          style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
+                            <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                              {link.label}
+                            </span>
+                          </div>
+                          <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
+                        </a>
+                      )
+                    })
+                  ) : (
+                    <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
+                      {isVI ? 'Không có liên kết' : 'No links'}
+                    </p>
+                  )
                 ) : isAnime ? (
-                  <>
-                    {seriesLinks.length > 0 ? (
-                      seriesLinks.map((link: any, i: number) => {
-                        const dotColor =
-                          link.link_type === 'anilist'   ? '#02a9ff' :
-                          link.link_type === 'stream'   ? '#f59e0b' :
-                          link.link_type === 'official' ? '#6366f1' :
-                          link.link_type === 'trailer'  ? '#ef4444' :
-                          link.link_type === 'purchase' ? '#22c55e' : '#94a3b8'
-                        return (
-                          <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
-                            style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                              <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
-                                {link.label}
-                              </span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
-                        {isVI ? 'Không có liên kết' : 'No links'}
-                      </p>
-                    )}
-                  </>
+                  seriesLinks.length > 0 ? (
+                    seriesLinks.map((link: any, i: number) => {
+                      const dotColor =
+                        link.link_type === 'anilist'   ? '#02a9ff' :
+                        link.link_type === 'stream'   ? '#f59e0b' :
+                        link.link_type === 'official' ? '#6366f1' :
+                        link.link_type === 'trailer'  ? '#ef4444' :
+                        link.link_type === 'purchase' ? '#22c55e' : '#94a3b8'
+                      return (
+                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
+                          style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
+                            <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                              {link.label}
+                            </span>
+                          </div>
+                          <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
+                        </a>
+                      )
+                    })
+                  ) : (
+                    <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
+                      {isVI ? 'Không có liên kết' : 'No links'}
+                    </p>
+                  )
                 ) : (
                   <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
                     {isVI ? 'Không có liên kết' : 'No links'}
@@ -1140,16 +1124,54 @@ function ScoreDistribution({ data }: { data: Record<string, number> | string }) 
   )
 }
 
-// ── NEW: Manga Stats Component ───────────────────────────────────────────────
+// ── Release Progress Ring ─────────────────────────────────────────────────────
+
+function ReleaseProgressRing({ released, total }: { released: number; total: number }) {
+  const pct    = total > 0 ? released / total : 0
+  const r      = 44
+  const circ   = 2 * Math.PI * r
+  const offset = circ * (1 - pct)
+
+  return (
+    <div className="relative flex-shrink-0" style={{ width: 110, height: 110 }}>
+      <svg width="110" height="110" viewBox="0 0 110 110" style={{ transform: 'rotate(-90deg)' }}>
+        {/* Track */}
+        <circle
+          cx="55" cy="55" r={r}
+          fill="none"
+          stroke="var(--background-secondary)"
+          strokeWidth="10"
+        />
+        {/* Progress */}
+        <circle
+          cx="55" cy="55" r={r}
+          fill="none"
+          stroke="#22c55e"
+          strokeWidth="10"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)' }}
+        />
+      </svg>
+      {/* Center label */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-lg font-black leading-none" style={{ color: 'var(--foreground)' }}>
+          {released} / {total}
+        </span>
+        <span className="text-[10px] mt-0.5 font-semibold" style={{ color: '#22c55e' }}>
+          {Math.round(pct * 100)}%{' '}
+          <span style={{ color: 'var(--foreground-muted)', fontWeight: 400 }}>out</span>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ── Manga Stats ───────────────────────────────────────────────────────────────
 
 function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
   const isVI = locale === 'vi'
-  
-  // Calculate basic stats
-  const prices = volumes.map(v => v.price || 0).filter(p => p > 0)
-  const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0
-  const maxPrice = prices.length ? Math.max(...prices) : 0
-  const minPrice = prices.length ? Math.min(...prices) : 0
 
   if (volumes.length === 0) {
     return (
@@ -1162,29 +1184,227 @@ function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
     )
   }
 
+  const sorted = [...volumes].sort((a, b) => (a.volume_number ?? 0) - (b.volume_number ?? 0))
+  const prices = sorted.map(v => parseFloat(String(v.price)) || 0).filter(p => p > 0)
+  const avgPrice = prices.length ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0
+  const maxPrice = prices.length ? Math.max(...prices) : 0
+  const minPrice = prices.length ? Math.min(...prices) : 0
+
+  const now          = new Date()
+  const releasedVols = sorted.filter(v => v.release_date && new Date(v.release_date) <= now)
+  const upcomingVols = sorted.filter(v => v.release_date  && new Date(v.release_date) >  now)
+  const noDateVols   = sorted.filter(v => !v.release_date)
+
+  const firstVol  = releasedVols[0]
+  const latestVol = sorted[sorted.length - 1]
+
+  const firstDate     = firstVol?.release_date ? new Date(firstVol.release_date) : null
+  const trackingSince = firstDate
+    ? firstDate.toLocaleDateString(isVI ? 'vi-VN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+    : '—'
+
+  // Duration string e.g. "2y 3m"
+  const daysDiff        = firstDate ? Math.floor((now.getTime() - firstDate.getTime()) / 86_400_000) : 0
+  const yrs             = Math.floor(daysDiff / 365)
+  const mons            = Math.floor((daysDiff % 365) / 30)
+  const trackingDuration = firstDate
+    ? [yrs  > 0 && `${yrs}y`, mons > 0 && `${mons}m`].filter(Boolean).join(' ') || '<1m'
+    : '—'
+
+  // ── Top 4 stat cards config ──────────────────────────────────────────────
+  const topCards = [
+    {
+      icon: Layers,
+      label:    isVI ? 'Tổng số tập (VN)' : 'Total Volumes (VN)',
+      value:    String(volumes.length),
+      sub:      `100% ${isVI ? 'Đã phát hành' : 'Released'}`,
+      subColor: '#22c55e',
+      border:   '#6366f130',
+      bg:       '#6366f115',
+      iconColor:'#818cf8',
+      bigValue: true,
+    },
+    {
+      icon: BadgeCheck,
+      label:    isVI ? 'Đã phát hành' : 'Released',
+      value:    String(releasedVols.length),
+      sub:      upcomingVols.length > 0
+                  ? `+${upcomingVols.length} upcoming`
+                  : isVI ? 'Hoàn tất' : 'Complete',
+      subColor: upcomingVols.length > 0 ? '#f59e0b' : '#22c55e',
+      border:   '#22c55e30',
+      bg:       '#22c55e15',
+      iconColor:'#4ade80',
+      bigValue: true,
+    },
+    {
+      icon: Calendar,
+      label:    isVI ? 'Bắt đầu theo dõi' : 'Tracking Since',
+      value:    trackingSince,
+      sub:      trackingDuration,
+      subColor: 'var(--foreground-muted)',
+      border:   '#f59e0b30',
+      bg:       '#f59e0b15',
+      iconColor:'#fbbf24',
+      bigValue: false,
+    },
+    {
+      icon: BookMarked,
+      label:    isVI ? 'Tập mới nhất' : 'Latest Vol.',
+      value:    latestVol?.volume_number != null ? `Vol. ${latestVol.volume_number}` : '—',
+      sub:      latestVol?.release_date
+                  ? new Date(latestVol.release_date).toLocaleDateString(
+                      isVI ? 'vi-VN' : 'en-US',
+                      { month: 'short', day: 'numeric', year: 'numeric' }
+                    )
+                  : isVI ? 'Không có ngày' : 'No date',
+      subColor: 'var(--foreground-muted)',
+      border:   '#ec489930',
+      bg:       '#ec489915',
+      iconColor:'#f472b6',
+      bigValue: true,
+    },
+  ]
+
   return (
-    <div className="space-y-6">
-      
-      {/* Summary Cards */}
+    <div className="space-y-5">
+
+      {/* ── Row 1: 4 top stat cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatBig label={isVI ? 'Tổng tập' : 'Total Vols'} value={String(volumes.length)} color="#6366f1" />
-        <StatBig label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? avgPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#fbbf24" />
-        <StatBig label={isVI ? 'Giá cao nhất' : 'Max Price'} value={maxPrice ? maxPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#f87171" />
-        <StatBig label={isVI ? 'Giá thấp nhất' : 'Min Price'} value={minPrice ? minPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#4ade80" />
+        {topCards.map(card => (
+          <div
+            key={card.label}
+            className="glass rounded-2xl p-4 flex flex-col gap-2.5"
+            style={{ border: `1px solid ${card.border}` }}
+          >
+            <div className="flex items-center gap-2">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: card.bg }}
+              >
+                <card.icon className="w-4 h-4" style={{ color: card.iconColor }} />
+              </div>
+              <span className="text-[11px] leading-tight" style={{ color: 'var(--foreground-muted)' }}>
+                {card.label}
+              </span>
+            </div>
+            <div>
+              <p
+                className={`font-black leading-none ${card.bigValue ? 'text-2xl sm:text-3xl' : 'text-sm sm:text-base'}`}
+                style={{ color: 'var(--foreground)' }}
+              >
+                {card.value}
+              </p>
+              <p className="text-[11px] mt-1" style={{ color: card.subColor }}>
+                {card.sub}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Pricing Chart */}
-      <div className="glass rounded-2xl p-5 sm:p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <TrendingUp className="w-5 h-5 text-primary-500" />
-          <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
-            {isVI ? 'Lịch sử giá (VNĐ)' : 'Pricing History (VND)'}
-          </h2>
+      {/* ── Row 2: Release Progress + Price Overview ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        {/* Release Progress */}
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-primary-500 flex-shrink-0" />
+            <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>
+              {isVI ? 'Tiến độ phát hành (VN)' : 'Release Progress (VN Volumes)'}
+            </h3>
+          </div>
+          <div className="flex items-center gap-5">
+            <ReleaseProgressRing released={releasedVols.length} total={volumes.length} />
+            <div className="flex-1 space-y-2.5">
+              {[
+                { label: isVI ? 'Đã phát hành' : 'Released',         count: releasedVols.length, color: '#22c55e' },
+                { label: isVI ? 'Sắp ra mắt'   : 'Upcoming',         count: upcomingVols.length, color: '#6366f1' },
+                { label: isVI ? 'Chưa có ngày' : 'Not Yet Released', count: noDateVols.length,   color: '#64748b' },
+              ].map(row => (
+                <div key={row.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: row.color }} />
+                    <span className="text-xs" style={{ color: 'var(--foreground-secondary)' }}>{row.label}</span>
+                  </div>
+                  <span className="text-sm font-bold tabular-nums" style={{ color: 'var(--foreground)' }}>
+                    {row.count}
+                  </span>
+                </div>
+              ))}
+              {latestVol?.release_date && (
+                <p
+                  className="text-[10px] pt-2"
+                  style={{ color: 'var(--foreground-muted)', borderTop: '1px solid var(--card-border)' }}
+                >
+                  {isVI ? 'Mới nhất' : 'Latest Released'}: Vol. {latestVol.volume_number}{' '}
+                  ({new Date(latestVol.release_date).toLocaleDateString(
+                    isVI ? 'vi-VN' : 'en-US',
+                    { month: 'long', day: 'numeric', year: 'numeric' }
+                  )})
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-        <PricingLineChart volumes={volumes} />
+
+        {/* Price Overview */}
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart2 className="w-4 h-4 text-primary-500 flex-shrink-0" />
+            <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>
+              {isVI ? 'Tổng quan giá' : 'Price Overview'}
+            </h3>
+          </div>
+          {prices.length > 0 ? (
+            <div className="space-y-3.5">
+              {[
+                { label: isVI ? 'Giá trung bình' : 'Average Price', value: avgPrice, color: '#fbbf24' },
+                { label: isVI ? 'Giá cao nhất'   : 'Highest Price', value: maxPrice, color: '#f87171' },
+                { label: isVI ? 'Giá thấp nhất'  : 'Lowest Price',  value: minPrice, color: '#4ade80' },
+              ].map(item => (
+                <div key={item.label}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs" style={{ color: 'var(--foreground-secondary)' }}>{item.label}</span>
+                    <span className="text-sm font-bold tabular-nums" style={{ color: item.color }}>
+                      {item.value.toLocaleString('vi-VN')} ₫
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${maxPrice > 0 ? (item.value / maxPrice) * 100 : 0}%`,
+                        background: item.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+              <p
+                className="text-[10px] pt-2"
+                style={{ color: 'var(--foreground-muted)', borderTop: '1px solid var(--card-border)' }}
+              >
+                {isVI ? 'Dựa trên' : 'Based on'} {prices.length}{' '}
+                {isVI ? 'tập có dữ liệu giá' : 'volumes with price data'}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-center py-6" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Không có dữ liệu giá' : 'No price data available'}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Release Schedule Carousel */}
+      {/* ── Pricing History Chart ── */}
+      {prices.length > 1 && (
+        <div className="glass rounded-2xl p-5 sm:p-6">
+          <PricingLineChart volumes={volumes} />
+        </div>
+      )}
+
+      {/* ── Release Schedule ── */}
       <ReleaseSchedule volumes={volumes} locale={locale} />
 
     </div>
@@ -1197,8 +1417,8 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
   const isVI = locale === 'vi'
   const sorted = [...volumes].sort((a, b) => (a.volume_number || 0) - (b.volume_number || 0))
 
-  const VISIBLE = 5 // cards shown at once
-  const [startIdx, setStartIdx] = useState(0)
+  const VISIBLE = 5
+  const [startIdx,  setStartIdx]  = useState(0)
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
   const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({})
 
@@ -1229,7 +1449,6 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
           </span>
         </div>
 
-        {/* Nav buttons */}
         <div className="flex items-center gap-1.5">
           <button
             onClick={prev}
@@ -1270,10 +1489,10 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
       {/* Carousel track */}
       <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${VISIBLE}, 1fr)` }}>
         {visible.map((vol, localI) => {
-          const globalI = startIdx + localI
+          const globalI  = startIdx + localI
           const isActive = activeIdx === globalI
-          const hasImg = vol.cover_url && !imgErrors[globalI]
-          const date = vol.release_date
+          const hasImg   = vol.cover_url && !imgErrors[globalI]
+          const date     = vol.release_date
             ? new Date(vol.release_date).toLocaleDateString(isVI ? 'vi-VN' : 'en-US', {
                 year: 'numeric', month: 'short', day: 'numeric',
               })
@@ -1286,14 +1505,11 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
               className="flex flex-col cursor-pointer group"
               style={{ minWidth: 0 }}
             >
-              {/* Cover */}
               <div
                 className="relative rounded-xl overflow-hidden mb-2 transition-all duration-200"
                 style={{
                   aspectRatio: '2/3',
-                  border: isActive
-                    ? '2px solid #6366f1'
-                    : '1px solid var(--card-border)',
+                  border: isActive ? '2px solid #6366f1' : '1px solid var(--card-border)',
                   boxShadow: isActive ? '0 0 0 3px #6366f125' : 'none',
                   background: 'var(--background-secondary)',
                   transform: isActive ? 'translateY(-2px)' : 'none',
@@ -1315,23 +1531,18 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
                     </span>
                   </div>
                 )}
-
-                {/* Volume badge overlay */}
                 <div
                   className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white"
                   style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
                 >
                   #{vol.volume_number}
                 </div>
-
-                {/* Hover overlay */}
                 <div
                   className="absolute inset-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100"
                   style={{ background: 'rgba(99,102,241,0.08)' }}
                 />
               </div>
 
-              {/* Info below card */}
               <div className="px-0.5">
                 <p
                   className="text-[11px] font-semibold leading-tight mb-0.5 truncate"
@@ -1384,10 +1595,10 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
   )
 }
 
-// ── UPDATED: Polished Line Chart for Pricing ───────────────────────────────
+// ── Pricing Line Chart ────────────────────────────────────────────────────────
 
 function PricingLineChart({ volumes }: { volumes: Volume[] }) {
-  const svgRef = useRef<SVGSVGElement>(null)
+  const svgRef  = useRef<SVGSVGElement>(null)
   const lineRef = useRef<SVGPathElement>(null)
   const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, price: 0, volNumber: 0 })
   const gradId = useId().replace(/:/g, "")
@@ -1396,26 +1607,25 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
   const prices = sorted.map(v => parseFloat(String(v.price)) || 0)
   if (prices.length === 0) return null
  
-  const minPrice = Math.min(...prices)
-  const maxPrice = Math.max(...prices)
-  const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
+  const minPrice  = Math.min(...prices)
+  const maxPrice  = Math.max(...prices)
+  const avgPrice  = prices.reduce((a, b) => a + b, 0) / prices.length
   const priceRange = maxPrice - minPrice
   const firstPrice = prices[0]
-  const lastPrice = prices[prices.length - 1]
-  const delta = lastPrice - firstPrice
-  const deltaPct = firstPrice ? (delta / firstPrice) * 100 : 0
+  const lastPrice  = prices[prices.length - 1]
+  const delta      = lastPrice - firstPrice
+  const deltaPct   = firstPrice ? (delta / firstPrice) * 100 : 0
  
-  // Smart Y padding: if all prices are identical, pad ±500; otherwise ±25%
-  const yPad = priceRange < 1 ? 500 : priceRange * 0.25
-  const yMin = minPrice - yPad
-  const yMax = maxPrice + yPad
+  const yPad  = priceRange < 1 ? 500 : priceRange * 0.25
+  const yMin  = minPrice - yPad
+  const yMax  = maxPrice + yPad
   const yRange = yMax - yMin
  
-  const W = 680
-  const H = 220
+  const W   = 680
+  const H   = 220
   const pad = { top: 24, right: 32, bottom: 36, left: 72 }
-  const cW = W - pad.left - pad.right
-  const cH = H - pad.top - pad.bottom
+  const cW  = W - pad.left - pad.right
+  const cH  = H - pad.top  - pad.bottom
  
   const xOf = (i: number) =>
     pad.left + (sorted.length > 1 ? (i / (sorted.length - 1)) * cW : cW / 2)
@@ -1423,16 +1633,12 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
     pad.top + cH - ((v - yMin) / yRange) * cH
  
   const points = sorted.map((vol, i) => ({
-    x: xOf(i),
-    y: yOf(parseFloat(String(vol.price))),
-    price: parseFloat(String(vol.price)),
-    vol,
+    x: xOf(i), y: yOf(parseFloat(String(vol.price))),
+    price: parseFloat(String(vol.price)), vol,
   }))
  
   const lineD = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ")
-  const areaD =
-    lineD +
-    ` L${points[points.length - 1].x},${pad.top + cH} L${pad.left},${pad.top + cH} Z`
+  const areaD = lineD + ` L${points[points.length-1].x},${pad.top+cH} L${pad.left},${pad.top+cH} Z`
  
   const NUM_TICKS = 5
   const yTicks = Array.from({ length: NUM_TICKS + 1 }, (_, i) => ({
@@ -1440,68 +1646,45 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
     y: yOf(yMin + (yRange * i) / NUM_TICKS),
   }))
  
-  // Show at most 6 x-axis labels, always including first and last
-  const xStep = Math.max(1, Math.floor(sorted.length / 6))
-  const showXLabel = (i: number) =>
-    i === 0 || i === sorted.length - 1 || i % xStep === 0
+  const xStep       = Math.max(1, Math.floor(sorted.length / 6))
+  const showXLabel  = (i: number) => i === 0 || i === sorted.length - 1 || i % xStep === 0
+  const minIdx      = prices.indexOf(minPrice)
+  const maxIdx      = prices.indexOf(maxPrice)
+  const fmt         = (v: number) => Math.round(v).toLocaleString("vi-VN")
  
-  const minIdx = prices.indexOf(minPrice)
-  const maxIdx = prices.indexOf(maxPrice)
- 
-  const fmt = (v: number) => Math.round(v).toLocaleString("vi-VN")
- 
-  // Line draw animation on mount
   useEffect(() => {
     const line = lineRef.current
     if (!line) return
     const len = line.getTotalLength()
-    line.style.strokeDasharray = String(len)
+    line.style.strokeDasharray  = String(len)
     line.style.strokeDashoffset = String(len)
     requestAnimationFrame(() => {
-      line.style.transition = "stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)"
+      line.style.transition       = "stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)"
       line.style.strokeDashoffset = "0"
     })
   }, [lineD])
  
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    const svg = svgRef.current
+    const svg  = svgRef.current
     if (!svg) return
     const rect = svg.getBoundingClientRect()
-    const mx = ((e.clientX - rect.left) / rect.width) * W
-    let closest = 0
-    let minD = Infinity
-    points.forEach((p, i) => {
-      const d = Math.abs(p.x - mx)
-      if (d < minD) { minD = d; closest = i }
-    })
+    const mx   = ((e.clientX - rect.left) / rect.width) * W
+    let closest = 0, minD = Infinity
+    points.forEach((p, i) => { const d = Math.abs(p.x - mx); if (d < minD) { minD = d; closest = i } })
     const p = points[closest]
-    setTooltip({
-      visible: true,
-      x: (p.x / W) * 100,
-      y: (p.y / H) * 100,
-      price: p.price,
-      volNumber: sorted[closest].volume_number,
-    })
+    setTooltip({ visible: true, x: (p.x / W) * 100, y: (p.y / H) * 100, price: p.price, volNumber: sorted[closest].volume_number })
   }
  
-  const deltaLabel =
-    Math.abs(deltaPct) < 0.001
-      ? "Không đổi"
-      : `${delta > 0 ? "+" : ""}${deltaPct.toFixed(2)}%`
- 
-  const badgeClass =
-    Math.abs(deltaPct) < 0.001
-      ? "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
-      : delta > 0
+  const deltaLabel   = Math.abs(deltaPct) < 0.001 ? "Không đổi" : `${delta > 0 ? "+" : ""}${deltaPct.toFixed(2)}%`
+  const badgeClass   = Math.abs(deltaPct) < 0.001
+    ? "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+    : delta > 0
       ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
       : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
- 
-  const trendIcon =
-    Math.abs(deltaPct) < 0.001 ? "▸" : delta > 0 ? "▲" : "▼"
+  const trendIcon    = Math.abs(deltaPct) < 0.001 ? "▸" : delta > 0 ? "▲" : "▼"
  
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-1">
@@ -1509,9 +1692,7 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
           </p>
           <p className="text-xl font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
             {fmt(minPrice)}
-            {priceRange > 0 && (
-              <span className="text-neutral-400 dark:text-neutral-600 mx-2">–</span>
-            )}
+            {priceRange > 0 && <span className="text-neutral-400 dark:text-neutral-600 mx-2">–</span>}
             {priceRange > 0 && fmt(maxPrice)}
           </p>
         </div>
@@ -1525,15 +1706,13 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
         </div>
       </div>
  
-      {/* Chart */}
       <div className="relative w-full">
-        {/* Tooltip */}
         {tooltip.visible && (
           <div
             className="absolute pointer-events-none z-10 rounded-lg px-3 py-2 text-xs -translate-y-full -translate-x-1/2"
             style={{
               left: `${Math.min(tooltip.x, 80)}%`,
-              top: `${tooltip.y}%`,
+              top:  `${tooltip.y}%`,
               background: 'var(--background-secondary)',
               border: '1px solid var(--card-border)',
             }}
@@ -1555,95 +1734,53 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
         >
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-              <stop offset="90%" stopColor="#3b82f6" stopOpacity="0" />
+              <stop offset="0%"  stopColor="#3b82f6" stopOpacity="0.3" />
+              <stop offset="90%" stopColor="#3b82f6" stopOpacity="0"   />
             </linearGradient>
           </defs>
  
-          {/* Grid lines */}
           {yTicks.map((tick, i) => (
-            <line
-              key={i}
-              x1={pad.left} y1={tick.y}
-              x2={W - pad.right} y2={tick.y}
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-neutral-100 dark:text-neutral-800"
-            />
+            <line key={i} x1={pad.left} y1={tick.y} x2={W - pad.right} y2={tick.y}
+              stroke="currentColor" strokeWidth="1"
+              className="text-neutral-100 dark:text-neutral-800" />
           ))}
- 
-          {/* Y-axis labels */}
           {yTicks.map((tick, i) => (
-            <text
-              key={i}
-              x={pad.left - 10}
-              y={tick.y + 4}
-              textAnchor="end"
-              fontSize="11"
-              fontFamily="monospace"
-              className="fill-neutral-400 dark:fill-neutral-600"
-            >
+            <text key={i} x={pad.left - 10} y={tick.y + 4}
+              textAnchor="end" fontSize="11" fontFamily="monospace"
+              className="fill-neutral-400 dark:fill-neutral-600">
               {fmt(tick.v)}
             </text>
           ))}
  
-          {/* Area */}
           <path d={areaD} fill={`url(#${gradId})`} />
+          <path ref={lineRef} d={lineD} fill="none" stroke="#3b82f6"
+            strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
  
-          {/* Line */}
-          <path
-            ref={lineRef}
-            d={lineD}
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
- 
-          {/* Data points */}
           {points.map((p, i) => {
             const isMin = i === minIdx && priceRange > 0
             const isMax = i === maxIdx && priceRange > 0
             const color = isMin ? "#ef4444" : isMax ? "#22c55e" : "#3b82f6"
-            const r = isMin || isMax ? 6 : 5
+            const r     = isMin || isMax ? 6 : 5
             return (
               <g key={i}>
-                {/* Invisible hit area */}
                 <circle cx={p.x} cy={p.y} r={12} fill="transparent" />
-                <circle
-                  cx={p.x} cy={p.y} r={r}
-                  fill="white"
-                  className="fill-white dark:fill-neutral-950"
-                  stroke={color}
-                  strokeWidth="2.5"
-                  style={{ pointerEvents: "none" }}
-                />
+                <circle cx={p.x} cy={p.y} r={r}
+                  fill="white" className="fill-white dark:fill-neutral-950"
+                  stroke={color} strokeWidth="2.5" style={{ pointerEvents: "none" }} />
                 {isMin && (
-                  <text x={p.x} y={p.y + 18} textAnchor="middle" fontSize="10" fill="#ef4444" fontWeight="500">
-                    ▼ min
-                  </text>
+                  <text x={p.x} y={p.y + 18} textAnchor="middle" fontSize="10" fill="#ef4444" fontWeight="500">▼ min</text>
                 )}
                 {isMax && (
-                  <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill="#22c55e" fontWeight="500">
-                    ▲ max
-                  </text>
+                  <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill="#22c55e" fontWeight="500">▲ max</text>
                 )}
               </g>
             )
           })}
  
-          {/* X-axis labels */}
           {sorted.map((vol, i) =>
             showXLabel(i) ? (
-              <text
-                key={i}
-                x={xOf(i)}
-                y={H - 8}
-                textAnchor="middle"
-                fontSize="11"
-                className="fill-neutral-400 dark:fill-neutral-600"
-              >
+              <text key={i} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize="11"
+                className="fill-neutral-400 dark:fill-neutral-600">
                 Vol.{vol.volume_number}
               </text>
             ) : null
