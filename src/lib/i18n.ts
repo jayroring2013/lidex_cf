@@ -6,14 +6,16 @@ export type Locale = 'vi' | 'en'
 export const translations = {
   vi: {
     // ── Navbar ──────────────────────────────────────────────────────────────
-    nav_home:       'Trang chủ',
-    nav_dashboard:  'Dashboard',
-    nav_charts:     'Biểu đồ',
-    nav_scatter:    'Scatter',
-    nav_compare:    'So sánh',
-    nav_index:     'Index',
-    nav_browse:    'Khám phá',
-    nav_table:     'Bảng tổng hợp',
+    nav_home:           'Trang chủ',
+    nav_dashboard:      'Dashboard',
+    nav_charts:         'Biểu đồ',
+    nav_scatter:        'Scatter',
+    nav_compare:        'So sánh',
+    nav_index:          'Index',
+    nav_browse:         'Khám phá',
+    nav_table:          'Bảng tổng hợp',
+    nav_genre_matrix:   'Ma trận thể loại',
+    nav_studio:         'Studio',
 
     // ── Browse page ─────────────────────────────────────────────────────────
     browse_discover: 'Khám phá',
@@ -113,14 +115,16 @@ export const translations = {
 
   en: {
     // ── Navbar ──────────────────────────────────────────────────────────────
-    nav_home:       'Home',
-    nav_dashboard:  'Dashboard',
-    nav_charts:     'Charts',
-    nav_scatter:    'Scatter',
-    nav_compare:    'Compare',
-    nav_index:     'Index',
-    nav_browse:    'Browse',
-    nav_table:     'Table',
+    nav_home:           'Home',
+    nav_dashboard:      'Dashboard',
+    nav_charts:         'Charts',
+    nav_scatter:        'Scatter',
+    nav_compare:        'Compare',
+    nav_index:          'Index',
+    nav_browse:         'Browse',
+    nav_table:          'Table',
+    nav_genre_matrix:   'Genre Matrix',
+    nav_studio:         'Studios',
 
     // ── Browse page ─────────────────────────────────────────────────────────
     browse_discover: 'Browse',
