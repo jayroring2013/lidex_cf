@@ -31,7 +31,12 @@ export default function Navbar() {
     setIsDark(!isDark)
   }
 
-  const isChartsActive = pathname === '/charts' || pathname === '/compare' || pathname === '/table'
+  const isChartsActive =
+    pathname === '/charts' ||
+    pathname === '/compare' ||
+    pathname === '/table' ||
+    pathname === '/genre-matrix' ||
+    pathname === '/studio'
 
   const flatLinks = [
     { href: '/',          label: t('nav_home')      },
@@ -40,9 +45,11 @@ export default function Navbar() {
   ]
 
   const chartsChildren = [
-    { href: '/charts',  label: t('nav_scatter') },
-    { href: '/compare', label: t('nav_compare') },
-    { href: '/table',   label: t('nav_table')   },
+    { href: '/charts',       label: t('nav_scatter')      },
+    { href: '/compare',      label: t('nav_compare')      },
+    { href: '/table',        label: t('nav_table')        },
+    { href: '/genre-matrix', label: t('nav_genre_matrix') },
+    { href: '/studio',       label: t('nav_studio')       },
   ]
 
   return (
@@ -85,7 +92,7 @@ export default function Navbar() {
 
               {chartsOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-36 rounded-xl overflow-hidden shadow-xl z-50"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-40 rounded-xl overflow-hidden shadow-xl z-50"
                   style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
                 >
                   <div
