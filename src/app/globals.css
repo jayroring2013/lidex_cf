@@ -12,6 +12,15 @@
   --card-bg: rgba(255, 255, 255, 0.9);
   --card-border: rgba(0, 0, 0, 0.1);
   --glass-bg: rgba(255, 255, 255, 0.8);
+  --ln-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
+  --ln-panel-bg: rgba(255, 255, 255, 0.84);
+  --ln-panel-bg-strong: rgba(255, 255, 255, 0.94);
+  --ln-control-bg: rgba(241, 245, 249, 0.96);
+  --ln-chart-bg: rgba(248, 250, 252, 0.78);
+  --ln-muted-bg: rgba(226, 232, 240, 0.82);
+  --ln-track-bg: rgba(203, 213, 225, 0.78);
+  --ln-row-border: rgba(15, 23, 42, 0.08);
+  --ln-card-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
 }
 
 .dark {
@@ -24,6 +33,15 @@
   --card-bg: rgba(30, 41, 59, 0.9);
   --card-border: rgba(255, 255, 255, 0.1);
   --glass-bg: rgba(30, 41, 59, 0.8);
+  --ln-card-bg: linear-gradient(180deg, rgba(12, 14, 22, 0.96), rgba(12, 14, 22, 0.88));
+  --ln-panel-bg: rgba(19, 23, 34, 0.72);
+  --ln-panel-bg-strong: rgba(19, 23, 34, 0.94);
+  --ln-control-bg: rgba(26, 31, 46, 0.95);
+  --ln-chart-bg: rgba(6, 10, 22, 0.62);
+  --ln-muted-bg: rgba(34, 40, 64, 0.85);
+  --ln-track-bg: rgba(34, 40, 64, 0.95);
+  --ln-row-border: rgba(37, 45, 66, 0.55);
+  --ln-card-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
 }
 
 body {
