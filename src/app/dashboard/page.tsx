@@ -539,9 +539,10 @@ function RadarChart({ row }: { row: LNRow | null }) {
           <div className="w-[78px] h-[112px] sm:w-[88px] sm:h-[126px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Selected Series Profile</p>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Radar values use your imported workbook metrics.</p>
-          <h2 className="text-base sm:text-lg font-black leading-snug mt-2 line-clamp-3" style={{ color: 'var(--foreground)' }}>{row.series_title}</h2>
+          <h2 className="text-base sm:text-lg font-black leading-snug line-clamp-3" style={{ color: 'var(--foreground)' }}>{row.series_title}</h2>
+          <p className="text-[11px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+            Latest release: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</span>
+          </p>
           <div className="flex flex-wrap gap-1.5 mt-2">
             <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
             <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
@@ -568,8 +569,8 @@ function RadarChart({ row }: { row: LNRow | null }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] xl:grid-cols-1 gap-2 mt-2 items-center">
-        <div className="flex justify-center">
+      <div className="grid grid-cols-1 sm:grid-cols-[210px_1fr] xl:grid-cols-[210px_1fr] gap-2 mt-2 items-center">
+        <div className="flex justify-start">
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
             {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="rgba(136,146,170,.18)" />)}
             {axes.map(([label], i) => {
@@ -591,7 +592,7 @@ function RadarChart({ row }: { row: LNRow | null }) {
           </svg>
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 xl:grid-cols-1 gap-1.5">
           {axes.map(([label, value, source]) => (
             <div key={label} title={source} className="rounded-lg px-2 py-1.5" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
               <p className="text-[9px] uppercase font-black" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
@@ -602,7 +603,6 @@ function RadarChart({ row }: { row: LNRow | null }) {
       </div>
 
       <div className="grid grid-cols-2 gap-2 mt-2 text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
-        <div>Latest: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</span></div>
         <div>JP: <span style={{ color: 'var(--foreground-secondary)' }}>{row.original_status || '—'}</span></div>
         <div>Avg gap: <span style={{ color: 'var(--foreground-secondary)' }}>{row.average_gap_months == null ? '—' : `${fmtNum(row.average_gap_months)}m`}</span></div>
         <div>Demand rank: <span style={{ color: 'var(--foreground-secondary)' }}>{percentile == null ? '—' : `Top ${Math.max(1, 100 - percentile)}%`}</span></div>
