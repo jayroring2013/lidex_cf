@@ -527,7 +527,6 @@ function RadarChart({ row }: { row: LNRow | null }) {
     )
   }
 
-  const percentile = row.ln_score > 0 ? 100 - Math.round(row.raw_rank / 236 * 100) : null
   const rsStyle = releaseStatusStyle(row)
 
   return (
@@ -540,9 +539,10 @@ function RadarChart({ row }: { row: LNRow | null }) {
         )}
         <div className="min-w-0 flex-1">
           <h2 className="text-base sm:text-lg font-black leading-snug line-clamp-3" style={{ color: 'var(--foreground)' }}>{row.series_title}</h2>
-          <p className="text-[11px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>
-            Latest release: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</span>
-          </p>
+          <div className="flex items-center justify-between gap-3 mt-1 text-[11px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+            <span>Volumes: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.number_of_volumes, 0)}</span></span>
+            <span className="text-right">Latest: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</span></span>
+          </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
             <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
             <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
@@ -550,20 +550,16 @@ function RadarChart({ row }: { row: LNRow | null }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 mt-3">
-        <div className="rounded-lg p-2" style={{ background: 'rgba(34,197,94,.10)' }}>
+      <div className="grid grid-cols-3 gap-2 mt-3">
+        <div className="rounded-lg px-2.5 py-2 flex items-center justify-between gap-2" style={{ background: 'rgba(34,197,94,.10)' }}>
           <p className="text-[9px] uppercase font-black" style={{ color: 'var(--foreground-muted)' }}>LN Score</p>
-          <p className="text-xl font-black" style={{ color: scoreColor(row.ln_score) }}>{fmtScore(row.ln_score)}</p>
+          <p className="text-lg font-black leading-none" style={{ color: scoreColor(row.ln_score) }}>{fmtScore(row.ln_score)}</p>
         </div>
-        <div className="rounded-lg p-2" style={{ background: 'rgba(239,68,68,.10)' }}>
+        <div className="rounded-lg px-2.5 py-2 flex items-center justify-between gap-2" style={{ background: 'rgba(239,68,68,.10)' }}>
           <p className="text-[9px] uppercase font-black" style={{ color: 'var(--foreground-muted)' }}>Drop</p>
-          <p className="text-xl font-black" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</p>
+          <p className="text-lg font-black leading-none" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</p>
         </div>
-        <div className="rounded-lg p-2" style={{ background: 'rgba(124,106,245,.11)' }}>
-          <p className="text-[9px] uppercase font-black" style={{ color: 'var(--foreground-muted)' }}>VN/JP</p>
-          <p className="text-sm font-black" style={{ color: '#c4b5fd' }}>{fmtNum(row.number_of_volumes, 0)}/{fmtNum(row.original_volumes, 0)}</p>
-        </div>
-        <Link href={detailHref(row)} className="rounded-lg p-2 flex items-center justify-center gap-1 text-xs font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>
+        <Link href={detailHref(row)} className="rounded-lg px-2.5 py-2 flex items-center justify-center gap-1 text-xs font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>
           Open
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
@@ -600,12 +596,6 @@ function RadarChart({ row }: { row: LNRow | null }) {
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 mt-2 text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
-        <div>JP: <span style={{ color: 'var(--foreground-secondary)' }}>{row.original_status || '—'}</span></div>
-        <div>Avg gap: <span style={{ color: 'var(--foreground-secondary)' }}>{row.average_gap_months == null ? '—' : `${fmtNum(row.average_gap_months)}m`}</span></div>
-        <div>Demand rank: <span style={{ color: 'var(--foreground-secondary)' }}>{percentile == null ? '—' : `Top ${Math.max(1, 100 - percentile)}%`}</span></div>
       </div>
     </Card>
   )
@@ -822,7 +812,6 @@ function scoreTooltip(row: LNRow) {
   return [
     `Điểm LN: ${row.ln_score.toFixed(1)}/10`,
     `Tập mới nhất: ${row.months_since_last_release == null ? 'không rõ' : '~' + row.months_since_last_release.toFixed(1) + ' tháng trước'}`,
-    `Tiến độ VN/JP: ${fmtNum(row.number_of_volumes, 0)}/${fmtNum(row.original_volumes, 0)} tập`,
     `Nhịp ra tập TB: ${row.average_gap_months == null ? 'chưa đủ dữ liệu' : '~' + row.average_gap_months.toFixed(1) + ' tháng/tập'}`,
     `Nhà phát hành: ${row.publisher || '—'} (${row.publisher_activity || 'không rõ'})`,
     '',
