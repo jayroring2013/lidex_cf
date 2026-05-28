@@ -520,7 +520,11 @@ function RadarChart({ row }: { row: LNRow | null }) {
   }).join(' '))
 
   if (!row) {
-    return <Card className="p-4 h-full flex items-center justify-center text-sm" style={{ color: 'var(--foreground-muted)' } as any}>Select a series</Card>
+    return (
+      <Card className="p-4 h-full flex items-center justify-center text-sm">
+        <span style={{ color: 'var(--foreground-muted)' }}>Select a series</span>
+      </Card>
+    )
   }
 
   const percentile = row.ln_score > 0 ? 100 - Math.round(row.raw_rank / 236 * 100) : null
