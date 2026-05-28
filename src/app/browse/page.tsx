@@ -37,6 +37,7 @@ const TYPE_CONFIG = {
 
 const STATUS_OPTS_ANIME = ['all','ongoing','completed','cancelled','hiatus','not_yet_released']
 const STATUS_OPTS_MANGA = ['all','ongoing','completed','cancelled','hiatus']
+const STATUS_OPTS_NOVEL = ['all','ongoing','completed','cancelled','hiatus']
 const FORMAT_OPTS       = ['all','TV','MOVIE','OVA','ONA','SPECIAL']
 const PAGE_SIZE_OPTS    = [12, 24, 48, 96]
 
@@ -96,6 +97,12 @@ function statusColor(s: string | null): string {
   if (['cancelled','discontinued'].includes(sl))         return '#f87171'
   if (['hiatus'].includes(sl))                           return '#fb923c'
   return '#64748b'
+}
+
+function statusOptionsFor(type: ContentType): string[] {
+  if (type === 'anime') return STATUS_OPTS_ANIME
+  if (type === 'manga') return STATUS_OPTS_MANGA
+  return STATUS_OPTS_NOVEL
 }
 
 function gridCols(size: number): string {
@@ -340,7 +347,7 @@ function FilterPopover({ type, status, setStatus, format, setFormat, genre, setG
       style={active
         ? { background: color, color: '#fff', boxShadow: `0 2px 8px ${color}44` }
         : { background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>
-      {val === 'all' ? 'Tất cả' : val}
+      {val === 'all' ? 'Tất cả' : statusLabel(val)}
     </button>
   )
 
@@ -376,7 +383,7 @@ function FilterPopover({ type, status, setStatus, format, setFormat, genre, setG
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--foreground-muted)' }}>Trạng thái</p>
               <div className="flex flex-wrap gap-1.5">
-                {(type === 'manga' ? STATUS_OPTS_MANGA : STATUS_OPTS_ANIME).map(o => (
+                {statusOptionsFor(type).map(o => (
                   <Pill key={o} val={o} active={status === o} onChange={() => setStatus(o)} />
                 ))}
               </div>
@@ -546,6 +553,7 @@ export default function BrowsePage() {
         let q = supabase.from('series')
           .select('id, title, cover_url, status, genres').eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
         if (search) q = q.ilike('title', `%${search}%`)
+        if (status !== 'all') q = q.eq('status', status)
         if (sort === 'year_desc')         q = q.order('updated_at', { ascending: false })
         else                              q = q.order('title',      { ascending: true })
         const { data } = await q.range(offset, offset + pageSize - 1)
@@ -701,7 +709,7 @@ export default function BrowsePage() {
             {/* Active filter chips */}
             {activeFilters > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
-                {status !== 'all' && <FilterChip label={`Trạng thái: ${status}`} onRemove={() => setStatus('all')} color={color} />}
+                {status !== 'all' && <FilterChip label={`Trạng thái: ${statusLabel(status)}`} onRemove={() => setStatus('all')} color={color} />}
                 {format !== 'all' && <FilterChip label={`Format: ${format}`}     onRemove={() => setFormat('all')} color={color} />}
                 {genre  !== 'all' && <FilterChip label={genre}                   onRemove={() => setGenre('all')}  color={color} />}
               </div>
