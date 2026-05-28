@@ -534,164 +534,391 @@ function Heatmap({ rows }: { rows: HeatmapRow[] }) {
   )
 }
 
+function evalLabel(status?: string | null) {
+  const labels: Record<string, string> = {
+    Completed: 'Hoàn thành',
+    Good: 'Tốt',
+    Limping: 'Cầm chừng',
+    Dead: 'Gần chết',
+    Dropped: 'Đã drop',
+  }
+  return labels[status || ''] || status || '—'
+}
+
+function releaseStatus(row: LNRow) {
+  if (row.vn_status) return row.vn_status
+  if (row.evaluation === 'Completed') return 'Hoàn thành'
+  if (row.evaluation === 'Dead') return 'Lâu lắm rồi chưa có tập mới'
+  if (row.evaluation === 'Dropped') return 'Drop'
+  return 'Đang phát hành'
+}
+
+function releaseStatusClass(row: LNRow) {
+  const rs = releaseStatus(row)
+  if (rs === 'Hoàn thành') return { color: '#7dd3fc', bg: 'rgba(56,189,248,0.12)', border: 'rgba(56,189,248,0.22)' }
+  if (rs === 'Drop') return { color: '#fca5a5', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.22)' }
+  if (rs === 'Lâu lắm rồi chưa có tập mới') return { color: '#fb923c', bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.22)' }
+  if (rs === 'Đã bắt kịp bản gốc JP') return { color: '#a78bfa', bg: 'rgba(124,106,245,0.15)', border: 'rgba(124,106,245,0.28)' }
+  return { color: '#4ade80', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.22)' }
+}
+
+const releaseStatusOrder: Record<string, number> = {
+  'Đang phát hành': 0,
+  'Lâu lắm rồi chưa có tập mới': 1,
+  Drop: 2,
+  'Đã bắt kịp bản gốc JP': 3,
+  'Hoàn thành': 4,
+}
+
+function releaseStatusPriority(row: LNRow) {
+  return releaseStatusOrder[releaseStatus(row)] ?? 99
+}
+
+function scoreTooltip(row: LNRow) {
+  const parts = String(row.score_components || row.evaluation_basis || '').split('\n').filter(Boolean)
+  return [
+    `Điểm LN: ${fmtScore(row.ln_score)}/10`,
+    `Tập mới nhất: ${row.months_since_series_release == null ? 'không rõ' : '~' + Number(row.months_since_series_release).toFixed(1) + ' tháng trước'}`,
+    `Tiến độ VN/JP: ${fmtNum(row.vn_volume_count, 0)}/${fmtNum(row.original_volume_count, 0)} tập`,
+    `Nhịp ra tập TB: ${row.series_avg_gap_months == null ? 'chưa đủ dữ liệu' : '~' + Number(row.series_avg_gap_months).toFixed(1) + ' tháng/tập'}`,
+    `Nhà phát hành: ${row.publisher || '—'} (${row.publisher_activity || 'không rõ'})`,
+    '',
+    'Thành phần điểm:',
+    ...(parts.length ? parts : ['Không có breakdown chi tiết.']),
+  ].join('\n')
+}
+
+function dropTooltip(row: LNRow) {
+  const parts = String(row.drop_components || '').split('\n').filter(Boolean)
+  return [
+    `Khả năng drop: ${fmtNum(dropPercent(row))}%`,
+    `Điểm LN liên quan: ${fmtScore(row.ln_score)}/10`,
+    `Khung đánh giá: ${evalLabel(row.evaluation)}`,
+    '',
+    'Thành phần rủi ro:',
+    ...(parts.length ? parts : ['Không có breakdown chi tiết.']),
+  ].join('\n')
+}
+
 function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (key: string) => void }) {
   const [query, setQuery] = useState('')
-  const [status, setStatus] = useState('All')
-  const [publisher, setPublisher] = useState('All')
-  const [sort, setSort] = useState('status')
+  const [status, setStatus] = useState('')
+  const [publisher, setPublisher] = useState('')
+  const [releaseFilter, setReleaseFilter] = useState('')
+  const [sort, setSort] = useState('scoreRelease')
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const statuses: string[] = ['All', ...Array.from(new Set(rows.map(r => r.evaluation).filter((s): s is string => Boolean(s))))]
-  const publishers: string[] = ['All', ...Array.from(new Set(rows.map(r => r.publisher).filter((s): s is string => Boolean(s))))]
+  const statuses: string[] = Array.from(new Set(rows.map(r => r.evaluation).filter((s): s is string => Boolean(s))))
+    .sort((a, b) => (['Completed', 'Good', 'Limping', 'Dead', 'Dropped'].indexOf(a)) - (['Completed', 'Good', 'Limping', 'Dead', 'Dropped'].indexOf(b)))
+
+  const publishers: string[] = Array.from(new Set(rows.map(r => r.publisher).filter((s): s is string => Boolean(s)))).sort()
+
+  const activeFilterCount = [status, publisher, releaseFilter].filter(Boolean).length
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
+
     const base = rows.filter(row => {
-      const textMatch = !q || `${row.series_title} ${row.publisher} ${row.series_code} ${row.vn_status}`.toLowerCase().includes(q)
-      const statusMatch = status === 'All' || row.evaluation === status || row.vn_status === status
-      const publisherMatch = publisher === 'All' || row.publisher === publisher
-      return textMatch && statusMatch && publisherMatch
+      const rs = releaseStatus(row)
+      const blob = `${row.series_title} ${row.publisher} ${row.series_code} ${row.evaluation} ${rs}`.toLowerCase()
+      return (
+        (!q || blob.includes(q)) &&
+        (!status || row.evaluation === status) &&
+        (!publisher || row.publisher === publisher) &&
+        (!releaseFilter || rs === releaseFilter)
+      )
     })
 
-    return [...base].sort((a, b) => {
-      if (sort === 'score') return (b.ln_score ?? -1) - (a.ln_score ?? -1)
-      if (sort === 'drop') return (dropPercent(b) ?? -1) - (dropPercent(a) ?? -1)
-      if (sort === 'release') return String(b.series_last_release || '').localeCompare(String(a.series_last_release || ''))
-      const ao = statusOrder[a.evaluation || ''] ?? 99
-      const bo = statusOrder[b.evaluation || ''] ?? 99
-      if (ao !== bo) return ao - bo
-      return (b.ln_score ?? -1) - (a.ln_score ?? -1)
-    })
-  }, [rows, query, status, publisher, sort])
+    const withReleasePriority = (cmp: (a: LNRow, b: LNRow) => number) => (a: LNRow, b: LNRow) => {
+      if (!releaseFilter) {
+        const diff = releaseStatusPriority(a) - releaseStatusPriority(b)
+        if (diff !== 0) return diff
+      }
+      return cmp(a, b)
+    }
+
+    const byLatestRelease = (a: LNRow, b: LNRow) => String(b.series_last_release || '').localeCompare(String(a.series_last_release || ''))
+    const byScoreDesc = (a: LNRow, b: LNRow) => (b.ln_score ?? 0) - (a.ln_score ?? 0)
+    const byScoreAsc = (a: LNRow, b: LNRow) => (a.ln_score ?? 0) - (b.ln_score ?? 0)
+    const byDropDesc = (a: LNRow, b: LNRow) => (dropPercent(b) ?? 0) - (dropPercent(a) ?? 0)
+    const byVolumesDesc = (a: LNRow, b: LNRow) => (b.vn_volume_count ?? 0) - (a.vn_volume_count ?? 0)
+
+    const sorters: Record<string, (a: LNRow, b: LNRow) => number> = {
+      rank: withReleasePriority((a, b) => (a.source_series_id ?? 0) - (b.source_series_id ?? 0)),
+      scoreRelease: withReleasePriority((a, b) => byScoreDesc(a, b) || byLatestRelease(a, b)),
+      scoreDesc: withReleasePriority(byScoreDesc),
+      scoreAsc: withReleasePriority(byScoreAsc),
+      releaseDesc: withReleasePriority(byLatestRelease),
+      volumesDesc: withReleasePriority(byVolumesDesc),
+      dropRiskDesc: withReleasePriority(byDropDesc),
+      releaseStatus: (a, b) => (releaseStatusPriority(a) - releaseStatusPriority(b)) || byScoreDesc(a, b) || byLatestRelease(a, b),
+    }
+
+    return [...base].sort(sorters[sort] || sorters.scoreRelease)
+  }, [rows, query, status, publisher, releaseFilter, sort])
+
+  const avgScore = filtered.length ? filtered.reduce((s, r) => s + Number(r.ln_score || 0), 0) / filtered.length : 0
+  const good = filtered.filter(r => ['Good', 'Completed'].includes(r.evaluation || '')).length
+  const risky = filtered.filter(r => ['Dead', 'Dropped'].includes(r.evaluation || '')).length
+  const completed = filtered.filter(r => r.evaluation === 'Completed').length
+
+  const stats = [
+    ['Series hiển thị', filtered.length.toLocaleString()],
+    ['Điểm TB', avgScore.toFixed(1)],
+    ['Tốt/Hoàn thành', good.toLocaleString()],
+    ['Gần chết/Đã drop', risky.toLocaleString()],
+    ['Hoàn thành', completed.toLocaleString()],
+  ]
 
   return (
-    <Card className="p-4">
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>LN Watchlist</p>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            All imported novels, ordered like the current LN DOA dashboard: active/watchlist first, completed last.
-          </p>
-        </div>
+    <div className="space-y-3">
+      <div className="text-center">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] mb-2 inline-flex items-center gap-2" style={{ color: '#a78bfa' }}>
+          <span className="w-5 h-0.5 rounded-full" style={{ background: '#a78bfa' }} />
+          Vietnamese Light Novel DOA
+        </p>
+        <h2 className="text-xl sm:text-3xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>
+          Bảng xếp hạng Light Novel Việt Nam Ded or Alive
+        </h2>
+        <p className="text-xs mt-2 max-w-3xl mx-auto" style={{ color: 'var(--foreground-muted)' }}>
+          Xếp hạng theo Điểm LN, ngày phát hành gần nhất, tình trạng phát hành tại Việt Nam và khả năng bị drop.
+        </p>
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="relative col-span-2 md:col-span-1">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {stats.map(([label, value]) => (
+          <div key={label} className="min-w-[112px] flex-1 rounded-xl p-3 relative overflow-hidden" style={{ background: 'rgba(19,23,34,0.94)', border: '1px solid rgba(148,163,184,0.16)' }}>
+            <div className="absolute left-0 top-0 right-0 h-0.5" style={{ background: 'rgba(124,106,245,0.65)' }} />
+            <p className="text-[8.5px] font-black uppercase tracking-widest" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
+            <p className="text-xl font-black mt-1" style={{ color: 'var(--foreground)' }}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-xl p-3 sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(19,23,34,0.94)', border: '1px solid rgba(148,163,184,0.16)' }}>
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--foreground-muted)' }} />
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder="Search..."
-              className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none w-full"
-              style={{ background: 'rgba(15,23,42,0.8)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}
+              placeholder="Tìm tên truyện, nhà phát hành, mã series..."
+              className="pl-8 pr-3 py-2 rounded-lg text-xs outline-none w-full"
+              style={{ background: 'rgba(26,31,46,0.95)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}
             />
           </div>
 
-          <select value={status} onChange={e => setStatus(e.target.value)} className="px-3 py-1.5 rounded-lg text-xs outline-none" style={{ background: 'rgba(15,23,42,0.8)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
-            {statuses.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <button
+            onClick={() => setFiltersOpen(v => !v)}
+            className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black"
+            style={{
+              background: 'rgba(26,31,46,0.95)',
+              color: activeFilterCount ? '#a78bfa' : 'var(--foreground-muted)',
+              border: `1px solid ${activeFilterCount ? 'rgba(124,106,245,0.6)' : 'rgba(148,163,184,0.16)'}`,
+            }}
+          >
+            <ListFilter className="w-3.5 h-3.5" />
+            Lọc
+            {activeFilterCount > 0 && <span className="rounded-full px-1.5 text-[10px]" style={{ background: '#7c6af5', color: '#fff' }}>{activeFilterCount}</span>}
+          </button>
 
-          <select value={publisher} onChange={e => setPublisher(e.target.value)} className="px-3 py-1.5 rounded-lg text-xs outline-none" style={{ background: 'rgba(15,23,42,0.8)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
-            {publishers.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <div className={`${filtersOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 w-full md:w-auto`}>
+            <select value={status} onChange={e => setStatus(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[140px]" style={{ background: 'rgba(26,31,46,0.95)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
+              <option value="">Tất cả đánh giá</option>
+              {statuses.map(s => <option key={s} value={s}>{evalLabel(s)}</option>)}
+            </select>
 
-          <select value={sort} onChange={e => setSort(e.target.value)} className="px-3 py-1.5 rounded-lg text-xs outline-none" style={{ background: 'rgba(15,23,42,0.8)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
-            <option value="status">Status order</option>
-            <option value="score">LN Score</option>
-            <option value="drop">Drop Risk</option>
-            <option value="release">Latest release</option>
-          </select>
+            <select value={publisher} onChange={e => setPublisher(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'rgba(26,31,46,0.95)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
+              <option value="">Tất cả nhà phát hành</option>
+              {publishers.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+
+            <select value={releaseFilter} onChange={e => setReleaseFilter(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'rgba(26,31,46,0.95)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
+              <option value="">Tất cả trạng thái</option>
+              <option value="Đang phát hành">Đang phát hành</option>
+              <option value="Lâu lắm rồi chưa có tập mới">Lâu rồi chưa ra</option>
+              <option value="Đã bắt kịp bản gốc JP">Đã bắt kịp JP</option>
+              <option value="Drop">Đã drop</option>
+              <option value="Hoàn thành">Hoàn thành</option>
+            </select>
+
+            <select value={sort} onChange={e => setSort(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'rgba(26,31,46,0.95)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}>
+              <option value="scoreRelease">Điểm LN → Ngày ra</option>
+              <option value="rank">Xếp hạng gốc</option>
+              <option value="scoreDesc">Điểm cao → thấp</option>
+              <option value="scoreAsc">Điểm thấp → cao</option>
+              <option value="releaseDesc">Phát hành mới nhất</option>
+              <option value="volumesDesc">Số tập VN</option>
+              <option value="dropRiskDesc">Drop cao → thấp</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="mb-3 text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
-        Showing {filtered.length.toLocaleString()} / {rows.length.toLocaleString()} novels
-      </div>
+      <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(19,23,34,0.94)', border: '1px solid rgba(148,163,184,0.16)' }}>
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[1080px] text-[12px] border-collapse">
+            <thead style={{ background: 'rgba(26,31,46,0.95)' }}>
+              <tr style={{ color: 'var(--foreground-muted)', borderBottom: '1px solid rgba(148,163,184,0.16)' }}>
+                <th className="text-center font-black uppercase tracking-widest py-2.5 px-3 w-[54px]">Hạng</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Series</th>
+                <th className="text-center font-black uppercase tracking-widest py-2.5 px-3">Số tập</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Ngày gần nhất</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Nhà PH</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Trạng thái</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Điểm</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Drop</th>
+                <th className="text-left font-black uppercase tracking-widest py-2.5 px-3">Đánh giá</th>
+                <th className="text-right font-black uppercase tracking-widest py-2.5 px-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={10} className="text-center py-10" style={{ color: 'var(--foreground-muted)' }}>Không có series nào phù hợp với bộ lọc.</td></tr>
+              ) : filtered.map((row, idx) => {
+                const drop = dropPercent(row)
+                const scoreBar = Math.max(0, Math.min(100, Number(row.ln_score || 0) * 10))
+                const riskBar = Math.max(0, Math.min(100, Number(drop || 0)))
+                const rankBg = idx === 0
+                  ? 'linear-gradient(135deg,#f6d860,#e8a800)'
+                  : idx === 1
+                    ? 'linear-gradient(135deg,#d8dde8,#a5afc0)'
+                    : idx === 2
+                      ? 'linear-gradient(135deg,#e8a86e,#c47730)'
+                      : 'rgba(34,40,64,0.9)'
+                const rankColor = idx <= 2 ? '#161616' : 'var(--foreground-muted)'
+                const rsStyle = releaseStatusClass(row)
 
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full min-w-[980px] text-xs">
-          <thead>
-            <tr style={{ color: 'var(--foreground-muted)', borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
-              <th className="text-left font-semibold py-2 px-2">Series</th>
-              <th className="text-left font-semibold py-2 px-2">Publisher</th>
-              <th className="text-center font-semibold py-2 px-2">VN/JP</th>
-              <th className="text-center font-semibold py-2 px-2">LN</th>
-              <th className="text-center font-semibold py-2 px-2">Drop</th>
-              <th className="text-left font-semibold py-2 px-2">Status</th>
-              <th className="text-right font-semibold py-2 px-2">Last Release</th>
-              <th className="text-right font-semibold py-2 px-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(row => {
-              const drop = dropPercent(row)
-              return (
-                <tr key={row.series_key} style={{ borderBottom: '1px solid rgba(148,163,184,0.075)' }}>
-                  <td className="py-2 px-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {row.cover_url ? (
-                        <img src={proxyImg(row.cover_url) || ''} alt="" className="w-8 h-11 object-cover rounded-md shrink-0" />
-                      ) : (
-                        <div className="w-8 h-11 rounded-md shrink-0" style={{ background: 'rgba(99,102,241,0.14)' }} />
-                      )}
-                      <div className="min-w-0">
-                        <p className="font-bold line-clamp-1" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                        <p className="text-[10px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>{row.series_code || row.source_series_id || row.series_key}</p>
+                return (
+                  <tr key={row.series_key} style={{ borderBottom: '1px solid rgba(37,45,66,0.5)' }} className="hover:bg-white/[0.03]">
+                    <td className="py-2.5 px-3 text-center">
+                      <span className="inline-flex items-center justify-center min-w-[34px] h-[34px] rounded-lg font-black text-[11px]" style={{ background: rankBg, color: rankColor }}>#{idx + 1}</span>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-3 min-w-[280px]">
+                        {row.cover_url ? (
+                          <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[62px] h-[88px] object-cover rounded-lg shrink-0 shadow-lg" />
+                        ) : (
+                          <div className="w-[62px] h-[88px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,0.14)' }} />
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-black leading-snug line-clamp-2 max-w-[330px]" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
+                          <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.source_series_id || '—'} · {row.series_code || '—'}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-2 px-2" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher || '—'}</td>
-                  <td className="py-2 px-2 text-center" style={{ color: 'var(--foreground-secondary)' }}>{row.vn_volume_count ?? '—'} / {row.original_volume_count ?? '—'}</td>
-                  <td className="py-2 px-2 text-center"><span className="px-2 py-0.5 rounded-full font-black" style={{ color: colorForScore(row.ln_score), background: `${colorForScore(row.ln_score)}18` }}>{fmtScore(row.ln_score)}</span></td>
-                  <td className="py-2 px-2 text-center"><span className="px-2 py-0.5 rounded-full font-black" style={{ color: colorForDrop(drop), background: `${colorForDrop(drop)}18` }}>{fmtNum(drop)}%</span></td>
-                  <td className="py-2 px-2">
-                    <p className="font-bold" style={{ color: statusColors[row.evaluation || ''] || 'var(--foreground-secondary)' }}>{row.evaluation || '—'}</p>
-                    <p className="text-[10px] line-clamp-1" style={{ color: 'var(--foreground-muted)' }}>{row.vn_status || '—'}</p>
-                  </td>
-                  <td className="py-2 px-2 text-right" style={{ color: 'var(--foreground-muted)' }}>
-                    {row.series_last_release || '—'}
-                    <p className="text-[10px]">{fmtNum(row.months_since_series_release)} mo</p>
-                  </td>
-                  <td className="py-2 px-2 text-right">
-                    <Link href={detailHref(row)} className="inline-flex items-center gap-1 px-2 py-1 rounded-md font-bold" style={{ background: 'rgba(99,102,241,0.15)', color: '#c4b5fd' }}>
-                      Open <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-center tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.vn_volume_count, 0)}</td>
+                    <td className="py-2.5 px-3 tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{row.series_last_release || '—'}</td>
+                    <td className="py-2.5 px-3" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher || '—'}</td>
+                    <td className="py-2.5 px-3">
+                      <span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <div title={scoreTooltip(row)} className="cursor-help">
+                        <p className="text-lg font-black leading-none" style={{ color: colorForScore(row.ln_score) }}>{fmtScore(row.ln_score)}</p>
+                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(34,40,64,0.9)' }}>
+                          <div className="h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <div title={dropTooltip(row)} className="cursor-help">
+                        <p className="text-sm font-black leading-none" style={{ color: colorForDrop(drop) }}>{fmtNum(drop)}%</p>
+                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(34,40,64,0.9)' }}>
+                          <div className="h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: statusColors[row.evaluation || ''] || '#94a3b8', background: `${statusColors[row.evaluation || ''] || '#94a3b8'}1c`, border: `1px solid ${statusColors[row.evaluation || ''] || '#94a3b8'}40` }}>{evalLabel(row.evaluation)}</span>
+                    </td>
+                    <td className="py-2.5 px-3 text-right">
+                      <div className="flex justify-end gap-1.5">
+                        <button onClick={() => onSelect(row.series_key)} className="px-2 py-1 rounded-md font-bold text-[10px]" style={{ background: 'rgba(56,189,248,0.12)', color: '#38bdf8' }}>Chart</button>
+                        <Link href={detailHref(row)} className="inline-flex items-center gap-1 px-2 py-1 rounded-md font-bold text-[10px]" style={{ background: 'rgba(124,106,245,0.15)', color: '#c4b5fd' }}>
+                          Open <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="md:hidden space-y-2">
-        {filtered.map(row => {
-          const drop = dropPercent(row)
-          return (
-            <div key={row.series_key} className="rounded-lg p-2.5" style={{ background: 'rgba(15,23,42,0.7)', border: '1px solid rgba(148,163,184,0.12)' }}>
-              <div className="flex gap-2">
-                {row.cover_url ? (
-                  <img src={proxyImg(row.cover_url) || ''} alt="" className="w-12 h-16 object-cover rounded-md shrink-0" />
-                ) : (
-                  <div className="w-12 h-16 rounded-md shrink-0" style={{ background: 'rgba(99,102,241,0.14)' }} />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-black leading-snug line-clamp-2" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                  <p className="text-[11px] mt-1" style={{ color: 'var(--foreground-muted)' }}>{row.publisher || '—'} · {row.vn_volume_count ?? '—'} / {row.original_volume_count ?? '—'} vols</p>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ color: colorForScore(row.ln_score), background: `${colorForScore(row.ln_score)}18` }}>LN {fmtScore(row.ln_score)}</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ color: colorForDrop(drop), background: `${colorForDrop(drop)}18` }}>Drop {fmtNum(drop)}%</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ color: statusColors[row.evaluation || ''] || '#94a3b8', background: 'rgba(148,163,184,0.12)' }}>{row.evaluation || '—'}</span>
+        <div className="md:hidden">
+          {filtered.length === 0 ? (
+            <div className="text-center py-10 text-xs" style={{ color: 'var(--foreground-muted)' }}>Không có series nào phù hợp với bộ lọc.</div>
+          ) : filtered.map((row, idx) => {
+            const drop = dropPercent(row)
+            const scoreBar = Math.max(0, Math.min(100, Number(row.ln_score || 0) * 10))
+            const riskBar = Math.max(0, Math.min(100, Number(drop || 0)))
+            const rsStyle = releaseStatusClass(row)
+            const rankBg = idx === 0
+              ? 'linear-gradient(135deg,#f6d860,#e8a800)'
+              : idx === 1
+                ? 'linear-gradient(135deg,#d8dde8,#a5afc0)'
+                : idx === 2
+                  ? 'linear-gradient(135deg,#e8a86e,#c47730)'
+                  : 'rgba(34,40,64,0.9)'
+
+            return (
+              <div key={row.series_key} className="p-3" style={{ borderBottom: '1px solid rgba(37,45,66,0.6)' }}>
+                <div className="flex gap-3">
+                  <div className="w-8 shrink-0 pt-1">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-[10px]" style={{ background: rankBg, color: idx <= 2 ? '#161616' : 'var(--foreground-muted)' }}>#{idx + 1}</span>
+                  </div>
+                  {row.cover_url ? (
+                    <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[96px] h-[136px] object-cover rounded-lg shrink-0 shadow-lg" />
+                  ) : (
+                    <div className="w-[96px] h-[136px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,0.14)' }} />
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-black leading-snug line-clamp-3" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
+                    <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.source_series_id || '—'} · {row.series_code || '—'}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'rgba(34,40,64,0.85)' }}>{row.publisher || '—'}</span>
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'rgba(34,40,64,0.85)' }}>{row.series_last_release || '—'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pl-11 mt-2 flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(26,31,46,0.95)', border: '1px solid rgba(148,163,184,0.16)' }}>
+                    <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Điểm</span>
+                    <strong className="text-xs font-black" style={{ color: colorForScore(row.ln_score) }}>{fmtScore(row.ln_score)}</strong>
+                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,40,64,0.9)' }}>
+                      <span className="block h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} />
+                    </span>
+                  </span>
+
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(26,31,46,0.95)', border: '1px solid rgba(148,163,184,0.16)' }}>
+                    <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Drop</span>
+                    <strong className="text-xs font-black" style={{ color: colorForDrop(drop) }}>{fmtNum(drop)}%</strong>
+                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,40,64,0.9)' }}>
+                      <span className="block h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} />
+                    </span>
+                  </span>
+
+                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: statusColors[row.evaluation || ''] || '#94a3b8', background: `${statusColors[row.evaluation || ''] || '#94a3b8'}1c`, border: `1px solid ${statusColors[row.evaluation || ''] || '#94a3b8'}40` }}>{evalLabel(row.evaluation)}</span>
+                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
+                </div>
+
+                <div className="pl-11 mt-2 flex items-center justify-between">
+                  <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{fmtNum(row.vn_volume_count, 0)} VN volumes</span>
+                  <div className="flex gap-2">
+                    <button onClick={() => onSelect(row.series_key)} className="text-[11px] font-bold" style={{ color: '#38bdf8' }}>Preview</button>
+                    <Link href={detailHref(row)} className="text-[11px] font-bold flex items-center gap-1" style={{ color: '#c4b5fd' }}>Open <ArrowRight className="w-3 h-3" /></Link>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between mt-2">
-                <button onClick={() => onSelect(row.series_key)} className="text-[11px] font-bold" style={{ color: '#38bdf8' }}>Preview in chart</button>
-                <Link href={detailHref(row)} className="text-[11px] font-bold flex items-center gap-1" style={{ color: '#c4b5fd' }}>Open <ArrowRight className="w-3 h-3" /></Link>
-              </div>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
-    </Card>
+    </div>
   )
 }
 
