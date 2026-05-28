@@ -246,8 +246,8 @@ function ScatterPlot({
         </div>
       </div>
 
-      <div className="relative h-[360px] rounded-2xl overflow-hidden" style={{ background: 'rgba(2,6,23,0.45)', border: '1px solid rgba(148,163,184,0.1)' }}>
-        <div className="absolute inset-6">
+      <div className="relative h-[300px] sm:h-[360px] rounded-2xl overflow-hidden" style={{ background: 'rgba(2,6,23,0.45)', border: '1px solid rgba(148,163,184,0.1)' }}>
+        <div className="absolute inset-7 sm:inset-6">
           {[0, 25, 50, 75, 100].map(v => (
             <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(148,163,184,0.14)' }}>
               <span className="absolute -left-1 -translate-x-full -top-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
@@ -302,10 +302,10 @@ function RadarChart({ row }: { row: RadarRow | null }) {
     ['Momentum', row?.market_momentum_score ?? 0],
   ] as const
 
-  const size = 260
+  const size = 240
   const cx = size / 2
   const cy = size / 2
-  const maxR = 92
+  const maxR = 82
   const points = axes.map(([, value], i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
     const r = (Math.max(0, Math.min(10, value)) / 10) * maxR
@@ -338,7 +338,7 @@ function RadarChart({ row }: { row: RadarRow | null }) {
           </div>
 
           <div className="flex justify-center">
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
               {grid.map((g, i) => (
                 <polygon key={i} points={g} fill="none" stroke="rgba(148,163,184,0.18)" strokeWidth="1" />
               ))}
@@ -441,7 +441,7 @@ function GrowthChart({ rows }: { rows: GrowthRow[] }) {
       </div>
 
       <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${w} ${h}`} className="min-w-[580px] w-full h-[260px]">
+        <svg viewBox={`0 0 ${w} ${h}`} className="min-w-[520px] w-full h-[240px] sm:h-[260px]">
           {[0, 0.25, 0.5, 0.75, 1].map((g, i) => (
             <line key={i} x1={pad} x2={w - pad} y1={pad + g * (h - pad * 2)} y2={pad + g * (h - pad * 2)} stroke="rgba(148,163,184,0.12)" strokeDasharray="5 5" />
           ))}
@@ -475,7 +475,7 @@ function Heatmap({ rows }: { rows: HeatmapRow[] }) {
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-[620px]">
+        <div className="min-w-[560px]">
           <div className="grid gap-1 mb-2" style={{ gridTemplateColumns: `150px repeat(${months.length}, 1fr)` }}>
             <div />
             {months.map(([m, label]) => <div key={m} className="text-[10px] text-center" style={{ color: 'var(--foreground-muted)' }}>{label}</div>)}
@@ -511,7 +511,7 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
     }).slice(0, 60)
   }, [rows, query, status])
 
-  const statuses = ['All', ...Array.from(new Set(rows.map(r => r.evaluation).filter(Boolean)))]
+  const statuses: string[] = ['All', ...Array.from(new Set(rows.map(r => r.evaluation).filter((s): s is string => Boolean(s))))]
 
   return (
     <Card className="p-5 lg:p-6">
@@ -545,7 +545,7 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[940px] text-sm">
+        <table className="w-full min-w-[820px] text-sm">
           <thead>
             <tr style={{ color: 'var(--foreground-muted)' }}>
               <th className="text-left font-semibold py-3 px-3">Series</th>
@@ -701,7 +701,7 @@ export default function Dashboard() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-10">
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
+        <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-3" style={{ background: 'rgba(99,102,241,0.13)', border: '1px solid rgba(129,140,248,0.18)' }}>
               <Sparkles className="w-3.5 h-3.5" style={{ color: '#a5b4fc' }} />
@@ -709,7 +709,7 @@ export default function Dashboard() {
                 {vi ? 'Thị trường Light Novel Việt Nam' : 'Vietnamese Light Novel Market'}
               </span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>
+            <h1 className="text-2xl sm:text-5xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>
               LN Market Analytics
             </h1>
             <p className="text-sm sm:text-base mt-2 max-w-2xl" style={{ color: 'var(--foreground-secondary)' }}>
@@ -751,7 +751,7 @@ export default function Dashboard() {
           </Card>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
               <KpiCard icon={BookOpen} label="Total Licensed Series" value={fmtNum(kpis?.total_licensed_series, 0)} accent="#818cf8" />
               <KpiCard icon={Activity} label="Active Series" value={fmtNum(kpis?.active_series, 0)} accent="#22c55e" />
               <KpiCard icon={CheckCircle2} label="Completed Series" value={fmtNum(kpis?.completed_series, 0)} accent="#38bdf8" />
@@ -780,7 +780,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <Link
-                    href={`/content/${selectedScatter.source_series_id || ''}`}
+                    href={selectedScatter.source_series_id ? `/content/${selectedScatter.source_series_id}` : '/browse'}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105"
                     style={{ background: 'rgba(99,102,241,0.16)', color: '#a5b4fc', border: '1px solid rgba(129,140,248,0.22)' }}
                   >
