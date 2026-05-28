@@ -107,7 +107,6 @@ type PublisherAgg = {
 type GrowthRow = {
   year: number
   volumes: number
-  seriesCount: number
 }
 
 type HeatmapRow = {
@@ -115,6 +114,58 @@ type HeatmapRow = {
   monthKey: string
   monthLabel: string
   count: number
+}
+
+function releaseYear(row: LNRow) {
+  if (!row.max_release_at) return null
+  const year = new Date(row.max_release_at).getFullYear()
+  return Number.isFinite(year) ? year : null
+}
+
+function availableReleaseYears(rows: LNRow[]) {
+  return Array.from(new Set(rows.map(releaseYear).filter((year): year is number => year !== null))).sort((a, b) => a - b)
+}
+
+function filterRowsByYears(rows: LNRow[], selectedYears: number[]) {
+  if (selectedYears.length === 0) return rows
+  const allowed = new Set(selectedYears)
+  return rows.filter(row => {
+    const year = releaseYear(row)
+    return year !== null && allowed.has(year)
+  })
+}
+
+function YearFilter({ years, selectedYears, setSelectedYears, vi }: { years: number[]; selectedYears: number[]; setSelectedYears: (years: number[]) => void; vi: boolean }) {
+  const toggleYear = (year: number) => {
+    setSelectedYears(selectedYears.includes(year) ? selectedYears.filter(y => y !== year) : [...selectedYears, year].sort((a, b) => a - b))
+  }
+
+  return (
+    <div className="flex items-center gap-1 overflow-x-auto max-w-[260px] pb-0.5">
+      <button
+        type="button"
+        onClick={() => setSelectedYears([])}
+        className="px-2 py-1 rounded-md text-[9px] font-black shrink-0 transition-all"
+        style={selectedYears.length === 0 ? { background: '#7c6af5', color: '#fff' } : { background: 'var(--ln-control-bg)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}
+      >
+        {vi ? 'Tất cả' : 'All'}
+      </button>
+      {years.map(year => {
+        const active = selectedYears.includes(year)
+        return (
+          <button
+            key={year}
+            type="button"
+            onClick={() => toggleYear(year)}
+            className="px-2 py-1 rounded-md text-[9px] font-black shrink-0 transition-all"
+            style={active ? { background: 'rgba(56,189,248,.18)', color: '#38bdf8', border: '1px solid rgba(56,189,248,.35)' } : { background: 'var(--ln-control-bg)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}
+          >
+            {year}
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
 const RELEASE_STATUS_ORDER: Record<string, number> = {
@@ -620,9 +671,9 @@ function buildPublishers(rows: LNRow[]) {
     const key = row.publisher || 'Unknown'
     groups.set(key, [...(groups.get(key) || []), row])
   }
-  const totalReleases = Array.from(groups.values()).reduce((s, items) => s + Math.max(...items.map(i => i.publisher_releases_last_24m), 0), 0) || 1
+  const totalReleases = Array.from(groups.values()).reduce((s, items) => s + items.reduce((sum, item) => sum + Math.max(0, item.number_of_volumes || 0), 0), 0) || 1
   return Array.from(groups.entries()).map(([publisher, items]): PublisherAgg => {
-    const releases24 = Math.max(...items.map(i => i.publisher_releases_last_24m), 0)
+    const releases24 = items.reduce((sum, item) => sum + Math.max(0, item.number_of_volumes || 0), 0)
     return {
       publisher,
       releases24,
@@ -635,7 +686,10 @@ function buildPublishers(rows: LNRow[]) {
 }
 
 function PublisherLeaderboard({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
-  const publishers = buildPublishers(rows).slice(0, 6)
+  const [selectedYears, setSelectedYears] = useState<number[]>([])
+  const years = availableReleaseYears(rows)
+  const filteredRows = filterRowsByYears(rows, selectedYears)
+  const publishers = buildPublishers(filteredRows).slice(0, 6)
   const max = Math.max(...publishers.map(p => p.releases24), 1)
 
   return (
@@ -645,7 +699,10 @@ function PublisherLeaderboard({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Nhà phát hành hoạt động nhiều nhất' : 'Most Active Publishers'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Sản lượng phát hành, điểm LN và độ an toàn.' : 'Release output, score, and safety proxy.'}</p>
         </div>
-        <Building2 className="w-4 h-4" style={{ color: '#38bdf8' }} />
+        <div className="flex items-center gap-2 min-w-0">
+          <YearFilter years={years} selectedYears={selectedYears} setSelectedYears={setSelectedYears} vi={vi} />
+          <Building2 className="w-4 h-4 shrink-0" style={{ color: '#38bdf8' }} />
+        </div>
       </div>
 
       <div className="grid grid-cols-[1.05fr_0.9fr_0.55fr_0.6fr] gap-2 px-1 pb-1 text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
@@ -696,9 +753,8 @@ function buildGrowth(rows: LNRow[]) {
     if (!row.max_release_at) continue
     const year = new Date(row.max_release_at).getFullYear()
     if (!Number.isFinite(year)) continue
-    const prev = map.get(year) || { year, volumes: 0, seriesCount: 0 }
+    const prev = map.get(year) || { year, volumes: 0 }
     prev.volumes += row.number_of_volumes
-    prev.seriesCount += 1
     map.set(year, prev)
   }
   return Array.from(map.values()).sort((a, b) => a.year - b.year).slice(-12)
@@ -708,11 +764,15 @@ function GrowthChart({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const data = buildGrowth(rows)
   const w = 520
   const h = 148
-  const pad = 24
+  const padL = 42
+  const padR = 18
+  const padT = 12
+  const padB = 24
   const maxY = Math.max(...data.map(d => d.volumes), 1)
+  const yTicks = [1, .75, .5, .25, 0].map(ratio => Math.round(maxY * ratio))
   const points = data.map((d, i) => {
-    const x = pad + i / Math.max(1, data.length - 1) * (w - pad * 2)
-    const y = h - pad - d.volumes / maxY * (h - pad * 2)
+    const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
+    const y = h - padB - d.volumes / maxY * (h - padT - padB)
     return { x, y, d }
   })
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
@@ -729,17 +789,23 @@ function GrowthChart({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 
       <div className="flex items-center gap-4 mb-1 text-[10px]" style={{ color: 'var(--foreground-secondary)' }}>
         <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
-        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#38bdf8' }} /> {vi ? 'Số series' : 'Series count'}</span>
       </div>
 
       <div className="overflow-hidden">
         <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[166px]">
-          {[0, .25, .5, .75, 1].map((g, i) => (
-            <line key={i} x1={pad} x2={w - pad} y1={pad + g * (h - pad * 2)} y2={pad + g * (h - pad * 2)} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
-          ))}
+          {yTicks.map((tick, i) => {
+            const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
+            return (
+              <g key={`${tick}-${i}`}>
+                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
+                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">{tick}</text>
+              </g>
+            )
+          })}
           <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           {points.map(p => (
             <g key={p.d.year}>
+              <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
               <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" />
               <text x={p.x} y={h - 5} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.55)">{p.d.year}</text>
             </g>
@@ -751,16 +817,13 @@ function GrowthChart({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 }
 
 function buildHeatmap(rows: LNRow[]) {
-  const cutoff = new Date()
-  cutoff.setMonth(cutoff.getMonth() - 11)
-  cutoff.setDate(1)
   const map = new Map<string, HeatmapRow>()
   for (const row of rows) {
     if (!row.max_release_at) continue
     const d = new Date(row.max_release_at)
-    if (Number.isNaN(d.getTime()) || d < cutoff) continue
+    if (Number.isNaN(d.getTime())) continue
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
-    const monthLabel = d.toLocaleString('en-US', { month: 'short' })
+    const monthLabel = `${d.toLocaleString('en-US', { month: 'short' })} '${String(d.getFullYear()).slice(-2)}`
     const publisher = row.publisher || 'Unknown'
     const key = `${publisher}|${monthKey}`
     const prev = map.get(key) || { publisher, monthKey, monthLabel, count: 0 }
@@ -771,8 +834,11 @@ function buildHeatmap(rows: LNRow[]) {
 }
 
 function Heatmap({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
-  const data = buildHeatmap(rows)
-  const publishers = buildPublishers(rows).slice(0, 6).map(p => p.publisher)
+  const [selectedYears, setSelectedYears] = useState<number[]>([])
+  const years = availableReleaseYears(rows)
+  const filteredRows = filterRowsByYears(rows, selectedYears)
+  const data = buildHeatmap(filteredRows)
+  const publishers = buildPublishers(filteredRows).slice(0, 6).map(p => p.publisher)
   const months = Array.from(new Map(data.map(d => [d.monthKey, d.monthLabel])).entries()).sort((a, b) => a[0].localeCompare(b[0]))
   const max = Math.max(...data.map(d => d.count), 1)
   const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
@@ -782,13 +848,16 @@ function Heatmap({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Mật độ phát hành theo tháng gần nhất.' : 'Latest-release concentration.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Mật độ phát hành theo tháng, lọc theo năm.' : 'Monthly release concentration by selected years.'}</p>
         </div>
-        <BarChart3 className="w-4 h-4" style={{ color: '#ec4899' }} />
+        <div className="flex items-center gap-2 min-w-0">
+          <YearFilter years={years} selectedYears={selectedYears} setSelectedYears={setSelectedYears} vi={vi} />
+          <BarChart3 className="w-4 h-4 shrink-0" style={{ color: '#ec4899' }} />
+        </div>
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-[350px]">
+        <div style={{ minWidth: `${Math.max(350, 74 + months.length * 34)}px` }}>
           <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: `74px repeat(${months.length}, 1fr)` }}>
             <div />
             {months.map(([key, label]) => (
@@ -803,7 +872,7 @@ function Heatmap({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
                 {months.map(([key]) => {
                   const v = lookup.get(`${pub}|${key}`) || 0
                   const alpha = v === 0 ? .08 : .18 + v / max * .76
-                  return <div key={key} title={`${pub}: ${v}`} className="h-5 rounded-sm" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
+                  return <div key={key} title={`${pub}: ${v} ${vi ? 'series' : 'series'}`} className="h-5 rounded-sm" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
                 })}
               </div>
             ))}
