@@ -350,9 +350,9 @@ function Card({ children, className = '' }: { children: ReactNode; className?: s
     <div
       className={`rounded-xl ${className}`}
       style={{
-        background: 'linear-gradient(180deg, rgba(12,14,22,0.96), rgba(12,14,22,0.88))',
-        border: '1px solid rgba(136,146,170,0.18)',
-        boxShadow: '0 8px 28px rgba(0,0,0,0.22)',
+        background: 'var(--ln-card-bg)',
+        border: '1px solid var(--card-border)',
+        boxShadow: 'var(--ln-card-shadow)',
       }}
     >
       {children}
@@ -380,7 +380,7 @@ function KpiStrip({ rows }: { rows: LNRow[] }) {
     <Card className="p-2.5">
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2">
         {items.map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="rounded-lg px-3 py-2.5 relative overflow-hidden" style={{ background: 'rgba(19,23,34,.72)', border: '1px solid rgba(136,146,170,.12)' }}>
+          <div key={label} className="rounded-lg px-3 py-2.5 relative overflow-hidden" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
             <div className="absolute right-0 top-0 w-16 h-16 rounded-full blur-2xl" style={{ background: `${color}22` }} />
             <div className="relative flex items-start justify-between gap-2">
               <div>
@@ -398,7 +398,7 @@ function KpiStrip({ rows }: { rows: LNRow[] }) {
 
 function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
   return (
-    <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'rgba(19,23,34,.94)', border: '1px solid rgba(136,146,170,.18)' }}>
+    <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
       <button
         onClick={() => setMode('dashboard')}
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
@@ -438,7 +438,7 @@ function ScatterPlot({ rows, selectedKey, onSelect }: { rows: LNRow[]; selectedK
         </div>
       </div>
 
-      <div className="relative h-[300px] sm:h-[350px] rounded-lg overflow-hidden" style={{ background: 'rgba(6,10,22,.62)', border: '1px solid rgba(136,146,170,.12)' }}>
+      <div className="relative h-[300px] sm:h-[350px] rounded-lg overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
         <div className="absolute inset-0 opacity-50 pointer-events-none">
           <div className="absolute left-0 top-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,.08), transparent)' }} />
           <div className="absolute right-0 bottom-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(315deg, rgba(34,197,94,.08), transparent)' }} />
@@ -544,7 +544,7 @@ function RadarChart({ row }: { row: LNRow | null }) {
           <h2 className="text-base sm:text-lg font-black leading-snug mt-2 line-clamp-3" style={{ color: 'var(--foreground)' }}>{row.series_title}</h2>
           <div className="flex flex-wrap gap-1.5 mt-2">
             <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
-            <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'rgba(34,40,64,.75)' }}>{row.publisher || '—'}</span>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
           </div>
         </div>
       </div>
@@ -593,7 +593,7 @@ function RadarChart({ row }: { row: LNRow | null }) {
 
         <div className="grid grid-cols-2 gap-1.5">
           {axes.map(([label, value, source]) => (
-            <div key={label} title={source} className="rounded-lg px-2 py-1.5" style={{ background: 'rgba(19,23,34,.72)', border: '1px solid rgba(136,146,170,.12)' }}>
+            <div key={label} title={source} className="rounded-lg px-2 py-1.5" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
               <p className="text-[9px] uppercase font-black" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
               <p className="text-xs font-black" style={{ color: '#c4b5fd' }}>{fmtScore(value)}</p>
             </div>
@@ -665,7 +665,7 @@ function PublisherLeaderboard({ rows }: { rows: LNRow[] }) {
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 rounded-full overflow-hidden flex-1" style={{ background: 'rgba(34,40,64,.95)' }}>
+                  <div className="h-2 rounded-full overflow-hidden flex-1" style={{ background: 'var(--ln-track-bg)' }}>
                     <div className="h-full rounded-full" style={{ width: `${width}%`, background: 'linear-gradient(90deg,#7c6af5,#38bdf8)' }} />
                   </div>
                   <span className="text-[10px] tabular-nums shrink-0" style={{ color: 'var(--foreground-secondary)' }}>{p.releases24}</span>
@@ -919,7 +919,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
 
       <div className="flex sm:grid sm:grid-cols-5 gap-2 overflow-x-auto pb-1">
         {stats.map(([label, value]) => (
-          <div key={label} className="min-w-[106px] rounded-xl p-3 relative overflow-hidden" style={{ background: 'rgba(19,23,34,.94)', border: '1px solid rgba(136,146,170,.18)' }}>
+          <div key={label} className="min-w-[106px] rounded-xl p-3 relative overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
             <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'rgba(124,106,245,.60)' }} />
             <p className="text-[8.5px] font-black uppercase tracking-[.12em]" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
             <p className="text-xl font-black mt-1" style={{ color: 'var(--foreground)' }}>{String(value)}</p>
@@ -927,7 +927,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
         ))}
       </div>
 
-      <div className="sticky top-0 z-20 rounded-xl p-3 backdrop-blur-xl" style={{ background: 'rgba(19,23,34,.94)', border: '1px solid rgba(136,146,170,.18)' }}>
+      <div className="sticky top-0 z-20 rounded-xl p-3 backdrop-blur-xl" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
         <div className="flex flex-wrap gap-2 items-center">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--foreground-muted)' }} />
@@ -936,7 +936,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
               onChange={e => setSearch(e.target.value)}
               placeholder="Tìm tên truyện, nhà phát hành, mã series..."
               className="w-full pl-8 pr-3 py-2 rounded-lg text-xs outline-none"
-              style={{ background: 'rgba(26,31,46,.95)', color: 'var(--foreground)', border: '1px solid rgba(136,146,170,.18)' }}
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
             />
           </div>
 
@@ -944,9 +944,9 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
             onClick={() => setFiltersOpen(v => !v)}
             className="md:hidden flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black"
             style={{
-              background: 'rgba(26,31,46,.95)',
+              background: 'var(--ln-control-bg)',
               color: activeFilterCount ? '#7c6af5' : 'var(--foreground-muted)',
-              border: `1px solid ${activeFilterCount ? 'rgba(124,106,245,.6)' : 'rgba(136,146,170,.18)'}`,
+              border: `1px solid ${activeFilterCount ? 'rgba(124,106,245,.6)' : 'var(--card-border)'}`,
             }}
           >
             <ListFilter className="w-3.5 h-3.5" />
@@ -955,15 +955,15 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
           </button>
 
           <div className={`${filtersOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 w-full md:w-auto`}>
-            <select value={status} onChange={e => setStatus(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[140px]" style={{ background: 'rgba(26,31,46,.95)', color: 'var(--foreground)', border: '1px solid rgba(136,146,170,.18)' }}>
+            <select value={status} onChange={e => setStatus(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[140px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
               <option value="">Tất cả đánh giá</option>
               {statuses.map(s => <option key={s} value={s}>{evalLabel(s)}</option>)}
             </select>
-            <select value={publisher} onChange={e => setPublisher(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'rgba(26,31,46,.95)', color: 'var(--foreground)', border: '1px solid rgba(136,146,170,.18)' }}>
+            <select value={publisher} onChange={e => setPublisher(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
               <option value="">Tất cả nhà phát hành</option>
               {publishers.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
-            <select value={releaseStatusFilter} onChange={e => setReleaseStatusFilter(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'rgba(26,31,46,.95)', color: 'var(--foreground)', border: '1px solid rgba(136,146,170,.18)' }}>
+            <select value={releaseStatusFilter} onChange={e => setReleaseStatusFilter(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
               <option value="">Tất cả trạng thái</option>
               <option value="Đang phát hành">Đang phát hành</option>
               <option value="Lâu lắm rồi chưa có tập mới">Lâu rồi chưa ra</option>
@@ -971,7 +971,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
               <option value="Drop">Đã drop</option>
               <option value="Hoàn thành">Hoàn thành</option>
             </select>
-            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'rgba(26,31,46,.95)', color: 'var(--foreground)', border: '1px solid rgba(136,146,170,.18)' }}>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
               <option value="scoreRelease">Điểm LN → Ngày ra</option>
               <option value="rank">Xếp hạng gốc</option>
               <option value="scoreDesc">Điểm cao → thấp</option>
@@ -985,10 +985,10 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
         </div>
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(19,23,34,.94)', border: '1px solid rgba(136,146,170,.18)' }}>
+      <div className="rounded-xl overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[1120px] text-[12px] border-collapse">
-            <thead style={{ background: 'rgba(26,31,46,.95)' }}>
+            <thead style={{ background: 'var(--ln-control-bg)' }}>
               <tr style={{ color: 'var(--foreground-muted)', borderBottom: '1px solid rgba(136,146,170,.18)' }}>
                 {['Hạng', 'Series', 'Số tập', 'Ngày phát hành gần nhất', 'Nhà PH', 'Trạng thái', 'Điểm đánh giá', 'Khả năng drop', 'Đánh giá'].map((h, i) => (
                   <th key={h} className={`${i === 0 ? 'text-center' : 'text-left'} font-black uppercase tracking-widest py-2.5 px-3 whitespace-nowrap`}>{h}</th>
@@ -1001,12 +1001,12 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
               ) : filtered.map((row, idx) => {
                 const scoreBar = Math.max(0, Math.min(100, row.ln_score * 10))
                 const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
-                const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'rgba(34,40,64,.95)'
+                const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
                 const rankColor = idx <= 2 ? '#161616' : 'var(--foreground-muted)'
                 const rsStyle = releaseStatusStyle(row)
                 const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
                 return (
-                  <tr key={row.series_key} style={{ borderBottom: '1px solid rgba(37,45,66,.5)' }} className="hover:bg-white/[0.03]">
+                  <tr key={row.series_key} style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
                     <td className="py-2.5 px-3 text-center"><span className="inline-flex items-center justify-center min-w-[34px] h-[34px] rounded-lg font-black text-[11px]" style={{ background: rankBg, color: rankColor }}>#{idx + 1}</span></td>
                     <td className="py-2.5 px-3">
                       <div className="flex items-center gap-3 min-w-[300px]">
@@ -1024,13 +1024,13 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
                     <td className="py-2.5 px-3">
                       <div title={scoreTooltip(row)} className="cursor-help">
                         <p className="text-lg font-black leading-none" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</p>
-                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(34,40,64,.95)' }}><div className="h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></div>
+                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><div className="h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></div>
                       </div>
                     </td>
                     <td className="py-2.5 px-3">
                       <div title={dropTooltip(row)} className="cursor-help">
                         <p className="text-sm font-black leading-none" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</p>
-                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'rgba(34,40,64,.95)' }}><div className="h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></div>
+                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><div className="h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></div>
                       </div>
                     </td>
                     <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution)}</span></td>
@@ -1047,9 +1047,9 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
             const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
             const rsStyle = releaseStatusStyle(row)
             const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
-            const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'rgba(34,40,64,.95)'
+            const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
             return (
-              <div key={row.series_key} className="p-3" style={{ borderBottom: '1px solid rgba(37,45,66,.6)' }}>
+              <div key={row.series_key} className="p-3" style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
                 <div className="flex gap-3">
                   <div className="w-8 shrink-0 pt-1"><span className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-[10px]" style={{ background: rankBg, color: idx <= 2 ? '#161616' : 'var(--foreground-muted)' }}>#{idx + 1}</span></div>
                   {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[104px] h-[148px] object-cover rounded-lg shrink-0 shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />}
@@ -1057,22 +1057,22 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
                     <p className="text-sm font-black leading-snug line-clamp-4" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
                     <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.series_id || '—'} · {row.series_code || '—'}</p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'rgba(34,40,64,.85)' }}>{row.publisher || '—'}</span>
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'rgba(34,40,64,.85)' }}>{fmtDate(row.max_release_at)}</span>
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(row.max_release_at)}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="pl-11 mt-2 flex flex-wrap gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(26,31,46,.95)', border: '1px solid rgba(136,146,170,.18)' }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
                     <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Điểm</span>
                     <strong className="text-xs font-black" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</strong>
-                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,40,64,.95)' }}><span className="block h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></span>
+                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><span className="block h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'rgba(26,31,46,.95)', border: '1px solid rgba(136,146,170,.18)' }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
                     <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Drop</span>
                     <strong className="text-xs font-black" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</strong>
-                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,40,64,.95)' }}><span className="block h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></span>
+                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><span className="block h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></span>
                   </span>
                   <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution)}</span>
                   <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
