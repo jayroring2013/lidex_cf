@@ -632,37 +632,56 @@ function buildPublishers(rows: LNRow[]) {
 }
 
 function PublisherLeaderboard({ rows }: { rows: LNRow[] }) {
-  const publishers = buildPublishers(rows).slice(0, 7)
+  const publishers = buildPublishers(rows).slice(0, 6)
   const max = Math.max(...publishers.map(p => p.releases24), 1)
+
   return (
-    <Card className="p-3.5">
-      <div className="flex items-center justify-between mb-3">
+    <Card className="p-3 h-[226px] overflow-hidden">
+      <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Most Active Publishers</p>
-          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>Bar = releases in the last 24 months, scaled to the top publisher.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Most Active Publishers</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Release output, score, and completion proxy.</p>
         </div>
         <Building2 className="w-4 h-4" style={{ color: '#38bdf8' }} />
       </div>
 
-      <div className="space-y-2.5">
-        {publishers.map((p, i) => (
-          <div key={p.publisher}>
-            <div className="flex items-center justify-between gap-3 text-[11px] mb-1">
+      <div className="grid grid-cols-[1.05fr_0.9fr_0.55fr_0.6fr] gap-2 px-1 pb-1 text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
+        <span>Publisher</span>
+        <span>Releases</span>
+        <span className="text-right">Score</span>
+        <span className="text-right">Safe</span>
+      </div>
+
+      <div className="space-y-1.5">
+        {publishers.map((p, i) => {
+          const width = (p.releases24 / max) * 100
+          const completionProxy = Math.max(0, Math.min(100, 100 - p.avgDrop))
+          return (
+            <div key={p.publisher} className="grid grid-cols-[1.05fr_0.9fr_0.55fr_0.6fr] gap-2 items-center">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="w-4 h-4 rounded-md flex items-center justify-center font-black text-[10px]" style={{ background: 'rgba(56,189,248,.16)', color: '#38bdf8' }}>{i + 1}</span>
-                <span className="font-black truncate" style={{ color: 'var(--foreground)' }}>{p.publisher}</span>
+                <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(56,189,248,.16)', color: '#38bdf8' }}>{i + 1}</span>
+                <span className="font-bold truncate text-[11px]" style={{ color: 'var(--foreground)' }}>{p.publisher}</span>
               </div>
-              <span style={{ color: 'var(--foreground-muted)' }}>{p.releases24} releases</span>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 rounded-full overflow-hidden flex-1" style={{ background: 'rgba(34,40,64,.95)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${width}%`, background: 'linear-gradient(90deg,#7c6af5,#38bdf8)' }} />
+                  </div>
+                  <span className="text-[10px] tabular-nums shrink-0" style={{ color: 'var(--foreground-secondary)' }}>{p.releases24}</span>
+                </div>
+              </div>
+
+              <div className="text-right text-[11px] font-bold tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
+                {p.avgScore.toFixed(2)}
+              </div>
+
+              <div className="text-right text-[11px] font-bold tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
+                {completionProxy.toFixed(0)}%
+              </div>
             </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(34,40,64,.92)' }}>
-              <div className="h-full rounded-full" style={{ width: `${p.releases24 / max * 100}%`, background: 'linear-gradient(90deg,#38bdf8,#818cf8)' }} />
-            </div>
-            <div className="flex items-center justify-between text-[10px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-              <span>Score {p.avgScore.toFixed(1)}</span>
-              <span>Share {p.marketShare.toFixed(1)}% · Drop {p.avgDrop.toFixed(1)}%</span>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </Card>
   )
@@ -684,9 +703,9 @@ function buildGrowth(rows: LNRow[]) {
 
 function GrowthChart({ rows }: { rows: LNRow[] }) {
   const data = buildGrowth(rows)
-  const w = 620
-  const h = 170
-  const pad = 26
+  const w = 520
+  const h = 148
+  const pad = 24
   const maxY = Math.max(...data.map(d => d.volumes), 1)
   const points = data.map((d, i) => {
     const x = pad + i / Math.max(1, data.length - 1) * (w - pad * 2)
@@ -696,24 +715,30 @@ function GrowthChart({ rows }: { rows: LNRow[] }) {
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <Card className="p-3.5">
-      <div className="flex items-center justify-between mb-2">
+    <Card className="p-3 h-[226px] overflow-hidden">
+      <div className="flex items-center justify-between mb-1.5">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Vietnamese LN Market Growth</p>
-          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>Proxy: sum of VN volumes by latest-release year.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Vietnamese LN Market Growth</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>VN volume proxy by latest-release year.</p>
         </div>
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
-      <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${w} ${h}`} className="min-w-[480px] w-full h-[170px]">
+
+      <div className="flex items-center gap-4 mb-1 text-[10px]" style={{ color: 'var(--foreground-secondary)' }}>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> Volumes</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#38bdf8' }} /> Series count</span>
+      </div>
+
+      <div className="overflow-hidden">
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[166px]">
           {[0, .25, .5, .75, 1].map((g, i) => (
             <line key={i} x1={pad} x2={w - pad} y1={pad + g * (h - pad * 2)} y2={pad + g * (h - pad * 2)} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
           ))}
-          <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           {points.map(p => (
             <g key={p.d.year}>
-              <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.8" />
-              <text x={p.x} y={h - 6} textAnchor="middle" fontSize="9" fill="rgba(232,236,244,.55)">{p.d.year}</text>
+              <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" />
+              <text x={p.x} y={h - 5} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.55)">{p.d.year}</text>
             </g>
           ))}
         </svg>
@@ -744,38 +769,47 @@ function buildHeatmap(rows: LNRow[]) {
 
 function Heatmap({ rows }: { rows: LNRow[] }) {
   const data = buildHeatmap(rows)
-  const publishers = buildPublishers(rows).slice(0, 7).map(p => p.publisher)
+  const publishers = buildPublishers(rows).slice(0, 6).map(p => p.publisher)
   const months = Array.from(new Map(data.map(d => [d.monthKey, d.monthLabel])).entries()).sort((a, b) => a[0].localeCompare(b[0]))
   const max = Math.max(...data.map(d => d.count), 1)
   const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
 
   return (
-    <Card className="p-3.5">
-      <div className="flex items-center justify-between mb-3">
+    <Card className="p-3 h-[226px] overflow-hidden">
+      <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Publisher Release Heatmap</p>
-          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>Latest-release concentration over the last 12 months.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Publisher Release Activity</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Latest-release concentration.</p>
         </div>
         <BarChart3 className="w-4 h-4" style={{ color: '#ec4899' }} />
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-[520px]">
-          <div className="grid gap-1 mb-1.5" style={{ gridTemplateColumns: `120px repeat(${months.length}, 1fr)` }}>
+        <div className="min-w-[350px]">
+          <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: `74px repeat(${months.length}, 1fr)` }}>
             <div />
-            {months.map(([key, label]) => <div key={key} className="text-[9px] text-center" style={{ color: 'var(--foreground-muted)' }}>{label}</div>)}
+            {months.map(([key, label]) => (
+              <div key={key} className="text-[8px] text-center" style={{ color: 'var(--foreground-muted)' }}>{label}</div>
+            ))}
           </div>
+
           <div className="space-y-1">
             {publishers.map(pub => (
-              <div key={pub} className="grid gap-1 items-center" style={{ gridTemplateColumns: `120px repeat(${months.length}, 1fr)` }}>
-                <div className="text-[11px] truncate pr-2 font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{pub}</div>
+              <div key={pub} className="grid gap-1 items-center" style={{ gridTemplateColumns: `74px repeat(${months.length}, 1fr)` }}>
+                <div className="text-[10px] truncate pr-1 font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{pub}</div>
                 {months.map(([key]) => {
                   const v = lookup.get(`${pub}|${key}`) || 0
-                  const alpha = v === 0 ? .07 : .16 + v / max * .72
-                  return <div key={key} title={`${pub}: ${v}`} className="h-4 rounded" style={{ background: `rgba(236,72,153,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
+                  const alpha = v === 0 ? .08 : .18 + v / max * .76
+                  return <div key={key} title={`${pub}: ${v}`} className="h-5 rounded-sm" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
                 })}
               </div>
             ))}
+          </div>
+
+          <div className="flex items-center gap-2 mt-2 pl-[74px]">
+            <span className="text-[9px]" style={{ color: 'var(--foreground-muted)' }}>0</span>
+            <div className="h-2 flex-1 rounded-full" style={{ background: 'linear-gradient(90deg,rgba(124,106,245,.18),#3b82f6,#22c5b8)' }} />
+            <span className="text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{max}+</span>
           </div>
         </div>
       </div>
@@ -1147,12 +1181,11 @@ export default function Dashboard() {
               <RadarChart row={selected} />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-[0.72fr_1fr] gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <PublisherLeaderboard rows={rows} />
               <GrowthChart rows={rows} />
+              <Heatmap rows={rows} />
             </div>
-
-            <Heatmap rows={rows} />
 
             <div className="flex justify-center pt-1">
               <button onClick={() => { setMode('watchlist'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(34,197,94,.14)', color: '#86efac', border: '1px solid rgba(34,197,94,.22)' }}>
