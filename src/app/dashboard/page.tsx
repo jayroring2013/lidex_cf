@@ -166,8 +166,21 @@ function fmtPercent(raw: number | null | undefined) {
   return `${pctValue(raw)}%`
 }
 
-function evalLabel(s?: string | null) {
-  return ({ Completed: 'Hoàn thành', Good: 'Tốt', Limping: 'Cầm chừng', Dead: 'Gần chết', Dropped: 'Đã drop' } as Record<string, string>)[s || ''] || s || '—'
+function evalLabel(s?: string | null, vi = true) {
+  const viMap = { Completed: 'Hoàn thành', Good: 'Tốt', Limping: 'Cầm chừng', Dead: 'Gần chết', Dropped: 'Đã drop' } as Record<string, string>
+  const enMap = { Completed: 'Completed', Good: 'Good', Limping: 'Limping', Dead: 'Inactive', Dropped: 'Dropped' } as Record<string, string>
+  return (vi ? viMap : enMap)[s || ''] || s || '—'
+}
+
+function releaseStatusLabel(status: string, vi = true) {
+  if (vi) return status
+  return ({
+    'Đang phát hành': 'Active',
+    'Lâu lắm rồi chưa có tập mới': 'Long inactive',
+    Drop: 'Dropped',
+    'Đã bắt kịp bản gốc JP': 'Caught up to JP',
+    'Hoàn thành': 'Completed',
+  } as Record<string, string>)[status] || status
 }
 
 function releaseStatus(row: LNRow) {
@@ -360,7 +373,7 @@ function Card({ children, className = '' }: { children: ReactNode; className?: s
   )
 }
 
-function KpiStrip({ rows }: { rows: LNRow[] }) {
+function KpiStrip({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const avgScore = rows.length ? rows.reduce((s, r) => s + r.ln_score, 0) / rows.length : 0
   const avgDrop = rows.length ? rows.reduce((s, r) => s + pctValue(r.drop_percent), 0) / rows.length : 0
   const active = rows.filter(r => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(r))).length
@@ -368,12 +381,12 @@ function KpiStrip({ rows }: { rows: LNRow[] }) {
   const activePublishers = new Set(rows.filter(r => r.publisher_activity === 'Active').map(r => r.publisher).filter(Boolean)).size
 
   const items = [
-    { label: 'Licensed', value: rows.length.toLocaleString('vi-VN'), icon: BookOpen, color: '#818cf8' },
-    { label: 'Active', value: active.toLocaleString('vi-VN'), icon: Activity, color: '#22c55e' },
-    { label: 'Completed', value: completed.toLocaleString('vi-VN'), icon: CheckCircle2, color: '#38bdf8' },
-    { label: 'Avg Score', value: avgScore.toFixed(1), icon: Gauge, color: '#eab308' },
-    { label: 'Avg Drop', value: `${avgDrop.toFixed(1)}%`, icon: AlertTriangle, color: '#fb7185' },
-    { label: 'Active Pubs', value: activePublishers.toLocaleString('vi-VN'), icon: ShieldCheck, color: '#a78bfa' },
+    { label: vi ? 'Đã cấp phép' : 'Licensed', value: rows.length.toLocaleString('vi-VN'), icon: BookOpen, color: '#818cf8' },
+    { label: vi ? 'Đang hoạt động' : 'Active', value: active.toLocaleString('vi-VN'), icon: Activity, color: '#22c55e' },
+    { label: vi ? 'Hoàn thành' : 'Completed', value: completed.toLocaleString('vi-VN'), icon: CheckCircle2, color: '#38bdf8' },
+    { label: vi ? 'Điểm TB' : 'Avg Score', value: avgScore.toFixed(1), icon: Gauge, color: '#eab308' },
+    { label: vi ? 'Drop TB' : 'Avg Drop', value: `${avgDrop.toFixed(1)}%`, icon: AlertTriangle, color: '#fb7185' },
+    { label: vi ? 'Nhà PH hoạt động' : 'Active Pubs', value: activePublishers.toLocaleString('vi-VN'), icon: ShieldCheck, color: '#a78bfa' },
   ]
 
   return (
@@ -396,7 +409,7 @@ function KpiStrip({ rows }: { rows: LNRow[] }) {
   )
 }
 
-function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
+function ModeSwitch({ mode, setMode, vi }: { mode: Mode; setMode: (m: Mode) => void; vi: boolean }) {
   return (
     <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
       <button
@@ -405,7 +418,7 @@ function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void 
         style={mode === 'dashboard' ? { background: '#7c6af5', color: '#fff' } : { color: 'var(--foreground-secondary)' }}
       >
         <LayoutDashboard className="w-3.5 h-3.5" />
-        Dashboard
+        {vi ? 'Bảng điều khiển' : 'Dashboard'}
       </button>
       <button
         onClick={() => setMode('watchlist')}
@@ -413,26 +426,26 @@ function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void 
         style={mode === 'watchlist' ? { background: '#22c55e', color: '#03150a' } : { color: 'var(--foreground-secondary)' }}
       >
         <ListFilter className="w-3.5 h-3.5" />
-        LN Watchlist
+        {vi ? 'Watchlist LN' : 'LN Watchlist'}
       </button>
     </div>
   )
 }
 
-function ScatterPlot({ rows, selectedKey, onSelect }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void }) {
+function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
   const plotRows = rows.filter(r => r.evalution !== 'Completed')
   return (
     <Card className="p-3.5">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>LN Score vs Drop Risk</p>
-          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>Completed novels are hidden to focus on current market risk.</p>
+          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Điểm LN vs Rủi ro Drop' : 'LN Score vs Drop Risk'}</p>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Ẩn các series đã hoàn thành để tập trung vào rủi ro hiện tại.' : 'Completed novels are hidden to focus on current market risk.'}</p>
         </div>
         <div className="hidden sm:flex flex-wrap gap-2">
           {['Good', 'Limping', 'Dead', 'Dropped'].map(s => (
             <span key={s} className="text-[10px] font-bold flex items-center gap-1" style={{ color: 'var(--foreground-secondary)' }}>
               <span className="w-2 h-2 rounded-full" style={{ background: statusColors[s] }} />
-              {s}
+              {evalLabel(s, vi)}
             </span>
           ))}
         </div>
@@ -456,10 +469,10 @@ function ScatterPlot({ rows, selectedKey, onSelect }: { rows: LNRow[]; selectedK
             </div>
           ))}
 
-          <span className="absolute left-2 top-2 text-[10px] font-black uppercase" style={{ color: '#ef4444' }}>High Risk</span>
-          <span className="absolute right-2 top-2 text-[10px] font-black uppercase" style={{ color: '#eab308' }}>Popular Risk</span>
-          <span className="absolute left-2 bottom-2 text-[10px] font-black uppercase" style={{ color: '#a78bfa' }}>Stalled</span>
-          <span className="absolute right-2 bottom-2 text-[10px] font-black uppercase" style={{ color: '#22c55e' }}>Healthy</span>
+          <span className="absolute left-2 top-2 text-[10px] font-black uppercase" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
+          <span className="absolute right-2 top-2 text-[10px] font-black uppercase" style={{ color: '#eab308' }}>{vi ? 'Phổ biến nhưng rủi ro' : 'Popular Risk'}</span>
+          <span className="absolute left-2 bottom-2 text-[10px] font-black uppercase" style={{ color: '#a78bfa' }}>{vi ? 'Đình trệ' : 'Stalled'}</span>
+          <span className="absolute right-2 bottom-2 text-[10px] font-black uppercase" style={{ color: '#22c55e' }}>{vi ? 'Khỏe mạnh' : 'Healthy'}</span>
 
           {plotRows.map(row => {
             const x = Math.max(0, Math.min(100, row.ln_score * 10))
@@ -488,20 +501,20 @@ function ScatterPlot({ rows, selectedKey, onSelect }: { rows: LNRow[]; selectedK
         </div>
 
         <div className="absolute left-4 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
-        <div className="absolute left-2 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Drop Probability</div>
+        <div className="absolute left-2 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Khả năng drop' : 'Drop Probability'}</div>
       </div>
     </Card>
   )
 }
 
-function RadarChart({ row }: { row: LNRow | null }) {
+function RadarChart({ row, vi }: { row: LNRow | null; vi: boolean }) {
   const axes = row ? [
-    ['Release Pace', row.release_pace_score, 'Average gap + latest release recency'],
-    ['Catch-up', row.catch_up_score, 'VN volumes compared with original volumes'],
-    ['Demand', row.demand_score, 'Average view count percentile'],
-    ['Publisher', row.publisher_support_score, 'Publisher activity + 24M release output'],
-    ['Safety', row.completion_safety_score, 'Inverse of drop probability'],
-    ['Momentum', row.momentum_score, 'Publisher support + recent release recency'],
+    [vi ? 'Nhịp phát hành' : 'Release Pace', row.release_pace_score, vi ? 'Khoảng cách trung bình + độ mới của tập gần nhất' : 'Average gap + latest release recency'],
+    [vi ? 'Bắt kịp' : 'Catch-up', row.catch_up_score, vi ? 'Tiến độ bản Việt so với số tập gốc' : 'VN volumes compared with original volumes'],
+    [vi ? 'Nhu cầu' : 'Demand', row.demand_score, vi ? 'Percentile lượt xem trung bình' : 'Average view count percentile'],
+    [vi ? 'Nhà PH' : 'Publisher', row.publisher_support_score, vi ? 'Hoạt động nhà phát hành + số tập 24 tháng' : 'Publisher activity + 24M release output'],
+    [vi ? 'An toàn' : 'Safety', row.completion_safety_score, vi ? 'Nghịch đảo của khả năng drop' : 'Inverse of drop probability'],
+    [vi ? 'Đà phát hành' : 'Momentum', row.momentum_score, vi ? 'Hỗ trợ nhà phát hành + độ mới phát hành' : 'Publisher support + recent release recency'],
   ] as const : []
 
   const size = 210
@@ -522,7 +535,7 @@ function RadarChart({ row }: { row: LNRow | null }) {
   if (!row) {
     return (
       <Card className="p-4 h-full flex items-center justify-center text-sm">
-        <span style={{ color: 'var(--foreground-muted)' }}>Select a series</span>
+        <span style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Chọn một series' : 'Select a series'}</span>
       </Card>
     )
   }
@@ -540,11 +553,11 @@ function RadarChart({ row }: { row: LNRow | null }) {
         <div className="min-w-0 flex-1">
           <h2 className="text-base sm:text-lg font-black leading-snug line-clamp-3" style={{ color: 'var(--foreground)' }}>{row.series_title}</h2>
           <div className="flex items-center justify-between gap-3 mt-1 text-[11px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>
-            <span>Volumes: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.number_of_volumes, 0)}</span></span>
-            <span className="text-right">Latest: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</span></span>
+            <span>{vi ? 'Số tập' : 'Volumes'}: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.number_of_volumes, 0)}</span></span>
+            <span className="text-right">{vi ? 'Mới nhất' : 'Latest'}: <span style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</span></span>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
-            <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span>
             <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
           </div>
         </div>
@@ -621,7 +634,7 @@ function buildPublishers(rows: LNRow[]) {
   }).sort((a, b) => b.releases24 - a.releases24 || b.seriesCount - a.seriesCount)
 }
 
-function PublisherLeaderboard({ rows }: { rows: LNRow[] }) {
+function PublisherLeaderboard({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const publishers = buildPublishers(rows).slice(0, 6)
   const max = Math.max(...publishers.map(p => p.releases24), 1)
 
@@ -629,17 +642,17 @@ function PublisherLeaderboard({ rows }: { rows: LNRow[] }) {
     <Card className="p-3 h-[226px] overflow-hidden">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Most Active Publishers</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Release output, score, and completion proxy.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Nhà phát hành hoạt động nhiều nhất' : 'Most Active Publishers'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Sản lượng phát hành, điểm LN và độ an toàn.' : 'Release output, score, and safety proxy.'}</p>
         </div>
         <Building2 className="w-4 h-4" style={{ color: '#38bdf8' }} />
       </div>
 
       <div className="grid grid-cols-[1.05fr_0.9fr_0.55fr_0.6fr] gap-2 px-1 pb-1 text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
-        <span>Publisher</span>
-        <span>Releases</span>
-        <span className="text-right">Score</span>
-        <span className="text-right">Safe</span>
+        <span>{vi ? 'Nhà PH' : 'Publisher'}</span>
+        <span>{vi ? 'Tập' : 'Releases'}</span>
+        <span className="text-right">{vi ? 'Điểm' : 'Score'}</span>
+        <span className="text-right">{vi ? 'An toàn' : 'Safe'}</span>
       </div>
 
       <div className="space-y-1.5">
@@ -691,7 +704,7 @@ function buildGrowth(rows: LNRow[]) {
   return Array.from(map.values()).sort((a, b) => a.year - b.year).slice(-12)
 }
 
-function GrowthChart({ rows }: { rows: LNRow[] }) {
+function GrowthChart({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const data = buildGrowth(rows)
   const w = 520
   const h = 148
@@ -708,15 +721,15 @@ function GrowthChart({ rows }: { rows: LNRow[] }) {
     <Card className="p-3 h-[226px] overflow-hidden">
       <div className="flex items-center justify-between mb-1.5">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Vietnamese LN Market Growth</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>VN volume proxy by latest-release year.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Proxy số tập VN theo năm phát hành gần nhất.' : 'VN volume proxy by latest-release year.'}</p>
         </div>
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
       <div className="flex items-center gap-4 mb-1 text-[10px]" style={{ color: 'var(--foreground-secondary)' }}>
-        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> Volumes</span>
-        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#38bdf8' }} /> Series count</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#38bdf8' }} /> {vi ? 'Số series' : 'Series count'}</span>
       </div>
 
       <div className="overflow-hidden">
@@ -757,7 +770,7 @@ function buildHeatmap(rows: LNRow[]) {
   return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey) || a.publisher.localeCompare(b.publisher))
 }
 
-function Heatmap({ rows }: { rows: LNRow[] }) {
+function Heatmap({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const data = buildHeatmap(rows)
   const publishers = buildPublishers(rows).slice(0, 6).map(p => p.publisher)
   const months = Array.from(new Map(data.map(d => [d.monthKey, d.monthLabel])).entries()).sort((a, b) => a[0].localeCompare(b[0]))
@@ -768,8 +781,8 @@ function Heatmap({ rows }: { rows: LNRow[] }) {
     <Card className="p-3 h-[226px] overflow-hidden">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Publisher Release Activity</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Latest-release concentration.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Mật độ phát hành theo tháng gần nhất.' : 'Latest-release concentration.'}</p>
         </div>
         <BarChart3 className="w-4 h-4" style={{ color: '#ec4899' }} />
       </div>
@@ -832,7 +845,7 @@ function dropTooltip(row: LNRow) {
   ].join('\n')
 }
 
-function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow) => void }) {
+function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LNRow) => void; vi: boolean }) {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [publisher, setPublisher] = useState('')
@@ -888,11 +901,11 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
   const activeFilterCount = [status, publisher, releaseStatusFilter].filter(Boolean).length
 
   const stats = [
-    ['Series hiển thị', filtered.length],
-    ['Điểm TB', avg.toFixed(1)],
-    ['Tốt/Hoàn thành', good],
-    ['Gần chết/Đã drop', risky],
-    ['Hoàn thành', completed],
+    [vi ? 'Series hiển thị' : 'Visible Series', filtered.length],
+    [vi ? 'Điểm TB' : 'Avg Score', avg.toFixed(1)],
+    [vi ? 'Tốt/Hoàn thành' : 'Good/Completed', good],
+    [vi ? 'Gần chết/Đã drop' : 'Inactive/Dropped', risky],
+    [vi ? 'Hoàn thành' : 'Completed', completed],
   ]
 
   return (
@@ -900,10 +913,10 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
       <header className="text-center">
         <p className="text-[10px] font-black uppercase tracking-[.15em] mb-2 inline-flex items-center justify-center gap-2" style={{ color: '#7c6af5' }}>
           <span className="w-5 h-0.5 rounded-full" style={{ background: '#7c6af5' }} />
-          Vietnamese Light Novel DOA
+          {vi ? 'Vietnamese Light Novel DOA' : 'Vietnamese Light Novel DOA'}
         </p>
-        <h2 className="text-xl sm:text-3xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>Bảng xếp hạng Light Novel Việt Nam Ded or Alive</h2>
-        <p className="text-xs mt-2 max-w-3xl mx-auto" style={{ color: 'var(--foreground-muted)' }}>Xếp hạng theo Điểm LN, ngày phát hành gần nhất, tình trạng phát hành tại Việt Nam và khả năng bị drop.</p>
+        <h2 className="text-xl sm:text-3xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>{vi ? 'Bảng xếp hạng Light Novel Việt Nam Ded or Alive' : 'Vietnamese Light Novel Ded or Alive Ranking'}</h2>
+        <p className="text-xs mt-2 max-w-3xl mx-auto" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Xếp hạng theo Điểm LN, ngày phát hành gần nhất, tình trạng phát hành tại Việt Nam và khả năng bị drop.' : 'Ranked by LN Score, latest release date, Vietnamese release status, and drop risk.'}</p>
       </header>
 
       <div className="flex sm:grid sm:grid-cols-5 gap-2 overflow-x-auto pb-1">
@@ -923,7 +936,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Tìm tên truyện, nhà phát hành, mã series..."
+              placeholder={vi ? 'Tìm tên truyện, nhà phát hành, mã series...' : 'Search title, publisher, series code...'}
               className="w-full pl-8 pr-3 py-2 rounded-lg text-xs outline-none"
               style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
             />
@@ -939,36 +952,36 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
             }}
           >
             <ListFilter className="w-3.5 h-3.5" />
-            Lọc
+            {vi ? 'Lọc' : 'Filters'}
             {activeFilterCount > 0 && <span className="rounded-full px-1.5 text-[10px]" style={{ background: '#7c6af5', color: '#fff' }}>{activeFilterCount}</span>}
           </button>
 
           <div className={`${filtersOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 w-full md:w-auto`}>
             <select value={status} onChange={e => setStatus(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[140px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
-              <option value="">Tất cả đánh giá</option>
-              {statuses.map(s => <option key={s} value={s}>{evalLabel(s)}</option>)}
+              <option value="">{vi ? 'Tất cả đánh giá' : 'All evaluations'}</option>
+              {statuses.map(s => <option key={s} value={s}>{evalLabel(s, vi)}</option>)}
             </select>
             <select value={publisher} onChange={e => setPublisher(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
-              <option value="">Tất cả nhà phát hành</option>
+              <option value="">{vi ? 'Tất cả nhà phát hành' : 'All publishers'}</option>
               {publishers.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
             <select value={releaseStatusFilter} onChange={e => setReleaseStatusFilter(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
-              <option value="">Tất cả trạng thái</option>
-              <option value="Đang phát hành">Đang phát hành</option>
-              <option value="Lâu lắm rồi chưa có tập mới">Lâu rồi chưa ra</option>
-              <option value="Đã bắt kịp bản gốc JP">Đã bắt kịp JP</option>
-              <option value="Drop">Đã drop</option>
-              <option value="Hoàn thành">Hoàn thành</option>
+              <option value="">{vi ? 'Tất cả trạng thái' : 'All statuses'}</option>
+              <option value="Đang phát hành">{releaseStatusLabel('Đang phát hành', vi)}</option>
+              <option value="Lâu lắm rồi chưa có tập mới">{releaseStatusLabel('Lâu lắm rồi chưa có tập mới', vi)}</option>
+              <option value="Đã bắt kịp bản gốc JP">{releaseStatusLabel('Đã bắt kịp bản gốc JP', vi)}</option>
+              <option value="Drop">{releaseStatusLabel('Drop', vi)}</option>
+              <option value="Hoàn thành">{releaseStatusLabel('Hoàn thành', vi)}</option>
             </select>
             <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
-              <option value="scoreRelease">Điểm LN → Ngày ra</option>
-              <option value="rank">Xếp hạng gốc</option>
-              <option value="scoreDesc">Điểm cao → thấp</option>
-              <option value="scoreAsc">Điểm thấp → cao</option>
-              <option value="releaseDesc">Phát hành mới nhất</option>
-              <option value="viewsDesc">Lượt xem TB</option>
-              <option value="volumesDesc">Số tập VN</option>
-              <option value="dropRiskDesc">Drop cao → thấp</option>
+              <option value="scoreRelease">{vi ? 'Điểm LN → Ngày ra' : 'LN Score → Release date'}</option>
+              <option value="rank">{vi ? 'Xếp hạng gốc' : 'Original rank'}</option>
+              <option value="scoreDesc">{vi ? 'Điểm cao → thấp' : 'Score high → low'}</option>
+              <option value="scoreAsc">{vi ? 'Điểm thấp → cao' : 'Score low → high'}</option>
+              <option value="releaseDesc">{vi ? 'Phát hành mới nhất' : 'Latest release'}</option>
+              <option value="viewsDesc">{vi ? 'Lượt xem TB' : 'Average views'}</option>
+              <option value="volumesDesc">{vi ? 'Số tập VN' : 'VN volumes'}</option>
+              <option value="dropRiskDesc">{vi ? 'Drop cao → thấp' : 'Drop high → low'}</option>
             </select>
           </div>
         </div>
@@ -979,14 +992,17 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
           <table className="w-full min-w-[1120px] text-[12px] border-collapse">
             <thead style={{ background: 'var(--ln-control-bg)' }}>
               <tr style={{ color: 'var(--foreground-muted)', borderBottom: '1px solid rgba(136,146,170,.18)' }}>
-                {['Hạng', 'Series', 'Số tập', 'Ngày phát hành gần nhất', 'Nhà PH', 'Trạng thái', 'Điểm đánh giá', 'Khả năng drop', 'Đánh giá'].map((h, i) => (
+                {(vi
+                  ? ['Hạng', 'Series', 'Số tập', 'Ngày phát hành gần nhất', 'Nhà PH', 'Trạng thái', 'Điểm đánh giá', 'Khả năng drop', 'Đánh giá']
+                  : ['Rank', 'Series', 'Volumes', 'Latest release', 'Publisher', 'Status', 'LN Score', 'Drop risk', 'Evaluation']
+                ).map((h, i) => (
                   <th key={h} className={`${i === 0 ? 'text-center' : 'text-left'} font-black uppercase tracking-widest py-2.5 px-3 whitespace-nowrap`}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={9} className="text-center py-10" style={{ color: 'var(--foreground-muted)' }}>Không có series nào phù hợp với bộ lọc.</td></tr>
+                <tr><td colSpan={9} className="text-center py-10" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series nào phù hợp với bộ lọc.' : 'No series match the current filters.'}</td></tr>
               ) : filtered.map((row, idx) => {
                 const scoreBar = Math.max(0, Math.min(100, row.ln_score * 10))
                 const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
@@ -1009,7 +1025,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
                     <td className="py-2.5 px-3 tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.number_of_volumes, 0)}</td>
                     <td className="py-2.5 px-3 tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</td>
                     <td className="py-2.5 px-3" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher || '—'}</td>
-                    <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span></td>
+                    <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span></td>
                     <td className="py-2.5 px-3">
                       <div title={scoreTooltip(row)} className="cursor-help">
                         <p className="text-lg font-black leading-none" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</p>
@@ -1022,7 +1038,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
                         <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><div className="h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution)}</span></td>
+                    <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution, vi)}</span></td>
                   </tr>
                 )
               })}
@@ -1054,7 +1070,7 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
 
                 <div className="pl-11 mt-2 flex flex-wrap gap-1.5">
                   <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
-                    <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Điểm</span>
+                    <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Điểm' : 'Score'}</span>
                     <strong className="text-xs font-black" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</strong>
                     <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><span className="block h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></span>
                   </span>
@@ -1063,8 +1079,8 @@ function LNWatchlist({ rows, onSelect }: { rows: LNRow[]; onSelect: (row: LNRow)
                     <strong className="text-xs font-black" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</strong>
                     <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><span className="block h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></span>
                   </span>
-                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution)}</span>
-                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatus(row)}</span>
+                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution, vi)}</span>
+                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span>
                 </div>
               </div>
             )
@@ -1135,8 +1151,8 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-2 self-start">
-            <ModeSwitch mode={mode} setMode={setMode} />
-            <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title="Refresh">
+            <ModeSwitch mode={mode} setMode={setMode} vi={vi} />
+            <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title={vi ? 'Làm mới' : 'Refresh'}>
               <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
             </button>
           </div>
@@ -1146,7 +1162,7 @@ export default function Dashboard() {
           <div className="h-[60vh] flex items-center justify-center">
             <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--foreground-secondary)' }}>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Loading LN market analytics...
+              {vi ? 'Đang tải phân tích thị trường LN...' : 'Loading LN market analytics...'}
             </div>
           </div>
         ) : error ? (
@@ -1154,33 +1170,26 @@ export default function Dashboard() {
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 mt-0.5" style={{ color: '#f59e0b' }} />
               <div>
-                <p className="font-bold" style={{ color: 'var(--foreground)' }}>Dashboard data failed to load</p>
+                <p className="font-bold" style={{ color: 'var(--foreground)' }}>{vi ? 'Không tải được dữ liệu dashboard' : 'Dashboard data failed to load'}</p>
                 <p className="text-sm mt-1" style={{ color: 'var(--foreground-secondary)' }}>{error}</p>
               </div>
             </div>
           </Card>
         ) : mode === 'watchlist' ? (
-          <LNWatchlist rows={rows} onSelect={(row) => { setSelectedKey(row.series_key); setMode('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+          <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setMode('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : (
           <div className="space-y-4">
-            <KpiStrip rows={rows} />
+            <KpiStrip rows={rows} vi={vi} />
 
             <div className="grid grid-cols-1 xl:grid-cols-[1.7fr_0.9fr] gap-4">
-              <ScatterPlot rows={rows} selectedKey={selectedKey} onSelect={row => setSelectedKey(row.series_key)} />
-              <RadarChart row={selected} />
+              <ScatterPlot rows={rows} selectedKey={selectedKey} vi={vi} onSelect={row => setSelectedKey(row.series_key)} />
+              <RadarChart row={selected} vi={vi} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <PublisherLeaderboard rows={rows} />
-              <GrowthChart rows={rows} />
-              <Heatmap rows={rows} />
-            </div>
-
-            <div className="flex justify-center pt-1">
-              <button onClick={() => { setMode('watchlist'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(34,197,94,.14)', color: '#86efac', border: '1px solid rgba(34,197,94,.22)' }}>
-                Open LN Watchlist
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              <PublisherLeaderboard rows={rows} vi={vi} />
+              <GrowthChart rows={rows} vi={vi} />
+              <Heatmap rows={rows} vi={vi} />
             </div>
           </div>
         )}
