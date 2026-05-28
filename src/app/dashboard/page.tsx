@@ -165,11 +165,11 @@ function proxyImg(url: string | null): string | null {
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`rounded-3xl ${className}`}
+      className={`rounded-xl ${className}`}
       style={{
-        background: 'linear-gradient(180deg, rgba(15,23,42,0.86), rgba(15,23,42,0.54))',
+        background: 'linear-gradient(180deg, rgba(10,15,30,0.92), rgba(10,15,30,0.82))',
         border: '1px solid rgba(148,163,184,0.16)',
-        boxShadow: '0 18px 60px rgba(0,0,0,0.28)',
+        boxShadow: '0 8px 28px rgba(0,0,0,0.22)',
       }}
     >
       {children}
@@ -191,7 +191,7 @@ function KpiCard({
   sub?: string
 }) {
   return (
-    <Card className="p-4 sm:p-5 overflow-hidden relative">
+    <Card className="p-3.5 sm:p-4 overflow-hidden relative">
       <div
         className="absolute -right-8 -top-8 w-24 h-24 rounded-full blur-2xl"
         style={{ background: `${accent}33` }}
@@ -201,17 +201,17 @@ function KpiCard({
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
             {label}
           </p>
-          <p className="text-2xl sm:text-3xl font-black mt-2" style={{ color: 'var(--foreground)' }}>
+          <p className="text-xl sm:text-2xl font-black mt-2" style={{ color: 'var(--foreground)' }}>
             {value}
           </p>
           {sub && (
-            <p className="text-xs mt-1" style={{ color: 'var(--foreground-secondary)' }}>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-secondary)' }}>
               {sub}
             </p>
           )}
         </div>
-        <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: `${accent}20` }}>
-          <Icon className="w-5 h-5" style={{ color: accent }} />
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${accent}20` }}>
+          <Icon className="w-4 h-4" style={{ color: accent }} />
         </div>
       </div>
     </Card>
@@ -230,11 +230,11 @@ function ScatterPlot({
   const safeRows = rows.filter(r => r.ln_score != null && r.drop_percent != null)
 
   return (
-    <Card className="p-5 lg:p-6">
+    <Card className="p-4 lg:p-5">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>LN Score vs Drop Risk</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>Each dot represents one Vietnamese licensed LN series.</p>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>LN Score vs Drop Risk</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Each dot represents one Vietnamese licensed LN series.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {['Good', 'Limping', 'Dead', 'Dropped', 'Completed'].map(s => (
@@ -246,8 +246,8 @@ function ScatterPlot({
         </div>
       </div>
 
-      <div className="relative h-[300px] sm:h-[360px] rounded-2xl overflow-hidden" style={{ background: 'rgba(2,6,23,0.45)', border: '1px solid rgba(148,163,184,0.1)' }}>
-        <div className="absolute inset-7 sm:inset-6">
+      <div className="relative h-[240px] sm:h-[285px] rounded-xl overflow-hidden" style={{ background: 'rgba(2,6,23,0.45)', border: '1px solid rgba(148,163,184,0.1)' }}>
+        <div className="absolute inset-5 sm:inset-5">
           {[0, 25, 50, 75, 100].map(v => (
             <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(148,163,184,0.14)' }}>
               <span className="absolute -left-1 -translate-x-full -top-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
@@ -273,8 +273,8 @@ function ScatterPlot({
                 style={{
                   left: `${x}%`,
                   top: `${y}%`,
-                  width: active ? 15 : 9,
-                  height: active ? 15 : 9,
+                  width: active ? 12 : 7,
+                  height: active ? 12 : 7,
                   background: color,
                   border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,0.35)',
                   boxShadow: active ? `0 0 0 7px ${color}25, 0 0 24px ${color}` : `0 0 12px ${color}66`,
@@ -302,10 +302,10 @@ function RadarChart({ row }: { row: RadarRow | null }) {
     ['Momentum', row?.market_momentum_score ?? 0],
   ] as const
 
-  const size = 240
+  const size = 190
   const cx = size / 2
   const cy = size / 2
-  const maxR = 82
+  const maxR = 62
   const points = axes.map(([, value], i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
     const r = (Math.max(0, Math.min(10, value)) / 10) * maxR
@@ -319,14 +319,14 @@ function RadarChart({ row }: { row: RadarRow | null }) {
   }).join(' '))
 
   return (
-    <Card className="p-5 lg:p-6">
+    <Card className="p-4 lg:p-5">
       <div className="flex items-start justify-between gap-4 mb-5">
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Selected Series Profile</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>Radar-style health breakdown from imported Excel metrics.</p>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Selected Series Profile</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Radar-style health breakdown from imported Excel metrics.</p>
         </div>
         {row?.cover_url && (
-          <img src={proxyImg(row.cover_url) || ''} alt="" className="w-12 h-16 object-cover rounded-lg" />
+          <img src={proxyImg(row.cover_url) || ''} alt="" className="w-10 h-14 object-cover rounded-lg" />
         )}
       </div>
 
@@ -334,7 +334,7 @@ function RadarChart({ row }: { row: RadarRow | null }) {
         <>
           <div className="mb-3">
             <p className="text-lg font-black line-clamp-2" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-            <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>{row.publisher || 'Unknown publisher'} · {row.vn_status || row.evaluation || '—'}</p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>{row.publisher || 'Unknown publisher'} · {row.vn_status || row.evaluation || '—'}</p>
           </div>
 
           <div className="flex justify-center">
@@ -362,13 +362,13 @@ function RadarChart({ row }: { row: RadarRow | null }) {
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-2">
-            <div className="rounded-2xl p-3" style={{ background: 'rgba(34,197,94,0.1)' }}>
+            <div className="rounded-xl p-3" style={{ background: 'rgba(34,197,94,0.1)' }}>
               <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>LN Score</p>
-              <p className="text-xl font-black" style={{ color: colorForScore(row.ln_score) }}>{fmtScore(row.ln_score)}</p>
+              <p className="text-lg font-black" style={{ color: colorForScore(row.ln_score) }}>{fmtScore(row.ln_score)}</p>
             </div>
-            <div className="rounded-2xl p-3" style={{ background: 'rgba(239,68,68,0.1)' }}>
+            <div className="rounded-xl p-3" style={{ background: 'rgba(239,68,68,0.1)' }}>
               <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>Drop Risk</p>
-              <p className="text-xl font-black" style={{ color: colorForDrop(row.drop_percent) }}>{fmtNum(row.drop_percent)}%</p>
+              <p className="text-lg font-black" style={{ color: colorForDrop(row.drop_percent) }}>{fmtNum(row.drop_percent)}%</p>
             </div>
           </div>
         </>
@@ -384,21 +384,21 @@ function RadarChart({ row }: { row: RadarRow | null }) {
 function PublisherLeaderboard({ rows }: { rows: PublisherRow[] }) {
   const max = Math.max(...rows.map(r => r.releases_last_12m || 0), 1)
   return (
-    <Card className="p-5 lg:p-6">
+    <Card className="p-4 lg:p-5">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Most Active Publishers</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>Ranked by releases in the last 12 months.</p>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Most Active Publishers</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Ranked by releases in the last 12 months.</p>
         </div>
-        <Building2 className="w-5 h-5" style={{ color: '#38bdf8' }} />
+        <Building2 className="w-4 h-4" style={{ color: '#38bdf8' }} />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {rows.slice(0, 8).map((row, i) => (
           <div key={row.publisher}>
             <div className="flex items-center justify-between gap-3 text-xs mb-1.5">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="w-5 h-5 rounded-lg flex items-center justify-center font-black" style={{ background: 'rgba(56,189,248,0.14)', color: '#38bdf8' }}>{i + 1}</span>
+                <span className="w-4 h-4 rounded-lg flex items-center justify-center font-black" style={{ background: 'rgba(56,189,248,0.14)', color: '#38bdf8' }}>{i + 1}</span>
                 <span className="font-bold truncate" style={{ color: 'var(--foreground)' }}>{row.publisher}</span>
               </div>
               <span style={{ color: 'var(--foreground-muted)' }}>{row.releases_last_12m || 0} releases</span>
@@ -431,17 +431,17 @@ function GrowthChart({ rows }: { rows: GrowthRow[] }) {
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <Card className="p-5 lg:p-6">
+    <Card className="p-4 lg:p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Vietnamese LN Market Growth</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>Volumes released per year from imported licensed books.</p>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Vietnamese LN Market Growth</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Volumes released per year from imported licensed books.</p>
         </div>
-        <TrendingUp className="w-5 h-5" style={{ color: '#22c55e' }} />
+        <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
       <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${w} ${h}`} className="min-w-[520px] w-full h-[240px] sm:h-[260px]">
+        <svg viewBox={`0 0 ${w} ${h}`} className="min-w-[520px] w-full h-[180px] sm:h-[210px]">
           {[0, 0.25, 0.5, 0.75, 1].map((g, i) => (
             <line key={i} x1={pad} x2={w - pad} y1={pad + g * (h - pad * 2)} y2={pad + g * (h - pad * 2)} stroke="rgba(148,163,184,0.12)" strokeDasharray="5 5" />
           ))}
@@ -465,13 +465,13 @@ function Heatmap({ rows }: { rows: HeatmapRow[] }) {
   const lookup = new Map(rows.map(r => [`${r.publisher}|${r.month_start}`, r.release_count]))
 
   return (
-    <Card className="p-5 lg:p-6">
+    <Card className="p-4 lg:p-5">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Publisher Release Heatmap</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>Monthly release concentration by publisher.</p>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Publisher Release Heatmap</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Monthly release concentration by publisher.</p>
         </div>
-        <BarChart3 className="w-5 h-5" style={{ color: '#ec4899' }} />
+        <BarChart3 className="w-4 h-4" style={{ color: '#ec4899' }} />
       </div>
 
       <div className="overflow-x-auto">
@@ -487,7 +487,7 @@ function Heatmap({ rows }: { rows: HeatmapRow[] }) {
                 {months.map(([m]) => {
                   const v = lookup.get(`${pub}|${m}`) || 0
                   const alpha = v === 0 ? 0.08 : 0.18 + (v / max) * 0.72
-                  return <div key={m} title={`${pub}: ${v}`} className="h-7 rounded-md" style={{ background: `rgba(236,72,153,${alpha})`, border: '1px solid rgba(255,255,255,0.04)' }} />
+                  return <div key={m} title={`${pub}: ${v}`} className="h-5 rounded" style={{ background: `rgba(236,72,153,${alpha})`, border: '1px solid rgba(255,255,255,0.04)' }} />
                 })}
               </div>
             ))}
@@ -514,11 +514,11 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
   const statuses: string[] = ['All', ...Array.from(new Set(rows.map(r => r.evaluation).filter((s): s is string => Boolean(s))))]
 
   return (
-    <Card className="p-5 lg:p-6">
+    <Card className="p-4 lg:p-5">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Ongoing Series Watchlist</p>
-          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>Styled after the Excel HTML dashboard table: score, drop risk, status, and release health.</p>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Ongoing Series Watchlist</p>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>Styled after the Excel HTML dashboard table: score, drop risk, status, and release health.</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2">
@@ -528,7 +528,7 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search series..."
-              className="pl-9 pr-3 py-2 rounded-xl text-sm outline-none w-full sm:w-56"
+              className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none w-full sm:w-56"
               style={{ background: 'rgba(15,23,42,0.8)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}
             />
           </div>
@@ -536,7 +536,7 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
           <select
             value={status}
             onChange={e => setStatus(e.target.value)}
-            className="px-3 py-2 rounded-xl text-sm outline-none"
+            className="px-3 py-1.5 rounded-lg text-xs outline-none"
             style={{ background: 'rgba(15,23,42,0.8)', color: 'var(--foreground)', border: '1px solid rgba(148,163,184,0.16)' }}
           >
             {statuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -548,13 +548,13 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
         <table className="w-full min-w-[820px] text-sm">
           <thead>
             <tr style={{ color: 'var(--foreground-muted)' }}>
-              <th className="text-left font-semibold py-3 px-3">Series</th>
-              <th className="text-left font-semibold py-3 px-3">Publisher</th>
-              <th className="text-center font-semibold py-3 px-3">VN/JP</th>
-              <th className="text-center font-semibold py-3 px-3">LN Score</th>
-              <th className="text-center font-semibold py-3 px-3">Drop %</th>
-              <th className="text-left font-semibold py-3 px-3">Status</th>
-              <th className="text-right font-semibold py-3 px-3">Last release</th>
+              <th className="text-left font-semibold py-2 px-2.5">Series</th>
+              <th className="text-left font-semibold py-2 px-2.5">Publisher</th>
+              <th className="text-center font-semibold py-2 px-2.5">VN/JP</th>
+              <th className="text-center font-semibold py-2 px-2.5">LN Score</th>
+              <th className="text-center font-semibold py-2 px-2.5">Drop %</th>
+              <th className="text-left font-semibold py-2 px-2.5">Status</th>
+              <th className="text-right font-semibold py-2 px-2.5">Last release</th>
             </tr>
           </thead>
           <tbody>
@@ -565,12 +565,12 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
                 onClick={() => onSelect(row.series_key)}
                 style={{ borderTop: '1px solid rgba(148,163,184,0.1)' }}
               >
-                <td className="py-3 px-3">
+                <td className="py-2 px-2.5">
                   <div className="flex items-center gap-3 min-w-0">
                     {row.cover_url ? (
-                      <img src={proxyImg(row.cover_url) || ''} alt="" className="w-10 h-14 object-cover rounded-lg flex-shrink-0" />
+                      <img src={proxyImg(row.cover_url) || ''} alt="" className="w-8 h-11 object-cover rounded-lg flex-shrink-0" />
                     ) : (
-                      <div className="w-10 h-14 rounded-lg flex-shrink-0" style={{ background: 'rgba(99,102,241,0.14)' }} />
+                      <div className="w-8 h-11 rounded-lg flex-shrink-0" style={{ background: 'rgba(99,102,241,0.14)' }} />
                     )}
                     <div className="min-w-0">
                       <p className="font-bold line-clamp-1" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
@@ -578,27 +578,27 @@ function OngoingTable({ rows, onSelect }: { rows: OngoingRow[]; onSelect: (key: 
                     </div>
                   </div>
                 </td>
-                <td className="py-3 px-3" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher || '—'}</td>
-                <td className="py-3 px-3 text-center" style={{ color: 'var(--foreground-secondary)' }}>
+                <td className="py-2 px-2.5" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher || '—'}</td>
+                <td className="py-2 px-2.5 text-center" style={{ color: 'var(--foreground-secondary)' }}>
                   {row.vn_volume_count ?? '—'} / {row.original_volume_count ?? '—'}
                 </td>
-                <td className="py-3 px-3 text-center">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-black" style={{ color: colorForScore(row.ln_score), background: `${colorForScore(row.ln_score)}18` }}>
+                <td className="py-2 px-2.5 text-center">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-black" style={{ color: colorForScore(row.ln_score), background: `${colorForScore(row.ln_score)}18` }}>
                     {fmtScore(row.ln_score)}
                   </span>
                 </td>
-                <td className="py-3 px-3 text-center">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-black" style={{ color: colorForDrop(row.drop_percent), background: `${colorForDrop(row.drop_percent)}18` }}>
+                <td className="py-2 px-2.5 text-center">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-black" style={{ color: colorForDrop(row.drop_percent), background: `${colorForDrop(row.drop_percent)}18` }}>
                     {fmtNum(row.drop_percent)}%
                   </span>
                 </td>
-                <td className="py-3 px-3">
+                <td className="py-2 px-2.5">
                   <div>
                     <p className="text-xs font-bold" style={{ color: statusColors[row.evaluation || ''] || 'var(--foreground-secondary)' }}>{row.evaluation || '—'}</p>
                     <p className="text-[11px] line-clamp-1" style={{ color: 'var(--foreground-muted)' }}>{row.vn_status || '—'}</p>
                   </div>
                 </td>
-                <td className="py-3 px-3 text-right" style={{ color: 'var(--foreground-muted)' }}>
+                <td className="py-2 px-2.5 text-right" style={{ color: 'var(--foreground-muted)' }}>
                   {row.series_last_release || '—'}
                   <p className="text-[11px]">{fmtNum(row.months_since_series_release)} mo</p>
                 </td>
@@ -700,19 +700,19 @@ export default function Dashboard() {
         <div className="absolute bottom-20 left-1/3 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.08)' }} />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-10">
-        <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8">
+      <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
+        <div className="flex items-start justify-between gap-3 mb-4 sm:mb-5">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-3" style={{ background: 'rgba(99,102,241,0.13)', border: '1px solid rgba(129,140,248,0.18)' }}>
+            <div className="inline-flex items-center gap-2 rounded-full px-2 py-0.5 mb-2" style={{ background: 'rgba(99,102,241,0.13)', border: '1px solid rgba(129,140,248,0.18)' }}>
               <Sparkles className="w-3.5 h-3.5" style={{ color: '#a5b4fc' }} />
               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#a5b4fc' }}>
                 {vi ? 'Thị trường Light Novel Việt Nam' : 'Vietnamese Light Novel Market'}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-5xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>
               LN Market Analytics
             </h1>
-            <p className="text-sm sm:text-base mt-2 max-w-2xl" style={{ color: 'var(--foreground-secondary)' }}>
+            <p className="text-xs sm:text-sm mt-1.5 max-w-2xl" style={{ color: 'var(--foreground-secondary)' }}>
               {vi
                 ? 'Bảng phân tích điểm LN, rủi ro drop, hoạt động nhà phát hành và xu hướng phát hành tại Việt Nam.'
                 : 'LN score, drop risk, publisher activity, and release trend analytics for the Vietnamese light novel market.'}
@@ -721,7 +721,7 @@ export default function Dashboard() {
 
           <button
             onClick={load}
-            className="p-2 rounded-xl transition-all hover:scale-110"
+            className="p-1.5 rounded-lg transition-all hover:scale-110"
             style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}
             title="Refresh"
           >
@@ -732,14 +732,14 @@ export default function Dashboard() {
         {loading ? (
           <div className="h-[60vh] flex items-center justify-center">
             <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--foreground-secondary)' }}>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
               Loading LN market analytics...
             </div>
           </div>
         ) : error ? (
           <Card className="p-6">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 mt-0.5" style={{ color: '#f59e0b' }} />
+              <AlertTriangle className="w-4 h-4 mt-0.5" style={{ color: '#f59e0b' }} />
               <div>
                 <p className="font-bold" style={{ color: 'var(--foreground)' }}>Dashboard data failed to load</p>
                 <p className="text-sm mt-1" style={{ color: 'var(--foreground-secondary)' }}>{error}</p>
@@ -750,8 +750,8 @@ export default function Dashboard() {
             </div>
           </Card>
         ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3">
               <KpiCard icon={BookOpen} label="Total Licensed Series" value={fmtNum(kpis?.total_licensed_series, 0)} accent="#818cf8" />
               <KpiCard icon={Activity} label="Active Series" value={fmtNum(kpis?.active_series, 0)} accent="#22c55e" />
               <KpiCard icon={CheckCircle2} label="Completed Series" value={fmtNum(kpis?.completed_series, 0)} accent="#38bdf8" />
@@ -760,7 +760,7 @@ export default function Dashboard() {
               <KpiCard icon={ShieldCheck} label="Active Publishers" value={fmtNum(kpis?.active_publishers, 0)} accent="#a78bfa" />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_0.9fr] gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-[1.65fr_0.85fr] gap-6">
               <ScatterPlot
                 rows={scatter}
                 selectedKey={selectedKey}
@@ -770,18 +770,18 @@ export default function Dashboard() {
             </div>
 
             {selectedScatter && (
-              <Card className="p-4 sm:p-5">
+              <Card className="p-3.5 sm:p-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div>
-                    <p className="text-xs uppercase tracking-wider font-bold" style={{ color: 'var(--foreground-muted)' }}>Currently selected</p>
-                    <p className="text-xl font-black mt-1" style={{ color: 'var(--foreground)' }}>{selectedScatter.series_title}</p>
+                    <p className="text-[10px] uppercase tracking-wider font-bold" style={{ color: 'var(--foreground-muted)' }}>Currently selected</p>
+                    <p className="text-lg font-black mt-1" style={{ color: 'var(--foreground)' }}>{selectedScatter.series_title}</p>
                     <p className="text-sm mt-1" style={{ color: 'var(--foreground-secondary)' }}>
                       {selectedScatter.publisher || 'Unknown publisher'} · {selectedScatter.vn_volume_count ?? '—'} / {selectedScatter.original_volume_count ?? '—'} volumes · {selectedScatter.vn_status || selectedScatter.evaluation || '—'}
                     </p>
                   </div>
                   <Link
                     href={selectedScatter.source_series_id ? `/content/${selectedScatter.source_series_id}` : '/browse'}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all hover:scale-105"
                     style={{ background: 'rgba(99,102,241,0.16)', color: '#a5b4fc', border: '1px solid rgba(129,140,248,0.22)' }}
                   >
                     Open detail
