@@ -938,67 +938,68 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
 
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const data = buildGrowth(volumeRows)
-  const w = 760
-  const h = 176
-  const padL = 38
-  const padR = 18
-  const padT = 12
-  const padB = 36
+  const w = 560
+  const h = 158
+  const padL = 34
+  const padR = 14
+  const padT = 10
+  const padB = 24
   const maxY = Math.max(...data.map(d => d.volumes), 1)
   const yTicks = [1, .75, .5, .25, 0].map(ratio => Math.round(maxY * ratio))
+  const labelStep = Math.max(1, Math.ceil(data.length / 8))
   const points = data.map((d, i) => {
-    const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
+    const x = data.length <= 1 ? padL + (w - padL - padR) / 2 : padL + i / (data.length - 1) * (w - padL - padR)
     const y = h - padB - d.volumes / maxY * (h - padT - padB)
     return { x, y, d }
   })
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <Card className="p-3 h-[280px] overflow-hidden">
+    <Card className="p-3 h-[230px] overflow-hidden">
       <div className="flex items-center justify-between mb-1.5">
-        <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Hiển thị toàn bộ năm có dữ liệu từ bảng volumes.' : 'Shows every available year from volume release data.'}</p>
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-wide truncate" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
+          <p className="text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập phát hành theo năm từ bảng volumes.' : 'Volume releases by year from volumes.'}</p>
         </div>
-        <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
+        <TrendingUp className="w-4 h-4 shrink-0" style={{ color: '#22c55e' }} />
       </div>
 
       <div className="flex items-center gap-4 mb-1 text-[10px]" style={{ color: 'var(--foreground-secondary)' }}>
-        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tập phát hành' : 'Volumes'}</span>
       </div>
 
       <div className="overflow-hidden">
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[218px]" preserveAspectRatio="none">
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[172px]">
           {yTicks.map((tick, i) => {
             const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
             return (
               <g key={`${tick}-${i}`}>
                 <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
-                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">
+                <text x={padL - 7} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.82)">
                   {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
                 </text>
               </g>
             )
           })}
 
-          <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          {points.length > 1 && (
+            <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          )}
 
-          {points.map((p) => (
-            <g key={p.d.year}>
-              <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
-              <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
-              <text
-                x={p.x}
-                y={h - 15}
-                textAnchor="end"
-                fontSize="8"
-                fill="rgba(232,236,244,.62)"
-                transform={`rotate(-35 ${p.x} ${h - 15})`}
-              >
-                {p.d.year}
-              </text>
-            </g>
-          ))}
+          {points.map((p, i) => {
+            const showLabel = i === 0 || i === points.length - 1 || i % labelStep === 0
+            return (
+              <g key={p.d.year}>
+                <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
+                <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+                {showLabel && (
+                  <text x={p.x} y={h - 6} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.62)">
+                    {String(p.d.year).slice(2)}
+                  </text>
+                )}
+              </g>
+            )
+          })}
         </svg>
       </div>
     </Card>
@@ -1036,20 +1037,20 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
   const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
 
   return (
-    <Card className="p-3 h-[280px] overflow-hidden">
+    <Card className="p-3 h-[230px] overflow-hidden">
       <div className="flex items-center justify-between mb-2">
-        <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Đếm số tập thật từ volumes theo tháng và năm đã chọn.' : 'Counts real volume rows from volumes by selected month/year.'}</p>
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-wide truncate" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành' : 'Release Activity'}</p>
+          <p className="text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập theo tháng/năm đã chọn.' : 'Volume count by selected month/year.'}</p>
         </div>
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 shrink-0">
           <CompactYearSelect years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} vi={vi} />
           <BarChart3 className="w-4 h-4 shrink-0" style={{ color: '#ec4899' }} />
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <div style={{ minWidth: `${Math.max(350, 74 + 12 * 34)}px` }}>
+        <div style={{ minWidth: `${Math.max(350, 74 + 12 * 32)}px` }}>
           <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: monthGrid }}>
             <div />
             {months.map(([key, label]) => (
@@ -1057,14 +1058,14 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
             ))}
           </div>
 
-          <div className="space-y-1 overflow-y-auto pr-1" style={{ maxHeight: '174px', scrollbarGutter: 'stable' }}>
+          <div className="space-y-1 overflow-y-auto pr-1" style={{ maxHeight: '132px', scrollbarGutter: 'stable' }}>
             {publishers.map(pub => (
               <div key={pub} className="grid gap-1 items-center" style={{ gridTemplateColumns: monthGrid }}>
                 <div className="text-[10px] truncate pr-1 font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{pub}</div>
                 {months.map(([key]) => {
                   const v = lookup.get(`${pub}|${key}`) || 0
                   const alpha = v === 0 ? .08 : .18 + v / max * .76
-                  return <div key={key} title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`} className="h-5 rounded-sm transition-all duration-150 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125 hover:scale-105" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
+                  return <div key={key} title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`} className="h-4 rounded-sm transition-all duration-150 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125 hover:scale-105" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
                 })}
               </div>
             ))}
@@ -1080,7 +1081,6 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
     </Card>
   )
 }
-
 
 function publisherScoreColor(value: number) {
   if (value >= 80) return '#22c55e'
@@ -1271,39 +1271,95 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   )
 }
 
-function PublisherSeriesTable({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
-  const items = [...rows].sort((a, b) => (b.ln_score - a.ln_score) || pctValue(a.drop_percent) - pctValue(b.drop_percent)).slice(0, 10)
+function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
+  const items = [...rows]
+    .sort((a, b) => (b.ln_score - a.ln_score) || pctValue(a.drop_percent) - pctValue(b.drop_percent) || String(b.max_release_at || '').localeCompare(String(a.max_release_at || '')))
+    .slice(0, 16)
+  const initial = Math.max(0, items.findIndex(row => row.series_key === selectedKey))
+  const [activeIndex, setActiveIndex] = useState(initial < 0 ? 0 : initial)
+  const active = items[Math.min(activeIndex, Math.max(0, items.length - 1))]
+
+  useEffect(() => {
+    const idx = items.findIndex(row => row.series_key === selectedKey)
+    if (idx >= 0) setActiveIndex(idx)
+  }, [selectedKey, rows.length])
+
+  if (!active) {
+    return <Card className="p-3"><span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series.' : 'No series.'}</span></Card>
+  }
+
+  const activeStyle = releaseStatusStyle(active)
+  const progress = Math.max(0, Math.min(100, active.catch_up_score * 10))
+
   return (
     <Card className="p-3">
-      <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: 'var(--foreground)' }}>{vi ? 'Top Series' : 'Top Series'}</p>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[620px] text-[11px]">
-          <thead style={{ color: 'var(--foreground-muted)' }}>
-            <tr className="border-b" style={{ borderColor: 'var(--card-border)' }}>
-              <th className="text-left py-2">#</th>
-              <th className="text-left py-2">Series</th>
-              <th className="text-right py-2">LN</th>
-              <th className="text-right py-2">Drop</th>
-              <th className="text-left py-2 pl-3">Status</th>
-              <th className="text-right py-2">{vi ? 'Mới nhất' : 'Latest'}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((row, i) => {
-              const rsStyle = releaseStatusStyle(row)
-              return (
-                <tr key={row.series_key} className="border-b" style={{ borderColor: 'rgba(136,146,170,.12)' }}>
-                  <td className="py-2" style={{ color: 'var(--foreground-muted)' }}>{i + 1}</td>
-                  <td className="py-2 font-semibold max-w-[260px] truncate" style={{ color: 'var(--foreground)' }}>{row.series_title}</td>
-                  <td className="py-2 text-right font-bold" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(2)}</td>
-                  <td className="py-2 text-right font-bold" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</td>
-                  <td className="py-2 pl-3"><span className="rounded-md px-2 py-0.5 text-[9px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span></td>
-                  <td className="py-2 text-right" style={{ color: 'var(--foreground-muted)' }}>{fmtDate(row.max_release_at)}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Series nổi bật' : 'Top Series Carousel'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Chọn series mạnh nhất trong portfolio nhà phát hành.' : 'Select the best series in this publisher portfolio.'}</p>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button type="button" onClick={() => setActiveIndex(i => Math.max(0, i - 1))} className="w-7 h-7 rounded-lg text-xs font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>‹</button>
+          <span className="text-[10px] tabular-nums px-1" style={{ color: 'var(--foreground-muted)' }}>{activeIndex + 1}/{items.length}</span>
+          <button type="button" onClick={() => setActiveIndex(i => Math.min(items.length - 1, i + 1))} className="w-7 h-7 rounded-lg text-xs font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>›</button>
+        </div>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-3">
+        {items.map((row, i) => {
+          const selected = i === activeIndex
+          return (
+            <button
+              key={row.series_key}
+              type="button"
+              onClick={() => { setActiveIndex(i); onSelect(row) }}
+              className="group shrink-0 w-[132px] rounded-xl p-2 text-left transition-all hover:-translate-y-0.5"
+              style={{ background: selected ? 'rgba(124,106,245,.18)' : 'var(--ln-panel-bg)', border: `1px solid ${selected ? 'rgba(124,106,245,.55)' : 'var(--card-border)'}` }}
+            >
+              <div className="flex gap-2">
+                {row.cover_url ? (
+                  <img src={proxyImg(row.cover_url) || ''} alt="" className="w-9 h-12 rounded-md object-cover shrink-0" />
+                ) : (
+                  <div className="w-9 h-12 rounded-md shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />
+                )}
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black line-clamp-2 leading-snug" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
+                  <p className="text-[9px] mt-1 tabular-nums" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)} LN</p>
+                </div>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[96px_1fr_160px] gap-3 items-center rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
+        {active.cover_url ? (
+          <img src={proxyImg(active.cover_url) || ''} alt="" className="w-24 h-[136px] max-h-36 rounded-lg object-cover shadow-lg" />
+        ) : (
+          <div className="w-24 h-[136px] min-h-[136px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />
+        )}
+        <div className="min-w-0">
+          <p className="text-lg font-black leading-tight line-clamp-2" style={{ color: 'var(--foreground)' }}>{active.series_title}</p>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
+            <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{vi ? 'Mới nhất' : 'Latest'} {fmtDate(active.max_release_at)}</span>
+            <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtNum(active.number_of_volumes, 0)}/{fmtNum(active.original_volumes, 0)} VN/JP</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-[10px]">
+            <div><p style={{ color: 'var(--foreground-muted)' }}>LN</p><p className="font-black text-base" style={{ color: scoreColor(active.ln_score) }}>{active.ln_score.toFixed(2)}</p></div>
+            <div><p style={{ color: 'var(--foreground-muted)' }}>Drop</p><p className="font-black text-base" style={{ color: dropColor(active.drop_percent) }}>{fmtPercent(active.drop_percent)}</p></div>
+            <div><p style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Gap TB' : 'Avg gap'}</p><p className="font-black text-base" style={{ color: 'var(--foreground)' }}>{active.average_gap_months == null ? '—' : `${active.average_gap_months.toFixed(1)}m`}</p></div>
+            <div><p style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Bắt kịp' : 'Catch-up'}</p><p className="font-black text-base" style={{ color: '#38bdf8' }}>{progress.toFixed(0)}%</p></div>
+          </div>
+        </div>
+        <div className="flex lg:flex-col gap-2 justify-end">
+          <Link href={detailHref(active)} className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-black" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>
+            Open <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+          <button type="button" onClick={() => onSelect(active)} className="rounded-lg px-3 py-2 text-xs font-black" style={{ background: 'rgba(56,189,248,.12)', color: '#7dd3fc', border: '1px solid rgba(56,189,248,.22)' }}>
+            {vi ? 'Xem chart' : 'Select chart'}
+          </button>
+        </div>
       </div>
     </Card>
   )
@@ -1413,7 +1469,7 @@ function PublisherFocusView({ rows, volumeRows, selectedPublisher, setSelectedPu
         <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr_0.95fr] gap-3 items-stretch">
         <GrowthChart volumeRows={publisherVolumes} vi={vi} />
         <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
         <div className="grid grid-cols-1 gap-3">
@@ -1422,8 +1478,8 @@ function PublisherFocusView({ rows, volumeRows, selectedPublisher, setSelectedPu
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr] gap-3">
-        <PublisherSeriesTable rows={portfolioRows} vi={vi} />
+      <div className="grid grid-cols-1 xl:grid-cols-[1.45fr_0.75fr] gap-3 items-start">
+        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
         <PublisherRiskWatch rows={portfolioRows} vi={vi} />
       </div>
     </div>
