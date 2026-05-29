@@ -25,7 +25,7 @@ import {
 import supabase from '@/lib/supabaseClient'
 import { useLocale } from '@/contexts/LocaleContext'
 
-type Mode = 'dashboard' | 'watchlist'
+type Mode = 'dashboard' | 'watchlist' | 'publisher'
 
 type RawRankingRow = {
   id: number
@@ -531,24 +531,29 @@ function KpiStrip({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 }
 
 function ModeSwitch({ mode, setMode, vi }: { mode: Mode; setMode: (m: Mode) => void; vi: boolean }) {
+  const items = [
+    { id: 'dashboard' as Mode, icon: LayoutDashboard, label: vi ? 'Bảng điều khiển' : 'Dashboard', color: '#7c6af5', text: '#fff' },
+    { id: 'publisher' as Mode, icon: Building2, label: vi ? 'Nhà phát hành' : 'Publishers', color: '#38bdf8', text: '#03111d' },
+    { id: 'watchlist' as Mode, icon: ListFilter, label: vi ? 'Watchlist LN' : 'LN Watchlist', color: '#22c55e', text: '#03150a' },
+  ]
+
   return (
-    <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
-      <button
-        onClick={() => setMode('dashboard')}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-        style={mode === 'dashboard' ? { background: '#7c6af5', color: '#fff' } : { color: 'var(--foreground-secondary)' }}
-      >
-        <LayoutDashboard className="w-3.5 h-3.5" />
-        {vi ? 'Bảng điều khiển' : 'Dashboard'}
-      </button>
-      <button
-        onClick={() => setMode('watchlist')}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-        style={mode === 'watchlist' ? { background: '#22c55e', color: '#03150a' } : { color: 'var(--foreground-secondary)' }}
-      >
-        <ListFilter className="w-3.5 h-3.5" />
-        {vi ? 'Watchlist LN' : 'LN Watchlist'}
-      </button>
+    <div className="flex items-center gap-1 p-1 rounded-xl overflow-x-auto" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
+      {items.map(item => {
+        const Icon = item.icon
+        const active = mode === item.id
+        return (
+          <button
+            key={item.id}
+            onClick={() => setMode(item.id)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
+            style={active ? { background: item.color, color: item.text } : { color: 'var(--foreground-secondary)' }}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {item.label}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -851,7 +856,7 @@ function buildPublishers(rows: LNRow[], volumeRows?: VolumeReleaseRow[]) {
   }).sort((a, b) => b.releases24 - a.releases24 || b.seriesCount - a.seriesCount)
 }
 
-function PublisherLeaderboard({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean }) {
+function PublisherLeaderboard({ rows, volumeRows, vi, onSelectPublisher }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean; onSelectPublisher?: (publisher: string) => void }) {
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
   const years = availableReleaseYears(volumeRows)
   const filteredVolumes = filterVolumeRowsBySingleYear(volumeRows, selectedYear)
@@ -863,7 +868,7 @@ function PublisherLeaderboard({ rows, volumeRows, vi }: { rows: LNRow[]; volumeR
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động nhà phát hành' : 'Publishers Activity'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Sản lượng phát hành, điểm LN và độ an toàn.' : 'Release output, score, and safety proxy.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Bấm nhà phát hành để mở dashboard riêng.' : 'Click a publisher to open its profile dashboard.'}</p>
         </div>
         <div className="flex items-center gap-2 min-w-0">
           <CompactYearSelect years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} vi={vi} />
@@ -883,7 +888,13 @@ function PublisherLeaderboard({ rows, volumeRows, vi }: { rows: LNRow[]; volumeR
           const width = (p.releases24 / max) * 100
           const completionProxy = Math.max(0, Math.min(100, 100 - p.avgDrop))
           return (
-            <div key={p.publisher} className="grid grid-cols-[1.05fr_0.9fr_0.55fr_0.6fr] gap-2 items-center">
+            <button
+              key={p.publisher}
+              type="button"
+              onClick={() => onSelectPublisher?.(p.publisher)}
+              className="w-full grid grid-cols-[1.05fr_0.9fr_0.55fr_0.6fr] gap-2 items-center rounded-lg px-1 py-0.5 text-left transition-all hover:bg-white/[0.04]"
+              style={{ cursor: onSelectPublisher ? 'pointer' : 'default' }}
+            >
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(56,189,248,.16)', color: '#38bdf8' }}>{i + 1}</span>
                 <span className="font-bold truncate text-[11px]" style={{ color: 'var(--foreground)' }}>{p.publisher}</span>
@@ -905,7 +916,7 @@ function PublisherLeaderboard({ rows, volumeRows, vi }: { rows: LNRow[]; volumeR
               <div className="text-right text-[11px] font-bold tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
                 {completionProxy.toFixed(0)}%
               </div>
-            </div>
+            </button>
           )
         })}
       </div>
@@ -1067,6 +1078,355 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
         </div>
       </div>
     </Card>
+  )
+}
+
+
+function publisherScoreColor(value: number) {
+  if (value >= 80) return '#22c55e'
+  if (value >= 65) return '#38bdf8'
+  if (value >= 45) return '#eab308'
+  return '#ef4444'
+}
+
+function avgValue(rows: LNRow[], fn: (row: LNRow) => number) {
+  if (rows.length === 0) return 0
+  return rows.reduce((sum, row) => sum + fn(row), 0) / rows.length
+}
+
+function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; rows: LNRow[]; vi: boolean }) {
+  const activeCount = rows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
+  const completedCount = rows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
+  const safety = Math.max(0, Math.min(100, 100 - publisher.avgDrop))
+  const releaseActivity = Math.max(0, Math.min(100, publisher.marketShare * 3.5))
+  const quality = Math.max(0, Math.min(100, publisher.avgScore * 10))
+  const completion = rows.length ? (completedCount / rows.length) * 100 : 0
+  const active = rows.length ? (activeCount / rows.length) * 100 : 0
+  const catchup = avgValue(rows, row => row.catch_up_score * 10)
+  const momentum = avgValue(rows, row => row.momentum_score * 10)
+
+  const axes = [
+    [vi ? 'Sản lượng' : 'Output', releaseActivity],
+    [vi ? 'Hoàn thành' : 'Completion', completion],
+    [vi ? 'Uy tín' : 'Reliability', avgValue(rows, row => row.publisher_support_score * 10)],
+    [vi ? 'Đà phát hành' : 'Momentum', momentum],
+    [vi ? 'Bắt kịp' : 'Catch-up', catchup],
+    [vi ? 'Chất lượng' : 'Quality', quality],
+    [vi ? 'An toàn' : 'Safety', safety],
+    [vi ? 'Đang chạy' : 'Active', active],
+  ] as const
+
+  const size = 250
+  const cx = size / 2
+  const cy = size / 2
+  const maxR = 80
+  const polygon = axes.map(([, value], i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+    const r = Math.max(0, Math.min(100, value)) / 100 * maxR
+    return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
+  }).join(' ')
+  const grid = [0.35, 0.7, 1].map(level => axes.map(([,], i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+    const r = level * maxR
+    return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
+  }).join(' '))
+
+  return (
+    <Card className="p-3.5 h-full">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Publisher DNA</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Chuẩn hóa theo portfolio hiện tại.' : 'Normalized against this publisher portfolio.'}</p>
+        </div>
+        <span className="text-[10px] font-black rounded-full px-2 py-1" style={{ color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.22)' }}>{publisher.publisher}</span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-[260px_1fr] gap-2 items-center">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="mx-auto max-w-full">
+          {grid.map((points, i) => <polygon key={i} points={points} fill="none" stroke="rgba(136,146,170,.18)" />)}
+          {axes.map(([label], i) => {
+            const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+            const x = cx + Math.cos(angle) * (maxR + 26)
+            const y = cy + Math.sin(angle) * (maxR + 26)
+            return (
+              <g key={label}>
+                <line x1={cx} y1={cy} x2={cx + Math.cos(angle) * maxR} y2={cy + Math.sin(angle) * maxR} stroke="rgba(136,146,170,.14)" />
+                <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="8.5" fill="rgba(232,236,244,.74)">{label}</text>
+              </g>
+            )
+          })}
+          <polygon points={polygon} fill="rgba(56,189,248,.24)" stroke="#38bdf8" strokeWidth="2" />
+        </svg>
+        <div className="grid grid-cols-2 gap-1.5">
+          {axes.map(([label, value]) => (
+            <div key={label} className="rounded-lg px-2 py-1.5" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
+              <p className="text-[9px] uppercase font-black" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
+              <p className="text-xs font-black" style={{ color: publisherScoreColor(value) }}>{value.toFixed(0)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
+  return (
+    <Card className="p-3.5 h-full">
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Portfolio Quality Map' : 'Portfolio Quality Map'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'LN Score so với rủi ro drop của từng series.' : 'LN Score vs drop risk for this publisher.'}</p>
+        </div>
+      </div>
+      <div className="relative h-[300px] rounded-lg overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+        <div className="absolute inset-x-8 inset-y-7">
+          {[0, 25, 50, 75, 100].map(v => (
+            <div key={v} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(136,146,170,.14)' }}>
+              <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
+            </div>
+          ))}
+          {[0, 2, 4, 6, 8, 10].map(v => (
+            <div key={v} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(136,146,170,.10)' }}>
+              <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
+            </div>
+          ))}
+          <span className="absolute right-2 top-2 text-[10px] font-black uppercase" style={{ color: '#38bdf8' }}>{vi ? 'Chất lượng cao' : 'High Quality'}</span>
+          <span className="absolute left-2 bottom-2 text-[10px] font-black uppercase" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
+          {rows.map(row => {
+            const jitter = scatterStableNoise(row.series_key)
+            const x = Math.max(0, Math.min(100, (row.ln_score + jitter.x) * 10))
+            const y = 100 - Math.max(0, Math.min(100, pctValue(row.drop_percent) + jitter.y))
+            const color = statusColors[row.evalution || ''] || scoreColor(row.ln_score)
+            const active = row.series_key === selectedKey
+            const size = active ? 16 : Math.max(8, Math.min(14, 7 + row.demand_score * 0.6))
+            return (
+              <button
+                key={row.series_key}
+                type="button"
+                title={`${row.series_title}\nLN ${row.ln_score.toFixed(1)} · Drop ${fmtPercent(row.drop_percent)}`}
+                onClick={() => onSelect(row)}
+                className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, transform: 'translate(-50%, -50%)', background: color, border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,.42)', boxShadow: active ? `0 0 0 7px ${color}25, 0 0 22px ${color}` : `0 0 11px ${color}66`, zIndex: active ? 20 : 10 }}
+              />
+            )
+          })}
+        </div>
+        <div className="absolute left-10 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
+        <div className="absolute left-3 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Khả năng drop' : 'Drop Risk'}</div>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherProgressTable({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const items = [...rows].sort((a, b) => (b.catch_up_score - a.catch_up_score) || (b.ln_score - a.ln_score)).slice(0, 9)
+  return (
+    <Card className="p-3 h-full">
+      <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: 'var(--foreground)' }}>{vi ? 'Tiến độ VN vs gốc' : 'VN Progress vs Original'}</p>
+      <div className="space-y-1.5">
+        {items.map(row => {
+          const pct = Math.max(0, Math.min(100, row.catch_up_score * 10))
+          return (
+            <div key={row.series_key} className="grid grid-cols-[1fr_46px_54px] gap-2 items-center text-[10px]">
+              <span className="truncate font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{row.series_title}</span>
+              <span className="tabular-nums text-right" style={{ color: 'var(--foreground-muted)' }}>{fmtNum(row.number_of_volumes, 0)}/{fmtNum(row.original_volumes, 0)}</span>
+              <div className="flex items-center gap-1">
+                <div className="h-1.5 rounded-full overflow-hidden flex-1" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#38bdf8,#22c55e)' }} />
+                </div>
+                <span className="tabular-nums" style={{ color: 'var(--foreground-muted)' }}>{pct.toFixed(0)}%</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </Card>
+  )
+}
+
+function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const groups = [
+    { key: 'active', label: vi ? 'Đang chạy' : 'Ongoing', color: '#2563eb', rows: rows.filter(r => ['Good', 'Limping'].includes(r.evalution || '')) },
+    { key: 'completed', label: vi ? 'Hoàn thành' : 'Completed', color: '#22c55e', rows: rows.filter(r => r.evalution === 'Completed') },
+    { key: 'stalled', label: vi ? 'Cầm chừng' : 'Stalled', color: '#eab308', rows: rows.filter(r => r.evalution === 'Dead') },
+    { key: 'dropped', label: vi ? 'Đã drop' : 'Dropped', color: '#ef4444', rows: rows.filter(r => r.evalution === 'Dropped') },
+    { key: 'caught', label: vi ? 'Bắt kịp' : 'Caught Up', color: '#7c6af5', rows: rows.filter(r => releaseStatus(r) === 'Đã bắt kịp bản gốc JP') },
+  ]
+  return (
+    <Card className="p-3 h-full">
+      <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: 'var(--foreground)' }}>{vi ? 'Cơ cấu portfolio' : 'Portfolio Breakdown'}</p>
+      <div className="grid grid-cols-2 gap-1.5">
+        {groups.map(group => {
+          const avg = group.rows.length ? avgValue(group.rows, row => row.ln_score) : 0
+          return (
+            <div key={group.key} className="rounded-xl p-3 min-h-[72px] flex flex-col justify-center" style={{ background: `${group.color}33`, border: `1px solid ${group.color}44` }}>
+              <p className="text-[10px] font-black" style={{ color: 'var(--foreground)' }}>{group.label}</p>
+              <p className="text-2xl font-black leading-none mt-1" style={{ color: 'var(--foreground)' }}>{group.rows.length}</p>
+              <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{avg ? avg.toFixed(2) : '—'} LN</p>
+            </div>
+          )
+        })}
+      </div>
+    </Card>
+  )
+}
+
+function PublisherSeriesTable({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const items = [...rows].sort((a, b) => (b.ln_score - a.ln_score) || pctValue(a.drop_percent) - pctValue(b.drop_percent)).slice(0, 10)
+  return (
+    <Card className="p-3">
+      <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: 'var(--foreground)' }}>{vi ? 'Top Series' : 'Top Series'}</p>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[620px] text-[11px]">
+          <thead style={{ color: 'var(--foreground-muted)' }}>
+            <tr className="border-b" style={{ borderColor: 'var(--card-border)' }}>
+              <th className="text-left py-2">#</th>
+              <th className="text-left py-2">Series</th>
+              <th className="text-right py-2">LN</th>
+              <th className="text-right py-2">Drop</th>
+              <th className="text-left py-2 pl-3">Status</th>
+              <th className="text-right py-2">{vi ? 'Mới nhất' : 'Latest'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((row, i) => {
+              const rsStyle = releaseStatusStyle(row)
+              return (
+                <tr key={row.series_key} className="border-b" style={{ borderColor: 'rgba(136,146,170,.12)' }}>
+                  <td className="py-2" style={{ color: 'var(--foreground-muted)' }}>{i + 1}</td>
+                  <td className="py-2 font-semibold max-w-[260px] truncate" style={{ color: 'var(--foreground)' }}>{row.series_title}</td>
+                  <td className="py-2 text-right font-bold" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(2)}</td>
+                  <td className="py-2 text-right font-bold" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</td>
+                  <td className="py-2 pl-3"><span className="rounded-md px-2 py-0.5 text-[9px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span></td>
+                  <td className="py-2 text-right" style={{ color: 'var(--foreground-muted)' }}>{fmtDate(row.max_release_at)}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const risky = [...rows].sort((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)).slice(0, 5)
+  const stalled = [...rows].sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0)).slice(0, 5)
+  return (
+    <Card className="p-3">
+      <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: '#fb7185' }}>{vi ? 'Cảnh báo rủi ro' : 'Publisher Risk Watch'}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="rounded-xl p-3" style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.18)' }}>
+          <p className="text-[11px] font-black mb-2" style={{ color: '#f87171' }}>{vi ? 'Drop cao nhất' : 'Highest Drop Risk'}</p>
+          <div className="space-y-1.5">
+            {risky.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[11px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-bold" style={{ color: '#f87171' }}>{fmtPercent(row.drop_percent)}</span></div>)}
+          </div>
+        </div>
+        <div className="rounded-xl p-3" style={{ background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.18)' }}>
+          <p className="text-[11px] font-black mb-2" style={{ color: '#fb923c' }}>{vi ? 'Lâu chưa ra tập' : 'Stalled Series'}</p>
+          <div className="space-y-1.5">
+            {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[11px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-bold" style={{ color: '#fb923c' }}>{row.months_since_last_release == null ? '—' : `${row.months_since_last_release.toFixed(0)}m`}</span></div>)}
+          </div>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherFocusView({ rows, volumeRows, selectedPublisher, setSelectedPublisher, selectedKey, onSelectSeries, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; selectedPublisher: string | null; setSelectedPublisher: (publisher: string) => void; selectedKey: string | null; onSelectSeries: (row: LNRow) => void; vi: boolean }) {
+  const publishers = buildPublishers(rows, volumeRows).filter(p => p.releases24 > 0)
+  const currentName = selectedPublisher || publishers[0]?.publisher || 'Unknown'
+  const publisher = publishers.find(p => p.publisher === currentName) || publishers[0]
+  const portfolioRows = rows.filter(row => (row.publisher || 'Unknown') === currentName)
+  const publisherVolumes = volumeRows.filter(row => (row.publisher || 'Unknown') === currentName)
+  const activeSeries = portfolioRows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
+  const completedSeries = portfolioRows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
+  const avgScore = portfolioRows.length ? avgValue(portfolioRows, row => row.ln_score) : 0
+  const avgDrop = portfolioRows.length ? avgValue(portfolioRows, row => pctValue(row.drop_percent)) : 0
+  const reliability = portfolioRows.length ? avgValue(portfolioRows, row => row.publisher_support_score * 10) : 0
+  const rank = Math.max(1, publishers.findIndex(p => p.publisher === currentName) + 1)
+  const marketShare = publisher?.marketShare || 0
+
+  if (!publisher) {
+    return <Card className="p-6 text-sm"><span style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có dữ liệu nhà phát hành.' : 'No publisher data available.'}</span></Card>
+  }
+
+  const kpis = [
+    { label: vi ? 'Series cấp phép' : 'Licensed Series', value: portfolioRows.length.toLocaleString('vi-VN'), delta: `${activeSeries} active`, color: '#818cf8' },
+    { label: vi ? 'Tập đã phát hành' : 'Released Volumes', value: publisherVolumes.length.toLocaleString('vi-VN'), delta: `${marketShare.toFixed(1)}% share`, color: '#38bdf8' },
+    { label: vi ? 'Series hoạt động' : 'Active Series', value: activeSeries.toLocaleString('vi-VN'), delta: `${completedSeries} completed`, color: '#22c55e' },
+    { label: vi ? 'Điểm LN TB' : 'Average LN Score', value: avgScore.toFixed(2), delta: `Rank #${rank}`, color: scoreColor(avgScore) },
+    { label: vi ? 'Drop TB' : 'Average Drop', value: `${avgDrop.toFixed(1)}%`, delta: vi ? 'rủi ro portfolio' : 'portfolio risk', color: dropColor(avgDrop) },
+  ]
+
+  return (
+    <div className="space-y-3">
+      <Card className="p-3.5">
+        <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_260px] gap-4 items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black shrink-0" style={{ background: 'rgba(255,255,255,.92)', color: '#1d4ed8', border: '1px solid rgba(255,255,255,.16)' }}>
+              {currentName.slice(0, 3).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Nhà phát hành' : 'Publisher'}</p>
+              <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
+              <p className="text-[11px] mt-1" style={{ color: 'var(--foreground-secondary)' }}>Market rank #{rank} / {publishers.length}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {kpis.map(kpi => (
+              <div key={kpi.label} className="rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
+                <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{kpi.label}</p>
+                <p className="text-2xl font-black mt-1 leading-none" style={{ color: 'var(--foreground)' }}>{kpi.value}</p>
+                <p className="text-[10px] mt-1" style={{ color: kpi.color }}>{kpi.delta}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Publisher Reliability' : 'Publisher Reliability'}</p>
+              <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: '#86efac', background: 'rgba(34,197,94,.12)' }}>#{rank}</span>
+            </div>
+            <div className="flex items-end gap-2">
+              <span className="text-5xl font-black leading-none" style={{ color: publisherScoreColor(reliability) }}>{reliability.toFixed(0)}</span>
+              <span className="pb-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>/100</span>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden mt-3" style={{ background: 'var(--ln-track-bg)' }}>
+              <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, reliability))}%`, background: 'linear-gradient(90deg,#38bdf8,#a78bfa)' }} />
+            </div>
+            <select
+              value={currentName}
+              onChange={e => setSelectedPublisher(e.target.value)}
+              className="mt-3 w-full rounded-lg px-2 py-1.5 text-xs font-bold outline-none"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+            >
+              {publishers.map(p => <option key={p.publisher} value={p.publisher}>{p.publisher}</option>)}
+            </select>
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.8fr] gap-3">
+        <PublisherDNARadar publisher={publisher} rows={portfolioRows} vi={vi} />
+        <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <GrowthChart volumeRows={publisherVolumes} vi={vi} />
+        <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+        <div className="grid grid-cols-1 gap-3">
+          <PublisherProgressTable rows={portfolioRows} vi={vi} />
+          <PublisherBreakdown rows={portfolioRows} vi={vi} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr] gap-3">
+        <PublisherSeriesTable rows={portfolioRows} vi={vi} />
+        <PublisherRiskWatch rows={portfolioRows} vi={vi} />
+      </div>
+    </div>
   )
 }
 
@@ -1406,6 +1766,7 @@ export default function Dashboard() {
   const [rows, setRows] = useState<LNRow[]>([])
   const [volumeRows, setVolumeRows] = useState<VolumeReleaseRow[]>([])
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [selectedPublisher, setSelectedPublisher] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -1431,6 +1792,7 @@ export default function Dashboard() {
     setRows(hydrated)
     setVolumeRows(volumeReleases)
     setSelectedKey((hydrated.find(r => r.evalution === 'Good') || hydrated[0])?.series_key || null)
+    setSelectedPublisher(buildPublishers(hydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || hydrated[0]?.publisher || null)
     setLoading(false)
   }
 
@@ -1489,6 +1851,8 @@ export default function Dashboard() {
           </Card>
         ) : mode === 'watchlist' ? (
           <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setMode('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+        ) : mode === 'publisher' ? (
+          <PublisherFocusView rows={rows} volumeRows={volumeRows} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : (
           <div className="space-y-4">
             <KpiStrip rows={rows} vi={vi} />
@@ -1499,7 +1863,7 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <PublisherLeaderboard rows={rows} volumeRows={volumeRows} vi={vi} />
+              <PublisherLeaderboard rows={rows} volumeRows={volumeRows} vi={vi} onSelectPublisher={(publisher) => { setSelectedPublisher(publisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
               <GrowthChart volumeRows={volumeRows} vi={vi} />
               <Heatmap rows={rows} volumeRows={volumeRows} vi={vi} />
             </div>
