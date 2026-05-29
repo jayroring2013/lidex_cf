@@ -149,6 +149,7 @@ function filterVolumeRowsByYears(rows: VolumeReleaseRow[], selectedYears: number
 }
 
 function YearFilter({ years, selectedYears, setSelectedYears, vi }: { years: number[]; selectedYears: number[]; setSelectedYears: (years: number[]) => void; vi: boolean }) {
+  const displayYears = [...years].sort((a, b) => b - a)
   const toggleYear = (year: number) => {
     setSelectedYears(selectedYears.includes(year) ? selectedYears.filter(y => y !== year) : [...selectedYears, year].sort((a, b) => a - b))
   }
@@ -166,12 +167,12 @@ function YearFilter({ years, selectedYears, setSelectedYears, vi }: { years: num
       >
         {label} ▾
       </summary>
-      <div className="absolute right-0 top-8 z-50 w-[156px] rounded-lg p-2 shadow-xl space-y-1" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
+      <div className="absolute right-0 top-8 z-[9999] w-[156px] rounded-lg p-2 shadow-xl space-y-1" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
         <button type="button" onClick={() => setSelectedYears([])} className="w-full text-left px-2 py-1.5 rounded-md text-[10px] font-bold" style={{ color: selectedYears.length === 0 ? '#a78bfa' : 'var(--foreground-secondary)', background: selectedYears.length === 0 ? 'rgba(124,106,245,.16)' : 'transparent' }}>
           {vi ? 'Tất cả năm' : 'All years'}
         </button>
-        <div className="max-h-[190px] overflow-y-auto pr-1 space-y-1">
-          {years.map(year => (
+        <div className="overflow-y-auto overscroll-contain pr-1 space-y-1" style={{ maxHeight: 'min(70vh, 320px)', scrollbarGutter: 'stable' }}>
+          {displayYears.map(year => (
             <label key={year} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[10px] font-bold cursor-pointer hover:bg-white/[0.04]" style={{ color: 'var(--foreground-secondary)' }}>
               <input type="checkbox" checked={selectedYears.includes(year)} onChange={() => toggleYear(year)} className="accent-violet-500" />
               {year}
@@ -841,8 +842,8 @@ function buildHeatmap(rows: VolumeReleaseRow[]) {
   for (const row of rows) {
     const d = new Date(row.release_date)
     if (Number.isNaN(d.getTime())) continue
-    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
-    const monthLabel = `${d.toLocaleString('en-US', { month: 'short' })} '${String(d.getFullYear()).slice(-2)}`
+    const monthKey = String(d.getMonth()).padStart(2, '0')
+    const monthLabel = d.toLocaleString('en-US', { month: 'short' })
     const publisher = row.publisher || 'Unknown'
     const key = `${publisher}|${monthKey}`
     const prev = map.get(key) || { publisher, monthKey, monthLabel, count: 0 }
@@ -858,13 +859,16 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
   const filteredVolumes = filterVolumeRowsByYears(volumeRows, selectedYears)
   const data = buildHeatmap(filteredVolumes)
   const publishers = buildPublishers(rows, filteredVolumes).filter(p => p.releases24 > 0).slice(0, 6).map(p => p.publisher)
-  const months = Array.from(new Map(data.map(d => [d.monthKey, d.monthLabel])).entries()).sort((a, b) => a[0].localeCompare(b[0]))
-  const monthGrid = months.length ? `74px repeat(${months.length}, 1fr)` : '74px 1fr'
+  const months = Array.from({ length: 12 }, (_, month) => [
+    String(month).padStart(2, '0'),
+    new Date(2020, month, 1).toLocaleString('en-US', { month: 'short' }),
+  ] as const)
+  const monthGrid = '74px repeat(12, 1fr)'
   const max = Math.max(...data.map(d => d.count), 1)
   const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
 
   return (
-    <Card className="p-3 h-[226px] overflow-hidden">
+    <Card className="p-3 h-[226px] overflow-visible">
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
@@ -877,7 +881,7 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
       </div>
 
       <div className="overflow-x-auto">
-        <div style={{ minWidth: `${Math.max(350, 74 + months.length * 34)}px` }}>
+        <div style={{ minWidth: `${Math.max(350, 74 + 12 * 34)}px` }}>
           <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: monthGrid }}>
             <div />
             {months.map(([key, label]) => (
