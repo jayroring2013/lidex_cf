@@ -8,7 +8,7 @@ import {
   ExternalLink, Share2, Copy, Twitter, Loader2,
   ArrowLeft, Award, TrendingUp, Globe, ChevronDown, ChevronUp,
   BarChart2, FlaskConical, Users, Film, Layers, BookMarked,
-  Languages, BadgeCheck, Building2, Image as ImageIcon
+  Languages, BadgeCheck, Building2, AlertTriangle, Search, Image as ImageIcon
 } from 'lucide-react'
 import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -74,6 +74,252 @@ const DEMO_LABELS: Record<string, string> = {
   seinen: 'Seinen',   josei: 'Josei', none: 'General',
 }
 
+
+// ── LN Dead-or-Alive analytics helpers ───────────────────────────────────────
+interface NovelRankingRow {
+  id: number
+  series_title: string | null
+  series_id: string | null
+  lidex_series_id: number | null
+  series_code: string | null
+  number_of_volumes: number | null
+  average_price: number | null
+  max_release_at: string | null
+  average_view_count: number | null
+  publisher: string | null
+  original_volumes: number | null
+  original_status: string | null
+  evalution: string | null
+  evaluation_basis: string | null
+  ln_score: number | null
+  trang_thai: string | null
+  drop_percent: number | null
+  drop_basis: string | null
+  average_gap_months: number | null
+  months_since_last_release: number | null
+  completion_ratio: number | null
+  publisher_activity: string | null
+  publisher_releases_last_24m: number | null
+  score_components: string | null
+  drop_components: string | null
+  cover_url: string | null
+  cover_source_title: string | null
+  updated_at?: string | null
+}
+
+type NovelRadarAxis = {
+  label: string
+  value: number
+  hint: string
+}
+
+function lnNum(value: unknown, fallback = 0) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
+
+function lnDropPercent(value: number | null | undefined) {
+  const n = lnNum(value)
+  return n <= 1 ? Math.round(n * 100) : Math.round(n)
+}
+
+function lnScoreColor(score: number | null | undefined) {
+  const s = lnNum(score)
+  if (s >= 8) return '#22c55e'
+  if (s >= 6) return '#38bdf8'
+  if (s >= 4) return '#eab308'
+  return '#ef4444'
+}
+
+function lnDropColor(drop: number | null | undefined) {
+  const p = lnDropPercent(drop)
+  if (p <= 25) return '#22c55e'
+  if (p <= 55) return '#eab308'
+  return '#ef4444'
+}
+
+function lnEvalColor(evalution?: string | null) {
+  return ({
+    Completed: '#38bdf8',
+    Good: '#22c55e',
+    Limping: '#eab308',
+    Dead: '#f97316',
+    Dropped: '#ef4444',
+  } as Record<string, string>)[evalution || ''] || '#94a3b8'
+}
+
+function lnReleaseStatus(row: NovelRankingRow) {
+  return row.trang_thai || (
+    row.evalution === 'Completed'
+      ? 'Hoàn thành'
+      : row.evalution === 'Dead'
+        ? 'Lâu lắm rồi chưa có tập mới'
+        : row.evalution === 'Dropped'
+          ? 'Drop'
+          : 'Đang phát hành'
+  )
+}
+
+function lnEvalLabel(evalution?: string | null, isVI = true) {
+  const vi = { Completed: 'Hoàn thành', Good: 'Tốt', Limping: 'Cầm chừng', Dead: 'Gần chết', Dropped: 'Đã drop' } as Record<string, string>
+  const en = { Completed: 'Completed', Good: 'Good', Limping: 'Limping', Dead: 'Inactive', Dropped: 'Dropped' } as Record<string, string>
+  return (isVI ? vi : en)[evalution || ''] || evalution || '—'
+}
+
+function lnReleaseStatusLabel(status: string, isVI = true) {
+  if (isVI) return status
+  return ({
+    'Đang phát hành': 'Active',
+    'Lâu lắm rồi chưa có tập mới': 'Long inactive',
+    Drop: 'Dropped',
+    'Đã bắt kịp bản gốc JP': 'Caught up to JP',
+    'Hoàn thành': 'Completed',
+  } as Record<string, string>)[status] || status
+}
+
+function lnClamp10(value: number) {
+  return Math.max(0, Math.min(10, Number.isFinite(value) ? value : 0))
+}
+
+function lnReleasePaceScore(row: NovelRankingRow) {
+  const gap = row.average_gap_months == null ? null : lnNum(row.average_gap_months)
+  const months = row.months_since_last_release == null ? null : lnNum(row.months_since_last_release)
+
+  let gapScore = 5
+  if (gap !== null) {
+    if (gap <= 4) gapScore = 9.5
+    else if (gap <= 6) gapScore = 8.5
+    else if (gap <= 12) gapScore = 6.5
+    else if (gap <= 18) gapScore = 4.5
+    else if (gap <= 24) gapScore = 3
+    else gapScore = 1.5
+  }
+
+  let recencyScore = 5
+  if (months !== null) {
+    if (months <= 6) recencyScore = 9
+    else if (months <= 12) recencyScore = 7
+    else if (months <= 18) recencyScore = 5
+    else if (months <= 24) recencyScore = 3
+    else if (months <= 36) recencyScore = 1.8
+    else recencyScore = 1
+  }
+
+  return Number((gapScore * 0.6 + recencyScore * 0.4).toFixed(1))
+}
+
+function lnCatchUpScore(row: NovelRankingRow) {
+  if (row.completion_ratio != null) {
+    const r = lnNum(row.completion_ratio)
+    return lnClamp10((r > 1 ? r / 100 : r) * 10)
+  }
+  const original = lnNum(row.original_volumes)
+  if (original > 0) return lnClamp10(lnNum(row.number_of_volumes) / original * 10)
+  return 5
+}
+
+function lnCompletionRatio(row: NovelRankingRow) {
+  if (row.completion_ratio != null) {
+    const r = lnNum(row.completion_ratio)
+    return r > 1 ? r / 100 : r
+  }
+  const original = lnNum(row.original_volumes)
+  if (original > 0) return lnNum(row.number_of_volumes) / original
+  return null
+}
+
+function lnPercentileScore(rows: NovelRankingRow[], value: number | null | undefined, getter: (row: NovelRankingRow) => number) {
+  const sorted = rows.map(getter).filter(Number.isFinite).sort((a, b) => a - b)
+  if (value == null || sorted.length <= 1) return 5
+  const n = lnNum(value)
+  const idx = sorted.findIndex(v => v >= n)
+  const rank = idx < 0 ? sorted.length - 1 : idx
+  return Number(((rank / (sorted.length - 1)) * 10).toFixed(1))
+}
+
+function lnPublisherSupportScore(row: NovelRankingRow) {
+  const base = ({ Active: 8, Moderate: 6.5, Low: 4.5, Inactive: 2 } as Record<string, number>)[row.publisher_activity || ''] ?? 5
+  return Number(lnClamp10(base + Math.min(lnNum(row.publisher_releases_last_24m) / 50 * 2, 2)).toFixed(1))
+}
+
+function lnCompletionSafetyScore(row: NovelRankingRow) {
+  if (row.evalution === 'Completed') return 10
+  return Number(lnClamp10((1 - lnDropPercent(row.drop_percent) / 100) * 10).toFixed(1))
+}
+
+function lnMomentumScore(row: NovelRankingRow) {
+  const base = ({ Active: 7.5, Moderate: 6, Low: 4, Inactive: 2 } as Record<string, number>)[row.publisher_activity || ''] ?? 5
+  const releases = lnClamp10(lnNum(row.publisher_releases_last_24m) / 40 * 10)
+  const months = row.months_since_last_release == null ? null : lnNum(row.months_since_last_release)
+  let freshness = 5
+
+  if (months !== null) {
+    if (months <= 6) freshness = 8.5
+    else if (months <= 12) freshness = 6.5
+    else if (months <= 18) freshness = 4.5
+    else freshness = 2
+  }
+
+  return Number((base * 0.45 + releases * 0.35 + freshness * 0.2).toFixed(1))
+}
+
+function buildNovelRadarAxes(row: NovelRankingRow, marketRows: NovelRankingRow[], isVI = true): NovelRadarAxis[] {
+  return [
+    {
+      label: isVI ? 'Nhịp phát hành' : 'Release Pace',
+      value: lnReleasePaceScore(row),
+      hint: isVI ? 'Dựa trên khoảng cách trung bình giữa các tập và độ mới của tập gần nhất.' : 'Based on average release gap and latest release recency.',
+    },
+    {
+      label: isVI ? 'Bắt kịp' : 'Catch-up',
+      value: lnCatchUpScore(row),
+      hint: isVI ? 'Tỷ lệ tập VN so với số tập gốc/JP.' : 'Vietnamese volumes compared with original/JP volumes.',
+    },
+    {
+      label: isVI ? 'Nhu cầu' : 'Demand',
+      value: lnPercentileScore(marketRows, row.average_view_count, r => lnNum(r.average_view_count)),
+      hint: isVI ? 'Phân vị lượt xem trung bình trong toàn bộ watchlist LN.' : 'Average view count percentile across the LN watchlist.',
+    },
+    {
+      label: isVI ? 'Nhà PH' : 'Publisher',
+      value: lnPublisherSupportScore(row),
+      hint: isVI ? 'Hoạt động nhà phát hành và số tập phát hành trong 24 tháng.' : 'Publisher activity and release output over 24 months.',
+    },
+    {
+      label: isVI ? 'An toàn' : 'Safety',
+      value: lnCompletionSafetyScore(row),
+      hint: isVI ? 'Nghịch đảo của khả năng drop.' : 'Inverse of drop probability.',
+    },
+    {
+      label: isVI ? 'Đà phát hành' : 'Momentum',
+      value: lnMomentumScore(row),
+      hint: isVI ? 'Tổng hợp hoạt động nhà phát hành, số tập 24 tháng và độ mới phát hành.' : 'Publisher support, 24M output, and release freshness.',
+    },
+  ]
+}
+
+function lnStableNoise(seed: string) {
+  let hash = 2166136261
+  for (let i = 0; i < seed.length; i += 1) {
+    hash ^= seed.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  const a = ((hash >>> 0) % 1000) / 1000
+  const b = (((hash >>> 8) >>> 0) % 1000) / 1000
+  return {
+    x: (a - 0.5) * 0.22,
+    y: (b - 0.5) * 2.8,
+  }
+}
+
+function lnFormatDate(value: string | null | undefined, locale: string) {
+  if (!value) return '—'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function ContentDetail() {
@@ -96,6 +342,11 @@ export default function ContentDetail() {
   const [publisherName,setPublisherName]= useState<string | null>(null)
   const [seriesLinks,  setSeriesLinks]  = useState<any[]>([])
   const [allVolumes,   setAllVolumes]   = useState<any[]>([]) // <--- NEW STATE FOR STATS
+  const [novelMeta,    setNovelMeta]    = useState<any>(null)
+  const [lnRanking,    setLnRanking]    = useState<NovelRankingRow | null>(null)
+  const [lnMarketRows, setLnMarketRows] = useState<NovelRankingRow[]>([])
+  const [lnStatsLoading, setLnStatsLoading] = useState(false)
+  const [lnStatsError, setLnStatsError] = useState<string | null>(null)
 
   const { locale } = useLocale()
   const isVI       = locale === 'vi'
@@ -119,29 +370,38 @@ export default function ContentDetail() {
     loadData()
   }, [seriesId])
 
-  // ── Manga-specific: fetch manga_meta + latest volume cover ───────────────────
+  // ── Manga/Novel-specific: fetch meta + latest volume cover ───────────────────
   useEffect(() => {
-    if (!series || series.item_type !== 'manga') return
+    if (!series || !['manga', 'novel'].includes(series.item_type)) return
 
     async function loadMangaEnrichment() {
-      // 1. manga_meta — only fields that are actually populated (no MangaDex data yet)
-      const { data: meta } = await supabase
-        .from('manga_meta')
-        .select('series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at')
-        .eq('series_id', series.id)
-        .single()
-      if (meta) {
-        setMangaMeta(meta)
+      // 1. Metadata. Manga has manga_meta; novel can optionally use novel_meta when available.
+      if (series.item_type === 'manga') {
+        const { data: meta } = await supabase
+          .from('manga_meta')
+          .select('series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at')
+          .eq('series_id', series.id)
+          .single()
+        if (meta) {
+          setMangaMeta(meta)
 
-        // 2. Resolve publisher name from vn_publisher_id
-        if (meta.vn_publisher_id) {
-          const { data: pub } = await supabase
-            .from('publishers')
-            .select('name, name_vi')
-            .eq('id', meta.vn_publisher_id)
-            .single()
-          if (pub) setPublisherName(pub.name_vi || pub.name)
+          // 2. Resolve publisher name from vn_publisher_id
+          if (meta.vn_publisher_id) {
+            const { data: pub } = await supabase
+              .from('publishers')
+              .select('name, name_vi')
+              .eq('id', meta.vn_publisher_id)
+              .single()
+            if (pub) setPublisherName(pub.name_vi || pub.name)
+          }
         }
+      } else if (series.item_type === 'novel') {
+        const { data: meta } = await supabase
+          .from('novel_meta')
+          .select('*')
+          .eq('series_id', series.id)
+          .maybeSingle()
+        if (meta) setNovelMeta(meta)
       }
 
       // 3. All non-special volumes ordered DESC by volume_number
@@ -183,9 +443,9 @@ export default function ContentDetail() {
     loadMangaEnrichment()
   }, [series])
 
-  // ── Anime: set cover from series directly ────────────────────────────────────
+  // ── Anime/other: set cover from series directly ──────────────────────────────
   useEffect(() => {
-    if (!series || series.item_type === 'manga') return
+    if (!series || ['manga', 'novel'].includes(series.item_type)) return
     setCoverSrc(series.cover_url || null)
   }, [series])
 
@@ -204,6 +464,52 @@ export default function ContentDetail() {
     }
 
     loadAnimeLinks()
+  }, [series])
+
+  // ── Novel: fetch LN Dead-or-Alive ranking data ───────────────────────────────
+  useEffect(() => {
+    if (!series || series.item_type !== 'novel') {
+      setLnRanking(null)
+      setLnMarketRows([])
+      setLnStatsError(null)
+      return
+    }
+
+    async function loadNovelRanking() {
+      setLnStatsLoading(true)
+      setLnStatsError(null)
+
+      try {
+        const { data, error } = await supabase
+          .from('ln_series_ranking')
+          .select('id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, average_view_count, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title, updated_at')
+          .order('ln_score', { ascending: false })
+
+        if (error) throw error
+
+        const rows = (data || []) as NovelRankingRow[]
+        const normalizedTitle = String(series.title || '').trim().toLowerCase()
+        const normalizedTitleVI = String(series.title_vi || '').trim().toLowerCase()
+        const normalizedNative = String(series.title_native || '').trim().toLowerCase()
+
+        const current = rows.find(row => Number(row.lidex_series_id) === Number(series.id))
+          || rows.find(row => {
+            const title = String(row.series_title || '').trim().toLowerCase()
+            return Boolean(title) && [normalizedTitle, normalizedTitleVI, normalizedNative].filter(Boolean).includes(title)
+          })
+          || null
+
+        setLnMarketRows(rows)
+        setLnRanking(current)
+      } catch (err: any) {
+        console.error('Failed to load LN ranking data:', err)
+        setLnStatsError(err.message || 'Failed to load LN ranking data')
+      } finally {
+        setLnStatsLoading(false)
+      }
+    }
+
+    loadNovelRanking()
   }, [series])
 
   // ── Calculate LiDex Score (anime only) ──────────────────────────────────────
@@ -310,6 +616,7 @@ export default function ContentDetail() {
   const isOngoing = series.status === 'ongoing' || series.status === 'Ongoing'
   const isAnime   = series.item_type === 'anime'
   const isManga   = series.item_type === 'manga'
+  const isNovel   = series.item_type === 'novel'
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--background)' }}>
@@ -731,8 +1038,19 @@ export default function ContentDetail() {
 
                     <RadarChart series={series} />
                   </>
+                ) : isNovel ? (
+                  <NovelDoAStats
+                    ranking={lnRanking}
+                    marketRows={lnMarketRows}
+                    volumes={allVolumes}
+                    series={series}
+                    novelMeta={novelMeta}
+                    locale={locale}
+                    loading={lnStatsLoading}
+                    error={lnStatsError}
+                  />
                 ) : isManga ? (
-                  /* --- NEW MANGA STATS SECTION --- */
+                  /* --- Manga Stats Section --- */
                   <MangaStats volumes={allVolumes} locale={locale} />
                 ) : (
                   <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3">
@@ -855,7 +1173,7 @@ export default function ContentDetail() {
                 <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Liên kết ngoài' : 'External Links'}</h3>
               </div>
               <div className="space-y-2">
-                {isManga ? (
+                {(isManga || isNovel) ? (
                   <>
                     {seriesLinks.length > 0 ? (
                       seriesLinks.map((link: any, i: number) => {
@@ -1136,6 +1454,365 @@ function ScoreDistribution({ data }: { data: Record<string, number> | string }) 
           </span>
         </div>
       )}
+    </div>
+  )
+}
+
+
+// ── Novel LN Dead-or-Alive Stats ──────────────────────────────────────────────
+
+function NovelDoAStats({
+  ranking,
+  marketRows,
+  volumes,
+  series,
+  novelMeta,
+  locale,
+  loading,
+  error,
+}: {
+  ranking: NovelRankingRow | null
+  marketRows: NovelRankingRow[]
+  volumes: any[]
+  series: any
+  novelMeta: any
+  locale: string
+  loading: boolean
+  error: string | null
+}) {
+  const isVI = locale === 'vi'
+
+  if (loading) {
+    return (
+      <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3">
+        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+        <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
+          {isVI ? 'Đang tải dữ liệu LN Watchlist…' : 'Loading LN Watchlist analytics…'}
+        </p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="glass rounded-2xl p-6">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 mt-0.5 text-amber-400" />
+          <div>
+            <p className="font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Không tải được dữ liệu LN' : 'LN analytics failed to load'}</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--foreground-secondary)' }}>{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!ranking) {
+    return (
+      <div className="space-y-6">
+        <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3 text-center">
+          <BarChart2 className="w-10 h-10 opacity-20 text-primary-500" />
+          <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Series này chưa được liên kết với LN Watchlist' : 'This series is not linked to the LN Watchlist yet'}
+          </p>
+          <p className="text-xs max-w-xl" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI
+              ? 'Hãy kiểm tra cột lidex_series_id trong public.ln_series_ranking để liên kết series này với bảng Dead-or-Alive.'
+              : 'Check the lidex_series_id column in public.ln_series_ranking to link this series to the Dead-or-Alive table.'}
+          </p>
+        </div>
+        <MangaStats volumes={volumes} locale={locale} />
+      </div>
+    )
+  }
+
+  const drop = lnDropPercent(ranking.drop_percent)
+  const ratio = lnCompletionRatio(ranking)
+  const avgPrice = volumes.length
+    ? Math.round(volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((a, b) => a + b, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length))
+    : 0
+  const releaseStatus = lnReleaseStatus(ranking)
+  const evalColor = lnEvalColor(ranking.evalution)
+  const releaseDate = lnFormatDate(ranking.max_release_at, locale)
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatBig label={isVI ? 'Điểm LN' : 'LN Score'} value={ranking.ln_score != null ? Number(ranking.ln_score).toFixed(1) : '—'} sub="/10" color={lnScoreColor(ranking.ln_score)} />
+        <StatBig label={isVI ? 'Rủi ro Drop' : 'Drop Risk'} value={`${drop}%`} color={lnDropColor(ranking.drop_percent)} />
+        <StatBig label={isVI ? 'Tập VN / Gốc' : 'VN / Original'} value={`${lnNum(ranking.number_of_volumes)}/${ranking.original_volumes ?? '—'}`} color="#a78bfa" />
+        <StatBig label={isVI ? 'Lượt xem TB' : 'Avg Views'} value={ranking.average_view_count ? fmtBig(Number(ranking.average_view_count)) : '—'} color="#38bdf8" />
+      </div>
+
+      <div className="glass rounded-2xl p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}44` }}>
+                {lnEvalLabel(ranking.evalution, isVI)}
+              </span>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-black" style={{ color: 'var(--foreground-secondary)', background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                {lnReleaseStatusLabel(releaseStatus, isVI)}
+              </span>
+              {ranking.publisher_activity && (
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-black" style={{ color: '#93c5fd', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.24)' }}>
+                  {ranking.publisher_activity}
+                </span>
+              )}
+            </div>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>
+              {ranking.evaluation_basis || (isVI ? 'Chưa có mô tả đánh giá.' : 'No evaluation explanation available.')}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 shrink-0 min-w-[230px]">
+            <MiniMetric label={isVI ? 'Ngày mới nhất' : 'Latest Release'} value={releaseDate} />
+            <MiniMetric label={isVI ? 'Cách đây' : 'Months Ago'} value={ranking.months_since_last_release != null ? `${Number(ranking.months_since_last_release).toFixed(1)}m` : '—'} />
+            <MiniMetric label={isVI ? 'Nhịp TB' : 'Avg Gap'} value={ranking.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)}m` : '—'} />
+            <MiniMetric label={isVI ? 'Tiến độ' : 'Progress'} value={ratio != null ? `${Math.round(ratio * 100)}%` : '—'} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1.35fr_0.9fr] gap-4">
+        <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
+        <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <BreakdownCard
+          title={isVI ? 'Thành phần Điểm LN' : 'LN Score Components'}
+          accent={lnScoreColor(ranking.ln_score)}
+          body={ranking.score_components || ranking.evaluation_basis || ''}
+          empty={isVI ? 'Không có breakdown điểm.' : 'No score breakdown available.'}
+        />
+        <BreakdownCard
+          title={isVI ? 'Thành phần Rủi ro Drop' : 'Drop Risk Components'}
+          accent={lnDropColor(ranking.drop_percent)}
+          body={ranking.drop_components || ranking.drop_basis || ''}
+          empty={isVI ? 'Không có breakdown rủi ro.' : 'No risk breakdown available.'}
+        />
+      </div>
+
+      {volumes.length > 0 && (
+        <div className="glass rounded-2xl p-5 sm:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <BookOpen className="w-5 h-5 text-primary-500" />
+            <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
+              {isVI ? 'Dữ liệu tập đã phát hành' : 'Volume Release Data'}
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <MiniMetric label={isVI ? 'Tập trong DB' : 'DB Volumes'} value={String(volumes.length)} />
+            <MiniMetric label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? `${avgPrice.toLocaleString('vi-VN')}₫` : '—'} />
+            <MiniMetric label={isVI ? 'Tập mới nhất' : 'Latest Vol.'} value={volumes[0]?.volume_number != null ? `Vol. ${volumes[0].volume_number}` : '—'} />
+            <MiniMetric label={isVI ? 'Nguồn bìa' : 'Cover Source'} value={ranking.cover_source_title || series.title || '—'} />
+            {novelMeta && (
+              <MiniMetric
+                label={isVI ? 'Novel Meta' : 'Novel Meta'}
+                value={novelMeta.updated_at ? lnFormatDate(novelMeta.updated_at, locale) : (isVI ? 'Có dữ liệu' : 'Available')}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+      <p className="text-[10px] uppercase tracking-wide font-bold mb-1" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
+      <p className="text-sm font-black truncate" style={{ color: 'var(--foreground)' }}>{value}</p>
+    </div>
+  )
+}
+
+function BreakdownCard({ title, accent, body, empty }: { title: string; accent: string; body: string; empty: string }) {
+  const lines = body.split('\n').map(line => line.trim()).filter(Boolean)
+
+  return (
+    <div className="glass rounded-2xl p-5 sm:p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent, boxShadow: `0 0 16px ${accent}` }} />
+        <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{title}</h2>
+      </div>
+      {lines.length ? (
+        <div className="space-y-2">
+          {lines.map((line, i) => (
+            <div key={i} className="text-xs leading-relaxed rounded-lg p-2.5" style={{ color: 'var(--foreground-secondary)', background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+              {line}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{empty}</p>
+      )}
+    </div>
+  )
+}
+
+function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRankingRow[]; active: NovelRankingRow; locale: string }) {
+  const isVI = locale === 'vi'
+  const [query, setQuery] = useState('')
+
+  const q = query.trim().toLowerCase()
+  const baseRows = marketRows.filter(row => {
+    const status = lnReleaseStatus(row)
+    const searchable = `${row.series_title || ''} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
+    return (
+      row.evalution !== 'Completed'
+      && status !== 'Đã bắt kịp bản gốc JP'
+      && (!q || searchable.includes(q))
+    )
+  })
+  const activeKey = `${active.lidex_series_id || active.series_id || active.id}|${active.series_code || ''}`
+  const rows = baseRows.some(row => `${row.lidex_series_id || row.series_id || row.id}|${row.series_code || ''}` === activeKey)
+    ? baseRows
+    : [active, ...baseRows]
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+        <div>
+          <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Điểm LN vs Rủi ro Drop' : 'LN Score vs Drop Risk'}</h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'So sánh series này với toàn bộ LN Watchlist.' : 'Compares this series against the full LN Watchlist.'}
+          </p>
+        </div>
+        <div className="relative shrink-0">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: 'var(--foreground-muted)' }} />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder={isVI ? 'Tìm title / ID...' : 'Search title / ID...'}
+            className="pl-7 pr-2 py-1.5 rounded-lg text-[11px] outline-none w-full sm:w-[170px]"
+            style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+          />
+        </div>
+      </div>
+
+      <div className="relative h-[300px] rounded-xl overflow-hidden" style={{ background: 'rgba(3,7,18,0.42)', border: '1px solid var(--card-border)' }}>
+        <div className="absolute inset-x-8 inset-y-8">
+          {[0, 25, 50, 75, 100].map(v => (
+            <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(148,163,184,.14)' }}>
+              <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
+            </div>
+          ))}
+          {[0, 2, 4, 6, 8, 10].map(v => (
+            <div key={`x-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(148,163,184,.10)' }}>
+              <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
+            </div>
+          ))}
+
+          <span className="absolute left-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{isVI ? 'Rủi ro cao' : 'High Risk'}</span>
+          <span className="absolute right-2 bottom-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{isVI ? 'Khỏe mạnh' : 'Healthy'}</span>
+
+          {rows.map(row => {
+            const key = `${row.lidex_series_id || row.series_id || row.id}|${row.series_code || ''}`
+            const jitter = lnStableNoise(key)
+            const x = Math.max(0, Math.min(100, (lnNum(row.ln_score) + jitter.x) * 10))
+            const y = 100 - Math.max(0, Math.min(100, lnDropPercent(row.drop_percent) + jitter.y))
+            const selected = key === activeKey
+            const color = selected ? '#ffffff' : lnEvalColor(row.evalution)
+            const size = selected ? 18 : Math.max(8, Math.min(14, 7 + lnPercentileScore(marketRows, row.average_view_count, r => lnNum(r.average_view_count)) * 0.65))
+
+            return (
+              <button
+                key={key}
+                title={`${row.series_title || 'Untitled'}\nLN ${Number(row.ln_score || 0).toFixed(1)} · Drop ${lnDropPercent(row.drop_percent)}%`}
+                onClick={() => {
+                  if (row.lidex_series_id && row.lidex_series_id !== active.lidex_series_id) {
+                    window.location.href = `/content/${row.lidex_series_id}`
+                  }
+                }}
+                className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                style={{
+                  left: `${x}%`,
+                  top: `${y}%`,
+                  width: size,
+                  height: size,
+                  background: selected ? lnScoreColor(row.ln_score) : color,
+                  border: selected ? '2px solid white' : '1px solid rgba(255,255,255,.35)',
+                  boxShadow: selected ? `0 0 0 8px ${lnScoreColor(row.ln_score)}30, 0 0 28px ${lnScoreColor(row.ln_score)}` : `0 0 12px ${color}66`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: selected ? 20 : 5,
+                  cursor: row.lidex_series_id ? 'pointer' : 'default',
+                }}
+              />
+            )
+          })}
+        </div>
+
+        <div className="absolute left-10 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
+        <div className="absolute left-3 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Khả năng drop' : 'Drop Probability'}</div>
+        <div className="absolute right-3 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{rows.length.toLocaleString('vi-VN')} series</div>
+      </div>
+    </div>
+  )
+}
+
+function NovelLNRadar({ ranking, marketRows, locale }: { ranking: NovelRankingRow; marketRows: NovelRankingRow[]; locale: string }) {
+  const isVI = locale === 'vi'
+  const axes = buildNovelRadarAxes(ranking, marketRows, isVI)
+  const size = 238
+  const cx = size / 2
+  const cy = size / 2
+  const maxR = 76
+  const points = axes.map((axis, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+    const r = lnClamp10(axis.value) / 10 * maxR
+    return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
+  }).join(' ')
+  const grids = [0.33, 0.66, 1].map(level => axes.map((_, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+    const r = level * maxR
+    return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
+  }).join(' '))
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Radar sức khỏe LN' : 'LN Health Radar'}</h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Tính từ dữ liệu phát hành, tiến độ, nhu cầu và nhà phát hành.' : 'Based on release pace, progress, demand, and publisher support.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-[240px_1fr] xl:grid-cols-1 gap-3 items-center">
+        <div className="flex justify-center">
+          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
+            {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="rgba(148,163,184,.20)" />)}
+            {axes.map((axis, i) => {
+              const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+              const x = cx + Math.cos(angle) * (maxR + 24)
+              const y = cy + Math.sin(angle) * (maxR + 24)
+              return (
+                <g key={axis.label}>
+                  <line x1={cx} y1={cy} x2={cx + Math.cos(angle) * maxR} y2={cy + Math.sin(angle) * maxR} stroke="rgba(148,163,184,.14)" />
+                  <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="8.5" fill="rgba(226,232,240,.78)">{axis.label}</text>
+                </g>
+              )
+            })}
+            <polygon points={points} fill="rgba(124,106,245,.34)" stroke="#a78bfa" strokeWidth="2" />
+            {points.split(' ').map((p, i) => {
+              const [x, y] = p.split(',').map(Number)
+              return <circle key={i} cx={x} cy={y} r="3" fill="#c4b5fd" />
+            })}
+          </svg>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {axes.map(axis => (
+            <div key={axis.label} title={axis.hint} className="rounded-xl px-3 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+              <p className="text-[10px] uppercase tracking-wide font-bold" style={{ color: 'var(--foreground-muted)' }}>{axis.label}</p>
+              <p className="text-lg font-black" style={{ color: '#c4b5fd' }}>{axis.value.toFixed(1)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
