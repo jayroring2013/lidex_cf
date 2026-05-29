@@ -181,42 +181,6 @@ function filterVolumeRowsBySingleYear(rows: VolumeReleaseRow[], selectedYear: nu
   if (selectedYear === null) return rows
   return rows.filter(row => volumeReleaseYear(row) === selectedYear)
 }
-: { years: number[]; selectedYears: number[]; setSelectedYears: (years: number[]) => void; vi: boolean }) {
-  const displayYears = [...years].sort((a, b) => b - a)
-  const toggleYear = (year: number) => {
-    setSelectedYears(selectedYears.includes(year) ? selectedYears.filter(y => y !== year) : [...selectedYears, year].sort((a, b) => a - b))
-  }
-  const label = selectedYears.length === 0
-    ? (vi ? 'Tất cả năm' : 'All years')
-    : selectedYears.length <= 2
-      ? selectedYears.join(', ')
-      : (vi ? `${selectedYears.length} năm` : `${selectedYears.length} years`)
-
-  return (
-    <details className="relative shrink-0">
-      <summary
-        className="list-none cursor-pointer select-none px-2.5 py-1.5 rounded-lg text-[10px] font-black min-w-[88px] text-center"
-        style={{ background: selectedYears.length === 0 ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYears.length === 0 ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
-      >
-        {label} ▾
-      </summary>
-      <div className="absolute right-0 top-8 z-[9999] w-[156px] rounded-lg p-2 shadow-xl space-y-1" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
-        <button type="button" onClick={() => setSelectedYears([])} className="w-full text-left px-2 py-1.5 rounded-md text-[10px] font-bold" style={{ color: selectedYears.length === 0 ? '#a78bfa' : 'var(--foreground-secondary)', background: selectedYears.length === 0 ? 'rgba(124,106,245,.16)' : 'transparent' }}>
-          {vi ? 'Tất cả năm' : 'All years'}
-        </button>
-        <div className="overflow-y-auto overscroll-contain pr-1 space-y-1" style={{ maxHeight: 'min(70vh, 320px)', scrollbarGutter: 'stable' }}>
-          {displayYears.map(year => (
-            <label key={year} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[10px] font-bold cursor-pointer hover:bg-white/[0.04]" style={{ color: 'var(--foreground-secondary)' }}>
-              <input type="checkbox" checked={selectedYears.includes(year)} onChange={() => toggleYear(year)} className="accent-violet-500" />
-              {year}
-            </label>
-          ))}
-        </div>
-      </div>
-    </details>
-  )
-}
-
 const RELEASE_STATUS_ORDER: Record<string, number> = {
   'Đang phát hành': 0,
   'Lâu lắm rồi chưa có tập mới': 1,
