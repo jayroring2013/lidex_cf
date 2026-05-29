@@ -824,6 +824,73 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
 
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const data = buildGrowth(volumeRows)
+  const w = 760
+  const h = 176
+  const padL = 38
+  const padR = 18
+  const padT = 12
+  const padB = 36
+  const maxY = Math.max(...data.map(d => d.volumes), 1)
+  const yTicks = [1, .75, .5, .25, 0].map(ratio => Math.round(maxY * ratio))
+  const points = data.map((d, i) => {
+    const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
+    const y = h - padB - d.volumes / maxY * (h - padT - padB)
+    return { x, y, d }
+  })
+  const line = points.map(p => `${p.x},${p.y}`).join(' ')
+
+  return (
+    <Card className="p-3 h-[280px] overflow-hidden">
+      <div className="flex items-center justify-between mb-1.5">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Hiển thị toàn bộ năm có dữ liệu từ bảng volumes.' : 'Shows every available year from volume release data.'}</p>
+        </div>
+        <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
+      </div>
+
+      <div className="flex items-center gap-4 mb-1 text-[10px]" style={{ color: 'var(--foreground-secondary)' }}>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
+      </div>
+
+      <div className="overflow-hidden">
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[218px]" preserveAspectRatio="none">
+          {yTicks.map((tick, i) => {
+            const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
+            return (
+              <g key={`${tick}-${i}`}>
+                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
+                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">
+                  {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
+                </text>
+              </g>
+            )
+          })}
+
+          <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+
+          {points.map((p) => (
+            <g key={p.d.year}>
+              <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
+              <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+              <text
+                x={p.x}
+                y={h - 15}
+                textAnchor="end"
+                fontSize="8"
+                fill="rgba(232,236,244,.62)"
+                transform={`rotate(-35 ${p.x} ${h - 15})`}
+              >
+                {p.d.year}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    </Card>
+  )
+}: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
+  const data = buildGrowth(volumeRows)
   const w = 520
   const h = 148
   const padL = 42
