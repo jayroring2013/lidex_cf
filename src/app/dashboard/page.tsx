@@ -31,6 +31,7 @@ type RawRankingRow = {
   id: number
   series_title: string | null
   series_id: string | null
+  lidex_series_id: number | null
   series_code: string | null
   number_of_volumes: number | null
   average_price: number | null
@@ -63,6 +64,7 @@ type LNRow = {
   series_key: string
   series_title: string
   series_id: string | null
+  lidex_series_id: number | null
   series_code: string | null
   number_of_volumes: number
   average_price: number
@@ -299,8 +301,7 @@ function proxyImg(url: string | null) {
 
 function detailHref(row: LNRow | null) {
   if (!row) return '/browse'
-  // series_id in ln_series_ranking is the source/Hako ID, not guaranteed to match LiDex series.id.
-  // Search is safer than redirecting to the wrong /content/[id].
+  if (row.lidex_series_id) return `/content/${row.lidex_series_id}`
   return `/browse?search=${encodeURIComponent(row.series_title)}`
 }
 
@@ -386,9 +387,10 @@ function mapRows(raw: RawRankingRow[]) {
     return {
       raw_rank: i + 1,
       source_row_id: r.id,
-      series_key: `${r.series_id || r.id}|${r.series_code || ''}`,
+      series_key: `${r.lidex_series_id || r.series_id || r.id}|${r.series_code || ''}`,
       series_title: r.series_title || 'Untitled',
       series_id: r.series_id,
+      lidex_series_id: r.lidex_series_id == null ? null : num(r.lidex_series_id),
       series_code: r.series_code,
       number_of_volumes: num(r.number_of_volumes),
       average_price: num(r.average_price),
@@ -932,24 +934,32 @@ function dropTooltip(row: LNRow) {
   ].join('\n')
 }
 
-async function loadNovelVolumeReleases(): Promise<VolumeReleaseRow[]> {
-  const { data: seriesData, error: seriesError } = await supabase
-    .from('series')
-    .select('id, publisher')
-    .eq('item_type', 'novel')
-    .not('genres', 'cs', '{"Hentai"}')
-
-  if (seriesError || !seriesData) {
-    console.warn('[Dashboard] novel series fetch failed:', seriesError?.message)
-    return []
-  }
-
+async function loadNovelVolumeReleases(dashboardRows: LNRow[]): Promise<VolumeReleaseRow[]> {
   const publisherBySeries = new Map<number, string>()
-  const seriesIds = seriesData.map((series: any) => {
-    const id = Number(series.id)
-    publisherBySeries.set(id, series.publisher || 'Unknown')
-    return id
-  }).filter(Boolean)
+  let seriesIds = Array.from(new Set(dashboardRows.map(row => {
+    if (!row.lidex_series_id) return null
+    publisherBySeries.set(row.lidex_series_id, row.publisher || 'Unknown')
+    return row.lidex_series_id
+  }).filter((id): id is number => Boolean(id))))
+
+  if (seriesIds.length === 0) {
+    const { data: seriesData, error: seriesError } = await supabase
+      .from('series')
+      .select('id, publisher')
+      .eq('item_type', 'novel')
+      .not('genres', 'cs', '{"Hentai"}')
+
+    if (seriesError || !seriesData) {
+      console.warn('[Dashboard] novel series fetch failed:', seriesError?.message)
+      return []
+    }
+
+    seriesIds = seriesData.map((series: any) => {
+      const id = Number(series.id)
+      publisherBySeries.set(id, series.publisher || 'Unknown')
+      return id
+    }).filter(Boolean)
+  }
 
   const releases: VolumeReleaseRow[] = []
   const batchSize = 200
@@ -1155,7 +1165,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                         {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[64px] h-[90px] object-cover rounded-lg shrink-0 shadow-lg" /> : <div className="w-[64px] h-[90px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />}
                         <div className="min-w-0">
                           <p className="font-black leading-snug line-clamp-2 max-w-[340px]" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                          <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.series_id || '—'} · {row.series_code || '—'}</p>
+                          <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.lidex_series_id || row.series_id || '—'} · {row.series_code || '—'}</p>
                         </div>
                       </div>
                     </td>
@@ -1197,7 +1207,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                   {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[104px] h-[148px] object-cover rounded-lg shrink-0 shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-black leading-snug line-clamp-4" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                    <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.series_id || '—'} · {row.series_code || '—'}</p>
+                    <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.lidex_series_id || row.series_id || '—'} · {row.series_code || '—'}</p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
                       <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(row.max_release_at)}</span>
@@ -1255,7 +1265,7 @@ export default function Dashboard() {
     }
 
     const mapped = mapRows((data || []) as RawRankingRow[])
-    const volumeReleases = await loadNovelVolumeReleases()
+    const volumeReleases = await loadNovelVolumeReleases(mapped)
     setRows(mapped)
     setVolumeRows(volumeReleases)
     setSelectedKey((mapped.find(r => r.evalution === 'Good') || mapped[0])?.series_key || null)
