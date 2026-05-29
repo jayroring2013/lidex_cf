@@ -939,23 +939,30 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const data = buildGrowth(volumeRows)
   const w = 760
-  const h = 190
-  const padL = 42
-  const padR = 18
+  const h = 184
+  const padL = 38
+  const padR = 14
   const padT = 14
-  const padB = 34
+  const padB = 30
   const maxY = Math.max(...data.map(d => d.volumes), 1)
-  const yTicks = [1, .75, .5, .25, 0].map(ratio => Math.round(maxY * ratio))
-  const yearLabelStep = data.length > 11 ? 2 : 1
+  const roundedMax = Math.max(5, Math.ceil(maxY / 10) * 10)
+  const yTicks = [roundedMax, Math.round(roundedMax * 0.66), Math.round(roundedMax * 0.33), 0]
+    .filter((tick, index, arr) => arr.indexOf(tick) === index)
+  const labelIndexes = Array.from(new Set([
+    0,
+    Math.floor((data.length - 1) * 0.33),
+    Math.floor((data.length - 1) * 0.66),
+    data.length - 1,
+  ])).filter(index => index >= 0 && index < data.length)
   const points = data.map((d, i) => {
     const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
-    const y = h - padB - d.volumes / maxY * (h - padT - padB)
+    const y = h - padB - d.volumes / roundedMax * (h - padT - padB)
     return { x, y, d }
   })
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <Card className="p-3 h-[245px] overflow-hidden">
+    <Card className="p-3 h-[220px] overflow-hidden">
       <div className="flex items-center justify-between mb-1">
         <div>
           <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
@@ -964,18 +971,14 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
-      <div className="flex items-center gap-4 mb-0.5 text-[11px]" style={{ color: 'var(--foreground-secondary)' }}>
-        <span className="inline-flex items-center gap-1"><span className="w-4 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
-      </div>
-
       <div className="overflow-hidden">
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[188px]" preserveAspectRatio="none">
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[172px]" preserveAspectRatio="none">
           {yTicks.map((tick, i) => {
-            const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
+            const y = h - padB - tick / roundedMax * (h - padT - padB)
             return (
               <g key={`${tick}-${i}`}>
                 <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
-                <text x={padL - 9} y={y + 4} textAnchor="end" fontSize="11" fontWeight="700" fill="rgba(147,164,193,.88)">
+                <text x={padL - 8} y={y + 4} textAnchor="end" fontSize="11" fontWeight="700" fill="rgba(147,164,193,.88)">
                   {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
                 </text>
               </g>
@@ -988,9 +991,9 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             <g key={p.d.year}>
               <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
               <circle cx={p.x} cy={p.y} r="3.5" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
-              {(i % yearLabelStep === 0 || i === points.length - 1) && (
-                <text x={p.x} y={h - 10} textAnchor="middle" fontSize="11" fontWeight="700" fill="rgba(232,236,244,.68)">
-                  {String(p.d.year).slice(2)}
+              {labelIndexes.includes(i) && (
+                <text x={p.x} y={h - 9} textAnchor="middle" fontSize="11" fontWeight="700" fill="rgba(232,236,244,.70)">
+                  {p.d.year}
                 </text>
               )}
             </g>
