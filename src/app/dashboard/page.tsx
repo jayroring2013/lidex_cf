@@ -1272,93 +1272,179 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 }
 
 function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
-  const items = [...rows]
+  const items = useMemo(() => [...rows]
     .sort((a, b) => (b.ln_score - a.ln_score) || pctValue(a.drop_percent) - pctValue(b.drop_percent) || String(b.max_release_at || '').localeCompare(String(a.max_release_at || '')))
-    .slice(0, 16)
+    .slice(0, 12), [rows])
+
   const initial = Math.max(0, items.findIndex(row => row.series_key === selectedKey))
   const [activeIndex, setActiveIndex] = useState(initial < 0 ? 0 : initial)
-  const active = items[Math.min(activeIndex, Math.max(0, items.length - 1))]
 
   useEffect(() => {
     const idx = items.findIndex(row => row.series_key === selectedKey)
     if (idx >= 0) setActiveIndex(idx)
-  }, [selectedKey, rows.length])
+    else setActiveIndex(0)
+  }, [selectedKey, items.length])
 
-  if (!active) {
+  if (items.length === 0) {
     return <Card className="p-3"><span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series.' : 'No series.'}</span></Card>
   }
 
+  const safeIndex = Math.min(activeIndex, items.length - 1)
+  const active = items[safeIndex]
   const activeStyle = releaseStatusStyle(active)
-  const progress = Math.max(0, Math.min(100, active.catch_up_score * 10))
+  const progress = active.original_volumes > 0 ? Math.min(100, (active.number_of_volumes / active.original_volumes) * 100) : 0
+  const cover = proxyImg(active.cover_url)
+  const prev = () => setActiveIndex(idx => (idx - 1 + items.length) % items.length)
+  const next = () => setActiveIndex(idx => (idx + 1) % items.length)
 
   return (
-    <Card className="p-3">
+    <Card className="p-3 overflow-hidden">
       <div className="flex items-center justify-between gap-3 mb-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Series nổi bật' : 'Top Series Carousel'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Chọn series mạnh nhất trong portfolio nhà phát hành.' : 'Select the best series in this publisher portfolio.'}</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+            {vi ? 'Series nổi bật' : 'Top Series Slideshow'}
+          </p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+            {vi ? 'Dùng mũi tên hoặc thumbnail để xem từng series trong portfolio.' : 'Use arrows or thumbnails to browse this publisher portfolio.'}
+          </p>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button type="button" onClick={() => setActiveIndex(i => Math.max(0, i - 1))} className="w-7 h-7 rounded-lg text-xs font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>‹</button>
-          <span className="text-[10px] tabular-nums px-1" style={{ color: 'var(--foreground-muted)' }}>{activeIndex + 1}/{items.length}</span>
-          <button type="button" onClick={() => setActiveIndex(i => Math.min(items.length - 1, i + 1))} className="w-7 h-7 rounded-lg text-xs font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>›</button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ background: 'var(--ln-muted-bg)', color: 'var(--foreground-muted)' }}>
+            {safeIndex + 1}/{items.length}
+          </span>
+          <button
+            type="button"
+            onClick={prev}
+            className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105"
+            style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+            aria-label="Previous top series"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105"
+            style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+            aria-label="Next top series"
+          >
+            ›
+          </button>
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-3">
-        {items.map((row, i) => {
-          const selected = i === activeIndex
-          return (
-            <button
-              key={row.series_key}
-              type="button"
-              onClick={() => { setActiveIndex(i); onSelect(row) }}
-              className="group shrink-0 w-[132px] rounded-xl p-2 text-left transition-all hover:-translate-y-0.5"
-              style={{ background: selected ? 'rgba(124,106,245,.18)' : 'var(--ln-panel-bg)', border: `1px solid ${selected ? 'rgba(124,106,245,.55)' : 'var(--card-border)'}` }}
-            >
-              <div className="flex gap-2">
-                {row.cover_url ? (
-                  <img src={proxyImg(row.cover_url) || ''} alt="" className="w-9 h-12 rounded-md object-cover shrink-0" />
-                ) : (
-                  <div className="w-9 h-12 rounded-md shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />
-                )}
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black line-clamp-2 leading-snug" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                  <p className="text-[9px] mt-1 tabular-nums" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)} LN</p>
+      <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,.96), rgba(17,24,39,.82))', border: '1px solid var(--card-border)' }}>
+        {cover && (
+          <img
+            src={cover}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.12] blur-md scale-110"
+          />
+        )}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.95), rgba(2,6,23,.72), rgba(2,6,23,.92))' }} />
+
+        <div className="relative grid grid-cols-1 md:grid-cols-[150px_1fr] xl:grid-cols-[170px_1fr] gap-4 p-4 min-h-[260px]">
+          <div className="relative mx-auto md:mx-0 w-[142px] xl:w-[158px]">
+            <div className="relative rounded-xl overflow-hidden shadow-2xl" style={{ aspectRatio: '2/3', border: '1px solid rgba(255,255,255,.16)', background: 'var(--ln-muted-bg)' }}>
+              {cover ? (
+                <img src={cover} alt={active.series_title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <BookOpen className="w-10 h-10 opacity-30" style={{ color: 'var(--foreground-muted)' }} />
+                </div>
+              )}
+              <div className="absolute left-2 top-2 px-2 py-1 rounded-lg text-[10px] font-black" style={{ background: 'rgba(0,0,0,.64)', color: '#fff' }}>
+                #{safeIndex + 1}
+              </div>
+            </div>
+          </div>
+
+          <div className="min-w-0 flex flex-col justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>
+                  {releaseStatusLabel(releaseStatus(active), vi)}
+                </span>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-black" style={{ color: statusColors[active.evalution || ''] || '#94a3b8', background: `${statusColors[active.evalution || ''] || '#94a3b8'}20`, border: `1px solid ${statusColors[active.evalution || ''] || '#94a3b8'}40` }}>
+                  {evalLabel(active.evalution, vi)}
+                </span>
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>
+                  {vi ? 'Mới nhất' : 'Latest'} {fmtDate(active.max_release_at)}
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-black leading-tight line-clamp-3" style={{ color: 'var(--foreground)' }}>
+                {active.series_title}
+              </h3>
+              <p className="text-[11px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                ID {active.lidex_series_id || active.series_id || '—'} · {active.series_code || '—'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
+              <div className="rounded-xl p-3" style={{ background: 'rgba(34,197,94,.10)', border: '1px solid rgba(34,197,94,.20)' }}>
+                <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>LN</p>
+                <p className="text-2xl font-black" style={{ color: scoreColor(active.ln_score) }}>{active.ln_score.toFixed(1)}</p>
+              </div>
+              <div className="rounded-xl p-3" style={{ background: 'rgba(239,68,68,.10)', border: '1px solid rgba(239,68,68,.20)' }}>
+                <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Drop</p>
+                <p className="text-2xl font-black" style={{ color: dropColor(active.drop_percent) }}>{fmtPercent(active.drop_percent)}</p>
+              </div>
+              <div className="rounded-xl p-3" style={{ background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.20)' }}>
+                <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>VN/JP</p>
+                <p className="text-lg font-black" style={{ color: '#7dd3fc' }}>{fmtNum(active.number_of_volumes, 0)} / {fmtNum(active.original_volumes, 0)}</p>
+                <div className="h-1.5 rounded-full overflow-hidden mt-2" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${progress}%`, background: '#38bdf8' }} />
                 </div>
               </div>
-            </button>
-          )
-        })}
-      </div>
+              <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
+                <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Nhịp ra' : 'Avg gap'}</p>
+                <p className="text-lg font-black" style={{ color: '#c4b5fd' }}>{active.average_gap_months == null ? '—' : `${active.average_gap_months.toFixed(1)}m`}</p>
+              </div>
+            </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[96px_1fr_160px] gap-3 items-center rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
-        {active.cover_url ? (
-          <img src={proxyImg(active.cover_url) || ''} alt="" className="w-24 h-[136px] max-h-36 rounded-lg object-cover shadow-lg" />
-        ) : (
-          <div className="w-24 h-[136px] min-h-[136px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />
-        )}
-        <div className="min-w-0">
-          <p className="text-lg font-black leading-tight line-clamp-2" style={{ color: 'var(--foreground)' }}>{active.series_title}</p>
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
-            <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{vi ? 'Mới nhất' : 'Latest'} {fmtDate(active.max_release_at)}</span>
-            <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtNum(active.number_of_volumes, 0)}/{fmtNum(active.original_volumes, 0)} VN/JP</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-[10px]">
-            <div><p style={{ color: 'var(--foreground-muted)' }}>LN</p><p className="font-black text-base" style={{ color: scoreColor(active.ln_score) }}>{active.ln_score.toFixed(2)}</p></div>
-            <div><p style={{ color: 'var(--foreground-muted)' }}>Drop</p><p className="font-black text-base" style={{ color: dropColor(active.drop_percent) }}>{fmtPercent(active.drop_percent)}</p></div>
-            <div><p style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Gap TB' : 'Avg gap'}</p><p className="font-black text-base" style={{ color: 'var(--foreground)' }}>{active.average_gap_months == null ? '—' : `${active.average_gap_months.toFixed(1)}m`}</p></div>
-            <div><p style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Bắt kịp' : 'Catch-up'}</p><p className="font-black text-base" style={{ color: '#38bdf8' }}>{progress.toFixed(0)}%</p></div>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => onSelect(active)}
+                className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-black transition-all hover:scale-[1.02]"
+                style={{ background: 'rgba(56,189,248,.12)', color: '#7dd3fc', border: '1px solid rgba(56,189,248,.22)' }}
+              >
+                {vi ? 'Chọn trên chart' : 'Select chart'}
+              </button>
+              <Link href={detailHref(active)} className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>
+                Open <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
-        <div className="flex lg:flex-col gap-2 justify-end">
-          <Link href={detailHref(active)} className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-black" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>
-            Open <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-          <button type="button" onClick={() => onSelect(active)} className="rounded-lg px-3 py-2 text-xs font-black" style={{ background: 'rgba(56,189,248,.12)', color: '#7dd3fc', border: '1px solid rgba(56,189,248,.22)' }}>
-            {vi ? 'Xem chart' : 'Select chart'}
-          </button>
+      </div>
+
+      <div className="mt-3 overflow-x-auto pb-1">
+        <div className="flex gap-2 min-w-max">
+          {items.map((row, idx) => {
+            const img = proxyImg(row.cover_url)
+            const activeThumb = idx === safeIndex
+            return (
+              <button
+                type="button"
+                key={row.series_key}
+                onClick={() => setActiveIndex(idx)}
+                className="group relative w-[42px] h-[62px] rounded-lg overflow-hidden transition-all hover:scale-105"
+                style={{
+                  border: activeThumb ? '2px solid #a78bfa' : '1px solid var(--card-border)',
+                  opacity: activeThumb ? 1 : 0.62,
+                  background: 'var(--ln-muted-bg)',
+                }}
+                title={`${row.series_title} · ${row.ln_score.toFixed(1)} LN`}
+              >
+                {img ? <img src={img} alt="" className="w-full h-full object-cover" /> : <BookOpen className="absolute left-1/2 top-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 opacity-40" style={{ color: 'var(--foreground-muted)' }} />}
+                <span className="absolute left-0 right-0 bottom-0 text-[8px] font-black py-0.5" style={{ background: 'rgba(0,0,0,.68)', color: activeThumb ? '#c4b5fd' : '#fff' }}>
+                  {row.ln_score.toFixed(1)}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
     </Card>
