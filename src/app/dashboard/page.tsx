@@ -19,7 +19,6 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
 } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
@@ -569,11 +568,7 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
       const rs = releaseStatus(row)
       const searchable = `${row.series_title} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
 
-      return (
-        row.evalution !== 'Completed' &&
-        rs !== 'Đã bắt kịp bản gốc JP' &&
-        (!q || searchable.includes(q))
-      )
+      return !q || searchable.includes(q)
     })
   }, [rows, query])
 
@@ -1173,56 +1168,120 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
 }
 
 function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
+  const [zoom, setZoom] = useState(1)
+  const [query, setQuery] = useState('')
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null)
+
+  const plotRows = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return rows.filter(row => {
+      const searchable = `${row.series_title} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
+      return !q || searchable.includes(q)
+    })
+  }, [rows, query])
+
+  const selectedRow = useMemo(() => plotRows.find(row => row.series_key === selectedKey) || null, [plotRows, selectedKey])
+  const zoomCenterX = selectedRow ? selectedRow.ln_score : 5
+  const zoomCenterY = selectedRow ? pctValue(selectedRow.drop_percent) : 50
+
+  function transformPoint(row: LNRow) {
+    const jitter = scatterStableNoise(row.series_key)
+    const rawX = Math.max(0, Math.min(10, row.ln_score + jitter.x))
+    const rawY = Math.max(0, Math.min(100, pctValue(row.drop_percent) + jitter.y))
+    const zx = zoomCenterX + (rawX - zoomCenterX) * zoom
+    const zy = zoomCenterY + (rawY - zoomCenterY) * zoom
+    return {
+      x: Math.max(0, Math.min(100, zx * 10)),
+      y: 100 - Math.max(0, Math.min(100, zy)),
+      visible: zx >= 0 && zx <= 10 && zy >= 0 && zy <= 100,
+    }
+  }
+
   return (
     <Card className="p-3 h-full">
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Portfolio Quality Map' : 'Portfolio Quality Map'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'LN Score vs rủi ro drop.' : 'LN Score vs drop risk.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Hiển thị toàn bộ portfolio; điểm được tách nhẹ để dễ bấm.' : 'Shows the full portfolio; points are separated for clickability.'}</p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: 'var(--foreground-muted)' }} />
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder={vi ? 'Tìm...' : 'Search...'}
+              className="pl-7 pr-2 py-1.5 rounded-lg text-[10px] font-semibold outline-none w-[132px]"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+            />
+          </div>
+
+          <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
+            <button type="button" onClick={() => setZoom(z => Math.max(1, Number((z - 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>−</button>
+            <button type="button" onClick={() => setZoom(1)} className="px-2 py-1.5 text-[10px] font-black" style={{ background: zoom === 1 ? '#7c6af5' : 'var(--ln-control-bg)', color: zoom === 1 ? '#fff' : 'var(--foreground-secondary)' }}>{zoom.toFixed(1)}x</button>
+            <button type="button" onClick={() => setZoom(z => Math.min(3.5, Number((z + 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>+</button>
+          </div>
         </div>
       </div>
+
       <div className="relative h-[230px] rounded-lg overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+        <div className="absolute inset-0 opacity-50 pointer-events-none">
+          <div className="absolute left-0 top-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,.08), transparent)' }} />
+          <div className="absolute right-0 bottom-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(315deg, rgba(34,197,94,.08), transparent)' }} />
+        </div>
+
         <div className="absolute inset-x-8 inset-y-7">
-          {[0, 50, 100].map(v => (
-            <div key={v} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(136,146,170,.14)' }}>
+          {[0, 25, 50, 75, 100].map(v => (
+            <div key={`py-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(136,146,170,.14)' }}>
               <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
             </div>
           ))}
           {[0, 2, 4, 6, 8, 10].map(v => (
-            <div key={v} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(136,146,170,.10)' }}>
+            <div key={`px-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(136,146,170,.10)' }}>
               <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
             </div>
           ))}
-          <span className="absolute right-2 top-2 text-[9px] font-black uppercase" style={{ color: '#38bdf8' }}>{vi ? 'High Quality' : 'High Quality'}</span>
-          <span className="absolute left-2 bottom-2 text-[9px] font-black uppercase" style={{ color: '#ef4444' }}>{vi ? 'High Risk' : 'High Risk'}</span>
-          {rows.map(row => {
-            const jitter = scatterStableNoise(row.series_key)
-            const x = Math.max(0, Math.min(100, (row.ln_score + jitter.x) * 10))
-            const y = 100 - Math.max(0, Math.min(100, pctValue(row.drop_percent) + jitter.y))
+
+          <span className="absolute left-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
+          <span className="absolute right-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#38bdf8' }}>{vi ? 'High Quality' : 'High Quality'}</span>
+          <span className="absolute left-2 bottom-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#a78bfa' }}>{vi ? 'Đình trệ' : 'Stalled'}</span>
+          <span className="absolute right-2 bottom-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{vi ? 'Khỏe mạnh' : 'Healthy'}</span>
+
+          {plotRows.map(row => {
+            const point = transformPoint(row)
+            if (!point.visible) return null
             const active = row.series_key === selectedKey
+            const hovered = row.series_key === hoveredKey
             const color = statusColors[row.evalution || ''] || scoreColor(row.ln_score)
+            const size = active ? 16 : hovered ? 14 : Math.max(9, Math.min(14, 7 + row.demand_score * 0.65))
             return (
               <button
                 key={row.series_key}
                 onClick={() => onSelect(row)}
-                title={`${row.series_title}\nLN ${row.ln_score.toFixed(1)} · Drop ${fmtPercent(row.drop_percent)}`}
-                className="absolute rounded-full transition-all hover:scale-150 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                onMouseEnter={() => setHoveredKey(row.series_key)}
+                onMouseLeave={() => setHoveredKey(null)}
+                title={`${row.series_title}\nID ${row.series_id || '—'} · ${row.series_code || '—'}\nLN ${row.ln_score.toFixed(1)} · Drop ${fmtPercent(row.drop_percent)}`}
+                className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 style={{
-                  left: `${x}%`,
-                  top: `${y}%`,
-                  width: active ? 15 : 8,
-                  height: active ? 15 : 8,
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                  width: size,
+                  height: size,
                   background: color,
-                  border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,.35)',
-                  boxShadow: active ? `0 0 0 7px ${color}25, 0 0 24px ${color}` : `0 0 10px ${color}66`,
+                  border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,.40)',
+                  boxShadow: active ? `0 0 0 7px ${color}26, 0 0 24px ${color}` : hovered ? `0 0 0 5px ${color}25, 0 0 18px ${color}` : `0 0 10px ${color}66`,
                   transform: 'translate(-50%, -50%)',
+                  zIndex: active || hovered ? 30 : 10,
                 }}
               />
             )
           })}
         </div>
-        <div className="absolute left-9 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
-        <div className="absolute left-3 top-1/2 -rotate-90 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>Drop Risk</div>
+
+        <div className="absolute left-10 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
+        <div className="absolute left-3 top-1/2 -rotate-90 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Drop Risk' : 'Drop Risk'}</div>
+        <div className="absolute right-3 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{plotRows.length.toLocaleString('vi-VN')} series</div>
       </div>
     </Card>
   )
@@ -1936,26 +1995,11 @@ export default function Dashboard() {
       </div>
 
       <div className="relative max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-5">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1 mb-2" style={{ background: 'rgba(124,106,245,.12)', border: '1px solid rgba(124,106,245,.22)' }}>
-              <Sparkles className="w-3 h-3" style={{ color: '#a78bfa' }} />
-              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#a78bfa' }}>
-                {vi ? 'Thị trường Light Novel Việt Nam' : 'Vietnamese Light Novel Market'}
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>LN Market Analytics</h1>
-            <p className="text-xs sm:text-sm mt-1.5 max-w-2xl" style={{ color: 'var(--foreground-secondary)' }}>
-              {vi ? 'ln_series_ranking cho điểm/rủi ro; series + volumes cho liên kết và hoạt động phát hành.' : 'ln_series_ranking powers score/risk; series + volumes power links and release activity.'}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-start">
-            <ModeSwitch mode={mode} setMode={setMode} vi={vi} />
-            <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title={vi ? 'Làm mới' : 'Refresh'}>
-              <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
-            </button>
-          </div>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <ModeSwitch mode={mode} setMode={setMode} vi={vi} />
+          <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title={vi ? 'Làm mới' : 'Refresh'}>
+            <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
+          </button>
         </div>
 
         {loading ? (
