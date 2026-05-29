@@ -425,6 +425,47 @@ function mapRows(raw: RawRankingRow[]) {
   })
 }
 
+async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
+  const ids = Array.from(new Set(rows.map(row => row.lidex_series_id).filter((id): id is number => Boolean(id))))
+  if (ids.length === 0) return rows
+
+  const canonical = new Map<number, { title?: string | null; cover_url?: string | null; publisher?: string | null }>()
+  const batchSize = 200
+
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const chunk = ids.slice(i, i + batchSize)
+    const { data, error } = await supabase
+      .from('series')
+      .select('id, title, cover_url, publisher')
+      .in('id', chunk)
+
+    if (error) {
+      console.warn('[Dashboard] canonical series fetch failed:', error.message)
+      continue
+    }
+
+    for (const series of data || []) {
+      canonical.set(Number((series as any).id), {
+        title: (series as any).title,
+        cover_url: (series as any).cover_url,
+        publisher: (series as any).publisher,
+      })
+    }
+  }
+
+  return rows.map(row => {
+    const meta = row.lidex_series_id ? canonical.get(row.lidex_series_id) : null
+    if (!meta) return row
+    return {
+      ...row,
+      // Keep the evaluated ranking title unless it is missing, but use canonical cover/publisher as fallback.
+      series_title: row.series_title || meta.title || row.series_title,
+      cover_url: row.cover_url || meta.cover_url || row.cover_url,
+      publisher: row.publisher || meta.publisher || row.publisher,
+    }
+  })
+}
+
 function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
@@ -446,19 +487,21 @@ function KpiStrip({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const active = rows.filter(r => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(r))).length
   const completed = rows.filter(r => r.evalution === 'Completed' || releaseStatus(r) === 'Hoàn thành').length
   const activePublishers = new Set(rows.filter(r => r.publisher_activity === 'Active').map(r => r.publisher).filter(Boolean)).size
+  const linked = rows.filter(r => Boolean(r.lidex_series_id)).length
 
   const items = [
     { label: vi ? 'Đã cấp phép' : 'Licensed', value: rows.length.toLocaleString('vi-VN'), icon: BookOpen, color: '#818cf8' },
+    { label: vi ? 'Liên kết ID' : 'Linked IDs', value: `${linked}/${rows.length}`, icon: ShieldCheck, color: linked === rows.length ? '#22c55e' : '#f97316' },
     { label: vi ? 'Đang hoạt động' : 'Active', value: active.toLocaleString('vi-VN'), icon: Activity, color: '#22c55e' },
     { label: vi ? 'Hoàn thành' : 'Completed', value: completed.toLocaleString('vi-VN'), icon: CheckCircle2, color: '#38bdf8' },
     { label: vi ? 'Điểm TB' : 'Avg Score', value: avgScore.toFixed(1), icon: Gauge, color: '#eab308' },
     { label: vi ? 'Drop TB' : 'Avg Drop', value: `${avgDrop.toFixed(1)}%`, icon: AlertTriangle, color: '#fb7185' },
-    { label: vi ? 'Nhà PH hoạt động' : 'Active Pubs', value: activePublishers.toLocaleString('vi-VN'), icon: ShieldCheck, color: '#a78bfa' },
+    { label: vi ? 'Nhà PH hoạt động' : 'Active Pubs', value: activePublishers.toLocaleString('vi-VN'), icon: Building2, color: '#a78bfa' },
   ]
 
   return (
     <Card className="p-2.5">
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-2">
         {items.map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="rounded-lg px-3 py-2.5 relative overflow-hidden" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
             <div className="absolute right-0 top-0 w-16 h-16 rounded-full blur-2xl" style={{ background: `${color}22` }} />
@@ -546,6 +589,7 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
             const y = 100 - Math.max(0, Math.min(100, pctValue(row.drop_percent)))
             const active = row.series_key === selectedKey
             const color = statusColors[row.evalution || ''] || scoreColor(row.ln_score)
+            const dotSize = active ? 16 : Math.max(7, Math.min(12, 6 + row.demand_score * 0.6))
             return (
               <button
                 key={row.series_key}
@@ -555,8 +599,8 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
                 style={{
                   left: `${x}%`,
                   top: `${y}%`,
-                  width: active ? 15 : 8,
-                  height: active ? 15 : 8,
+                  width: dotSize,
+                  height: dotSize,
                   background: color,
                   border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,.35)',
                   boxShadow: active ? `0 0 0 8px ${color}26, 0 0 26px ${color}` : `0 0 12px ${color}66`,
@@ -803,7 +847,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
       <div className="flex items-center justify-between mb-1.5">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Dùng toàn bộ năm có dữ liệu, giống Nhà PH hoạt động.' : 'Uses all available years, same as Active Publishers.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Đếm số tập thật từ bảng volumes theo năm phát hành.' : 'Counts real volume rows from volumes by release year.'}</p>
         </div>
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
@@ -872,7 +916,7 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Theo cùng bộ năm với dữ liệu phát hành; All years = gộp mọi năm.' : 'Same release-year pool; All years aggregates every year.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Đếm số tập thật từ volumes theo tháng và năm đã chọn.' : 'Counts real volume rows from volumes by selected month/year.'}</p>
         </div>
         <div className="flex items-center gap-2 min-w-0">
           <YearFilter years={years} selectedYears={selectedYears} setSelectedYears={setSelectedYears} vi={vi} />
@@ -1269,10 +1313,11 @@ export default function Dashboard() {
     }
 
     const mapped = mapRows((data || []) as RawRankingRow[])
-    const volumeReleases = await loadNovelVolumeReleases(mapped)
-    setRows(mapped)
+    const hydrated = await hydrateRowsWithCanonicalSeries(mapped)
+    const volumeReleases = await loadNovelVolumeReleases(hydrated)
+    setRows(hydrated)
     setVolumeRows(volumeReleases)
-    setSelectedKey((mapped.find(r => r.evalution === 'Good') || mapped[0])?.series_key || null)
+    setSelectedKey((hydrated.find(r => r.evalution === 'Good') || hydrated[0])?.series_key || null)
     setLoading(false)
   }
 
@@ -1300,7 +1345,7 @@ export default function Dashboard() {
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>LN Market Analytics</h1>
             <p className="text-xs sm:text-sm mt-1.5 max-w-2xl" style={{ color: 'var(--foreground-secondary)' }}>
-              {vi ? 'Điểm LN, rủi ro drop, hoạt động nhà phát hành và watchlist từ bảng ln_series_ranking.' : 'LN score, drop risk, publisher activity, and watchlist from ln_series_ranking.'}
+              {vi ? 'ln_series_ranking cho điểm/rủi ro; series + volumes cho liên kết và hoạt động phát hành.' : 'ln_series_ranking powers score/risk; series + volumes power links and release activity.'}
             </p>
           </div>
 
