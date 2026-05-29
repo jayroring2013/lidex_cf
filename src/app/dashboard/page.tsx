@@ -716,6 +716,8 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
       </div>
     </Card>
   )
+}
+
 function RadarChart({ row, vi }: { row: LNRow | null; vi: boolean }) {
   const axes = row ? [
     [vi ? 'Nhịp phát hành' : 'Release Pace', row.release_pace_score, vi ? 'Khoảng cách trung bình + độ mới của tập gần nhất' : 'Average gap + latest release recency'],
@@ -990,6 +992,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
       </div>
     </Card>
   )
+}
 
 function buildHeatmap(rows: VolumeReleaseRow[]) {
   const map = new Map<string, HeatmapRow>()
