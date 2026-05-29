@@ -938,68 +938,63 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
 
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const data = buildGrowth(volumeRows)
-  const w = 560
-  const h = 158
-  const padL = 34
-  const padR = 14
-  const padT = 10
-  const padB = 24
+  const w = 760
+  const h = 190
+  const padL = 42
+  const padR = 18
+  const padT = 14
+  const padB = 34
   const maxY = Math.max(...data.map(d => d.volumes), 1)
   const yTicks = [1, .75, .5, .25, 0].map(ratio => Math.round(maxY * ratio))
-  const labelStep = Math.max(1, Math.ceil(data.length / 8))
+  const yearLabelStep = data.length > 11 ? 2 : 1
   const points = data.map((d, i) => {
-    const x = data.length <= 1 ? padL + (w - padL - padR) / 2 : padL + i / (data.length - 1) * (w - padL - padR)
+    const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
     const y = h - padB - d.volumes / maxY * (h - padT - padB)
     return { x, y, d }
   })
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <Card className="p-3 h-[230px] overflow-hidden">
-      <div className="flex items-center justify-between mb-1.5">
-        <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-wide truncate" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
-          <p className="text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập phát hành theo năm từ bảng volumes.' : 'Volume releases by year from volumes.'}</p>
+    <Card className="p-3 h-[245px] overflow-hidden">
+      <div className="flex items-center justify-between mb-1">
+        <div>
+          <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập phát hành theo năm từ bảng volumes.' : 'Released volumes by year from volume data.'}</p>
         </div>
-        <TrendingUp className="w-4 h-4 shrink-0" style={{ color: '#22c55e' }} />
+        <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
-      <div className="flex items-center gap-4 mb-1 text-[10px]" style={{ color: 'var(--foreground-secondary)' }}>
-        <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tập phát hành' : 'Volumes'}</span>
+      <div className="flex items-center gap-4 mb-0.5 text-[11px]" style={{ color: 'var(--foreground-secondary)' }}>
+        <span className="inline-flex items-center gap-1"><span className="w-4 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
       </div>
 
       <div className="overflow-hidden">
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[172px]">
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[188px]" preserveAspectRatio="none">
           {yTicks.map((tick, i) => {
             const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
             return (
               <g key={`${tick}-${i}`}>
                 <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
-                <text x={padL - 7} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.82)">
+                <text x={padL - 9} y={y + 4} textAnchor="end" fontSize="11" fontWeight="700" fill="rgba(147,164,193,.88)">
                   {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
                 </text>
               </g>
             )
           })}
 
-          {points.length > 1 && (
-            <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-          )}
+          <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
 
-          {points.map((p, i) => {
-            const showLabel = i === 0 || i === points.length - 1 || i % labelStep === 0
-            return (
-              <g key={p.d.year}>
-                <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
-                <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
-                {showLabel && (
-                  <text x={p.x} y={h - 6} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.62)">
-                    {String(p.d.year).slice(2)}
-                  </text>
-                )}
-              </g>
-            )
-          })}
+          {points.map((p, i) => (
+            <g key={p.d.year}>
+              <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
+              <circle cx={p.x} cy={p.y} r="3.5" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
+              {(i % yearLabelStep === 0 || i === points.length - 1) && (
+                <text x={p.x} y={h - 10} textAnchor="middle" fontSize="11" fontWeight="700" fill="rgba(232,236,244,.68)">
+                  {String(p.d.year).slice(2)}
+                </text>
+              )}
+            </g>
+          ))}
         </svg>
       </div>
     </Card>
@@ -1027,55 +1022,59 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
   const years = availableReleaseYears(volumeRows)
   const filteredVolumes = filterVolumeRowsBySingleYear(volumeRows, selectedYear)
   const data = buildHeatmap(filteredVolumes)
-  const publishers = buildPublishers(rows, filteredVolumes).filter(p => p.releases24 > 0).map(p => p.publisher)
   const months = Array.from({ length: 12 }, (_, month) => [
     String(month).padStart(2, '0'),
     new Date(2020, month, 1).toLocaleString('en-US', { month: 'short' }),
   ] as const)
-  const monthGrid = '74px repeat(12, 1fr)'
   const max = Math.max(...data.map(d => d.count), 1)
+  const selectedPublisher = rows[0]?.publisher || filteredVolumes[0]?.publisher || 'Unknown'
   const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
 
   return (
-    <Card className="p-3 h-[230px] overflow-hidden">
-      <div className="flex items-center justify-between mb-2">
-        <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-wide truncate" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành' : 'Release Activity'}</p>
-          <p className="text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập theo tháng/năm đã chọn.' : 'Volume count by selected month/year.'}</p>
+    <Card className="p-3 min-h-[150px] overflow-hidden">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div>
+          <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành' : 'Release Activity'}</p>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập theo tháng/năm đã chọn.' : 'Volume count by selected month/year.'}</p>
         </div>
-        <div className="flex items-center gap-2 min-w-0 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <CompactYearSelect years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} vi={vi} />
           <BarChart3 className="w-4 h-4 shrink-0" style={{ color: '#ec4899' }} />
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div style={{ minWidth: `${Math.max(350, 74 + 12 * 32)}px` }}>
-          <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: monthGrid }}>
-            <div />
-            {months.map(([key, label]) => (
-              <div key={key} className="text-[8px] text-center" style={{ color: 'var(--foreground-muted)' }}>{label}</div>
-            ))}
-          </div>
+      <div>
+        <div className="grid gap-1.5 mb-1.5" style={{ gridTemplateColumns: 'repeat(12, minmax(0, 1fr))' }}>
+          {months.map(([key, label]) => (
+            <div key={key} className="text-[10px] font-bold text-center" style={{ color: 'var(--foreground-muted)' }}>{label}</div>
+          ))}
+        </div>
 
-          <div className="space-y-1 overflow-y-auto pr-1" style={{ maxHeight: '132px', scrollbarGutter: 'stable' }}>
-            {publishers.map(pub => (
-              <div key={pub} className="grid gap-1 items-center" style={{ gridTemplateColumns: monthGrid }}>
-                <div className="text-[10px] truncate pr-1 font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{pub}</div>
-                {months.map(([key]) => {
-                  const v = lookup.get(`${pub}|${key}`) || 0
-                  const alpha = v === 0 ? .08 : .18 + v / max * .76
-                  return <div key={key} title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`} className="h-4 rounded-sm transition-all duration-150 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125 hover:scale-105" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
-                })}
+        <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(12, minmax(0, 1fr))' }}>
+          {months.map(([key]) => {
+            const v = lookup.get(`${selectedPublisher}|${key}`) || 0
+            const alpha = v === 0 ? .10 : .22 + v / max * .76
+            return (
+              <div
+                key={key}
+                title={`${selectedPublisher}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}
+                className="relative h-7 rounded-md transition-all duration-150 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125 hover:scale-105"
+                style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.06)' }}
+              >
+                {v > 0 && (
+                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white/90">
+                    {v}
+                  </span>
+                )}
               </div>
-            ))}
-          </div>
+            )
+          })}
+        </div>
 
-          <div className="flex items-center gap-2 mt-2 pl-[74px]">
-            <span className="text-[9px]" style={{ color: 'var(--foreground-muted)' }}>0</span>
-            <div className="h-2 flex-1 rounded-full" style={{ background: 'linear-gradient(90deg,rgba(124,106,245,.18),#3b82f6,#22c5b8)' }} />
-            <span className="text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{max}+</span>
-          </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>0</span>
+          <div className="h-2 flex-1 rounded-full" style={{ background: 'linear-gradient(90deg,rgba(124,106,245,.18),#3b82f6,#22c5b8)' }} />
+          <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{max}+</span>
         </div>
       </div>
     </Card>
@@ -1542,7 +1541,7 @@ function PublisherFocusView({ rows, volumeRows, selectedPublisher, setSelectedPu
         <PublisherBreakdown rows={portfolioRows} vi={vi} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[0.82fr_1.25fr_0.9fr] gap-3 items-stretch">
+      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
         <div className="grid grid-cols-1 gap-3">
           <GrowthChart volumeRows={publisherVolumes} vi={vi} />
           <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
