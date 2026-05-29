@@ -307,6 +307,20 @@ function clamp10(v: number) {
   return Math.max(0, Math.min(10, Number.isFinite(v) ? v : 0))
 }
 
+function scatterStableNoise(seed: string) {
+  let hash = 2166136261
+  for (let i = 0; i < seed.length; i += 1) {
+    hash ^= seed.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  const a = ((hash >>> 0) % 1000) / 1000
+  const b = (((hash >>> 8) >>> 0) % 1000) / 1000
+  return {
+    x: (a - 0.5) * 0.28,
+    y: (b - 0.5) * 3.2,
+  }
+}
+
 function releasePaceScore(avgGap: number | null, monthsSince: number | null) {
   let gap = 5
   if (avgGap != null) {
@@ -540,6 +554,169 @@ function ModeSwitch({ mode, setMode, vi }: { mode: Mode; setMode: (m: Mode) => v
 }
 
 function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
+  const [zoom, setZoom] = useState(1)
+  const [query, setQuery] = useState('')
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null)
+
+  const plotRows = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return rows.filter(row => {
+      const rs = releaseStatus(row)
+      const searchable = `${row.series_title} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
+
+      return (
+        row.evalution !== 'Completed' &&
+        rs !== 'Đã bắt kịp bản gốc JP' &&
+        (!q || searchable.includes(q))
+      )
+    })
+  }, [rows, query])
+
+  const selectedRow = useMemo(() => plotRows.find(row => row.series_key === selectedKey) || null, [plotRows, selectedKey])
+  const zoomCenterX = selectedRow ? selectedRow.ln_score : 5
+  const zoomCenterY = selectedRow ? pctValue(selectedRow.drop_percent) : 50
+
+  function transformPoint(row: LNRow) {
+    const jitter = scatterStableNoise(row.series_key)
+    const rawX = Math.max(0, Math.min(10, row.ln_score + jitter.x))
+    const rawY = Math.max(0, Math.min(100, pctValue(row.drop_percent) + jitter.y))
+
+    const zx = zoomCenterX + (rawX - zoomCenterX) * zoom
+    const zy = zoomCenterY + (rawY - zoomCenterY) * zoom
+
+    return {
+      x: Math.max(0, Math.min(100, zx * 10)),
+      y: 100 - Math.max(0, Math.min(100, zy)),
+      visible: zx >= 0 && zx <= 10 && zy >= 0 && zy <= 100,
+    }
+  }
+
+  return (
+    <Card className="p-3.5">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Điểm LN vs Rủi ro Drop' : 'LN Score vs Drop Risk'}</p>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
+            {vi ? 'Ẩn series đã hoàn thành và đã bắt kịp JP; điểm được tách nhẹ để dễ bấm.' : 'Completed and caught-up series are hidden; points are lightly separated for clicking.'}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: 'var(--foreground-muted)' }} />
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder={vi ? 'Tìm tên / ID...' : 'Search title / ID...'}
+              className="pl-7 pr-2 py-1.5 rounded-lg text-[10px] font-semibold outline-none w-[150px] sm:w-[180px]"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+            />
+          </div>
+
+          <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
+            <button
+              type="button"
+              onClick={() => setZoom(z => Math.max(1, Number((z - 0.35).toFixed(2))))}
+              className="px-2 py-1.5 text-[10px] font-black"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(1)}
+              className="px-2 py-1.5 text-[10px] font-black"
+              style={{ background: zoom === 1 ? '#7c6af5' : 'var(--ln-control-bg)', color: zoom === 1 ? '#fff' : 'var(--foreground-secondary)' }}
+            >
+              {zoom.toFixed(1)}x
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(z => Math.min(3.5, Number((z + 0.35).toFixed(2))))}
+              className="px-2 py-1.5 text-[10px] font-black"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}
+            >
+              +
+            </button>
+          </div>
+
+          <div className="hidden sm:flex flex-wrap gap-2">
+            {['Good', 'Limping', 'Dead', 'Dropped'].map(s => (
+              <span key={s} className="text-[10px] font-bold flex items-center gap-1" style={{ color: 'var(--foreground-secondary)' }}>
+                <span className="w-2 h-2 rounded-full" style={{ background: statusColors[s] }} />
+                {evalLabel(s, vi)}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="relative h-[300px] sm:h-[350px] rounded-lg overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+        <div className="absolute inset-0 opacity-50 pointer-events-none">
+          <div className="absolute left-0 top-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,.08), transparent)' }} />
+          <div className="absolute right-0 bottom-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(315deg, rgba(34,197,94,.08), transparent)' }} />
+        </div>
+
+        <div className="absolute inset-x-8 inset-y-7 sm:inset-x-9 sm:inset-y-8">
+          {[0, 25, 50, 75, 100].map(v => (
+            <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(136,146,170,.16)' }}>
+              <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
+            </div>
+          ))}
+          {[0, 2, 4, 6, 8, 10].map(v => (
+            <div key={`x-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(136,146,170,.10)' }}>
+              <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
+            </div>
+          ))}
+
+          <span className="absolute left-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
+          <span className="absolute right-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#eab308' }}>{vi ? 'Phổ biến nhưng rủi ro' : 'Popular Risk'}</span>
+          <span className="absolute left-2 bottom-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#a78bfa' }}>{vi ? 'Đình trệ' : 'Stalled'}</span>
+          <span className="absolute right-2 bottom-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{vi ? 'Khỏe mạnh' : 'Healthy'}</span>
+
+          {plotRows.map(row => {
+            const point = transformPoint(row)
+            if (!point.visible) return null
+
+            const active = row.series_key === selectedKey
+            const hovered = row.series_key === hoveredKey
+            const color = statusColors[row.evalution || ''] || scoreColor(row.ln_score)
+            const size = active ? 18 : hovered ? 16 : Math.max(10, Math.min(16, 8 + row.demand_score * 0.75))
+
+            return (
+              <button
+                key={row.series_key}
+                onClick={() => onSelect(row)}
+                onMouseEnter={() => setHoveredKey(row.series_key)}
+                onMouseLeave={() => setHoveredKey(null)}
+                title={`${row.series_title}\nID ${row.series_id || '—'} · ${row.series_code || '—'}\nLN ${row.ln_score.toFixed(1)} · Drop ${fmtPercent(row.drop_percent)}`}
+                className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                style={{
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                  width: size,
+                  height: size,
+                  background: color,
+                  border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,.45)',
+                  boxShadow: active ? `0 0 0 8px ${color}26, 0 0 26px ${color}` : hovered ? `0 0 0 6px ${color}25, 0 0 22px ${color}` : `0 0 12px ${color}66`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: active || hovered ? 30 : 10,
+                }}
+              />
+            )
+          })}
+        </div>
+
+        <div className="absolute left-10 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
+        <div className="absolute left-3 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Khả năng drop' : 'Drop Probability'}</div>
+
+        <div className="absolute right-3 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+          {plotRows.length.toLocaleString('vi-VN')} series
+        </div>
+      </div>
+    </Card>
+  )
+}: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
   const plotRows = rows.filter(r => r.evalution !== 'Completed')
   return (
     <Card className="p-3.5">
