@@ -148,7 +148,40 @@ function filterVolumeRowsByYears(rows: VolumeReleaseRow[], selectedYears: number
   })
 }
 
-function YearFilter({ years, selectedYears, setSelectedYears, vi }: { years: number[]; selectedYears: number[]; setSelectedYears: (years: number[]) => void; vi: boolean }) {
+
+function CompactYearSelect({
+  years,
+  selectedYear,
+  setSelectedYear,
+  vi,
+}: {
+  years: number[]
+  selectedYear: number | null
+  setSelectedYear: (year: number | null) => void
+  vi: boolean
+}) {
+  const displayYears = [...years].sort((a, b) => b - a)
+
+  return (
+    <select
+      value={selectedYear ?? ''}
+      onChange={e => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+      className="px-2.5 py-1.5 rounded-lg text-[10px] font-black outline-none min-w-[92px]"
+      style={{ background: selectedYear === null ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYear === null ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+    >
+      <option value="">{vi ? 'Tất cả năm' : 'All years'}</option>
+      {displayYears.map(year => (
+        <option key={year} value={year}>{year}</option>
+      ))}
+    </select>
+  )
+}
+
+function filterVolumeRowsBySingleYear(rows: VolumeReleaseRow[], selectedYear: number | null) {
+  if (selectedYear === null) return rows
+  return rows.filter(row => volumeReleaseYear(row) === selectedYear)
+}
+: { years: number[]; selectedYears: number[]; setSelectedYears: (years: number[]) => void; vi: boolean }) {
   const displayYears = [...years].sort((a, b) => b - a)
   const toggleYear = (year: number) => {
     setSelectedYears(selectedYears.includes(year) ? selectedYears.filter(y => y !== year) : [...selectedYears, year].sort((a, b) => a - b))
@@ -160,30 +193,20 @@ function YearFilter({ years, selectedYears, setSelectedYears, vi }: { years: num
       : (vi ? `${selectedYears.length} năm` : `${selectedYears.length} years`)
 
   return (
-    <details className="relative shrink-0 group">
+    <details className="relative shrink-0">
       <summary
         className="list-none cursor-pointer select-none px-2.5 py-1.5 rounded-lg text-[10px] font-black min-w-[88px] text-center"
         style={{ background: selectedYears.length === 0 ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYears.length === 0 ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
       >
         {label} ▾
       </summary>
-
-      <div
-        className="fixed sm:absolute right-3 sm:right-0 bottom-4 sm:bottom-auto sm:top-8 z-[99999] w-[min(220px,calc(100vw-24px))] sm:w-[176px] rounded-xl p-2 shadow-2xl space-y-1"
-        style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)', maxHeight: 'min(72vh, 430px)' }}
-      >
-        <button
-          type="button"
-          onClick={() => setSelectedYears([])}
-          className="sticky top-0 z-10 w-full text-left px-2 py-1.5 rounded-md text-[10px] font-black"
-          style={{ color: selectedYears.length === 0 ? '#a78bfa' : 'var(--foreground-secondary)', background: selectedYears.length === 0 ? 'rgba(124,106,245,.16)' : 'var(--ln-panel-bg-strong)' }}
-        >
+      <div className="absolute right-0 top-8 z-[9999] w-[156px] rounded-lg p-2 shadow-xl space-y-1" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
+        <button type="button" onClick={() => setSelectedYears([])} className="w-full text-left px-2 py-1.5 rounded-md text-[10px] font-bold" style={{ color: selectedYears.length === 0 ? '#a78bfa' : 'var(--foreground-secondary)', background: selectedYears.length === 0 ? 'rgba(124,106,245,.16)' : 'transparent' }}>
           {vi ? 'Tất cả năm' : 'All years'}
         </button>
-
-        <div className="overflow-y-auto overscroll-contain pr-1 space-y-1" style={{ maxHeight: 'calc(min(72vh, 430px) - 42px)', scrollbarGutter: 'stable' }}>
+        <div className="overflow-y-auto overscroll-contain pr-1 space-y-1" style={{ maxHeight: 'min(70vh, 320px)', scrollbarGutter: 'stable' }}>
           {displayYears.map(year => (
-            <label key={year} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[10px] font-bold cursor-pointer hover:bg-white/[0.06]" style={{ color: 'var(--foreground-secondary)' }}>
+            <label key={year} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[10px] font-bold cursor-pointer hover:bg-white/[0.04]" style={{ color: 'var(--foreground-secondary)' }}>
               <input type="checkbox" checked={selectedYears.includes(year)} onChange={() => toggleYear(year)} className="accent-violet-500" />
               {year}
             </label>
@@ -762,21 +785,21 @@ function buildPublishers(rows: LNRow[], volumeRows?: VolumeReleaseRow[]) {
 }
 
 function PublisherLeaderboard({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean }) {
-  const [selectedYears, setSelectedYears] = useState<number[]>([])
+  const [selectedYear, setSelectedYear] = useState<number | null>(null)
   const years = availableReleaseYears(volumeRows)
-  const filteredVolumes = filterVolumeRowsByYears(volumeRows, selectedYears)
-  const publishers = buildPublishers(rows, filteredVolumes).filter(p => p.releases24 > 0).slice(0, 6)
+  const filteredVolumes = filterVolumeRowsBySingleYear(volumeRows, selectedYear)
+  const publishers = buildPublishers(rows, filteredVolumes).filter(p => p.releases24 > 0)
   const max = Math.max(...publishers.map(p => p.releases24), 1)
 
   return (
-    <Card className="p-3 h-[226px] overflow-visible">
+    <Card className="p-3 h-[280px] overflow-hidden">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Nhà phát hành hoạt động nhiều nhất' : 'Most Active Publishers'}</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động nhà phát hành' : 'Publishers Activity'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Sản lượng phát hành, điểm LN và độ an toàn.' : 'Release output, score, and safety proxy.'}</p>
         </div>
         <div className="flex items-center gap-2 min-w-0">
-          <YearFilter years={years} selectedYears={selectedYears} setSelectedYears={setSelectedYears} vi={vi} />
+          <CompactYearSelect years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} vi={vi} />
           <Building2 className="w-4 h-4 shrink-0" style={{ color: '#38bdf8' }} />
         </div>
       </div>
@@ -788,7 +811,7 @@ function PublisherLeaderboard({ rows, volumeRows, vi }: { rows: LNRow[]; volumeR
         <span className="text-right">{vi ? 'An toàn' : 'Safe'}</span>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 overflow-y-auto pr-1" style={{ maxHeight: '198px', scrollbarGutter: 'stable' }}>
         {publishers.map((p, i) => {
           const width = (p.releases24 / max) * 100
           const completionProxy = Math.max(0, Math.min(100, 100 - p.avgDrop))
@@ -854,7 +877,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
   const line = points.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
-    <Card className="p-3 h-[226px] overflow-visible">
+    <Card className="p-3 h-[280px] overflow-hidden">
       <div className="flex items-center justify-between mb-1.5">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
@@ -868,13 +891,13 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
       </div>
 
       <div className="overflow-x-auto overflow-y-hidden">
-        <svg viewBox={`0 0 ${w} ${h}`} className="h-[166px]" style={{ width: '100%', minWidth: `${Math.max(520, data.length * 42)}px` }}>
+        <svg viewBox={`0 0 ${w} ${h}`} className="h-[218px]" style={{ width: '100%', minWidth: `${Math.max(520, data.length * 42)}px` }}>
           {yTicks.map((tick, i) => {
             const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
             return (
               <g key={`${tick}-${i}`}>
                 <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
-                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">{tick.toLocaleString("vi-VN", { notation: tick >= 1000 ? "compact" : "standard" })}</text>
+                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">{tick}</text>
               </g>
             )
           })}
@@ -883,9 +906,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             <g key={p.d.year}>
               <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
               <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" />
-              {(i % yearLabelStep === 0 || i === points.length - 1) && (
-                <text x={p.x} y={h - 5} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.55)">{p.d.year}</text>
-              )}
+              {(i % yearLabelStep === 0 || i === points.length - 1) && <text x={p.x} y={h - 5} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.55)">{p.d.year}</text>}
             </g>
           ))}
         </svg>
@@ -911,11 +932,11 @@ function buildHeatmap(rows: VolumeReleaseRow[]) {
 }
 
 function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean }) {
-  const [selectedYears, setSelectedYears] = useState<number[]>([])
+  const [selectedYear, setSelectedYear] = useState<number | null>(null)
   const years = availableReleaseYears(volumeRows)
-  const filteredVolumes = filterVolumeRowsByYears(volumeRows, selectedYears)
+  const filteredVolumes = filterVolumeRowsBySingleYear(volumeRows, selectedYear)
   const data = buildHeatmap(filteredVolumes)
-  const publishers = buildPublishers(rows, filteredVolumes).filter(p => p.releases24 > 0).slice(0, 6).map(p => p.publisher)
+  const publishers = buildPublishers(rows, filteredVolumes).filter(p => p.releases24 > 0).map(p => p.publisher)
   const months = Array.from({ length: 12 }, (_, month) => [
     String(month).padStart(2, '0'),
     new Date(2020, month, 1).toLocaleString('en-US', { month: 'short' }),
@@ -925,14 +946,14 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
   const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
 
   return (
-    <Card className="p-3 h-[226px] overflow-visible">
+    <Card className="p-3 h-[280px] overflow-hidden">
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Đếm số tập thật từ volumes theo tháng và năm đã chọn.' : 'Counts real volume rows from volumes by selected month/year.'}</p>
         </div>
         <div className="flex items-center gap-2 min-w-0">
-          <YearFilter years={years} selectedYears={selectedYears} setSelectedYears={setSelectedYears} vi={vi} />
+          <CompactYearSelect years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} vi={vi} />
           <BarChart3 className="w-4 h-4 shrink-0" style={{ color: '#ec4899' }} />
         </div>
       </div>
@@ -946,27 +967,14 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
             ))}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 overflow-y-auto pr-1" style={{ maxHeight: '174px', scrollbarGutter: 'stable' }}>
             {publishers.map(pub => (
               <div key={pub} className="grid gap-1 items-center" style={{ gridTemplateColumns: monthGrid }}>
                 <div className="text-[10px] truncate pr-1 font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{pub}</div>
                 {months.map(([key]) => {
                   const v = lookup.get(`${pub}|${key}`) || 0
                   const alpha = v === 0 ? .08 : .18 + v / max * .76
-                  return (
-                    <div
-                      key={key}
-                      title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}
-                      className="group relative h-5 rounded-sm transition-all duration-150 hover:scale-[1.18] hover:z-20 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125"
-                      style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }}
-                    >
-                      {v > 0 && (
-                        <span className="pointer-events-none absolute inset-0 hidden group-hover:flex items-center justify-center text-[8px] font-black text-white drop-shadow">
-                          {v}
-                        </span>
-                      )}
-                    </div>
-                  )
+                  return <div key={key} title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`} className="h-5 rounded-sm transition-all duration-150 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125 hover:scale-105" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
                 })}
               </div>
             ))}
