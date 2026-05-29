@@ -778,7 +778,7 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
     prev.volumes += 1
     map.set(year, prev)
   }
-  return Array.from(map.values()).sort((a, b) => a.year - b.year).slice(-12)
+  return Array.from(map.values()).sort((a, b) => a.year - b.year)
 }
 
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
@@ -803,7 +803,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
       <div className="flex items-center justify-between mb-1.5">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Proxy số tập VN theo năm phát hành gần nhất.' : 'VN volume proxy by latest-release year.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Dùng toàn bộ năm có dữ liệu, giống Nhà PH hoạt động.' : 'Uses all available years, same as Active Publishers.'}</p>
         </div>
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
@@ -812,8 +812,8 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
         <span className="inline-flex items-center gap-1"><span className="w-3 h-0.5 rounded-full" style={{ background: '#22c55e' }} /> {vi ? 'Tổng tập' : 'Volumes'}</span>
       </div>
 
-      <div className="overflow-hidden">
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[166px]">
+      <div className="overflow-x-auto overflow-y-hidden">
+        <svg viewBox={`0 0 ${w} ${h}`} className="h-[166px]" style={{ width: '100%', minWidth: `${Math.max(520, data.length * 42)}px` }}>
           {yTicks.map((tick, i) => {
             const y = padT + i / Math.max(1, yTicks.length - 1) * (h - padT - padB)
             return (
@@ -872,7 +872,7 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành theo nhà PH' : 'Publisher Release Activity'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Mật độ phát hành theo tháng, lọc theo năm.' : 'Monthly release concentration by selected years.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Theo cùng bộ năm với dữ liệu phát hành; All years = gộp mọi năm.' : 'Same release-year pool; All years aggregates every year.'}</p>
         </div>
         <div className="flex items-center gap-2 min-w-0">
           <YearFilter years={years} selectedYears={selectedYears} setSelectedYears={setSelectedYears} vi={vi} />
