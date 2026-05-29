@@ -160,20 +160,30 @@ function YearFilter({ years, selectedYears, setSelectedYears, vi }: { years: num
       : (vi ? `${selectedYears.length} năm` : `${selectedYears.length} years`)
 
   return (
-    <details className="relative shrink-0">
+    <details className="relative shrink-0 group">
       <summary
         className="list-none cursor-pointer select-none px-2.5 py-1.5 rounded-lg text-[10px] font-black min-w-[88px] text-center"
         style={{ background: selectedYears.length === 0 ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYears.length === 0 ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
       >
         {label} ▾
       </summary>
-      <div className="absolute right-0 top-8 z-[9999] w-[156px] rounded-lg p-2 shadow-xl space-y-1" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
-        <button type="button" onClick={() => setSelectedYears([])} className="w-full text-left px-2 py-1.5 rounded-md text-[10px] font-bold" style={{ color: selectedYears.length === 0 ? '#a78bfa' : 'var(--foreground-secondary)', background: selectedYears.length === 0 ? 'rgba(124,106,245,.16)' : 'transparent' }}>
+
+      <div
+        className="fixed sm:absolute right-3 sm:right-0 bottom-4 sm:bottom-auto sm:top-8 z-[99999] w-[min(220px,calc(100vw-24px))] sm:w-[176px] rounded-xl p-2 shadow-2xl space-y-1"
+        style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)', maxHeight: 'min(72vh, 430px)' }}
+      >
+        <button
+          type="button"
+          onClick={() => setSelectedYears([])}
+          className="sticky top-0 z-10 w-full text-left px-2 py-1.5 rounded-md text-[10px] font-black"
+          style={{ color: selectedYears.length === 0 ? '#a78bfa' : 'var(--foreground-secondary)', background: selectedYears.length === 0 ? 'rgba(124,106,245,.16)' : 'var(--ln-panel-bg-strong)' }}
+        >
           {vi ? 'Tất cả năm' : 'All years'}
         </button>
-        <div className="overflow-y-auto overscroll-contain pr-1 space-y-1" style={{ maxHeight: 'min(70vh, 320px)', scrollbarGutter: 'stable' }}>
+
+        <div className="overflow-y-auto overscroll-contain pr-1 space-y-1" style={{ maxHeight: 'calc(min(72vh, 430px) - 42px)', scrollbarGutter: 'stable' }}>
           {displayYears.map(year => (
-            <label key={year} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[10px] font-bold cursor-pointer hover:bg-white/[0.04]" style={{ color: 'var(--foreground-secondary)' }}>
+            <label key={year} className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[10px] font-bold cursor-pointer hover:bg-white/[0.06]" style={{ color: 'var(--foreground-secondary)' }}>
               <input type="checkbox" checked={selectedYears.includes(year)} onChange={() => toggleYear(year)} className="accent-violet-500" />
               {year}
             </label>
@@ -835,6 +845,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
   const padB = 24
   const maxY = Math.max(...data.map(d => d.volumes), 1)
   const yTicks = [1, .75, .5, .25, 0].map(ratio => Math.round(maxY * ratio))
+  const yearLabelStep = data.length > 14 ? 3 : data.length > 9 ? 2 : 1
   const points = data.map((d, i) => {
     const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
     const y = h - padB - d.volumes / maxY * (h - padT - padB)
@@ -863,16 +874,18 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             return (
               <g key={`${tick}-${i}`}>
                 <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
-                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">{tick}</text>
+                <text x={padL - 8} y={y + 3} textAnchor="end" fontSize="8.5" fill="rgba(147,164,193,.85)">{tick.toLocaleString("vi-VN", { notation: tick >= 1000 ? "compact" : "standard" })}</text>
               </g>
             )
           })}
           <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-          {points.map(p => (
+          {points.map((p, i) => (
             <g key={p.d.year}>
               <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
               <circle cx={p.x} cy={p.y} r="3" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.6" />
-              <text x={p.x} y={h - 5} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.55)">{p.d.year}</text>
+              {(i % yearLabelStep === 0 || i === points.length - 1) && (
+                <text x={p.x} y={h - 5} textAnchor="middle" fontSize="8.5" fill="rgba(232,236,244,.55)">{p.d.year}</text>
+              )}
             </g>
           ))}
         </svg>
@@ -940,7 +953,20 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
                 {months.map(([key]) => {
                   const v = lookup.get(`${pub}|${key}`) || 0
                   const alpha = v === 0 ? .08 : .18 + v / max * .76
-                  return <div key={key} title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`} className="h-5 rounded-sm" style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }} />
+                  return (
+                    <div
+                      key={key}
+                      title={`${pub}: ${v.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}
+                      className="group relative h-5 rounded-sm transition-all duration-150 hover:scale-[1.18] hover:z-20 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125"
+                      style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.04)' }}
+                    >
+                      {v > 0 && (
+                        <span className="pointer-events-none absolute inset-0 hidden group-hover:flex items-center justify-center text-[8px] font-black text-white drop-shadow">
+                          {v}
+                        </span>
+                      )}
+                    </div>
+                  )
                 })}
               </div>
             ))}
