@@ -1412,9 +1412,17 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
           </p>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ background: 'var(--ln-muted-bg)', color: 'var(--foreground-muted)' }}>
-            {safeIndex + 1}/{items.length}
-          </span>
+          {items.map((row, idx) => (
+            <button
+              key={row.series_key}
+              type="button"
+              onClick={() => setActiveIndex(idx)}
+              className="w-2.5 h-2.5 rounded-full transition-all hover:scale-125"
+              style={{ background: idx === safeIndex ? 'var(--foreground)' : 'var(--foreground-muted)', opacity: idx === safeIndex ? 0.95 : 0.45 }}
+              aria-label={`Show slide ${idx + 1}`}
+              title={`${idx + 1}/${items.length}`}
+            />
+          ))}
         </div>
       </div>
 
@@ -1422,7 +1430,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
         {cover && <img src={cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.10] blur-md scale-110" />}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.96), rgba(2,6,23,.75), rgba(2,6,23,.92))' }} />
 
-        <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
+        <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02] min-w-[78px]" style={{ background: 'rgba(124,106,245,.22)', color: '#ddd6fe', border: '1px solid rgba(124,106,245,.36)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
 
         <div className="relative grid grid-cols-[122px_1fr] sm:grid-cols-[150px_1fr] gap-4 p-3 min-h-[244px]">
           <div className="relative">
@@ -1438,7 +1446,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
           </div>
 
           <div className="min-w-0 flex flex-col justify-between">
-            <div>
+            <div className="pr-24">
               <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(active.max_release_at)}</span>
