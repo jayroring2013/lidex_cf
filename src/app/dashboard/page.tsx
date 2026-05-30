@@ -1130,12 +1130,11 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
 
   return (
     <Card className="p-3 h-full overflow-hidden">
-      <div className="flex items-center justify-between mb-1">
+      <div className="mb-1">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Publisher DNA' : 'Publisher DNA'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Giá trị được ghi trực tiếp trên radar.' : 'Values are shown directly on the radar.'}</p>
         </div>
-        <span className="rounded-full px-2 py-1 text-[10px] font-black" style={{ color: '#38bdf8', background: 'rgba(56,189,248,.12)', border: '1px solid rgba(56,189,248,.22)' }}>{publisher.publisher}</span>
       </div>
 
       <div className="flex justify-center">
@@ -1326,18 +1325,16 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 
   return (
     <Card className="p-3 h-full overflow-hidden">
-      <div className="flex items-start justify-between mb-2">
+      <div className="mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Portfolio Treemap' : 'Portfolio Treemap'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Diện tích theo số series.' : 'Area by number of series.'}</p>
         </div>
-        <span className="text-[10px] font-black" style={{ color: 'var(--foreground-muted)' }}>{rows.length} LN</span>
       </div>
 
       <div className="flex flex-wrap gap-1.5 h-[230px]">
         {groups.map(group => {
           const pct = (group.rows.length / total) * 100
-          const avg = group.rows.length ? avgValue(group.rows, row => row.ln_score) : 0
           return (
             <div
               key={group.key}
@@ -1354,7 +1351,6 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
               </div>
               <div>
                 <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{pct.toFixed(0)}% portfolio</p>
-                <p className="text-[10px] font-bold" style={{ color: 'var(--foreground-secondary)' }}>{avg ? avg.toFixed(2) : '—'} LN avg</p>
               </div>
             </div>
           )
