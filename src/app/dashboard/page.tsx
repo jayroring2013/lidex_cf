@@ -111,6 +111,8 @@ type PublisherAgg = {
   marketShare: number
 }
 
+type PublisherLogoMap = Record<string, string>
+
 type GrowthRow = {
   year: number
   volumes: number
@@ -294,6 +296,10 @@ function proxyImg(url: string | null) {
     }
   } catch {}
   return url
+}
+
+function publisherKey(name: string | null | undefined) {
+  return String(name || '').trim().toLowerCase()
 }
 
 function detailHref(row: LNRow | null) {
@@ -1518,9 +1524,10 @@ function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   )
 }
 
-function PublisherFocusView({ rows, volumeRows, selectedPublisher, setSelectedPublisher, selectedKey, onSelectSeries, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; selectedPublisher: string | null; setSelectedPublisher: (publisher: string) => void; selectedKey: string | null; onSelectSeries: (row: LNRow) => void; vi: boolean }) {
+function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublisher, setSelectedPublisher, selectedKey, onSelectSeries, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; publisherLogos: PublisherLogoMap; selectedPublisher: string | null; setSelectedPublisher: (publisher: string) => void; selectedKey: string | null; onSelectSeries: (row: LNRow) => void; vi: boolean }) {
   const publishers = buildPublishers(rows, volumeRows).filter(p => p.releases24 > 0)
   const currentName = selectedPublisher || publishers[0]?.publisher || 'Unknown'
+  const logoUrl = proxyImg(publisherLogos[publisherKey(currentName)] || null)
   const publisher = publishers.find(p => p.publisher === currentName) || publishers[0]
   const portfolioRows = rows.filter(row => (row.publisher || 'Unknown') === currentName)
   const publisherVolumes = volumeRows.filter(row => (row.publisher || 'Unknown') === currentName)
@@ -1549,8 +1556,18 @@ function PublisherFocusView({ rows, volumeRows, selectedPublisher, setSelectedPu
       <Card className="p-3.5">
         <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_260px] gap-4 items-center">
           <div className="flex items-center gap-3">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black shrink-0" style={{ background: 'rgba(255,255,255,.92)', color: '#1d4ed8', border: '1px solid rgba(255,255,255,.16)' }}>
-              {currentName.slice(0, 3).toUpperCase()}
+            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden p-2" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '1px solid rgba(255,255,255,.16)' }}>
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={`${currentName} logo`}
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  decoding="async"
+                />
+              ) : (
+                currentName.slice(0, 3).toUpperCase()
+              )}
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Nhà phát hành' : 'Publisher'}</p>
@@ -1692,6 +1709,26 @@ async function loadNovelVolumeReleases(dashboardRows: LNRow[]): Promise<VolumeRe
   }
 
   return releases
+}
+
+async function loadPublisherLogos(): Promise<PublisherLogoMap> {
+  const { data, error } = await supabase
+    .from('publishers')
+    .select('name, name_vi, logo_url')
+    .not('logo_url', 'is', null)
+
+  if (error || !data) {
+    console.warn('[Dashboard] publisher logo fetch failed:', error?.message)
+    return {}
+  }
+
+  const logos: PublisherLogoMap = {}
+  for (const row of data as Array<{ name?: string | null; name_vi?: string | null; logo_url?: string | null }>) {
+    if (!row.logo_url) continue
+    if (row.name) logos[publisherKey(row.name)] = row.logo_url
+    if (row.name_vi) logos[publisherKey(row.name_vi)] = row.logo_url
+  }
+  return logos
 }
 
 function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LNRow) => void; vi: boolean }) {
@@ -1946,6 +1983,7 @@ export default function Dashboard() {
   const [mode, setMode] = useState<Mode>('dashboard')
   const [rows, setRows] = useState<LNRow[]>([])
   const [volumeRows, setVolumeRows] = useState<VolumeReleaseRow[]>([])
+  const [publisherLogos, setPublisherLogos] = useState<PublisherLogoMap>({})
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [selectedPublisher, setSelectedPublisher] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -1969,9 +2007,13 @@ export default function Dashboard() {
 
     const mapped = mapRows((data || []) as RawRankingRow[])
     const hydrated = await hydrateRowsWithCanonicalSeries(mapped)
-    const volumeReleases = await loadNovelVolumeReleases(hydrated)
+    const [volumeReleases, logos] = await Promise.all([
+      loadNovelVolumeReleases(hydrated),
+      loadPublisherLogos(),
+    ])
     setRows(hydrated)
     setVolumeRows(volumeReleases)
+    setPublisherLogos(logos)
     setSelectedKey((hydrated.find(r => r.evalution === 'Good') || hydrated[0])?.series_key || null)
     setSelectedPublisher(buildPublishers(hydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || hydrated[0]?.publisher || null)
     setLoading(false)
@@ -2018,7 +2060,7 @@ export default function Dashboard() {
         ) : mode === 'watchlist' ? (
           <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setMode('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : mode === 'publisher' ? (
-          <PublisherFocusView rows={rows} volumeRows={volumeRows} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+          <PublisherFocusView rows={rows} volumeRows={volumeRows} publisherLogos={publisherLogos} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : (
           <div className="space-y-4">
             <KpiStrip rows={rows} vi={vi} />
