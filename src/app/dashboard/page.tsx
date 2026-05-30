@@ -1411,14 +1411,14 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
             {vi ? 'Chọn series nổi bật trong portfolio.' : 'Browse this publisher portfolio.'}
           </p>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 rounded-full px-2.5 py-1.5" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)' }}>
           {items.map((row, idx) => (
             <button
               key={row.series_key}
               type="button"
               onClick={() => setActiveIndex(idx)}
-              className="w-2.5 h-2.5 rounded-full transition-all hover:scale-125"
-              style={{ background: idx === safeIndex ? 'var(--foreground)' : 'var(--foreground-muted)', opacity: idx === safeIndex ? 0.95 : 0.45 }}
+              className="w-3 h-3 rounded-full transition-all hover:scale-125"
+              style={{ background: idx === safeIndex ? '#ffffff' : 'rgba(255,255,255,.38)', boxShadow: idx === safeIndex ? '0 0 0 2px rgba(167,139,250,.45)' : 'none' }}
               aria-label={`Show slide ${idx + 1}`}
               title={`${idx + 1}/${items.length}`}
             />
