@@ -87,6 +87,7 @@ type LNRow = {
   drop_components: string | null
   cover_url: string | null
   cover_source_title: string | null
+  description: string | null
 
   release_pace_score: number
   catch_up_score: number
@@ -431,6 +432,7 @@ function mapRows(raw: RawRankingRow[]) {
       drop_components: r.drop_components,
       cover_url: r.cover_url,
       cover_source_title: r.cover_source_title,
+      description: null,
       release_pace_score: releasePaceScore(avgGap, monthsSince),
       catch_up_score: catchUpScore(r),
       demand_score: demand(num(r.average_view_count)),
@@ -445,14 +447,14 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
   const ids = Array.from(new Set(rows.map(row => row.lidex_series_id).filter((id): id is number => Boolean(id))))
   if (ids.length === 0) return rows
 
-  const canonical = new Map<number, { title?: string | null; cover_url?: string | null; publisher?: string | null }>()
+  const canonical = new Map<number, { title?: string | null; cover_url?: string | null; publisher?: string | null; description?: string | null }>()
   const batchSize = 200
 
   for (let i = 0; i < ids.length; i += batchSize) {
     const chunk = ids.slice(i, i + batchSize)
     const { data, error } = await supabase
       .from('series')
-      .select('id, title, cover_url, publisher')
+      .select('id, title, cover_url, publisher, description, description_vi')
       .in('id', chunk)
 
     if (error) {
@@ -465,6 +467,7 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
         title: (series as any).title,
         cover_url: (series as any).cover_url,
         publisher: (series as any).publisher,
+        description: (series as any).description_vi || (series as any).description,
       })
     }
   }
@@ -478,6 +481,7 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
       series_title: row.series_title || meta.title || row.series_title,
       cover_url: row.cover_url || meta.cover_url || row.cover_url,
       publisher: row.publisher || meta.publisher || row.publisher,
+      description: row.description || meta.description || row.description,
     }
   })
 }
@@ -1366,7 +1370,7 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   )
 }
 
-function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
+function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; selectedKey: string | null; vi: boolean }) {
   const items = useMemo(() => [...rows]
     .sort((a, b) => (b.ln_score - a.ln_score) || pctValue(a.drop_percent) - pctValue(b.drop_percent) || String(b.max_release_at || '').localeCompare(String(a.max_release_at || '')))
     .slice(0, 12), [rows])
@@ -1380,6 +1384,14 @@ function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LN
     else setActiveIndex(0)
   }, [selectedKey, items.length])
 
+  useEffect(() => {
+    if (items.length <= 1) return
+    const timer = window.setInterval(() => {
+      setActiveIndex(idx => (idx + 1) % items.length)
+    }, 4500)
+    return () => window.clearInterval(timer)
+  }, [items.length])
+
   if (items.length === 0) {
     return <Card className="p-3"><span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series.' : 'No series.'}</span></Card>
   }
@@ -1387,10 +1399,8 @@ function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LN
   const safeIndex = Math.min(activeIndex, items.length - 1)
   const active = items[safeIndex]
   const activeStyle = releaseStatusStyle(active)
-  const progress = active.original_volumes > 0 ? Math.min(100, (active.number_of_volumes / active.original_volumes) * 100) : 0
   const cover = proxyImg(active.cover_url)
-  const prev = () => setActiveIndex(idx => (idx - 1 + items.length) % items.length)
-  const next = () => setActiveIndex(idx => (idx + 1) % items.length)
+  const description = active.description || (vi ? 'Chưa có mô tả cho series này.' : 'No description available for this series.')
 
   return (
     <Card className="p-3 overflow-hidden h-full">
@@ -1407,14 +1417,14 @@ function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LN
           <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ background: 'var(--ln-muted-bg)', color: 'var(--foreground-muted)' }}>
             {safeIndex + 1}/{items.length}
           </span>
-          <button type="button" onClick={prev} className="w-7 h-7 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>‹</button>
-          <button type="button" onClick={next} className="w-7 h-7 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>›</button>
         </div>
       </div>
 
       <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,.96), rgba(17,24,39,.82))', border: '1px solid var(--card-border)' }}>
         {cover && <img src={cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.10] blur-md scale-110" />}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.96), rgba(2,6,23,.75), rgba(2,6,23,.92))' }} />
+
+        <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
 
         <div className="relative grid grid-cols-[92px_1fr] sm:grid-cols-[112px_1fr] gap-3 p-3 min-h-[230px]">
           <div className="relative">
@@ -1426,9 +1436,6 @@ function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LN
                   <BookOpen className="w-8 h-8 opacity-30" style={{ color: 'var(--foreground-muted)' }} />
                 </div>
               )}
-              <div className="absolute left-1.5 top-1.5 px-1.5 py-0.5 rounded-md text-[9px] font-black" style={{ background: 'rgba(0,0,0,.64)', color: '#fff' }}>
-                #{safeIndex + 1}
-              </div>
             </div>
           </div>
 
@@ -1440,60 +1447,12 @@ function PublisherSeriesCarousel({ rows, selectedKey, onSelect, vi }: { rows: LN
               </div>
 
               <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
-              <p className="text-[10px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
-                ID {active.lidex_series_id || active.series_id || '—'} · {active.series_code || '—'}
-              </p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-3">
-              <div className="rounded-lg p-2" style={{ background: 'rgba(34,197,94,.10)', border: '1px solid rgba(34,197,94,.20)' }}>
-                <p className="text-[8px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>LN</p>
-                <p className="text-xl font-black" style={{ color: scoreColor(active.ln_score) }}>{active.ln_score.toFixed(1)}</p>
-              </div>
-              <div className="rounded-lg p-2" style={{ background: 'rgba(239,68,68,.10)', border: '1px solid rgba(239,68,68,.20)' }}>
-                <p className="text-[8px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Drop</p>
-                <p className="text-xl font-black" style={{ color: dropColor(active.drop_percent) }}>{fmtPercent(active.drop_percent)}</p>
-              </div>
-              <div className="rounded-lg p-2" style={{ background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.20)' }}>
-                <p className="text-[8px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>VN/JP</p>
-                <p className="text-sm font-black" style={{ color: '#7dd3fc' }}>{fmtNum(active.number_of_volumes, 0)} / {fmtNum(active.original_volumes, 0)}</p>
-                <div className="h-1.5 rounded-full overflow-hidden mt-1.5" style={{ background: 'var(--ln-track-bg)' }}>
-                  <div className="h-full rounded-full" style={{ width: `${progress}%`, background: '#38bdf8' }} />
-                </div>
-              </div>
-              <div className="rounded-lg p-2" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
-                <p className="text-[8px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Nhịp ra' : 'Avg gap'}</p>
-                <p className="text-sm font-black" style={{ color: '#c4b5fd' }}>{active.average_gap_months == null ? '—' : `${active.average_gap_months.toFixed(1)}m`}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mt-3">
-              <button type="button" onClick={() => onSelect(active)} className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(56,189,248,.12)', color: '#7dd3fc', border: '1px solid rgba(56,189,248,.22)' }}>{vi ? 'Select chart' : 'Select chart'}</button>
-              <Link href={detailHref(active)} className="inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
+            <div className="mt-3 rounded-xl p-3 min-h-[106px] max-h-[138px] overflow-hidden" style={{ background: 'rgba(15,23,42,.52)', border: '1px solid rgba(136,146,170,.14)' }}>
+              <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: 'var(--foreground-secondary)' }}>{description}</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="mt-2 overflow-x-auto pb-1">
-        <div className="flex gap-1.5 min-w-max">
-          {items.map((row, idx) => {
-            const img = proxyImg(row.cover_url)
-            const activeThumb = idx === safeIndex
-            return (
-              <button
-                type="button"
-                key={row.series_key}
-                onClick={() => setActiveIndex(idx)}
-                className="relative w-[34px] h-[50px] rounded-md overflow-hidden transition-all hover:scale-105"
-                style={{ border: activeThumb ? '2px solid #a78bfa' : '1px solid var(--card-border)', opacity: activeThumb ? 1 : 0.62, background: 'var(--ln-muted-bg)' }}
-                title={`${row.series_title} · ${row.ln_score.toFixed(1)} LN`}
-              >
-                {img ? <img src={img} alt="" className="w-full h-full object-cover" /> : <BookOpen className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 opacity-40" style={{ color: 'var(--foreground-muted)' }} />}
-                <span className="absolute left-0 right-0 bottom-0 text-[7px] font-black py-0.5" style={{ background: 'rgba(0,0,0,.68)', color: activeThumb ? '#c4b5fd' : '#fff' }}>{row.ln_score.toFixed(1)}</span>
-              </button>
-            )
-          })}
         </div>
       </div>
     </Card>
@@ -1630,7 +1589,7 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
           <GrowthChart volumeRows={publisherVolumes} vi={vi} />
           <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
         </div>
-        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
+        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
         <PublisherRiskWatch rows={portfolioRows} vi={vi} />
       </div>
     </div>
