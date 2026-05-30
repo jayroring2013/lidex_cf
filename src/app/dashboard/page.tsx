@@ -1403,7 +1403,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
   const description = active.description || (vi ? 'Chưa có mô tả cho series này.' : 'No description available for this series.')
 
   return (
-    <Card className="p-3 overflow-hidden h-full">
+    <Card className="p-3 overflow-hidden">
       <div className="flex items-center justify-between gap-3 mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
@@ -1426,7 +1426,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
 
         <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02]" style={{ background: 'rgba(124,106,245,.18)', color: '#c4b5fd', border: '1px solid rgba(124,106,245,.28)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
 
-        <div className="relative grid grid-cols-[92px_1fr] sm:grid-cols-[112px_1fr] gap-3 p-3 min-h-[230px]">
+        <div className="relative grid grid-cols-[122px_1fr] sm:grid-cols-[150px_1fr] gap-4 p-3 min-h-[244px]">
           <div className="relative">
             <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', border: '1px solid rgba(255,255,255,.16)', background: 'var(--ln-muted-bg)' }}>
               {cover ? (
@@ -1449,7 +1449,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
               <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
             </div>
 
-            <div className="mt-3 rounded-xl p-3 min-h-[106px] max-h-[138px] overflow-hidden" style={{ background: 'rgba(15,23,42,.52)', border: '1px solid rgba(136,146,170,.14)' }}>
+            <div className="mt-3 rounded-xl p-3 min-h-[126px] max-h-[154px] overflow-hidden" style={{ background: 'rgba(15,23,42,.52)', border: '1px solid rgba(136,146,170,.14)' }}>
               <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: 'var(--foreground-secondary)' }}>{description}</p>
             </div>
           </div>
