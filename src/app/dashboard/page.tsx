@@ -1536,7 +1536,14 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
   const avgScore = portfolioRows.length ? avgValue(portfolioRows, row => row.ln_score) : 0
   const avgDrop = portfolioRows.length ? avgValue(portfolioRows, row => pctValue(row.drop_percent)) : 0
   const reliability = portfolioRows.length ? avgValue(portfolioRows, row => row.publisher_support_score * 10) : 0
-  const rank = Math.max(1, publishers.findIndex(p => p.publisher === currentName) + 1)
+  const reliabilityRanks = publishers
+    .map(p => {
+      const pRows = rows.filter(row => (row.publisher || 'Unknown') === p.publisher)
+      const score = pRows.length ? avgValue(pRows, row => row.publisher_support_score * 10) : 0
+      return { publisher: p.publisher, score }
+    })
+    .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
+  const rank = Math.max(1, reliabilityRanks.findIndex(p => p.publisher === currentName) + 1)
   const marketShare = publisher?.marketShare || 0
 
   if (!publisher) {
@@ -1554,14 +1561,14 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
   return (
     <div className="space-y-3">
       <Card className="p-3.5">
-        <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_260px] gap-4 items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '1px solid rgba(255,255,255,.16)' }}>
+        <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr_260px] gap-4 items-center">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-[92px] h-[92px] rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '5px solid rgba(255,255,255,.96)', boxShadow: '0 0 0 1px rgba(136,146,170,.18)' }}>
               {logoUrl ? (
                 <img
                   src={logoUrl}
                   alt={`${currentName} logo`}
-                  className="w-[88%] h-[88%] object-contain"
+                  className="w-full h-full object-contain"
                   loading="eager"
                   decoding="async"
                 />
@@ -1571,8 +1578,10 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Nhà phát hành' : 'Publisher'}</p>
-              <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
-              <p className="text-[11px] mt-1" style={{ color: 'var(--foreground-secondary)' }}>Market rank #{rank} / {publishers.length}</p>
+              <div className="flex items-center gap-3 min-w-0">
+                <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
+                <span className="shrink-0 text-2xl font-black leading-none" style={{ color: 'var(--foreground-muted)', textShadow: '0 0 14px rgba(234,179,8,.55)' }}>#{rank}</span>
+              </div>
             </div>
           </div>
 
@@ -1589,7 +1598,7 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
           <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Publisher Reliability' : 'Publisher Reliability'}</p>
-              <span className="rounded-md px-2 py-0.5 text-[10px] font-black" style={{ color: '#86efac', background: 'rgba(34,197,94,.12)' }}>#{rank}</span>
+              <span className="text-sm font-black" style={{ color: 'var(--foreground-muted)' }}>Rank {rank}/{publishers.length}</span>
             </div>
             <div className="flex items-end gap-2">
               <span className="text-5xl font-black leading-none" style={{ color: publisherScoreColor(reliability) }}>{reliability.toFixed(0)}</span>
