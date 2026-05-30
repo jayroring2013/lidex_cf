@@ -447,14 +447,14 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
   const ids = Array.from(new Set(rows.map(row => row.lidex_series_id).filter((id): id is number => Boolean(id))))
   if (ids.length === 0) return rows
 
-  const canonical = new Map<number, { title?: string | null; cover_url?: string | null; publisher?: string | null; description?: string | null }>()
+  const canonical = new Map<number, { title?: string | null; cover_url?: string | null; description?: string | null }>()
   const batchSize = 200
 
   for (let i = 0; i < ids.length; i += batchSize) {
     const chunk = ids.slice(i, i + batchSize)
     const { data, error } = await supabase
       .from('series')
-      .select('id, title, cover_url, publisher, description, description_vi')
+      .select('id, title, cover_url, description, description_vi')
       .in('id', chunk)
 
     if (error) {
@@ -466,8 +466,7 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
       canonical.set(Number((series as any).id), {
         title: (series as any).title,
         cover_url: (series as any).cover_url,
-        publisher: (series as any).publisher,
-        description: (series as any).description_vi || (series as any).description,
+        description: String((series as any).description_vi || (series as any).description || '').trim() || null,
       })
     }
   }
@@ -477,10 +476,9 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
     if (!meta) return row
     return {
       ...row,
-      // Keep the evaluated ranking title unless it is missing, but use canonical cover/publisher as fallback.
+      // Keep the evaluated ranking title unless it is missing, but use canonical cover/description as fallback.
       series_title: row.series_title || meta.title || row.series_title,
       cover_url: row.cover_url || meta.cover_url || row.cover_url,
-      publisher: row.publisher || meta.publisher || row.publisher,
       description: row.description || meta.description || row.description,
     }
   })
