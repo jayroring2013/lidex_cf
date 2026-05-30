@@ -1450,6 +1450,10 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
               <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(active.max_release_at)}</span>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#7dd3fc', background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.18)' }}>
+                  {vi ? 'Tập' : 'Vol'} {fmtNum(active.number_of_volumes, 0)}
+                  {active.original_volumes > 0 ? ` / ${fmtNum(active.original_volumes, 0)}` : ''}
+                </span>
               </div>
 
               <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
@@ -1586,7 +1590,7 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
 
       <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
         <PublisherDNARadar publisher={publisher} rows={portfolioRows} vi={vi} />
-        <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
+        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
         <PublisherBreakdown rows={portfolioRows} vi={vi} />
       </div>
 
@@ -1595,7 +1599,7 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
           <GrowthChart volumeRows={publisherVolumes} vi={vi} />
           <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
         </div>
-        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
+        <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
         <PublisherRiskWatch rows={portfolioRows} vi={vi} />
       </div>
     </div>
