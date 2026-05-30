@@ -1556,12 +1556,12 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
       <Card className="p-3.5">
         <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_260px] gap-4 items-center">
           <div className="flex items-center gap-3">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden p-2" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '1px solid rgba(255,255,255,.16)' }}>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '1px solid rgba(255,255,255,.16)' }}>
               {logoUrl ? (
                 <img
                   src={logoUrl}
                   alt={`${currentName} logo`}
-                  className="w-full h-full object-contain"
+                  className="w-[88%] h-[88%] object-contain"
                   loading="eager"
                   decoding="async"
                 />
