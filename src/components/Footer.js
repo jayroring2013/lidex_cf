@@ -1,7 +1,13 @@
+'use client'
+
 import Link from 'next/link'
 import { Github, Twitter, Mail, BarChart3 } from 'lucide-react'
+import { useLocale } from '@/contexts/LocaleContext'
 
 export default function Footer() {
+  const { locale } = useLocale()
+  const vi = locale === 'vi'
+
   return (
     <footer className="border-t border-gray-200 dark:border-dark-700 py-12 px-4 bg-secondary">
       <div className="max-w-7xl mx-auto">
@@ -14,17 +20,16 @@ export default function Footer() {
               <span className="text-xl font-bold gradient-text">LiDex</span>
             </div>
             <p className="text-secondary text-sm">
-              A personal project tracking LN/Anime/Manga data since 2013.
+              {vi
+                ? 'Dự án theo dõi dữ liệu LN/Anime/Manga từ năm 2026.'
+                : 'A personal project tracking LN/Anime/Manga data since 2026.'}
             </p>
           </div>
 
           <div>
             <h4 className="text-primary font-semibold mb-4">Pages</h4>
             <ul className="space-y-2 text-sm text-secondary">
-              <li><Link href="/" className="hover:text-primary-500">Home</Link></li>
-              <li><Link href="/dashboard" className="hover:text-primary-500">Dashboard</Link></li>
-              <li><Link href="/browse" className="hover:text-primary-500">Browse</Link></li>
-              <li><Link href="/charts" className="hover:text-primary-500">Charts</Link></li>
+              <li><Link href="/leaderboard" className="hover:text-primary-500">LN Ranking</Link></li>
             </ul>
           </div>
 
