@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import {
   Activity,
@@ -742,7 +742,7 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
           ))}
 
           <span className="absolute left-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
-          <span className="absolute right-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#eab308' }}>{vi ? 'Phổ biến nhưng rủi ro' : 'Popular Risk'}</span>
+          <span className="absolute right-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#eab308' }}>{vi ? 'Khỏe mạnh nhưng rủi ro' : 'Popular Risk'}</span>
           <span className="absolute left-2 bottom-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#a78bfa' }}>{vi ? 'Đình trệ' : 'Stalled'}</span>
           <span className="absolute right-2 bottom-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{vi ? 'Khỏe mạnh' : 'Healthy'}</span>
 
@@ -758,9 +758,11 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
             return (
               <button
                 key={row.series_key}
-                onClick={() => onSelect(row)}
+                onClick={() => { setHoveredKey(row.series_key); onSelect(row) }}
                 onMouseEnter={() => setHoveredKey(row.series_key)}
                 onMouseLeave={() => setHoveredKey(null)}
+                onFocus={() => setHoveredKey(row.series_key)}
+                onBlur={() => setHoveredKey(null)}
                 title={`${row.series_title}\nID ${row.series_id || '—'} · ${row.series_code || '—'}\nLN ${row.ln_score.toFixed(1)} · Drop ${fmtPercent(row.drop_percent)}`}
                 className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 style={{
@@ -777,6 +779,29 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
               />
             )
           })}
+          {hoveredRow && hoveredPoint && hoveredPoint.visible && (
+            <div
+              className="absolute pointer-events-none rounded-lg px-2.5 py-2 text-[10px] shadow-xl"
+              style={{
+                left: `clamp(6px, ${hoveredPoint.x}%, calc(100% - 190px))`,
+                top: `clamp(6px, ${hoveredPoint.y}%, calc(100% - 76px))`,
+                transform: 'translate(10px, -50%)',
+                background: 'rgba(15,23,42,.94)',
+                border: '1px solid rgba(136,146,170,.28)',
+                color: 'var(--foreground-secondary)',
+                zIndex: 50,
+                width: 184,
+              }}
+            >
+              <p className="truncate font-black mb-1" style={{ color: 'var(--foreground)' }}>{hoveredRow.series_title}</p>
+              <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 tabular-nums">
+                <span>LN</span><span className="text-right font-bold">{hoveredRow.ln_score.toFixed(1)}</span>
+                <span>{vi ? 'Drop' : 'Drop'}</span><span className="text-right font-bold">{fmtPercent(hoveredRow.drop_percent)}</span>
+                <span>{vi ? 'Tập' : 'Volumes'}</span><span className="text-right font-bold">{fmtNum(hoveredRow.number_of_volumes, 0)}</span>
+                <span>{vi ? 'Trạng thái' : 'Status'}</span><span className="text-right font-bold truncate">{releaseStatusLabel(releaseStatus(hoveredRow), vi)}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="absolute left-10 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
@@ -1240,8 +1265,12 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
 
 function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
   const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 5, y: 50 })
   const [query, setQuery] = useState('')
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
+  const dragRef = useRef<{ x: number; y: number } | null>(null)
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>())
+  const pinchRef = useRef<{ dist: number; zoom: number; pan: { x: number; y: number }; pct: { x: number; y: number }; data: { x: number; y: number } } | null>(null)
 
   const plotRows = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -1251,22 +1280,55 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
     })
   }, [rows, query])
 
-  const selectedRow = useMemo(() => plotRows.find(row => row.series_key === selectedKey) || null, [plotRows, selectedKey])
-  const zoomCenterX = selectedRow ? selectedRow.ln_score : 5
-  const zoomCenterY = selectedRow ? pctValue(selectedRow.drop_percent) : 50
-
   function transformPoint(row: LNRow) {
     const jitter = scatterStableNoise(row.series_key)
     const rawX = Math.max(0, Math.min(10, row.ln_score + jitter.x))
     const rawY = Math.max(0, Math.min(100, pctValue(row.drop_percent) + jitter.y))
-    const zx = zoomCenterX + (rawX - zoomCenterX) * zoom
-    const zy = zoomCenterY + (rawY - zoomCenterY) * zoom
+    const x = 50 + (rawX - pan.x) * 10 * zoom
+    const y = 50 - (rawY - pan.y) * zoom
     return {
-      x: Math.max(0, Math.min(100, zx * 10)),
-      y: 100 - Math.max(0, Math.min(100, zy)),
-      visible: zx >= 0 && zx <= 10 && zy >= 0 && zy <= 100,
+      x,
+      y,
+      rawX,
+      rawY,
+      visible: x >= -5 && x <= 105 && y >= -5 && y <= 105,
     }
   }
+
+  function clampPan(next: { x: number; y: number }) {
+    return {
+      x: Math.max(-1, Math.min(11, next.x)),
+      y: Math.max(-10, Math.min(110, next.y)),
+    }
+  }
+
+  function pointPercent(clientX: number, clientY: number, element: HTMLElement) {
+    const rect = element.getBoundingClientRect()
+    return {
+      x: ((clientX - rect.left) / rect.width) * 100,
+      y: ((clientY - rect.top) / rect.height) * 100,
+    }
+  }
+
+  function dataAtPercent(percent: { x: number; y: number }, currentZoom = zoom, currentPan = pan) {
+    return {
+      x: currentPan.x + (percent.x - 50) / (10 * currentZoom),
+      y: currentPan.y + (50 - percent.y) / currentZoom,
+    }
+  }
+
+  function zoomAt(percent: { x: number; y: number }, nextZoom: number, baseZoom = zoom, basePan = pan) {
+    const clamped = Math.max(1, Math.min(6, Number(nextZoom.toFixed(2))))
+    const data = dataAtPercent(percent, baseZoom, basePan)
+    setZoom(clamped)
+    setPan(clampPan({
+      x: data.x - (percent.x - 50) / (10 * clamped),
+      y: data.y - (50 - percent.y) / clamped,
+    }))
+  }
+
+  const hoveredRow = hoveredKey ? plotRows.find(row => row.series_key === hoveredKey) || null : null
+  const hoveredPoint = hoveredRow ? transformPoint(hoveredRow) : null
 
   return (
     <Card className="p-3 h-full">
@@ -1290,13 +1352,69 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
 
           <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
             <button type="button" onClick={() => setZoom(z => Math.max(1, Number((z - 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>−</button>
-            <button type="button" onClick={() => setZoom(1)} className="px-2 py-1.5 text-[10px] font-black" style={{ background: zoom === 1 ? '#7c6af5' : 'var(--ln-control-bg)', color: zoom === 1 ? '#fff' : 'var(--foreground-secondary)' }}>{zoom.toFixed(1)}x</button>
+            <button type="button" onClick={() => { setZoom(1); setPan({ x: 5, y: 50 }) }} className="px-2 py-1.5 text-[10px] font-black" style={{ background: zoom === 1 ? '#7c6af5' : 'var(--ln-control-bg)', color: zoom === 1 ? '#fff' : 'var(--foreground-secondary)' }}>{zoom.toFixed(1)}x</button>
             <button type="button" onClick={() => setZoom(z => Math.min(3.5, Number((z + 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>+</button>
           </div>
         </div>
       </div>
 
-      <div className="relative h-[230px] rounded-lg overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+      <div
+        className="relative h-[230px] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)', touchAction: 'none' }}
+        onWheel={e => {
+          e.preventDefault()
+          const percent = pointPercent(e.clientX, e.clientY, e.currentTarget)
+          zoomAt(percent, zoom * (e.deltaY > 0 ? 0.88 : 1.12))
+        }}
+        onPointerDown={e => {
+          e.currentTarget.setPointerCapture(e.pointerId)
+          pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+          dragRef.current = { x: e.clientX, y: e.clientY }
+          pinchRef.current = null
+        }}
+        onPointerMove={e => {
+          if (!pointersRef.current.has(e.pointerId)) return
+          pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+          const pointers = Array.from(pointersRef.current.values())
+          if (pointers.length >= 2) {
+            const [a, b] = pointers
+            const dist = Math.hypot(a.x - b.x, a.y - b.y)
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+            const percent = pointPercent(mid.x, mid.y, e.currentTarget)
+            if (!pinchRef.current) {
+              pinchRef.current = { dist, zoom, pan, pct: percent, data: dataAtPercent(percent) }
+              return
+            }
+            const start = pinchRef.current
+            const nextZoom = Math.max(1, Math.min(6, Number((start.zoom * (dist / Math.max(1, start.dist))).toFixed(2))))
+            setZoom(nextZoom)
+            setPan(clampPan({
+              x: start.data.x - (start.pct.x - 50) / (10 * nextZoom),
+              y: start.data.y - (50 - start.pct.y) / nextZoom,
+            }))
+            return
+          }
+          if (!dragRef.current) return
+          const dx = e.clientX - dragRef.current.x
+          const dy = e.clientY - dragRef.current.y
+          const rect = e.currentTarget.getBoundingClientRect()
+          dragRef.current = { x: e.clientX, y: e.clientY }
+          setPan(current => clampPan({
+            x: current.x - (dx / rect.width * 100) / (10 * zoom),
+            y: current.y + (dy / rect.height * 100) / zoom,
+          }))
+        }}
+        onPointerUp={e => {
+          pointersRef.current.delete(e.pointerId)
+          dragRef.current = null
+          pinchRef.current = null
+        }}
+        onPointerCancel={e => {
+          pointersRef.current.delete(e.pointerId)
+          dragRef.current = null
+          pinchRef.current = null
+        }}
+      >
         <div className="absolute inset-0 opacity-50 pointer-events-none">
           <div className="absolute left-0 top-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,.08), transparent)' }} />
           <div className="absolute right-0 bottom-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(315deg, rgba(34,197,94,.08), transparent)' }} />
@@ -1315,7 +1433,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
           ))}
 
           <span className="absolute left-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
-          <span className="absolute right-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#38bdf8' }}>{vi ? 'High Quality' : 'High Quality'}</span>
+          <span className="absolute right-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#38bdf8' }}>{vi ? 'Khỏe mạnh nhưng rủi ro' : 'Popular Risk'}</span>
           <span className="absolute left-2 bottom-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#a78bfa' }}>{vi ? 'Đình trệ' : 'Stalled'}</span>
           <span className="absolute right-2 bottom-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{vi ? 'Khỏe mạnh' : 'Healthy'}</span>
 
@@ -1329,7 +1447,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
             return (
               <button
                 key={row.series_key}
-                onClick={() => onSelect(row)}
+                onClick={() => { setHoveredKey(row.series_key); onSelect(row) }}
                 onMouseEnter={() => setHoveredKey(row.series_key)}
                 onMouseLeave={() => setHoveredKey(null)}
                 title={`${row.series_title}\nID ${row.series_id || '—'} · ${row.series_code || '—'}\nLN ${row.ln_score.toFixed(1)} · Drop ${fmtPercent(row.drop_percent)}`}
@@ -1566,7 +1684,10 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
 
 function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const risky = [...rows].sort((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)).slice(0, 5)
-  const stalled = [...rows].sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0)).slice(0, 5)
+  const stalled = rows
+    .filter(row => row.evalution !== 'Completed' && releaseStatusLabel(releaseStatus(row), false) !== 'Completed')
+    .sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0))
+    .slice(0, 5)
   return (
     <Card className="p-3">
       <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: '#fb7185' }}>{vi ? 'Cảnh báo rủi ro' : 'Publisher Risk Watch'}</p>
