@@ -1698,14 +1698,14 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
             {vi ? 'Chọn series nổi bật trong portfolio.' : 'Browse this publisher portfolio.'}
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-full px-2.5 py-1.5" style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)' }}>
+        <div className="flex items-center gap-2 rounded-full px-2.5 py-1.5 shadow-sm" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
           {items.map((row, idx) => (
             <button
               key={row.series_key}
               type="button"
               onClick={() => setActiveIndex(idx)}
               className="w-3 h-3 rounded-full transition-all hover:scale-125"
-              style={{ background: idx === safeIndex ? '#ffffff' : 'rgba(255,255,255,.38)', boxShadow: idx === safeIndex ? '0 0 0 2px rgba(167,139,250,.45)' : 'none' }}
+              style={{ background: idx === safeIndex ? '#7c6af5' : 'var(--foreground-muted)', opacity: idx === safeIndex ? 1 : 0.55, boxShadow: idx === safeIndex ? '0 0 0 3px rgba(124,106,245,.22)' : 'none' }}
               aria-label={`Show slide ${idx + 1}`}
               title={`${idx + 1}/${items.length}`}
             />
@@ -1713,7 +1713,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
         </div>
       </div>
 
-      <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,.96), rgba(17,24,39,.82))', border: '1px solid var(--card-border)' }}>
+      <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #050816, #111827)', border: '1px solid rgba(148,163,184,.24)' }}>
         {cover && <img src={cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.10] blur-md scale-110" />}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.96), rgba(2,6,23,.75), rgba(2,6,23,.92))' }} />
 
@@ -1721,12 +1721,12 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
 
         <div className="relative grid grid-cols-[122px_1fr] sm:grid-cols-[150px_1fr] gap-4 p-3 min-h-[244px]">
           <div className="relative">
-            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', border: '1px solid rgba(255,255,255,.16)', background: 'var(--ln-muted-bg)' }}>
+            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', border: '1px solid rgba(255,255,255,.16)', background: 'rgba(15,23,42,.72)' }}>
               {cover ? (
                 <img src={cover} alt={active.series_title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-8 h-8 opacity-30" style={{ color: 'var(--foreground-muted)' }} />
+                  <BookOpen className="w-8 h-8 opacity-50" style={{ color: '#cbd5e1' }} />
                 </div>
               )}
             </div>
