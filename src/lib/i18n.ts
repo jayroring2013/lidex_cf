@@ -14,6 +14,7 @@ export const translations = {
     nav_index:          'Index',
     nav_browse:         'Khám phá',
     nav_table:          'Bảng tổng hợp',
+    nav_leaderboard:    'BXH LN',
     nav_genre_matrix:   'Ma trận thể loại',
     nav_studio:         'Studio',
 
@@ -123,6 +124,7 @@ export const translations = {
     nav_index:          'Index',
     nav_browse:         'Browse',
     nav_table:          'Table',
+    nav_leaderboard:    'LN Ranking',
     nav_genre_matrix:   'Genre Matrix',
     nav_studio:         'Studios',
 
