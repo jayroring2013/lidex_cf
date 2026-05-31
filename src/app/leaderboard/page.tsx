@@ -345,9 +345,9 @@ export default function LeaderboardPage() {
                       <td className="px-5 py-4 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
                         {rankLabel(row.displayRank)}
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-12 h-16 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                      <td className="px-5 py-5">
+                        <div className="flex items-center gap-5 min-w-0">
+                          <div className="w-24 h-32 sm:w-28 sm:h-40 lg:w-32 lg:h-44 rounded-xl overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                             {row.cover_url ? (
                               <img src={row.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
                             ) : (
