@@ -236,6 +236,23 @@ function fmtPercent(raw: number | null | undefined) {
   return `${pctValue(raw)}%`
 }
 
+function fmtDurationFromMonths(value: number | null | undefined, vi: boolean) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '—'
+  let days = Math.max(0, Math.round(Number(value) * 30.4375))
+  const years = Math.floor(days / 365.25)
+  days -= Math.round(years * 365.25)
+  const months = Math.floor(days / 30.4375)
+  days -= Math.round(months * 30.4375)
+
+  const parts = [
+    years > 0 ? `${years} ${vi ? 'năm' : years === 1 ? 'year' : 'years'}` : '',
+    months > 0 ? `${months} ${vi ? 'tháng' : months === 1 ? 'month' : 'months'}` : '',
+    days > 0 ? `${days} ${vi ? 'ngày' : days === 1 ? 'day' : 'days'}` : '',
+  ].filter(Boolean)
+
+  return parts.length ? parts.join(' ') : (vi ? '0 ngày' : '0 days')
+}
+
 function evalLabel(s?: string | null, vi = true) {
   const viMap = { Completed: 'Hoàn thành', Good: 'Tốt', Limping: 'Cầm chừng', Dead: 'Gần chết', Dropped: 'Đã drop' } as Record<string, string>
   const enMap = { Completed: 'Completed', Good: 'Good', Limping: 'Limping', Dead: 'Inactive', Dropped: 'Dropped' } as Record<string, string>
@@ -1063,7 +1080,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
-      <div className="rounded-lg px-1 pt-1" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.28), rgba(15,23,42,.04))' }}>
+      <div className="rounded-lg px-1 pt-1" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
         <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[264px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label={vi ? 'Biểu đồ số tập phát hành theo năm' : 'Released volumes by year chart'}>
           <defs>
             <linearGradient id="growthArea" x1="0" x2="0" y1="0" y2="1">
@@ -1072,13 +1089,13 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             </linearGradient>
           </defs>
 
-          <rect x={padL} y={padT} width={w - padL - padR} height={h - padT - padB} rx="8" fill="rgba(2,6,23,.16)" stroke="rgba(136,146,170,.10)" />
+          <rect x={padL} y={padT} width={w - padL - padR} height={h - padT - padB} rx="8" fill="var(--ln-chart-plot-bg)" stroke="var(--ln-chart-grid)" />
           {yTicks.map((tick, i) => {
             const y = h - padB - tick / roundedMax * (h - padT - padB)
             return (
               <g key={`${tick}-${i}`}>
-                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke={tick === 0 ? 'rgba(136,146,170,.32)' : 'rgba(136,146,170,.14)'} strokeDasharray={tick === 0 ? '0' : '5 5'} />
-                <text x={padL - 9} y={y + 5} textAnchor="end" fontSize="14" fontWeight="800" fill="rgba(147,164,193,.92)">
+                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="var(--ln-chart-grid)" strokeDasharray={tick === 0 ? '0' : '5 5'} />
+                <text x={padL - 9} y={y + 5} textAnchor="end" fontSize="14" fontWeight="800" fill="var(--foreground-secondary)">
                   {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
                 </text>
               </g>
@@ -1090,8 +1107,8 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             if (!p) return null
             return (
               <g key={`x-${p.d.year}`}>
-                <line x1={p.x} x2={p.x} y1={padT} y2={h - padB} stroke="rgba(136,146,170,.08)" />
-                <text x={p.x} y={h - 14} textAnchor="middle" fontSize="14" fontWeight="900" fill="rgba(232,236,244,.78)">
+                <line x1={p.x} x2={p.x} y1={padT} y2={h - padB} stroke="var(--ln-chart-grid)" opacity="0.55" />
+                <text x={p.x} y={h - 14} textAnchor="middle" fontSize="14" fontWeight="900" fill="var(--foreground-secondary)">
                   {p.d.year}
                 </text>
               </g>
@@ -1109,8 +1126,8 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
               <circle cx={p.x} cy={p.y} r="4.8" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
               {(i === points.length - 1 || p.d.volumes === maxY) && (
                 <g>
-                  <rect x={p.x - 22} y={p.y - 32} width="44" height="22" rx="6" fill="rgba(15,23,42,.94)" stroke="rgba(34,197,94,.35)" />
-                  <text x={p.x} y={p.y - 17} textAnchor="middle" fontSize="13" fontWeight="900" fill="#bbf7d0">{p.d.volumes}</text>
+                  <rect x={p.x - 22} y={p.y - 32} width="44" height="22" rx="6" fill="var(--ln-tooltip-bg)" stroke="rgba(34,197,94,.35)" />
+                  <text x={p.x} y={p.y - 17} textAnchor="middle" fontSize="13" fontWeight="900" fill="#16a34a">{p.d.volumes}</text>
                 </g>
               )}
             </g>
@@ -1261,7 +1278,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
 
       <div className="flex justify-center">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
-          {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="rgba(136,146,170,.18)" />)}
+          {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="var(--ln-chart-grid)" />)}
           {axes.map(([label, value], i) => {
             const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
             const x1 = cx + Math.cos(angle) * maxR
@@ -1271,8 +1288,8 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
             const anchor = Math.cos(angle) > 0.35 ? 'start' : Math.cos(angle) < -0.35 ? 'end' : 'middle'
             return (
               <g key={label}>
-                <line x1={cx} y1={cy} x2={x1} y2={y1} stroke="rgba(136,146,170,.14)" />
-                <text x={x} y={y - 5} textAnchor={anchor} dominantBaseline="middle" fontSize="8" fontWeight="700" fill="rgba(232,236,244,.76)">{label}</text>
+                <line x1={cx} y1={cy} x2={x1} y2={y1} stroke="var(--ln-chart-grid)" />
+                <text x={x} y={y - 5} textAnchor={anchor} dominantBaseline="middle" fontSize="8" fontWeight="800" fill="var(--foreground-muted)">{label}</text>
                 <text x={x} y={y + 7} textAnchor={anchor} dominantBaseline="middle" fontSize="10" fontWeight="900" fill={publisherScoreColor(value)}>{value.toFixed(0)}</text>
               </g>
             )
@@ -1377,7 +1394,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
   }
 
   return (
-    <Card className="p-3 h-full">
+    <Card className="p-3">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Portfolio Quality Map' : 'Portfolio Quality Map'}</p>
@@ -1489,7 +1506,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
             return (
               <button
                 key={row.series_key}
-                onClick={() => { setHoveredKey(row.series_key); onSelect(row) }}
+                onClick={e => { e.preventDefault(); e.currentTarget.blur(); setHoveredKey(row.series_key); onSelect(row) }}
                 onMouseEnter={() => setHoveredKey(row.series_key)}
                 onMouseLeave={() => setHoveredKey(null)}
                 onFocus={() => setHoveredKey(row.series_key)}
@@ -1516,7 +1533,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
                 left: `clamp(6px, ${hoveredPoint.x}%, calc(100% - 190px))`,
                 top: `clamp(6px, ${hoveredPoint.y}%, calc(100% - 76px))`,
                 transform: 'translate(10px, -50%)',
-                background: 'rgba(15,23,42,.94)',
+                background: 'var(--ln-tooltip-bg)',
                 border: '1px solid rgba(136,146,170,.28)',
                 color: 'var(--foreground-secondary)',
                 zIndex: 50,
@@ -1536,7 +1553,6 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
 
         <div className="absolute left-10 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
         <div className="absolute left-3 top-1/2 -rotate-90 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Drop Risk' : 'Drop Risk'}</div>
-        <div className="absolute right-3 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{plotRows.length.toLocaleString('vi-VN')} series</div>
       </div>
     </Card>
   )
@@ -1721,7 +1737,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
               <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#7dd3fc', background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.18)' }}>{volumeLabel}</span>
-                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#cbd5e1', background: 'rgba(148,163,184,.18)', border: '1px solid rgba(148,163,184,.18)' }}>
                   {fmtDate(active.max_release_at)}
                 </span>
                 {fanVoteLabel && (
@@ -1735,11 +1751,11 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
                 )}
               </div>
 
-              <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
+              <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: '#f8fafc' }}>{active.series_title}</h3>
             </div>
 
             <div className="mt-3 rounded-xl p-3 min-h-[126px] max-h-[154px] overflow-hidden" style={{ background: 'rgba(15,23,42,.52)', border: '1px solid rgba(136,146,170,.14)' }}>
-              <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: 'var(--foreground-secondary)' }}>{description}</p>
+              <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: '#cbd5e1' }}>{description}</p>
             </div>
           </div>
         </div>
@@ -1767,7 +1783,7 @@ function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
         <div className="rounded-xl p-3" style={{ background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.18)' }}>
           <p className="text-[11px] font-black mb-2" style={{ color: '#fb923c' }}>{vi ? 'Lâu chưa ra tập' : 'Stalled Series'}</p>
           <div className="space-y-1.5">
-            {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[11px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-bold" style={{ color: '#fb923c' }}>{row.months_since_last_release == null ? '—' : `${row.months_since_last_release.toFixed(0)}m`}</span></div>)}
+            {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[11px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-bold text-right shrink-0" style={{ color: '#fb923c' }}>{fmtDurationFromMonths(row.months_since_last_release, vi)}</span></div>)}
           </div>
         </div>
       </div>
@@ -1793,7 +1809,7 @@ function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
       <Card className="p-3">
         <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#fb923c' }}>{vi ? 'Lâu chưa ra tập' : 'Stalled Series'}</p>
         <div className="space-y-2">
-          {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[12px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-black" style={{ color: '#fb923c' }}>{row.months_since_last_release == null ? '—' : `${row.months_since_last_release.toFixed(0)}m`}</span></div>)}
+          {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[12px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-black text-right shrink-0" style={{ color: '#fb923c' }}>{fmtDurationFromMonths(row.months_since_last_release, vi)}</span></div>)}
         </div>
       </Card>
     </div>
@@ -2346,7 +2362,7 @@ export default function Dashboard() {
         ) : mode === 'watchlist' ? (
           <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setSelectedPublisher(row.publisher || selectedPublisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : mode === 'publisher' ? (
-          <PublisherFocusView rows={rows} volumeRows={volumeRows} publisherLogos={publisherLogos} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+          <PublisherFocusView rows={rows} volumeRows={volumeRows} publisherLogos={publisherLogos} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key) }} />
         ) : (
           <div className="space-y-4">
             <KpiStrip rows={rows} vi={vi} />
