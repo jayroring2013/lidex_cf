@@ -1,8 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, Menu, Moon, Sun } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { BarChart3, Menu, Moon, Sun, ChevronDown } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocale } from '@/contexts/LocaleContext'
 
 export default function Navbar() {
@@ -10,12 +10,22 @@ export default function Navbar() {
   const { locale, setLocale, t } = useLocale()
   const [isDark, setIsDark] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [chartsOpen, setChartsOpen] = useState(false)
+  const chartsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('lidex-theme')
     const shouldUseDark = savedTheme === 'dark'
     document.documentElement.classList.toggle('dark', shouldUseDark)
     setIsDark(shouldUseDark)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!chartsRef.current?.contains(e.target as Node)) setChartsOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   const toggleTheme = () => {
@@ -27,6 +37,12 @@ export default function Navbar() {
 
   const isChartsActive =
     pathname === '/leaderboard'
+
+  const flatLinks = [
+    { href: '/',          label: t('nav_home')      },
+    { href: '/dashboard', label: t('nav_dashboard') },
+    { href: '/browse',    label: t('nav_browse')    },
+  ]
 
   const chartsChildren = [
     { href: '/leaderboard',  label: t('nav_leaderboard')  },
@@ -47,9 +63,60 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/leaderboard" className={`nav-link ${isChartsActive ? 'active' : ''}`}>
-              {t('nav_leaderboard')}
-            </Link>
+            {flatLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`nav-link ${pathname === link.href ? 'active' : ''}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="relative" ref={chartsRef}>
+              <button
+                onClick={() => setChartsOpen(o => !o)}
+                className={`nav-link flex items-center gap-1 ${isChartsActive ? 'active' : ''}`}
+              >
+                {t('nav_charts')}
+                <ChevronDown
+                  className="w-3.5 h-3.5 transition-transform"
+                  style={{ transform: chartsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                />
+              </button>
+
+              {chartsOpen && (
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-40 rounded-xl overflow-hidden shadow-xl z-50"
+                  style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
+                >
+                  <div
+                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45"
+                    style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderBottom: 'none', borderRight: 'none' }}
+                  />
+                  {chartsChildren.map((child, i) => (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      onClick={() => setChartsOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
+                      style={{
+                        color:        pathname === child.href ? '#6366f1' : 'var(--foreground-secondary)',
+                        borderBottom: i < chartsChildren.length - 1 ? '1px solid var(--card-border)' : 'none',
+                        background:   pathname === child.href ? 'var(--background-secondary)' : 'transparent',
+                      }}
+                      onMouseEnter={e => { if (pathname !== child.href) e.currentTarget.style.background = 'var(--background-secondary)' }}
+                      onMouseLeave={e => { if (pathname !== child.href) e.currentTarget.style.background = 'transparent' }}
+                    >
+                      {pathname === child.href && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />
+                      )}
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right side: language toggle + theme + mobile menu */}
@@ -105,6 +172,19 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden glass border-t border-gray-200 dark:border-dark-700">
           <div className="px-4 py-4 space-y-4">
+            {flatLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="nav-link block"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--foreground-muted)' }}>
+              {t('nav_charts')}
+            </p>
             {chartsChildren.map(child => (
               <Link
                 key={child.href}
