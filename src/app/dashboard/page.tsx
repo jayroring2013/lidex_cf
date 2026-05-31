@@ -610,7 +610,7 @@ function ModeSwitch({ mode, setMode, vi }: { mode: Mode; setMode: (m: Mode) => v
 
   return (
     <div className="flex items-center gap-1 p-1 rounded-xl overflow-x-auto" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
-      {items.map(item => {
+      {items.filter(item => item.id !== 'dashboard').map(item => {
         const Icon = item.icon
         const active = mode === item.id
         return (
@@ -2265,7 +2265,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
 export default function Dashboard() {
   const { locale } = useLocale()
   const vi = locale === 'vi'
-  const [mode, setMode] = useState<Mode>('dashboard')
+  const [mode, setMode] = useState<Mode>('watchlist')
   const [rows, setRows] = useState<LNRow[]>([])
   const [volumeRows, setVolumeRows] = useState<VolumeReleaseRow[]>([])
   const [publisherLogos, setPublisherLogos] = useState<PublisherLogoMap>({})
@@ -2344,7 +2344,7 @@ export default function Dashboard() {
             </div>
           </Card>
         ) : mode === 'watchlist' ? (
-          <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setMode('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+          <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setSelectedPublisher(row.publisher || selectedPublisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : mode === 'publisher' ? (
           <PublisherFocusView rows={rows} volumeRows={volumeRows} publisherLogos={publisherLogos} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : (
