@@ -1032,12 +1032,12 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
 
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const data = buildGrowth(volumeRows)
-  const w = 760
-  const h = 210
-  const padL = 50
-  const padR = 24
-  const padT = 20
-  const padB = 44
+  const w = 720
+  const h = 220
+  const padL = 44
+  const padR = 18
+  const padT = 18
+  const padB = 34
   const maxY = Math.max(...data.map(d => d.volumes), 1)
   const tickStep = maxY <= 30 ? 5 : maxY <= 80 ? 10 : maxY <= 160 ? 20 : 50
   const roundedMax = Math.max(tickStep, Math.ceil(maxY / tickStep) * tickStep)
@@ -1051,7 +1051,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
   const areaPath = points.length
     ? `${linePath} L ${points[points.length - 1].x} ${h - padB} L ${points[0].x} ${h - padB} Z`
     : ''
-  const xTickEvery = data.length > 9 ? 2 : 1
+  const xTickEvery = data.length > 11 ? 2 : 1
   const xTickIndexes = data.map((_, i) => i).filter(i => i === 0 || i === data.length - 1 || i % xTickEvery === 0)
 
   return (
@@ -1064,8 +1064,8 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
-      <div className="rounded-lg px-1 pt-1 overflow-x-auto overflow-y-hidden pb-1" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.28), rgba(15,23,42,.04))' }}>
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-[760px] min-w-[760px] h-[198px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label={vi ? 'Biểu đồ số tập phát hành theo năm' : 'Released volumes by year chart'}>
+      <div className="rounded-lg px-1 pt-1" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.28), rgba(15,23,42,.04))' }}>
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[198px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label={vi ? 'Biểu đồ số tập phát hành theo năm' : 'Released volumes by year chart'}>
           <defs>
             <linearGradient id="growthArea" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="#22c55e" stopOpacity="0.30" />
@@ -1079,7 +1079,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             return (
               <g key={`${tick}-${i}`}>
                 <line x1={padL} x2={w - padR} y1={y} y2={y} stroke={tick === 0 ? 'rgba(136,146,170,.32)' : 'rgba(136,146,170,.14)'} strokeDasharray={tick === 0 ? '0' : '5 5'} />
-                <text x={padL - 8} y={y + 4} textAnchor="end" fontSize="11" fontWeight="700" fill="rgba(147,164,193,.88)">
+                <text x={padL - 8} y={y + 4} textAnchor="end" fontSize="13" fontWeight="800" fill="rgba(147,164,193,.92)">
                   {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
                 </text>
               </g>
@@ -1092,7 +1092,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             return (
               <g key={`x-${p.d.year}`}>
                 <line x1={p.x} x2={p.x} y1={padT} y2={h - padB} stroke="rgba(136,146,170,.08)" />
-                <text x={p.x} y={h - 16} textAnchor="middle" fontSize="11" fontWeight="800" fill="rgba(232,236,244,.72)">
+                <text x={p.x} y={h - 10} textAnchor="middle" fontSize="13" fontWeight="900" fill="rgba(232,236,244,.78)">
                   {p.d.year}
                 </text>
               </g>
@@ -1110,14 +1110,12 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
               <circle cx={p.x} cy={p.y} r="4" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2" vectorEffect="non-scaling-stroke" />
               {(i === points.length - 1 || p.d.volumes === maxY) && (
                 <g>
-                  <rect x={p.x - 18} y={p.y - 25} width="36" height="17" rx="5" fill="rgba(15,23,42,.90)" stroke="rgba(34,197,94,.28)" />
-                  <text x={p.x} y={p.y - 13} textAnchor="middle" fontSize="10" fontWeight="900" fill="#bbf7d0">{p.d.volumes}</text>
+                  <rect x={p.x - 20} y={p.y - 28} width="40" height="20" rx="6" fill="rgba(15,23,42,.94)" stroke="rgba(34,197,94,.35)" />
+                  <text x={p.x} y={p.y - 14} textAnchor="middle" fontSize="12" fontWeight="900" fill="#bbf7d0">{p.d.volumes}</text>
                 </g>
               )}
             </g>
           ))}
-          <text x={padL} y={h - 2} fontSize="10" fontWeight="800" fill="rgba(147,164,193,.72)">{vi ? 'Năm' : 'Year'}</text>
-          <text x={12} y={padT + 8} fontSize="10" fontWeight="800" fill="rgba(147,164,193,.72)" transform={`rotate(-90 12 ${padT + 8})`}>{vi ? 'Tập' : 'Volumes'}</text>
         </svg>
       </div>
     </Card>
