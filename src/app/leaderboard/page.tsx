@@ -342,12 +342,12 @@ export default function LeaderboardPage() {
                 <tbody>
                   {leaderboard.map(row => (
                     <tr key={`${row.period_id}-${row.series_id}`} className="transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.04]" style={{ borderTop: '1px solid var(--card-border)' }}>
-                      <td className="px-5 py-4 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
+                      <td className="px-5 py-3 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
                         {rankLabel(row.displayRank)}
                       </td>
-                      <td className="px-5 py-5">
-                        <div className="flex items-center gap-5 min-w-0">
-                          <div className="w-24 h-32 sm:w-28 sm:h-40 lg:w-32 lg:h-44 rounded-xl overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-20 h-28 sm:w-24 sm:h-32 lg:w-24 lg:h-32 rounded-xl overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                             {row.cover_url ? (
                               <img src={row.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
                             ) : (
