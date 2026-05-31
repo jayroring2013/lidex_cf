@@ -16,7 +16,7 @@ const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' }
 
 export const metadata = {
   title: 'LiDex - Light Novel, Anime & Manga Analytics',
-  description: 'A personal project tracking and analyzing data for Light Novels, Anime, and Manga.',
+  description: 'A personal project tracking LN/Anime/Manga data since 2026.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
