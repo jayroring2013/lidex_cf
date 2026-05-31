@@ -687,7 +687,6 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
               style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
             />
           </div>
-
           <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
             <button
               type="button"
@@ -1065,8 +1064,8 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
-      <div className="rounded-lg px-1 pt-1" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.28), rgba(15,23,42,.04))' }}>
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[198px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label={vi ? 'Biểu đồ số tập phát hành theo năm' : 'Released volumes by year chart'}>
+      <div className="rounded-lg px-1 pt-1 overflow-x-auto overflow-y-hidden pb-1" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.28), rgba(15,23,42,.04))' }}>
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-[760px] min-w-[760px] h-[198px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label={vi ? 'Biểu đồ số tập phát hành theo năm' : 'Released volumes by year chart'}>
           <defs>
             <linearGradient id="growthArea" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="#22c55e" stopOpacity="0.30" />
@@ -1300,6 +1299,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
   const dragRef = useRef<{ x: number; y: number } | null>(null)
   const pointersRef = useRef(new Map<number, { x: number; y: number }>())
   const pinchRef = useRef<{ dist: number; zoom: number; pan: { x: number; y: number }; pct: { x: number; y: number }; data: { x: number; y: number } } | null>(null)
+  const chartRef = useRef<HTMLDivElement | null>(null)
 
   const plotRows = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -1359,6 +1359,26 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
   const hoveredRow = hoveredKey ? plotRows.find(row => row.series_key === hoveredKey) || null : null
   const hoveredPoint = hoveredRow ? transformPoint(hoveredRow) : null
 
+  useEffect(() => {
+    const element = chartRef.current
+    if (!element) return
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      const percent = pointPercent(event.clientX, event.clientY, element)
+      zoomAt(percent, zoom * (event.deltaY > 0 ? 0.88 : 1.12))
+    }
+
+    element.addEventListener('wheel', onWheel, { passive: false })
+    return () => element.removeEventListener('wheel', onWheel)
+  }, [zoom, pan])
+
+  function resetMap() {
+    setZoom(1)
+    setPan({ x: 5, y: 50 })
+  }
+
   return (
     <Card className="p-3 h-full">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
@@ -1378,6 +1398,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
               style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
             />
           </div>
+          <button type="button" onClick={resetMap} className="px-2 py-1.5 rounded-lg text-[10px] font-black transition-all hover:scale-[1.03]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>Reset</button>
 
           <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
             <button type="button" onClick={() => setZoom(z => Math.max(1, Number((z - 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>−</button>
@@ -1388,13 +1409,9 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
       </div>
 
       <div
+        ref={chartRef}
         className="relative h-[230px] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
         style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)', touchAction: 'none' }}
-        onWheel={e => {
-          e.preventDefault()
-          const percent = pointPercent(e.clientX, e.clientY, e.currentTarget)
-          zoomAt(percent, zoom * (e.deltaY > 0 ? 0.88 : 1.12))
-        }}
         onPointerDown={e => {
           e.currentTarget.setPointerCapture(e.pointerId)
           pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
