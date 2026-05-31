@@ -199,7 +199,7 @@ export default function LeaderboardPage() {
       list.push(row)
       map.set(row.series_id, list)
     }
-    for (const list of map.values()) list.sort((a, b) => a.period.sort - b.period.sort)
+    Array.from(map.values()).forEach(list => list.sort((a, b) => a.period.sort - b.period.sort))
     return map
   }, [rows])
 
