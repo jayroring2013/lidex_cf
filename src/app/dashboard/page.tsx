@@ -88,6 +88,10 @@ type LNRow = {
   cover_url: string | null
   cover_source_title: string | null
   description: string | null
+  fan_vote_rank: number | null
+  fan_vote_votes: number | null
+  fan_vote_period: string | null
+  fan_vote_year: number | null
 
   release_pace_score: number
   catch_up_score: number
@@ -433,6 +437,10 @@ function mapRows(raw: RawRankingRow[]) {
       cover_url: r.cover_url,
       cover_source_title: r.cover_source_title,
       description: null,
+      fan_vote_rank: null,
+      fan_vote_votes: null,
+      fan_vote_period: null,
+      fan_vote_year: null,
       release_pace_score: releasePaceScore(avgGap, monthsSince),
       catch_up_score: catchUpScore(r),
       demand_score: demand(num(r.average_view_count)),
@@ -480,6 +488,62 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
       series_title: row.series_title || meta.title || row.series_title,
       cover_url: row.cover_url || meta.cover_url || row.cover_url,
       description: row.description || meta.description || row.description,
+    }
+  })
+}
+
+async function hydrateRowsWithFanVotes(rows: LNRow[]): Promise<LNRow[]> {
+  const ids = Array.from(new Set(rows.map(row => row.lidex_series_id).filter((id): id is number => Boolean(id))))
+  if (ids.length === 0) return rows
+
+  const latestBySeries = new Map<number, { votes: number; rank: number | null; period: string | null; year: number | null; sort: number }>()
+  const batchSize = 200
+
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const chunk = ids.slice(i, i + batchSize)
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await supabase
+        .from('voting_results')
+        .select('series_id, votes, rank, voting_periods(month, year, label)')
+        .in('series_id', chunk)
+        .range(offset, offset + 999)
+
+      if (error) {
+        console.warn('[Dashboard] fan vote fetch failed:', error.message)
+        break
+      }
+
+      for (const vote of data || []) {
+        const seriesId = Number((vote as any).series_id)
+        const periodRaw = (vote as any).voting_periods
+        const period = Array.isArray(periodRaw) ? periodRaw[0] : periodRaw
+        const month = Number(period?.month || 0)
+        const year = Number(period?.year || 0)
+        const sort = year * 100 + month
+        const current = latestBySeries.get(seriesId)
+        if (current && current.sort > sort) continue
+        latestBySeries.set(seriesId, {
+          votes: num((vote as any).votes),
+          rank: (vote as any).rank == null ? null : num((vote as any).rank),
+          period: period?.label || (month && year ? `${String(month).padStart(2, '0')}/${year}` : null),
+          year: year || null,
+          sort,
+        })
+      }
+
+      if (!data || data.length < 1000) break
+    }
+  }
+
+  return rows.map(row => {
+    const fan = row.lidex_series_id ? latestBySeries.get(row.lidex_series_id) : null
+    if (!fan) return row
+    return {
+      ...row,
+      fan_vote_rank: fan.rank,
+      fan_vote_votes: fan.votes,
+      fan_vote_period: fan.period,
+      fan_vote_year: fan.year,
     }
   })
 }
@@ -1369,9 +1433,22 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 }
 
 function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; selectedKey: string | null; vi: boolean }) {
-  const items = useMemo(() => [...rows]
-    .sort((a, b) => (b.ln_score - a.ln_score) || pctValue(a.drop_percent) - pctValue(b.drop_percent) || String(b.max_release_at || '').localeCompare(String(a.max_release_at || '')))
-    .slice(0, 12), [rows])
+  const items = useMemo(() => {
+    const fanRanked = rows.filter(row => row.fan_vote_rank != null)
+    const source = fanRanked.length > 0 ? fanRanked : rows
+    return [...source]
+      .sort((a, b) => {
+        const aRank = a.fan_vote_rank ?? Number.MAX_SAFE_INTEGER
+        const bRank = b.fan_vote_rank ?? Number.MAX_SAFE_INTEGER
+        return (aRank - bRank)
+          || ((b.fan_vote_year || 0) - (a.fan_vote_year || 0))
+          || ((b.fan_vote_votes || 0) - (a.fan_vote_votes || 0))
+          || (b.ln_score - a.ln_score)
+          || pctValue(a.drop_percent) - pctValue(b.drop_percent)
+          || String(b.max_release_at || '').localeCompare(String(a.max_release_at || ''))
+      })
+      .slice(0, 10)
+  }, [rows])
 
   const initial = Math.max(0, items.findIndex(row => row.series_key === selectedKey))
   const [activeIndex, setActiveIndex] = useState(initial < 0 ? 0 : initial)
@@ -1398,6 +1475,16 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
   const active = items[safeIndex]
   const activeStyle = releaseStatusStyle(active)
   const cover = proxyImg(active.cover_url)
+  const volumeCount = Math.max(0, Math.round(active.number_of_volumes || 0))
+  const isCompletedOneshot = volumeCount === 1 && (active.evalution === 'Completed' || releaseStatusLabel(releaseStatus(active), false) === 'Completed')
+  const volumeLabel = isCompletedOneshot
+    ? 'Oneshot'
+    : vi
+      ? `${fmtNum(volumeCount, 0)} tập`
+      : `${fmtNum(volumeCount, 0)} ${volumeCount === 1 ? 'Volume' : 'Volumes'}`
+  const fanVoteLabel = active.fan_vote_rank && active.fan_vote_year
+    ? (vi ? `LN ưa thích số ${active.fan_vote_rank} năm ${active.fan_vote_year}` : `Favourite Fan Vote #${active.fan_vote_rank} ${active.fan_vote_year}`)
+    : null
   const description = active.description || (vi ? 'Chưa có mô tả cho series này.' : 'No description available for this series.')
 
   return (
@@ -1449,11 +1536,19 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
             <div className="pr-24">
               <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
-                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(active.max_release_at)}</span>
-                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#7dd3fc', background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.18)' }}>
-                  {vi ? 'Tập' : 'Vol'} {fmtNum(active.number_of_volumes, 0)}
-                  {active.original_volumes > 0 ? ` / ${fmtNum(active.original_volumes, 0)}` : ''}
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#7dd3fc', background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.18)' }}>{volumeLabel}</span>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>
+                  {fmtDate(active.max_release_at)}
                 </span>
+                {fanVoteLabel && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[9px] font-black"
+                    style={{ color: '#fde68a', background: 'rgba(234,179,8,.14)', border: '1px solid rgba(234,179,8,.28)' }}
+                    title={active.fan_vote_votes ? `${fmtNum(active.fan_vote_votes, 0)} votes · ${active.fan_vote_period || active.fan_vote_year}` : active.fan_vote_period || undefined}
+                  >
+                    {fanVoteLabel}
+                  </span>
+                )}
               </div>
 
               <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
@@ -1985,15 +2080,16 @@ export default function Dashboard() {
 
     const mapped = mapRows((data || []) as RawRankingRow[])
     const hydrated = await hydrateRowsWithCanonicalSeries(mapped)
-    const [volumeReleases, logos] = await Promise.all([
+    const [fanHydrated, volumeReleases, logos] = await Promise.all([
+      hydrateRowsWithFanVotes(hydrated),
       loadNovelVolumeReleases(hydrated),
       loadPublisherLogos(),
     ])
-    setRows(hydrated)
+    setRows(fanHydrated)
     setVolumeRows(volumeReleases)
     setPublisherLogos(logos)
-    setSelectedKey((hydrated.find(r => r.evalution === 'Good') || hydrated[0])?.series_key || null)
-    setSelectedPublisher(buildPublishers(hydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || hydrated[0]?.publisher || null)
+    setSelectedKey((fanHydrated.find(r => r.evalution === 'Good') || fanHydrated[0])?.series_key || null)
+    setSelectedPublisher(buildPublishers(fanHydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || fanHydrated[0]?.publisher || null)
     setLoading(false)
   }
 
