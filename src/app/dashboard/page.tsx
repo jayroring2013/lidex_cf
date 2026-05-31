@@ -663,6 +663,9 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
     }
   }
 
+  const hoveredRow = hoveredKey ? plotRows.find(row => row.series_key === hoveredKey) || null : null
+  const hoveredPoint = hoveredRow ? transformPoint(hoveredRow) : null
+
   return (
     <Card className="p-3.5">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
@@ -1031,31 +1034,30 @@ function buildGrowth(rows: VolumeReleaseRow[]) {
 function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const data = buildGrowth(volumeRows)
   const w = 760
-  const h = 184
-  const padL = 38
-  const padR = 14
-  const padT = 14
-  const padB = 30
+  const h = 210
+  const padL = 50
+  const padR = 24
+  const padT = 20
+  const padB = 44
   const maxY = Math.max(...data.map(d => d.volumes), 1)
-  const roundedMax = Math.max(5, Math.ceil(maxY / 10) * 10)
-  const yTicks = [roundedMax, Math.round(roundedMax * 0.66), Math.round(roundedMax * 0.33), 0]
-    .filter((tick, index, arr) => arr.indexOf(tick) === index)
-  const labelIndexes = Array.from(new Set([
-    0,
-    Math.floor((data.length - 1) * 0.33),
-    Math.floor((data.length - 1) * 0.66),
-    data.length - 1,
-  ])).filter(index => index >= 0 && index < data.length)
+  const tickStep = maxY <= 30 ? 5 : maxY <= 80 ? 10 : maxY <= 160 ? 20 : 50
+  const roundedMax = Math.max(tickStep, Math.ceil(maxY / tickStep) * tickStep)
+  const yTicks = Array.from({ length: 5 }, (_, i) => Math.round((roundedMax / 4) * (4 - i)))
   const points = data.map((d, i) => {
     const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
     const y = h - padB - d.volumes / roundedMax * (h - padT - padB)
     return { x, y, d }
   })
-  const line = points.map(p => `${p.x},${p.y}`).join(' ')
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+  const areaPath = points.length
+    ? `${linePath} L ${points[points.length - 1].x} ${h - padB} L ${points[0].x} ${h - padB} Z`
+    : ''
+  const xTickEvery = data.length > 9 ? 2 : 1
+  const xTickIndexes = data.map((_, i) => i).filter(i => i === 0 || i === data.length - 1 || i % xTickEvery === 0)
 
   return (
-    <Card className="p-3 h-[220px] overflow-hidden">
-      <div className="flex items-center justify-between mb-1">
+    <Card className="p-3 h-[260px] overflow-hidden">
+      <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
           <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập phát hành theo năm từ bảng volumes.' : 'Released volumes by year from volume data.'}</p>
@@ -1063,13 +1065,21 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
       </div>
 
-      <div className="overflow-hidden">
-        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[172px]" preserveAspectRatio="none">
+      <div className="rounded-lg px-1 pt-1" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.28), rgba(15,23,42,.04))' }}>
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[198px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label={vi ? 'Biểu đồ số tập phát hành theo năm' : 'Released volumes by year chart'}>
+          <defs>
+            <linearGradient id="growthArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+
+          <rect x={padL} y={padT} width={w - padL - padR} height={h - padT - padB} rx="8" fill="rgba(2,6,23,.16)" stroke="rgba(136,146,170,.10)" />
           {yTicks.map((tick, i) => {
             const y = h - padB - tick / roundedMax * (h - padT - padB)
             return (
               <g key={`${tick}-${i}`}>
-                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="rgba(136,146,170,.14)" strokeDasharray="5 5" />
+                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke={tick === 0 ? 'rgba(136,146,170,.32)' : 'rgba(136,146,170,.14)'} strokeDasharray={tick === 0 ? '0' : '5 5'} />
                 <text x={padL - 8} y={y + 4} textAnchor="end" fontSize="11" fontWeight="700" fill="rgba(147,164,193,.88)">
                   {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
                 </text>
@@ -1077,19 +1087,38 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
             )
           })}
 
-          <polyline points={line} fill="none" stroke="#22c55e" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          {xTickIndexes.map(i => {
+            const p = points[i]
+            if (!p) return null
+            return (
+              <g key={`x-${p.d.year}`}>
+                <line x1={p.x} x2={p.x} y1={padT} y2={h - padB} stroke="rgba(136,146,170,.08)" />
+                <text x={p.x} y={h - 16} textAnchor="middle" fontSize="11" fontWeight="800" fill="rgba(232,236,244,.72)">
+                  {p.d.year}
+                </text>
+              </g>
+            )
+          })}
+
+          {areaPath && <path d={areaPath} fill="url(#growthArea)" />}
+          <path d={linePath} fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
 
           {points.map((p, i) => (
             <g key={p.d.year}>
               <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} ${vi ? 'tập' : 'volumes'}`}</title>
-              <circle cx={p.x} cy={p.y} r="3.5" fill="#bbf7d0" stroke="#22c55e" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
-              {labelIndexes.includes(i) && (
-                <text x={p.x} y={h - 9} textAnchor="middle" fontSize="11" fontWeight="700" fill="rgba(232,236,244,.70)">
-                  {p.d.year}
-                </text>
+              <line x1={p.x} x2={p.x} y1={p.y} y2={h - padB} stroke="#22c55e" strokeOpacity="0.12" />
+              <circle cx={p.x} cy={p.y} r="6.5" fill="#22c55e" opacity="0.14" />
+              <circle cx={p.x} cy={p.y} r="4" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+              {(i === points.length - 1 || p.d.volumes === maxY) && (
+                <g>
+                  <rect x={p.x - 18} y={p.y - 25} width="36" height="17" rx="5" fill="rgba(15,23,42,.90)" stroke="rgba(34,197,94,.28)" />
+                  <text x={p.x} y={p.y - 13} textAnchor="middle" fontSize="10" fontWeight="900" fill="#bbf7d0">{p.d.volumes}</text>
+                </g>
               )}
             </g>
           ))}
+          <text x={padL} y={h - 2} fontSize="10" fontWeight="800" fill="rgba(147,164,193,.72)">{vi ? 'Năm' : 'Year'}</text>
+          <text x={12} y={padT + 8} fontSize="10" fontWeight="800" fill="rgba(147,164,193,.72)" transform={`rotate(-90 12 ${padT + 8})`}>{vi ? 'Tập' : 'Volumes'}</text>
         </svg>
       </div>
     </Card>
