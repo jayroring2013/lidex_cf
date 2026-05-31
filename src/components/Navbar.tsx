@@ -36,7 +36,8 @@ export default function Navbar() {
     pathname === '/compare' ||
     pathname === '/table' ||
     pathname === '/genre-matrix' ||
-    pathname === '/studio'
+    pathname === '/studio' ||
+    pathname === '/leaderboard'
 
   const flatLinks = [
     { href: '/',          label: t('nav_home')      },
@@ -48,6 +49,7 @@ export default function Navbar() {
     { href: '/charts',       label: t('nav_scatter')      },
     { href: '/compare',      label: t('nav_compare')      },
     { href: '/table',        label: t('nav_table')        },
+    { href: '/leaderboard',  label: t('nav_leaderboard')  },
     { href: '/genre-matrix', label: t('nav_genre_matrix') },
     { href: '/studio',       label: t('nav_studio')       },
   ]
