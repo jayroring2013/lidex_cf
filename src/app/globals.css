@@ -20,6 +20,12 @@
   --ln-chart-plot-bg: rgba(255, 255, 255, 0.64);
   --ln-chart-grid: rgba(100, 116, 139, 0.20);
   --ln-tooltip-bg: rgba(255, 255, 255, 0.96);
+  --hero-wall-overlay: linear-gradient(to right, rgba(248, 250, 252, 0.38) 0%, rgba(248, 250, 252, 0.64) 18%, rgba(248, 250, 252, 0.74) 34%, rgba(248, 250, 252, 0.74) 66%, rgba(248, 250, 252, 0.64) 82%, rgba(248, 250, 252, 0.38) 100%);
+  --hero-secondary-text: rgba(15, 23, 42, 0.66);
+  --hero-muted-text: rgba(71, 85, 105, 0.58);
+  --hero-secondary-button-bg: rgba(255, 255, 255, 0.68);
+  --hero-secondary-button-border: rgba(15, 23, 42, 0.12);
+  --hero-secondary-button-text: rgba(15, 23, 42, 0.72);
   --ln-muted-bg: rgba(226, 232, 240, 0.82);
   --ln-track-bg: rgba(203, 213, 225, 0.78);
   --ln-row-border: rgba(15, 23, 42, 0.08);
@@ -44,6 +50,12 @@
   --ln-chart-plot-bg: rgba(2, 6, 23, 0.16);
   --ln-chart-grid: rgba(136, 146, 170, 0.18);
   --ln-tooltip-bg: rgba(15, 23, 42, 0.94);
+  --hero-wall-overlay: linear-gradient(to right, rgba(10,15,30,0.25) 0%, rgba(10,15,30,0.55) 18%, rgba(10,15,30,0.72) 34%, rgba(10,15,30,0.72) 66%, rgba(10,15,30,0.55) 82%, rgba(10,15,30,0.25) 100%);
+  --hero-secondary-text: rgba(255, 255, 255, 0.55);
+  --hero-muted-text: rgba(255, 255, 255, 0.28);
+  --hero-secondary-button-bg: rgba(255, 255, 255, 0.05);
+  --hero-secondary-button-border: rgba(255, 255, 255, 0.12);
+  --hero-secondary-button-text: rgba(255, 255, 255, 0.7);
   --ln-muted-bg: rgba(34, 40, 64, 0.85);
   --ln-track-bg: rgba(34, 40, 64, 0.95);
   --ln-row-border: rgba(37, 45, 66, 0.55);
