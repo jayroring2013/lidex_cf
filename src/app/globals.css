@@ -17,6 +17,9 @@
   --ln-panel-bg-strong: rgba(255, 255, 255, 0.94);
   --ln-control-bg: rgba(241, 245, 249, 0.96);
   --ln-chart-bg: rgba(248, 250, 252, 0.78);
+  --ln-chart-plot-bg: rgba(255, 255, 255, 0.64);
+  --ln-chart-grid: rgba(100, 116, 139, 0.20);
+  --ln-tooltip-bg: rgba(255, 255, 255, 0.96);
   --ln-muted-bg: rgba(226, 232, 240, 0.82);
   --ln-track-bg: rgba(203, 213, 225, 0.78);
   --ln-row-border: rgba(15, 23, 42, 0.08);
@@ -38,6 +41,9 @@
   --ln-panel-bg-strong: rgba(19, 23, 34, 0.94);
   --ln-control-bg: rgba(26, 31, 46, 0.95);
   --ln-chart-bg: rgba(6, 10, 22, 0.62);
+  --ln-chart-plot-bg: rgba(2, 6, 23, 0.16);
+  --ln-chart-grid: rgba(136, 146, 170, 0.18);
+  --ln-tooltip-bg: rgba(15, 23, 42, 0.94);
   --ln-muted-bg: rgba(34, 40, 64, 0.85);
   --ln-track-bg: rgba(34, 40, 64, 0.95);
   --ln-row-border: rgba(37, 45, 66, 0.55);
