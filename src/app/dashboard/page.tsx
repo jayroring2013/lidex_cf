@@ -594,7 +594,7 @@ function KpiStrip({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
     { label: vi ? 'Đang hoạt động' : 'Active', value: active.toLocaleString('vi-VN'), icon: Activity, color: '#22c55e' },
     { label: vi ? 'Hoàn thành' : 'Completed', value: completed.toLocaleString('vi-VN'), icon: CheckCircle2, color: '#38bdf8' },
     { label: vi ? 'Điểm TB' : 'Avg Score', value: avgScore.toFixed(1), icon: Gauge, color: '#eab308' },
-    { label: vi ? 'Drop TB' : 'Avg Drop', value: `${avgDrop.toFixed(1)}%`, icon: AlertTriangle, color: '#fb7185' },
+    { label: vi ? 'Khả năng drop LN trung bình' : 'Avg Drop', value: `${avgDrop.toFixed(1)}%`, icon: AlertTriangle, color: '#fb7185' },
     { label: vi ? 'Nhà PH hoạt động' : 'Active Pubs', value: activePublishers.toLocaleString('vi-VN'), icon: Building2, color: '#a78bfa' },
   ]
 
@@ -1074,7 +1074,7 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
     <Card className="p-3 h-[330px] overflow-hidden">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tăng trưởng thị trường LN Việt Nam' : 'Vietnamese LN Market Growth'}</p>
+          <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Số lượng tập truyện phát hành theo từng năm' : 'Vietnamese LN Market Growth'}</p>
           <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập phát hành theo năm từ bảng volumes.' : 'Released volumes by year from volume data.'}</p>
         </div>
         <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
@@ -1242,14 +1242,14 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
   const momentum = avgValue(rows, row => row.momentum_score * 10)
 
   const axes = [
-    [vi ? 'Output' : 'Output', releaseActivity],
-    [vi ? 'Completion' : 'Completion', completion],
-    [vi ? 'Reliability' : 'Reliability', avgValue(rows, row => row.publisher_support_score * 10)],
-    [vi ? 'Momentum' : 'Momentum', momentum],
-    [vi ? 'Catch-up' : 'Catch-up', catchup],
-    [vi ? 'Quality' : 'Quality', quality],
-    [vi ? 'Safety' : 'Safety', safety],
-    [vi ? 'Active' : 'Active', active],
+    [vi ? 'Sản lượng' : 'Output', releaseActivity],
+    [vi ? 'Hoàn thành' : 'Completion', completion],
+    [vi ? 'Độ tin cậy' : 'Reliability', avgValue(rows, row => row.publisher_support_score * 10)],
+    [vi ? 'Đà phát hành' : 'Momentum', momentum],
+    [vi ? 'Bắt kịp' : 'Catch-up', catchup],
+    [vi ? 'Chất lượng' : 'Quality', quality],
+    [vi ? 'An toàn' : 'Safety', safety],
+    [vi ? 'Đang phát hành' : 'Active', active],
   ] as const
 
   const size = 248
@@ -1271,7 +1271,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
     <Card className="p-3 h-full overflow-hidden">
       <div className="mb-1">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Publisher DNA' : 'Publisher DNA'}</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Thông số NPH' : 'Publisher DNA'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Giá trị được ghi trực tiếp trên radar.' : 'Values are shown directly on the radar.'}</p>
         </div>
       </div>
@@ -1397,7 +1397,7 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
     <Card className="p-3">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Portfolio Quality Map' : 'Portfolio Quality Map'}</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Biểu đồ sinh tồn của các bộ truyện' : 'Portfolio Quality Map'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Hiển thị toàn bộ portfolio; điểm được tách nhẹ để dễ bấm.' : 'Shows the full portfolio; points are separated for clickability.'}</p>
         </div>
 
@@ -1599,7 +1599,7 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
     <Card className="p-3 h-full overflow-hidden">
       <div className="mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Portfolio Treemap' : 'Portfolio Treemap'}</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tình trạng các bộ LN' : 'Portfolio Treemap'}</p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Diện tích theo số series.' : 'Area by number of series.'}</p>
         </div>
       </div>
@@ -1692,7 +1692,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
       <div className="flex items-center justify-between gap-3 mb-2">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
-            {vi ? 'Top Series Slideshow' : 'Top Series Slideshow'}
+            {vi ? 'Các series LN nổi bật' : 'Top Series Slideshow'}
           </p>
           <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
             {vi ? 'Chọn series nổi bật trong portfolio.' : 'Browse this publisher portfolio.'}
@@ -1775,13 +1775,13 @@ function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
       <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: '#fb7185' }}>{vi ? 'Cảnh báo rủi ro' : 'Publisher Risk Watch'}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="rounded-xl p-3" style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.18)' }}>
-          <p className="text-[11px] font-black mb-2" style={{ color: '#f87171' }}>{vi ? 'Drop cao nhất' : 'Highest Drop Risk'}</p>
+          <p className="text-[11px] font-black mb-2" style={{ color: '#f87171' }}>{vi ? 'Các bộ truyện có nguy cơ drop cao nhất' : 'Highest Drop Risk'}</p>
           <div className="space-y-1.5">
             {risky.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[11px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-bold" style={{ color: '#f87171' }}>{fmtPercent(row.drop_percent)}</span></div>)}
           </div>
         </div>
         <div className="rounded-xl p-3" style={{ background: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.18)' }}>
-          <p className="text-[11px] font-black mb-2" style={{ color: '#fb923c' }}>{vi ? 'Lâu chưa ra tập' : 'Stalled Series'}</p>
+          <p className="text-[11px] font-black mb-2" style={{ color: '#fb923c' }}>{vi ? 'Các bộ truyện lâu chưa ra mới' : 'Stalled Series'}</p>
           <div className="space-y-1.5">
             {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[11px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-bold text-right shrink-0" style={{ color: '#fb923c' }}>{fmtDurationFromMonths(row.months_since_last_release, vi)}</span></div>)}
           </div>
@@ -1801,13 +1801,13 @@ function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   return (
     <div className="grid grid-cols-1 gap-3">
       <Card className="p-3">
-        <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#f87171' }}>{vi ? 'Drop cao nhất' : 'Highest Drop Risk'}</p>
+        <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#f87171' }}>{vi ? 'Các bộ truyện có nguy cơ drop cao nhất' : 'Highest Drop Risk'}</p>
         <div className="space-y-2">
           {risky.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[12px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-black" style={{ color: '#f87171' }}>{fmtPercent(row.drop_percent)}</span></div>)}
         </div>
       </Card>
       <Card className="p-3">
-        <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#fb923c' }}>{vi ? 'Lâu chưa ra tập' : 'Stalled Series'}</p>
+        <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#fb923c' }}>{vi ? 'Các bộ truyện lâu chưa ra mới' : 'Stalled Series'}</p>
         <div className="space-y-2">
           {stalled.map((row, i) => <div key={row.series_key} className="flex items-center justify-between gap-2 text-[12px]"><span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span><span className="font-black text-right shrink-0" style={{ color: '#fb923c' }}>{fmtDurationFromMonths(row.months_since_last_release, vi)}</span></div>)}
         </div>
@@ -1836,6 +1836,14 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
     })
     .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
   const rank = Math.max(1, reliabilityRanks.findIndex(p => p.publisher === currentName) + 1)
+  const avgScoreRanks = publishers
+    .map(p => {
+      const pRows = rows.filter(row => (row.publisher || 'Unknown') === p.publisher)
+      const score = pRows.length ? avgValue(pRows, row => row.ln_score) : 0
+      return { publisher: p.publisher, score }
+    })
+    .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
+  const avgScoreRank = Math.max(1, avgScoreRanks.findIndex(p => p.publisher === currentName) + 1)
   const marketShare = publisher?.marketShare || 0
 
   if (!publisher) {
@@ -1843,11 +1851,11 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
   }
 
   const kpis = [
-    { label: vi ? 'Series cấp phép' : 'Licensed Series', value: portfolioRows.length.toLocaleString('vi-VN'), delta: `${activeSeries} active`, color: '#818cf8' },
-    { label: vi ? 'Tập đã phát hành' : 'Released Volumes', value: publisherVolumes.length.toLocaleString('vi-VN'), delta: `${marketShare.toFixed(1)}% share`, color: '#38bdf8' },
-    { label: vi ? 'Series hoạt động' : 'Active Series', value: activeSeries.toLocaleString('vi-VN'), delta: `${completedSeries} completed`, color: '#22c55e' },
-    { label: vi ? 'Điểm LN TB' : 'Average LN Score', value: avgScore.toFixed(2), delta: `Rank #${rank}`, color: scoreColor(avgScore) },
-    { label: vi ? 'Drop TB' : 'Average Drop', value: `${avgDrop.toFixed(1)}%`, delta: vi ? 'rủi ro portfolio' : 'portfolio risk', color: dropColor(avgDrop) },
+    { label: vi ? 'Số truyện có bản quyền' : 'Licensed Series', value: portfolioRows.length.toLocaleString('vi-VN'), delta: `${activeSeries} active`, color: '#818cf8' },
+    { label: vi ? 'Số tập truyện phát hành' : 'Released Volumes', value: publisherVolumes.length.toLocaleString('vi-VN'), delta: `${marketShare.toFixed(1)}% share`, color: '#38bdf8' },
+    { label: vi ? 'Số LN còn sống' : 'Active Series', value: activeSeries.toLocaleString('vi-VN'), delta: `${completedSeries} completed`, color: '#22c55e' },
+    { label: vi ? 'Điểm LN trung bình' : 'Average LN Score', value: avgScore.toFixed(2), delta: `Rank #${avgScoreRank}`, color: scoreColor(avgScore) },
+    { label: vi ? 'Khả năng drop LN trung bình' : 'Average Drop', value: `${avgDrop.toFixed(1)}%`, delta: vi ? 'rủi ro portfolio' : 'portfolio risk', color: dropColor(avgDrop) },
   ]
 
   return (
