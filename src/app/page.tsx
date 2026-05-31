@@ -56,6 +56,51 @@ async function fetchLatestVolCovers(ids: (string | number)[]): Promise<Record<st
   return map
 }
 
+async function fetchLatestVotingNovels(): Promise<CarouselItem[]> {
+  const { data: periodData, error: periodError } = await supabase
+    .from('voting_periods')
+    .select('id')
+    .order('year', { ascending: false })
+    .order('month', { ascending: false })
+    .limit(1)
+
+  const periodId = periodError ? null : periodData?.[0]?.id
+  if (!periodId) return []
+
+  const { data, error } = await supabase
+    .from('voting_results')
+    .select('series_id, votes, rank, series!inner(id, title, cover_url, item_type, genres)')
+    .eq('period_id', periodId)
+    .eq('series.item_type', 'novel')
+    .not('series.cover_url', 'is', null)
+    .not('series.genres', 'cs', '{"Hentai"}')
+    .order('rank', { ascending: true, nullsFirst: false })
+    .order('votes', { ascending: false })
+    .limit(10)
+
+  if (error || !data) return []
+
+  const rows = data
+    .map((row: any) => {
+      const series = Array.isArray(row.series) ? row.series[0] : row.series
+      if (!series) return null
+      return {
+        id: series.id,
+        title: series.title,
+        cover_url: proxyImg(series.cover_url),
+        score: Number(row.votes) || null,
+        href: `/content/${series.id}`,
+      } as CarouselItem
+    })
+    .filter(Boolean) as CarouselItem[]
+
+  const volumeCovers = await fetchLatestVolCovers(rows.map(row => row.id))
+  return rows.map(row => ({
+    ...row,
+    cover_url: volumeCovers[row.id] !== undefined ? volumeCovers[row.id] : row.cover_url,
+  }))
+}
+
 // ── Skeleton components ───────────────────────────────────────────────────────
 function StatSkeleton() {
   return (
@@ -281,7 +326,7 @@ export default function Home() {
   const [statsLoading,  setStatsLoading]  = useState(true)
   const [carouselData,  setCarouselData]  = useState<Record<CarouselSection, CarouselItem[]>>({ anime: [], manga: [], novel: [] })
   const [carouselReady, setCarouselReady] = useState(false)
-  const [activeSection, setActiveSection] = useState<CarouselSection>('anime')
+  const [activeSection, setActiveSection] = useState<CarouselSection>('novel')
   const [transitioning, setTransitioning] = useState(false)
   const [autoRotate,    setAutoRotate]    = useState(true)
 
@@ -358,6 +403,7 @@ export default function Home() {
           { count: mangaCount },
           mangaCarouselData,
           novelTableData,
+          votingNovelData,
         ] = await Promise.all([
           getTopRatedSeries({ limit: 10 }),
           supabase.from('series').select('anime_meta!inner(season_year)', { count: 'exact', head: true }).eq('item_type', 'anime').eq('anime_meta.season_year', 2026).not('genres', 'cs', '{"Hentai"}'),
@@ -369,6 +415,7 @@ export default function Home() {
           supabase.from('series').select('id, title, cover_url')
             .eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
             .order('updated_at', { ascending: false }).limit(10),
+          fetchLatestVotingNovels(),
         ])
 
         const anime = animeCount ?? 0
@@ -384,7 +431,7 @@ export default function Home() {
         })
 
         const mangaRows = (mangaCarouselData.data) || []
-        const novelRows = (novelTableData as any)?.data || novelTableData || []
+        const novelRows = votingNovelData.length > 0 ? [] : ((novelTableData as any)?.data || novelTableData || [])
         const [mangaVolCovers, novelVolCovers] = await Promise.all([
           fetchLatestVolCovers(mangaRows.map((m: any) => m.id)),
           fetchLatestVolCovers(novelRows.map((n: any) => n.id)),
@@ -397,11 +444,13 @@ export default function Home() {
             cover_url: mangaVolCovers[m.id] !== undefined ? mangaVolCovers[m.id] : proxyImg(m.cover_url),
             score: null, href: `/content/${m.id}`
           })),
-          novel: novelRows.map((n: any) => ({
-            id: n.id, title: n.title,
-            cover_url: novelVolCovers[n.id] !== undefined ? novelVolCovers[n.id] : proxyImg(n.cover_url),
-            score: null, href: `/content/${n.id}`
-          })),
+          novel: votingNovelData.length > 0
+            ? votingNovelData
+            : novelRows.map((n: any) => ({
+              id: n.id, title: n.title,
+              cover_url: novelVolCovers[n.id] !== undefined ? novelVolCovers[n.id] : proxyImg(n.cover_url),
+              score: null, href: `/content/${n.id}`
+            })),
         }))
         setCarouselReady(true)
       } catch (e) {
@@ -458,7 +507,7 @@ export default function Home() {
         {/* Cover wall */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 z-10"
-            style={{ background: 'linear-gradient(to right, rgba(10,15,30,0.25) 0%, rgba(10,15,30,0.55) 18%, rgba(10,15,30,0.72) 34%, rgba(10,15,30,0.72) 66%, rgba(10,15,30,0.55) 82%, rgba(10,15,30,0.25) 100%)' }} />
+            style={{ background: 'var(--hero-wall-overlay)' }} />
           <div className="absolute inset-x-0 top-0 h-32 z-10" style={{ background: 'linear-gradient(to bottom, var(--background), transparent)' }} />
           <div className="absolute inset-x-0 bottom-0 h-40 z-10" style={{ background: 'linear-gradient(to top, var(--background), transparent)' }} />
           <div className="absolute inset-0 items-start overflow-hidden" style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '10px', padding: '0 4px' }}>
@@ -503,7 +552,7 @@ export default function Home() {
               )}
             </h1>
             <p className="text-base sm:text-lg mb-10 max-w-sm leading-relaxed"
-              style={{ color: 'rgba(255,255,255,0.55)', fontWeight: 400 }}>
+              style={{ color: 'var(--hero-secondary-text)', fontWeight: 500 }}>
               {vi
                 ? 'Điểm số, xu hướng và thống kê sâu cho Anime, Manga & Light Novel.'
                 : 'Scores, trends and deep stats for Anime, Manga & Light Novels.'}
@@ -518,13 +567,13 @@ export default function Home() {
               </Link>
               <Link href="/charts"
                 className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-                style={{ color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(8px)' }}>
+                style={{ color: 'var(--hero-secondary-button-text)', border: '1px solid var(--hero-secondary-button-border)', background: 'var(--hero-secondary-button-bg)', backdropFilter: 'blur(8px)' }}>
                 <BarChart2 className="w-4 h-4" />
                 {vi ? 'Biểu đồ' : 'Charts'}
               </Link>
             </div>
             {typeCounts && (
-              <p className="mt-8 text-xs" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              <p className="mt-8 text-xs" style={{ color: 'var(--hero-muted-text)' }}>
                 <span style={{ color: 'rgba(129,140,248,0.65)' }}>{typeCounts.anime.toLocaleString()}</span> {vi ? 'anime' : 'anime'}
                 {' · '}
                 <span style={{ color: 'rgba(34,197,94,0.65)' }}>{typeCounts.manga.toLocaleString()}</span> {vi ? 'manga' : 'manga'}
