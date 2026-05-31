@@ -331,23 +331,23 @@ export default function LeaderboardPage() {
               <table className="w-full min-w-[1100px] text-sm">
                 <thead>
                   <tr style={{ background: 'var(--background-secondary)', color: '#e2695f' }}>
-                    <th className="px-5 py-4 text-center text-lg font-black">{vi ? 'Xếp hạng' : 'Rank'}</th>
-                    <th className="px-5 py-4 text-left text-lg font-black">{vi ? 'Tác phẩm' : 'Title'}</th>
-                    <th className="px-5 py-4 text-center text-lg font-black">{vi ? 'Nhà phát hành' : 'Publisher'}</th>
-                    <th className="px-5 py-4 text-center text-lg font-black">{vi ? 'Thay đổi' : 'Change'}</th>
-                    <th className="px-5 py-4 text-center text-lg font-black">{vi ? 'Xu hướng' : 'Trend'}</th>
-                    <th className="px-5 py-4 text-center text-lg font-black">{vi ? 'Số bình chọn' : 'Votes'}</th>
+                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Xếp hạng' : 'Rank'}</th>
+                    <th className="px-4 py-3 text-left text-base font-black">{vi ? 'Tác phẩm' : 'Title'}</th>
+                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Nhà phát hành' : 'Publisher'}</th>
+                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Thay đổi' : 'Change'}</th>
+                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Xu hướng' : 'Trend'}</th>
+                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Số bình chọn' : 'Votes'}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {leaderboard.map(row => (
                     <tr key={`${row.period_id}-${row.series_id}`} className="transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.04]" style={{ borderTop: '1px solid var(--card-border)' }}>
-                      <td className="px-5 py-3 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
+                      <td className="px-4 py-2 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
                         {rankLabel(row.displayRank)}
                       </td>
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-20 h-28 sm:w-24 sm:h-32 lg:w-24 lg:h-32 rounded-xl overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-16 h-24 sm:w-[72px] sm:h-[104px] lg:w-20 lg:h-28 rounded-lg overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                             {row.cover_url ? (
                               <img src={row.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
                             ) : (
@@ -362,10 +362,10 @@ export default function LeaderboardPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-center" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher}</td>
-                      <td className="px-5 py-4 text-center"><ChangeCell value={row.change} vi={vi} /></td>
-                      <td className="px-5 py-4 text-center"><div className="flex justify-center"><Sparkline points={row.trend} /></div></td>
-                      <td className="px-5 py-4 text-center font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{row.votes.toLocaleString('vi-VN')}</td>
+                      <td className="px-4 py-2 text-center" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher}</td>
+                      <td className="px-4 py-2 text-center"><ChangeCell value={row.change} vi={vi} /></td>
+                      <td className="px-4 py-2 text-center"><div className="flex justify-center"><Sparkline points={row.trend} /></div></td>
+                      <td className="px-4 py-2 text-center font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{row.votes.toLocaleString('vi-VN')}</td>
                     </tr>
                   ))}
                 </tbody>
