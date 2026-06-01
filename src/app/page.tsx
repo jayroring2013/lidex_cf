@@ -392,14 +392,6 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
             )}
 
             <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.08), rgba(2,6,23,.70))' }} />
-            <div className="absolute left-5 bottom-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: '#c4b5fd' }}>
-                LiDex
-              </p>
-              <p className="text-lg sm:text-xl font-black mt-1" style={{ color: '#fff' }}>
-                Light Novel Hub
-              </p>
-            </div>
           </div>
 
           <div className="relative p-6 sm:p-8 md:p-10 flex flex-col justify-center">
@@ -407,15 +399,6 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
               style={{ background: 'radial-gradient(circle at 85% 10%, rgba(124,92,255,.20), transparent 30%)' }} />
 
             <div className="relative">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-xs sm:text-sm font-black uppercase tracking-wider" style={{ color: '#fff' }}>
-                  LiDex
-                </span>
-                <span className="w-px h-5" style={{ background: 'rgba(255,255,255,.25)' }} />
-                <span className="text-xs sm:text-sm font-black uppercase tracking-wider" style={{ color: '#c4b5fd' }}>
-                  LN Analytics
-                </span>
-              </div>
 
               <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-4" style={{ color: '#fff' }}>
                 {vi ? 'Một góc nhỏ gọn cho anh em mê Light Novel.' : 'A comfy portable hub for Light Novel fans.'}
@@ -426,17 +409,6 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
                   ? 'Một nền tảng nhỏ gọn để anh em có thể dễ dàng theo dõi các bộ Light Novel ưa thích của mình một cách dễ dàng nhất, theo hướng phân tích số liệu.'
                   : 'A comfy portable hub where everyone can keep track of their favourite Light Novel in the easiest possible, data-driven way.'}
               </p>
-
-              <div className="flex flex-wrap gap-3 mt-6">
-                <Link href="/browse" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
-                  style={{ background: '#6366f1', boxShadow: '0 8px 24px rgba(99,102,241,.28)' }}>
-                  {vi ? 'Khám phá ngay' : 'Explore now'} <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all hover:-translate-y-0.5"
-                  style={{ color: 'rgba(226,232,240,.82)', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.10)' }}>
-                  {vi ? 'Xem dữ liệu' : 'View analytics'}
-                </Link>
-              </div>
             </div>
           </div>
         </div>
