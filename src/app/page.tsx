@@ -284,11 +284,28 @@ function FeatureCard({ color, title, cta, href }: {
 
 
 // ── Home feature icons ────────────────────────────────────────────────────────
-function HomeFeatureIcon({ icon: Icon, title, subtitle, color }: {
+function HomeFeatureIcon({ icon: Icon, title, subtitle }: {
   icon: any
   title: string
   subtitle: string
-  color: string
+}) {
+  return (
+    <div className="flex flex-col items-center text-center gap-2 min-w-[118px] sm:min-w-[132px]">
+      <Icon
+        className="w-7 h-7 sm:w-8 sm:h-8"
+        strokeWidth={1.8}
+        style={{ color: 'var(--foreground)' }}
+      />
+      <div>
+        <p className="text-[11px] sm:text-xs font-black leading-tight" style={{ color: 'var(--foreground)' }}>
+          {title}
+        </p>
+        <p className="text-[9px] sm:text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--foreground-muted)' }}>
+          {subtitle}
+        </p>
+      </div>
+    </div>
+  )
 }) {
   return (
     <div className="group flex flex-col items-center text-center gap-2 min-w-[120px]">
@@ -306,61 +323,133 @@ function HomeFeatureIcon({ icon: Icon, title, subtitle, color }: {
 
 function HomeFeatureStrip({ vi }: { vi: boolean }) {
   const features = [
-    { icon: Info, color: '#38bdf8', title: vi ? 'Thông tin cập nhật' : 'Up-to-date info', subtitle: vi ? 'Theo dõi LN yêu thích' : 'Track favourite LN' },
-    { icon: BrainCircuit, color: '#a78bfa', title: vi ? 'Phân tích chuyên sâu' : 'In-depth analysis', subtitle: vi ? 'Hiểu rõ từng tựa' : 'Title-level insight' },
-    { icon: Building2, color: '#22c55e', title: vi ? 'Dữ liệu NPH' : 'Publisher data', subtitle: vi ? 'Đào sâu nhà phát hành' : 'Deep-dive signals' },
-    { icon: Sparkles, color: '#f59e0b', title: vi ? 'Dự đoán tương lai' : 'Prediction', subtitle: vi ? 'Khả năng được mua bản quyền' : 'Licensing likelihood' },
-    { icon: Trophy, color: '#ec4899', title: vi ? 'Xếp hạng LN' : 'LN ranking', subtitle: vi ? 'BXH tựa yêu thích' : 'Favourite LN ranking' },
+    {
+      icon: Info,
+      title: vi ? 'Thông tin' : 'Information',
+      subtitle: vi ? 'Cập nhật LN yêu thích' : 'Up-to-date favourite LN',
+    },
+    {
+      icon: BrainCircuit,
+      title: vi ? 'Phân tích sâu' : 'In-depth Analysis',
+      subtitle: vi ? 'Hiểu rõ từng tựa' : 'Title-level insight',
+    },
+    {
+      icon: Building2,
+      title: vi ? 'Dữ liệu NPH' : 'Deep-dive Data',
+      subtitle: vi ? 'Nhà phát hành đứng sau LN' : 'Publisher behind the LN',
+    },
+    {
+      icon: Sparkles,
+      title: vi ? 'Dự đoán' : 'Prediction',
+      subtitle: vi ? 'Khả năng cấp phép tương lai' : 'Future licensing likelihood',
+    },
+    {
+      icon: Trophy,
+      title: vi ? 'Xếp hạng LN' : 'Ranking',
+      subtitle: vi ? 'BXH LN yêu thích' : 'Favourite LN ranking',
+    },
   ]
 
   return (
-    <section className="py-8 sm:py-10">
+    <section className="pt-7 sm:pt-8 pb-4">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 sm:gap-6">
+        <div className="flex flex-wrap items-start justify-center gap-x-8 gap-y-5 sm:gap-x-12 lg:gap-x-16">
           {features.map(feature => <HomeFeatureIcon key={feature.title} {...feature} />)}
         </div>
+        <p className="text-center text-[10px] sm:text-xs mt-6" style={{ color: 'var(--foreground-muted)' }}>
+          {vi
+            ? 'Tính năng và dữ liệu có thể thay đổi theo nguồn dữ liệu hiện có.'
+            : 'Features and data may vary depending on available sources.'}
+        </p>
       </div>
     </section>
   )
 }
 
-function HomeMissionBanner({ vi }: { vi: boolean }) {
+function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
+  const visualCovers = covers.slice(0, 3)
+
   return (
     <section className="pb-16 sm:pb-20">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="relative overflow-hidden rounded-3xl min-h-[260px] sm:min-h-[300px] flex items-center"
-          style={{ background: 'linear-gradient(135deg, rgba(15,23,42,.98), rgba(49,46,129,.70), rgba(2,6,23,.96))', border: '1px solid var(--card-border)' }}>
-          <div className="absolute inset-0 opacity-70"
-            style={{ background: 'radial-gradient(circle at 20% 10%, rgba(124,92,255,.35), transparent 28%), radial-gradient(circle at 85% 50%, rgba(34,197,94,.18), transparent 30%)' }} />
-          <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,0,0,.34))' }} />
+        <div
+          className="grid md:grid-cols-[0.9fr_1.1fr] gap-0 overflow-hidden rounded-2xl"
+          style={{
+            background: '#020617',
+            border: '1px solid rgba(255,255,255,.08)',
+            boxShadow: '0 18px 70px rgba(0,0,0,.35)',
+          }}
+        >
+          <div className="relative min-h-[190px] sm:min-h-[230px] overflow-hidden" style={{ background: '#050816' }}>
+            {visualCovers.length > 0 ? (
+              <div className="absolute inset-0 grid grid-cols-3 gap-2 p-4">
+                {visualCovers.map((cover, idx) => (
+                  <div
+                    key={`${cover.id}-${idx}`}
+                    className="relative rounded-xl overflow-hidden"
+                    style={{
+                      transform: idx === 1 ? 'translateY(18px)' : idx === 2 ? 'translateY(6px)' : 'translateY(0)',
+                      border: '1px solid rgba(255,255,255,.12)',
+                    }}
+                  >
+                    {cover.cover_url ? (
+                      <img src={cover.cover_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full" style={{ background: 'rgba(99,102,241,.18)' }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,.35), rgba(2,6,23,1))' }} />
+            )}
 
-          <div className="relative z-10 p-6 sm:p-10 max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5"
-              style={{ background: 'rgba(124,92,255,.18)', border: '1px solid rgba(124,92,255,.32)' }}>
-              <Sparkles className="w-3.5 h-3.5" style={{ color: '#c4b5fd' }} />
-              <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: '#c4b5fd' }}>LiDex Light Novel Hub</span>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.08), rgba(2,6,23,.70))' }} />
+            <div className="absolute left-5 bottom-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: '#c4b5fd' }}>
+                LiDex
+              </p>
+              <p className="text-lg sm:text-xl font-black mt-1" style={{ color: '#fff' }}>
+                Light Novel Hub
+              </p>
             </div>
+          </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black leading-tight mb-4" style={{ color: 'var(--foreground)' }}>
-              {vi ? 'Theo dõi Light Novel yêu thích theo cách gọn gàng hơn.' : 'A comfy portable hub for your favourite Light Novels.'}
-            </h2>
+          <div className="relative p-6 sm:p-8 md:p-10 flex flex-col justify-center">
+            <div className="absolute inset-0 opacity-70"
+              style={{ background: 'radial-gradient(circle at 85% 10%, rgba(124,92,255,.20), transparent 30%)' }} />
 
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>
-              {vi
-                ? 'Một nền tảng nhỏ gọn để anh em có thể dễ dàng theo dõi các bộ Light Novel ưa thích của mình một cách dễ dàng nhất, theo hướng phân tích số liệu.'
-                : 'A comfy portable hub where everyone can keep track of their favourite Light Novel in the easiest possible, data-driven way.'}
-            </p>
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="text-xs sm:text-sm font-black uppercase tracking-wider" style={{ color: '#fff' }}>
+                  LiDex
+                </span>
+                <span className="w-px h-5" style={{ background: 'rgba(255,255,255,.25)' }} />
+                <span className="text-xs sm:text-sm font-black uppercase tracking-wider" style={{ color: '#c4b5fd' }}>
+                  LN Analytics
+                </span>
+              </div>
 
-            <div className="flex flex-wrap gap-3 mt-6">
-              <Link href="/browse" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
-                style={{ background: '#6366f1', boxShadow: '0 8px 24px rgba(99,102,241,.28)' }}>
-                {vi ? 'Khám phá ngay' : 'Explore now'} <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all hover:-translate-y-0.5"
-                style={{ color: 'var(--foreground-secondary)', background: 'rgba(255,255,255,.06)', border: '1px solid var(--card-border)' }}>
-                {vi ? 'Xem dữ liệu' : 'View analytics'}
-              </Link>
+              <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-4" style={{ color: '#fff' }}>
+                {vi ? 'Một góc nhỏ gọn cho anh em mê Light Novel.' : 'A comfy portable hub for Light Novel fans.'}
+              </h2>
+
+              <p className="text-sm sm:text-base leading-relaxed max-w-2xl" style={{ color: 'rgba(226,232,240,.78)' }}>
+                {vi
+                  ? 'Một nền tảng nhỏ gọn để anh em có thể dễ dàng theo dõi các bộ Light Novel ưa thích của mình một cách dễ dàng nhất, theo hướng phân tích số liệu.'
+                  : 'A comfy portable hub where everyone can keep track of their favourite Light Novel in the easiest possible, data-driven way.'}
+              </p>
+
+              <div className="flex flex-wrap gap-3 mt-6">
+                <Link href="/browse" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                  style={{ background: '#6366f1', boxShadow: '0 8px 24px rgba(99,102,241,.28)' }}>
+                  {vi ? 'Khám phá ngay' : 'Explore now'} <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all hover:-translate-y-0.5"
+                  style={{ color: 'rgba(226,232,240,.82)', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.10)' }}>
+                  {vi ? 'Xem dữ liệu' : 'View analytics'}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -706,7 +795,7 @@ export default function Home() {
 
       <HomeFeatureStrip vi={vi} />
 
-      <HomeMissionBanner vi={vi} />
+      <HomeMissionBanner vi={vi} covers={trending} />
 
       <style>{`
         @keyframes scrollUp {
