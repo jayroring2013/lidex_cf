@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, useId } from 'react'
+import { useRef, useState, useEffect, useId, type ReactNode } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
