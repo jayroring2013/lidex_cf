@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, BarChart2, Flame, BookOpen, Tv, Book, RefreshCw, Loader2 } from 'lucide-react'
+import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, WandSparkles, Trophy, Loader2 } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import { getTopRatedSeries } from '@/lib/supabase'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -12,7 +12,6 @@ import { useLocale } from '@/contexts/LocaleContext'
 interface Cover { id: number; title: string; cover_url: string | null }
 interface TypeCounts { anime: number; manga: number; novel: number }
 // ── Types ─────────────────────────────────────────────────────────────────────
-interface SiteStats { totalSeries: number; totalAnime: number; totalManga: number; totalNovel: number }
 interface CarouselItem { id: string | number; title: string; cover_url: string | null; score: number | null; href: string }
 type CarouselSection = 'anime' | 'manga' | 'novel'
 
@@ -99,47 +98,6 @@ async function fetchLatestVotingNovels(): Promise<CarouselItem[]> {
     ...row,
     cover_url: volumeCovers[row.id] !== undefined ? volumeCovers[row.id] : row.cover_url,
   }))
-}
-
-// ── Skeleton components ───────────────────────────────────────────────────────
-function StatSkeleton() {
-  return (
-    <div className="rounded-2xl p-5 animate-pulse" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-xl" style={{ background: 'var(--background-secondary)' }} />
-        <div className="h-3 rounded-full w-20" style={{ background: 'var(--background-secondary)' }} />
-      </div>
-      <div className="h-8 rounded-full w-24" style={{ background: 'var(--background-secondary)' }} />
-    </div>
-  )
-}
-
-function CardSkeleton() {
-  return (
-    <div className="relative">
-      <div className="ml-auto rounded-xl overflow-hidden animate-pulse" style={{ width: '78%' }}>
-        <div className="aspect-[2/3]" style={{ background: 'var(--background-secondary)' }} />
-      </div>
-    </div>
-  )
-}
-
-// ── Stat Card ─────────────────────────────────────────────────────────────────
-function StatCard({ icon: Icon, value, label, color }: { icon: any; value: string; label: string; color: string }) {
-  return (
-    <div className="rounded-2xl p-4 sm:p-5 group transition-all duration-200 hover:scale-[1.02]"
-      style={{ background: 'var(--glass-bg)', border: `1px solid ${color}25` }}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center"
-          style={{ background: `${color}18` }}>
-          <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color }} />
-        </div>
-        <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
-      </div>
-      <p className="text-2xl sm:text-3xl font-black leading-none mb-1" style={{ color }}>{value}</p>
-      <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
-    </div>
-  )
 }
 
 // ── Top Card ──────────────────────────────────────────────────────────────────
@@ -313,6 +271,93 @@ function FeatureCard({ color, title, cta, href }: {
   )
 }
 
+
+// ── Home feature icons ────────────────────────────────────────────────────────
+function HomeFeatureIcon({ icon: Icon, title, subtitle, color }: {
+  icon: any
+  title: string
+  subtitle: string
+  color: string
+}) {
+  return (
+    <div className="group flex flex-col items-center text-center gap-2 min-w-[120px]">
+      <div className="w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 group-hover:-translate-y-1"
+        style={{ background: `${color}18`, border: `1px solid ${color}35`, boxShadow: `0 8px 24px ${color}12` }}>
+        <Icon className="w-5 h-5" style={{ color }} />
+      </div>
+      <div>
+        <p className="text-[11px] sm:text-xs font-black leading-tight" style={{ color: 'var(--foreground)' }}>{title}</p>
+        <p className="text-[10px] mt-0.5 leading-snug max-w-[140px]" style={{ color: 'var(--foreground-muted)' }}>{subtitle}</p>
+      </div>
+    </div>
+  )
+}
+
+function HomeFeatureStrip({ vi }: { vi: boolean }) {
+  const features = [
+    { icon: Info, color: '#38bdf8', title: vi ? 'Thông tin cập nhật' : 'Up-to-date info', subtitle: vi ? 'Theo dõi LN yêu thích' : 'Track favourite LN' },
+    { icon: BrainCircuit, color: '#a78bfa', title: vi ? 'Phân tích chuyên sâu' : 'In-depth analysis', subtitle: vi ? 'Hiểu rõ từng tựa' : 'Title-level insight' },
+    { icon: Building2, color: '#22c55e', title: vi ? 'Dữ liệu NPH' : 'Publisher data', subtitle: vi ? 'Đào sâu nhà phát hành' : 'Deep-dive signals' },
+    { icon: WandSparkles, color: '#f59e0b', title: vi ? 'Dự đoán tương lai' : 'Prediction', subtitle: vi ? 'Khả năng được mua bản quyền' : 'Licensing likelihood' },
+    { icon: Trophy, color: '#ec4899', title: vi ? 'Xếp hạng LN' : 'LN ranking', subtitle: vi ? 'BXH tựa yêu thích' : 'Favourite LN ranking' },
+  ]
+
+  return (
+    <section className="py-8 sm:py-10">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 sm:gap-6">
+          {features.map(feature => <HomeFeatureIcon key={feature.title} {...feature} />)}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function HomeMissionBanner({ vi }: { vi: boolean }) {
+  return (
+    <section className="pb-16 sm:pb-20">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="relative overflow-hidden rounded-3xl min-h-[260px] sm:min-h-[300px] flex items-center"
+          style={{ background: 'linear-gradient(135deg, rgba(15,23,42,.98), rgba(49,46,129,.70), rgba(2,6,23,.96))', border: '1px solid var(--card-border)' }}>
+          <div className="absolute inset-0 opacity-70"
+            style={{ background: 'radial-gradient(circle at 20% 10%, rgba(124,92,255,.35), transparent 28%), radial-gradient(circle at 85% 50%, rgba(34,197,94,.18), transparent 30%)' }} />
+          <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,0,0,.34))' }} />
+
+          <div className="relative z-10 p-6 sm:p-10 max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5"
+              style={{ background: 'rgba(124,92,255,.18)', border: '1px solid rgba(124,92,255,.32)' }}>
+              <Sparkles className="w-3.5 h-3.5" style={{ color: '#c4b5fd' }} />
+              <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: '#c4b5fd' }}>LiDex Light Novel Hub</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-black leading-tight mb-4" style={{ color: 'var(--foreground)' }}>
+              {vi ? 'Theo dõi Light Novel yêu thích theo cách gọn gàng hơn.' : 'A comfy portable hub for your favourite Light Novels.'}
+            </h2>
+
+            <p className="text-sm sm:text-base leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>
+              {vi
+                ? 'Một nền tảng nhỏ gọn để anh em có thể dễ dàng theo dõi các bộ Light Novel ưa thích của mình một cách dễ dàng nhất, theo hướng phân tích số liệu.'
+                : 'A comfy portable hub where everyone can keep track of their favourite Light Novel in the easiest possible, data-driven way.'}
+            </p>
+
+            <div className="flex flex-wrap gap-3 mt-6">
+              <Link href="/browse" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                style={{ background: '#6366f1', boxShadow: '0 8px 24px rgba(99,102,241,.28)' }}>
+                {vi ? 'Khám phá ngay' : 'Explore now'} <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all hover:-translate-y-0.5"
+                style={{ color: 'var(--foreground-secondary)', background: 'rgba(255,255,255,.06)', border: '1px solid var(--card-border)' }}>
+                {vi ? 'Xem dữ liệu' : 'View analytics'}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Home() {
   const { locale } = useLocale()
@@ -322,8 +367,6 @@ export default function Home() {
   const [trending,   setTrending]   = useState<Cover[]>([])
   const [typeCounts, setTypeCounts] = useState<TypeCounts | null>(null)
 
-  const [stats,         setStats]         = useState<SiteStats | null>(null)
-  const [statsLoading,  setStatsLoading]  = useState(true)
   const [carouselData,  setCarouselData]  = useState<Record<CarouselSection, CarouselItem[]>>({ anime: [], manga: [], novel: [] })
   const [carouselReady, setCarouselReady] = useState(false)
   const [activeSection, setActiveSection] = useState<CarouselSection>('novel')
@@ -398,17 +441,11 @@ export default function Home() {
       try {
         const [
           topAnimeData,
-          { count: animeCount },
-          { count: novelCount },
-          { count: mangaCount },
           mangaCarouselData,
           novelTableData,
           votingNovelData,
         ] = await Promise.all([
           getTopRatedSeries({ limit: 10 }),
-          supabase.from('series').select('anime_meta!inner(season_year)', { count: 'exact', head: true }).eq('item_type', 'anime').eq('anime_meta.season_year', 2026).not('genres', 'cs', '{"Hentai"}'),
-          supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}'),
-          supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}'),
           supabase.from('series').select('id, title, cover_url')
             .eq('item_type', 'manga').not('cover_url', 'is', null).not('genres', 'cs', '{"Hentai"}')
             .order('updated_at', { ascending: false }).limit(10),
@@ -417,12 +454,6 @@ export default function Home() {
             .order('updated_at', { ascending: false }).limit(10),
           fetchLatestVotingNovels(),
         ])
-
-        const anime = animeCount ?? 0
-        const novel = novelCount ?? 0
-        const manga = mangaCount ?? 0
-        setStats({ totalAnime: anime, totalNovel: novel, totalManga: manga, totalSeries: anime + novel + manga })
-        setStatsLoading(false)
 
         setCarouselData({
           anime: (topAnimeData.data || []).map((s: any) => ({ id: s.id, title: s.title, cover_url: s.cover_url, score: s.anime_mean_score, href: `/content/${s.id}` })),
@@ -455,7 +486,6 @@ export default function Home() {
         setCarouselReady(true)
       } catch (e) {
         console.error(e)
-        setStatsLoading(false)
       }
     }
     loadDashboardData()
@@ -474,11 +504,6 @@ export default function Home() {
   const L_OFFSETS = [-20,40,-40]
   const L_DELAYS  = [-5,-12,-2]
 
-  const featureCards = [
-    { color: '#6366f1', title: vi ? 'Khám phá & Lọc'    : 'Browse & Filter',  cta: vi ? 'Khám phá'    : 'Browse',      href: '/browse'  },
-    { color: '#22c55e', title: vi ? 'Biểu đồ phân tán'  : 'Scatter Charts',   cta: vi ? 'Xem biểu đồ' : 'View Charts', href: '/charts'  },
-    { color: '#ec4899', title: vi ? 'So sánh trực tiếp' : 'Head-to-Head',     cta: vi ? 'So sánh'     : 'Compare',     href: '/compare' },
-  ]
 
   const goToSection = useCallback((section: CarouselSection) => {
     if (section === activeSection) return
@@ -594,72 +619,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ CARDS SECTION ═════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20">
+      {/* ══ TOP 10 SECTION ════════════════════════════════════════════════════ */}
+      <section className="py-14 sm:py-16">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-
-          {/*
-            Uniform 4-col grid on lg+, 2-col on md, 1-col on sm.
-            All 4 cards share the same fixed height so they're perfectly aligned.
-          */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-            style={{ gridAutoRows: '220px' }}>
-
-            {/* Trending — same size as feature cards */}
-            {trending.length > 0 && (
-              <TrendingCard items={trending} vi={vi} />
-            )}
-
-            {/* Feature cards */}
-            {featureCards.map(f => (
-              <FeatureCard key={f.title} {...f} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ DASHBOARD OVERVIEW ═════════════════════════════════════════════════ */}
-      <section className="py-6 sm:py-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-10">
-
-          {/* ── Header ── */}
-          <div className="flex items-center justify-between mb-6 sm:mb-8">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--foreground)' }}>
-                Dashboard
-              </h2>
-              <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--foreground-secondary)' }}>
-                {vi ? 'Tổng quan nội dung và hoạt động cộng đồng' : 'Content overview and community activity'}
-              </p>
-            </div>
-            <button onClick={() => window.location.reload()}
-              className="p-2 rounded-xl transition-all hover:scale-110"
-              style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}
-              title="Refresh">
-              <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
-            </button>
-          </div>
-
-          {/* ── Stats ── */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
-            {statsLoading ? (
-              Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i} />)
-            ) : (
-              <>
-                <StatCard icon={BookOpen} value={stats?.totalSeries?.toLocaleString() || '0'} label={vi ? 'Tổng số tựa'    : 'Total Series'}   color="#6366f1" />
-                <StatCard icon={Tv}       value={stats?.totalAnime?.toLocaleString()  || '0'} label={vi ? 'Anime'          : 'Anime Titles'}   color="#818cf8" />
-                <StatCard icon={Book}     value={stats?.totalManga?.toLocaleString()  || '0'} label={vi ? 'Manga'          : 'Manga Series'}   color="#ec4899" />
-                <StatCard icon={BookOpen} value={(stats as any)?.totalNovel?.toLocaleString() || '0'} label={vi ? 'Tiểu thuyết' : 'Light Novels'} color="#22c55e" />
-              </>
-            )}
-          </div>
-
-          {/* ── Top 10 Carousel ── */}
           <div>
-            {/* Section header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-
-              {/* Left: title */}
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-black" style={{ color: 'var(--foreground)' }}>Top</span>
                 <span className="text-2xl sm:text-3xl font-black transition-colors duration-300" style={{ color }}>10</span>
@@ -668,9 +632,7 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Right: section switcher + browse link */}
               <div className="flex items-center gap-2">
-                {/* Pills */}
                 <div className="flex items-center gap-1.5 p-1 rounded-full" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
                   {sections.map(s => (
                     <button key={s}
@@ -684,7 +646,6 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* Auto-rotate progress dots */}
                 {autoRotate && (
                   <div className="hidden sm:flex gap-1">
                     {sections.map(s => (
@@ -694,7 +655,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Browse all link */}
                 <Link href="/browse"
                   className="hidden sm:flex items-center gap-1 text-xs font-semibold transition-all hover:gap-2"
                   style={{ color: 'var(--foreground-muted)' }}>
@@ -704,7 +664,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Cards */}
             <div
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-2 sm:gap-x-4 gap-y-8 sm:gap-y-10"
               style={{ opacity: transitioning ? 0 : 1, transition: 'opacity 0.22s ease' }}
@@ -722,7 +681,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Mobile: browse all */}
             <div className="flex justify-center mt-8 sm:hidden">
               <Link href="/browse"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
@@ -734,6 +692,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <HomeFeatureStrip vi={vi} />
+
+      <HomeMissionBanner vi={vi} />
 
       <style>{`
         @keyframes scrollUp {
