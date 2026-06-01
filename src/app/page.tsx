@@ -100,6 +100,17 @@ async function fetchLatestVotingNovels(): Promise<CarouselItem[]> {
   }))
 }
 
+
+function CardSkeleton() {
+  return (
+    <div className="relative">
+      <div className="ml-auto rounded-xl overflow-hidden animate-pulse" style={{ width: '78%' }}>
+        <div className="aspect-[2/3]" style={{ background: 'var(--background-secondary)' }} />
+      </div>
+    </div>
+  )
+}
+
 // ── Top Card ──────────────────────────────────────────────────────────────────
 function TopCard({ item, rank, accentColor, scoreLabel }: {
   item: CarouselItem; rank: number; accentColor: string; scoreLabel?: string
