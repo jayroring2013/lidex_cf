@@ -160,7 +160,7 @@ function TopCard({ item, rank, accentColor, scoreLabel }: {
 
         {/* Hover overlay */}
         <div className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 45%, transparent)' }}>
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.52) 35%, rgba(0,0,0,0.14) 70%, transparent)' }}>
           <p className="text-white text-xs font-semibold px-2 pb-2 line-clamp-2 w-full">{item.title}</p>
         </div>
 
@@ -369,14 +369,17 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
         >
           <div className="relative min-h-[190px] sm:min-h-[230px] overflow-hidden" style={{ background: '#050816' }}>
             {visualCovers.length > 0 ? (
-              <div className="absolute inset-0 grid grid-cols-3 gap-2 p-4">
+              <div className="absolute inset-0 grid grid-cols-3 gap-3 p-4 sm:p-5 items-center">
                 {visualCovers.map((cover, idx) => (
                   <div
                     key={`${cover.id}-${idx}`}
-                    className="relative rounded-xl overflow-hidden"
+                    className="relative rounded-xl overflow-hidden h-full"
                     style={{
-                      transform: idx === 1 ? 'translateY(18px)' : idx === 2 ? 'translateY(6px)' : 'translateY(0)',
+                      aspectRatio: '2 / 3',
+                      maxHeight: '100%',
+                      justifySelf: 'center',
                       border: '1px solid rgba(255,255,255,.12)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,.35)',
                     }}
                   >
                     {cover.cover_url ? (
@@ -392,6 +395,7 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
             )}
 
             <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.08), rgba(2,6,23,.70))' }} />
+
           </div>
 
           <div className="relative p-6 sm:p-8 md:p-10 flex flex-col justify-center">
@@ -400,15 +404,18 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
 
             <div className="relative">
 
-              <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-4" style={{ color: '#fff' }}>
+
+              <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-5" style={{ color: '#fff' }}>
                 {vi ? 'Một góc nhỏ gọn cho anh em mê Light Novel.' : 'A comfy portable hub for Light Novel fans.'}
               </h2>
 
-              <p className="text-sm sm:text-base leading-relaxed max-w-2xl" style={{ color: 'rgba(226,232,240,.78)' }}>
+              <p className="text-base sm:text-lg leading-relaxed max-w-2xl" style={{ color: 'rgba(226,232,240,.78)' }}>
                 {vi
                   ? 'Một nền tảng nhỏ gọn để anh em có thể dễ dàng theo dõi các bộ Light Novel ưa thích của mình một cách dễ dàng nhất, theo hướng phân tích số liệu.'
                   : 'A comfy portable hub where everyone can keep track of their favourite Light Novel in the easiest possible, data-driven way.'}
               </p>
+
+
             </div>
           </div>
         </div>
