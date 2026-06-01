@@ -284,7 +284,29 @@ function FeatureCard({ color, title, cta, href }: {
 
 
 // ── Home feature icons ────────────────────────────────────────────────────────
-function HomeFeatureIcon({ icon: Icon, title, subtitle }
+function HomeFeatureIcon({ icon: Icon, title, subtitle }: {
+  icon: any
+  title: string
+  subtitle: string
+}) {
+  return (
+    <div className="flex flex-col items-center text-center gap-2 min-w-[118px] sm:min-w-[132px]">
+      <Icon
+        className="w-7 h-7 sm:w-8 sm:h-8"
+        strokeWidth={1.8}
+        style={{ color: 'var(--foreground)' }}
+      />
+      <div>
+        <p className="text-[11px] sm:text-xs font-black leading-tight" style={{ color: 'var(--foreground)' }}>
+          {title}
+        </p>
+        <p className="text-[9px] sm:text-[10px] mt-0.5 leading-snug" style={{ color: 'var(--foreground-muted)' }}>
+          {subtitle}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 function HomeFeatureStrip({ vi }: { vi: boolean }) {
   const features = [
