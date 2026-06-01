@@ -37,8 +37,8 @@ const REFERER_MAP: Record<string, string> = {
 function getReferer(hostname: string): string {
   if (REFERER_MAP[hostname]) return REFERER_MAP[hostname]
 
-  for (const [key, val] of Object.entries(REFERER_MAP)) {
-    if (hostname === key || hostname.endsWith(`.${key}`)) return val
+  for (const [key, value] of Object.entries(REFERER_MAP)) {
+    if (hostname === key || hostname.endsWith(`.${key}`)) return value
   }
 
   return `https://${hostname}/`
@@ -130,6 +130,7 @@ export async function GET(req: NextRequest) {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+        'Access-Control-Allow-Origin': '*',
         'X-Content-Type-Options': 'nosniff',
         'X-Image-Proxy-Host': parsed.hostname,
       },
