@@ -1387,7 +1387,7 @@ function NovelGeneralInfo({
           <NovelField icon={Languages} label={isVI ? 'Dịch giả' : 'Translator'} value={translator} />
           <NovelField icon={Calendar} label={isVI ? 'Ngày phát hành đầu tiên' : 'First VN Release'} value={lnFormatDate(firstDate, locale)} />
           <NovelField icon={Calendar} label={isVI ? 'Ngày phát hành mới nhất' : 'Latest VN Release'} value={lnFormatDate(latestDate, locale)} />
-          <NovelField icon={Layers} label={isVI ? 'Số tập VN' : 'VN Volumes'} value={String(ranking?.number_of_volumes ?? volumes.length || '—')} />
+          <NovelField icon={Layers} label={isVI ? 'Số tập VN' : 'VN Volumes'} value={String(ranking?.number_of_volumes ?? (volumes.length || '—'))} />
           <NovelField icon={Layers} label={isVI ? 'Số tập gốc' : 'Original Volumes'} value={ranking?.original_volumes != null ? String(ranking.original_volumes) : '—'} />
           <NovelField icon={TrendingUp} label={isVI ? 'Khoảng cách TB' : 'Avg Release Gap'} value={ranking?.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)} ${isVI ? 'tháng' : 'months'}` : '—'} />
           <NovelField icon={Award} label={isVI ? 'Giá TB' : 'Average Price'} value={formatVnd(avgPrice)} />
