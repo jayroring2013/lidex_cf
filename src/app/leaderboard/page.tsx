@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ArrowDown, ArrowUp, Loader2, Search } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import { useLocale } from '@/contexts/LocaleContext'
+import { proxyImageUrl } from '@/lib/imageProxy'
 
 type Period = {
   id: number
@@ -349,7 +350,7 @@ export default function LeaderboardPage() {
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-16 h-24 sm:w-[72px] sm:h-[104px] lg:w-20 lg:h-28 rounded-lg overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                             {row.cover_url ? (
-                              <img src={row.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                              <img src={proxyImageUrl(row.cover_url) || ''} alt="" className="w-full h-full object-cover" loading="lazy" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-[10px] font-black" style={{ color: 'var(--foreground-muted)' }}>LN</div>
                             )}
