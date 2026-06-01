@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, WandSparkles, Trophy, Loader2 } from 'lucide-react'
+import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2 } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import { getTopRatedSeries } from '@/lib/supabase'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -298,7 +298,7 @@ function HomeFeatureStrip({ vi }: { vi: boolean }) {
     { icon: Info, color: '#38bdf8', title: vi ? 'Thông tin cập nhật' : 'Up-to-date info', subtitle: vi ? 'Theo dõi LN yêu thích' : 'Track favourite LN' },
     { icon: BrainCircuit, color: '#a78bfa', title: vi ? 'Phân tích chuyên sâu' : 'In-depth analysis', subtitle: vi ? 'Hiểu rõ từng tựa' : 'Title-level insight' },
     { icon: Building2, color: '#22c55e', title: vi ? 'Dữ liệu NPH' : 'Publisher data', subtitle: vi ? 'Đào sâu nhà phát hành' : 'Deep-dive signals' },
-    { icon: WandSparkles, color: '#f59e0b', title: vi ? 'Dự đoán tương lai' : 'Prediction', subtitle: vi ? 'Khả năng được mua bản quyền' : 'Licensing likelihood' },
+    { icon: Sparkles, color: '#f59e0b', title: vi ? 'Dự đoán tương lai' : 'Prediction', subtitle: vi ? 'Khả năng được mua bản quyền' : 'Licensing likelihood' },
     { icon: Trophy, color: '#ec4899', title: vi ? 'Xếp hạng LN' : 'LN ranking', subtitle: vi ? 'BXH tựa yêu thích' : 'Favourite LN ranking' },
   ]
 
