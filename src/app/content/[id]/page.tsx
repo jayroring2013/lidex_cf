@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   Star, Calendar, BookOpen, Info, Tags,
-  ExternalLink, Share2, Copy, Twitter, Loader2,
+  ExternalLink, Share2, Copy, Loader2,
   ArrowLeft, Award, TrendingUp, Globe, ChevronDown, ChevronUp,
   BarChart2, FlaskConical, Users, Film, Layers, BookMarked,
   Languages, BadgeCheck, Building2, AlertTriangle, Search, Image as ImageIcon
@@ -572,10 +572,9 @@ export default function ContentDetail() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleShareTwitter = () => {
-    const text = encodeURIComponent(`Check out "${series?.title}" on LiDex Analytics!`)
-    const url  = encodeURIComponent(window.location.href)
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank')
+  const handleShareFacebook = () => {
+    const url = encodeURIComponent(window.location.href)
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener,noreferrer')
   }
 
   const formatSynopsis = (text: string) => {
@@ -1180,10 +1179,10 @@ export default function ContentDetail() {
                   <Copy className="w-3.5 h-3.5 flex-shrink-0" />
                   {copied ? 'Đã chép!' : 'Sao chép'}
                 </button>
-                <button onClick={handleShareTwitter} className="p-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-medium hover:text-[#1d9bf0]"
+                <button onClick={handleShareFacebook} className="p-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-medium hover:text-[#1877f2]"
                   style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>
-                  <Twitter className="w-3.5 h-3.5 flex-shrink-0" />
-                  Twitter
+                  <Share2 className="w-3.5 h-3.5 flex-shrink-0" />
+                  Facebook
                 </button>
               </div>
             </div>
@@ -1345,57 +1344,35 @@ function NovelGeneralInfo({
 }) {
   const isVI = locale === 'vi'
   const sortedVolumes = [...volumes].sort((a, b) => Number(b.volume_number || 0) - Number(a.volume_number || 0))
-  const dateSorted = [...volumes]
-    .filter(v => v.release_date)
-    .sort((a, b) => String(a.release_date).localeCompare(String(b.release_date)))
-  const firstDate = dateSorted[0]?.release_date || null
-  const latestDate = latestVolume?.release_date || ranking?.max_release_at || null
   const avgPrice = ranking?.average_price || (
     volumes.length
       ? volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((sum, price) => sum + price, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length)
       : 0
   )
   const releaseStatus = ranking ? lnReleaseStatus(ranking) : (series.status || '—')
-  const originalStatus = ranking?.original_status || novelMeta?.original_status || novelMeta?.jp_status || series.status || '—'
   const author = series.author || novelMeta?.author || novelMeta?.writer || '—'
   const artist = novelMeta?.artist || novelMeta?.illustrator || series.artist || '—'
   const translator = novelMeta?.translator || novelMeta?.translator_name || '—'
-  const imprint = novelMeta?.imprint || novelMeta?.label || novelMeta?.jp_imprint || '—'
-  const jpPublisher = novelMeta?.original_publisher || novelMeta?.jp_publisher || novelMeta?.publisher_jp || '—'
-  const source = series.source || novelMeta?.source || '—'
   const vnPublisher = ranking?.publisher || publisherName || series.publisher || '—'
+  const vnVolumes = ranking?.number_of_volumes ?? (volumes.length || null)
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       <NovelSection icon={Info} title={isVI ? 'Thông Tin Chung' : 'General Information'}>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <NovelField icon={Film} label={isVI ? 'Loại' : 'Type'} value="Light Novel" />
-          <NovelField icon={Calendar} label={isVI ? 'Trạng thái JP' : 'JP Status'} value={normalizeNovelStatus(originalStatus, isVI)} />
-          <NovelField icon={Calendar} label={isVI ? 'Trạng thái VN' : 'VN Status'} value={normalizeNovelStatus(releaseStatus, isVI)} />
-          <NovelField icon={Globe} label={isVI ? 'Nguồn' : 'Source'} value={source} />
-          <NovelField icon={BookOpen} label={isVI ? 'Tác giả' : 'Author'} value={author} />
-          <NovelField icon={ImageIcon} label={isVI ? 'Họa sĩ' : 'Artist'} value={artist} />
-          <NovelField icon={Building2} label={isVI ? 'NXB Nhật' : 'JP Publisher'} value={jpPublisher} />
-          <NovelField icon={BookMarked} label={isVI ? 'Imprint' : 'Imprint'} value={imprint} />
-          <NovelField icon={BadgeCheck} label={isVI ? 'Đánh giá DOA' : 'DOA Evaluation'} value={ranking ? lnEvalLabel(ranking.evalution, isVI) : '—'} accent={ranking ? lnEvalColor(ranking.evalution) : '#8b5cf6'} />
-        </div>
-      </NovelSection>
-
-      <NovelSection icon={BookMarked} title={isVI ? 'Thông Tin Xuất Bản Việt Nam' : 'Vietnamese Publication Info'}>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <NovelField icon={Building2} label={isVI ? 'Nhà phát hành' : 'VN Publisher'} value={vnPublisher} />
+          <NovelField icon={Calendar} label={isVI ? 'Trạng thái' : 'Status'} value={normalizeNovelStatus(releaseStatus, isVI)} />
           <NovelField icon={Languages} label={isVI ? 'Dịch giả' : 'Translator'} value={translator} />
-          <NovelField icon={Calendar} label={isVI ? 'Ngày phát hành đầu tiên' : 'First VN Release'} value={lnFormatDate(firstDate, locale)} />
-          <NovelField icon={Calendar} label={isVI ? 'Ngày phát hành mới nhất' : 'Latest VN Release'} value={lnFormatDate(latestDate, locale)} />
-          <NovelField icon={Layers} label={isVI ? 'Số tập VN' : 'VN Volumes'} value={String(ranking?.number_of_volumes ?? (volumes.length || '—'))} />
-          <NovelField icon={Layers} label={isVI ? 'Số tập gốc' : 'Original Volumes'} value={ranking?.original_volumes != null ? String(ranking.original_volumes) : '—'} />
+          <NovelField icon={Building2} label={isVI ? 'Nhà phát hành' : 'Publisher'} value={vnPublisher} />
+          <NovelField icon={Layers} label={isVI ? 'Số tập' : 'Volumes'} value={vnVolumes != null ? String(vnVolumes) : '—'} />
           <NovelField icon={TrendingUp} label={isVI ? 'Khoảng cách TB' : 'Avg Release Gap'} value={ranking?.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)} ${isVI ? 'tháng' : 'months'}` : '—'} />
           <NovelField icon={Award} label={isVI ? 'Giá TB' : 'Average Price'} value={formatVnd(avgPrice)} />
-          <NovelField icon={Globe} label={isVI ? 'Nguồn bìa' : 'Cover Source'} value={ranking?.cover_source_title || series.title || '—'} />
+          <NovelField icon={BookOpen} label={isVI ? 'Tác giả' : 'Author'} value={author} />
+          <NovelField icon={ImageIcon} label={isVI ? 'Họa sĩ' : 'Artist'} value={artist} />
         </div>
       </NovelSection>
 
-      <NovelVolumeTable volumes={sortedVolumes} latestVolume={latestVolume} locale={locale} />
+      <NovelVolumeCarousel volumes={sortedVolumes} latestVolume={latestVolume} locale={locale} />
 
       {series.tags && series.tags.length > 0 && (
         <NovelSection icon={Tags} title="Tags">
@@ -1416,8 +1393,9 @@ function NovelGeneralInfo({
   )
 }
 
-function NovelVolumeTable({ volumes, latestVolume, locale }: { volumes: any[]; latestVolume: any; locale: string }) {
+function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]; latestVolume: any; locale: string }) {
   const isVI = locale === 'vi'
+  const [activeIndex, setActiveIndex] = useState(0)
 
   if (!volumes.length) {
     return (
@@ -1430,57 +1408,99 @@ function NovelVolumeTable({ volumes, latestVolume, locale }: { volumes: any[]; l
     )
   }
 
+  const active = volumes[Math.min(activeIndex, volumes.length - 1)]
+  const activeCover = active?.cover_url || latestVolume?.cover_url || null
+  const prev = () => setActiveIndex(i => (i - 1 + volumes.length) % volumes.length)
+  const next = () => setActiveIndex(i => (i + 1) % volumes.length)
+
   return (
     <NovelSection icon={Layers} title={isVI ? 'Danh Sách Tập' : 'Volume List'}>
-      <div className="overflow-hidden rounded-xl" style={{ border: '1px solid var(--card-border)', background: 'rgba(15,23,42,.32)' }}>
-        <div className="hidden sm:grid grid-cols-[80px_1fr_150px_110px_80px] gap-3 px-4 py-2.5 text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)', borderBottom: '1px solid var(--card-border)' }}>
-          <span>{isVI ? 'Tập' : 'Volume'}</span>
-          <span>{isVI ? 'Bìa / Tên tập' : 'Cover / Volume'}</span>
-          <span>{isVI ? 'Ngày phát hành' : 'Release Date'}</span>
-          <span>{isVI ? 'Giá' : 'Price'}</span>
-          <span>{isVI ? 'Trang' : 'Pages'}</span>
-        </div>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(15,23,42,.34)', border: '1px solid var(--card-border)' }}>
+        <div className="relative p-4 sm:p-5">
+          {activeCover && (
+            <img src={activeCover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-md scale-110" />
+          )}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.92), rgba(2,6,23,.72))' }} />
 
-        <div className="max-h-[520px] overflow-y-auto">
-          {volumes.map((vol, idx) => {
-            const isLatest = latestVolume?.id === vol.id || idx === 0
-            return (
-              <div
-                key={vol.id || `${vol.volume_number}-${idx}`}
-                className="grid grid-cols-[64px_1fr] sm:grid-cols-[80px_1fr_150px_110px_80px] gap-3 items-center px-4 py-3"
-                style={{ borderBottom: idx === volumes.length - 1 ? 'none' : '1px solid var(--card-border)' }}
-              >
-                <div>
-                  {isLatest && (
-                    <span className="inline-flex mb-1 px-2 py-0.5 rounded-md text-[10px] font-black text-white" style={{ background: '#7c3aed' }}>
-                      {isVI ? 'Mới nhất' : 'Latest'}
-                    </span>
-                  )}
-                  <p className="text-xs font-black" style={{ color: 'var(--foreground-secondary)' }}>#{vol.volume_number ?? '—'}</p>
+          <div className="relative grid grid-cols-[96px_1fr] sm:grid-cols-[128px_1fr] gap-4 items-center">
+            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', background: 'var(--background-secondary)', border: '1px solid rgba(255,255,255,.14)' }}>
+              {activeCover ? (
+                <img src={activeCover} alt={`Vol. ${active.volume_number}`} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <BookOpen className="w-8 h-8 opacity-40 text-primary-400" />
                 </div>
-
-                <div className="flex items-center gap-3 min-w-0">
-                  {vol.cover_url ? (
-                    <img src={vol.cover_url} alt={`Vol. ${vol.volume_number}`} className="w-10 h-14 object-cover rounded-md flex-shrink-0 shadow" />
-                  ) : (
-                    <div className="w-10 h-14 rounded-md flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--background-secondary)' }}>
-                      <BookOpen className="w-4 h-4 opacity-40 text-primary-400" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold truncate" style={{ color: 'var(--foreground)' }}>{isVI ? 'Tập' : 'Volume'} {vol.volume_number ?? '—'}</p>
-                    <p className="text-[10px] mt-0.5 truncate sm:hidden" style={{ color: 'var(--foreground-muted)' }}>
-                      {lnFormatDate(vol.release_date, locale)} · {formatVnd(vol.price)}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="hidden sm:block text-xs font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{lnFormatDate(vol.release_date, locale)}</p>
-                <p className="hidden sm:block text-xs font-semibold tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{formatVnd(vol.price)}</p>
-                <p className="hidden sm:block text-xs font-semibold tabular-nums" style={{ color: 'var(--foreground-muted)' }}>{vol.pages ?? vol.page_count ?? '—'}</p>
+              )}
+              <div className="absolute left-2 top-2 px-2 py-1 rounded-lg text-[10px] font-black text-white" style={{ background: 'rgba(0,0,0,.64)' }}>
+                #{active.volume_number ?? activeIndex + 1}
               </div>
-            )
-          })}
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
+                  {activeIndex + 1}/{volumes.length}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <button onClick={prev} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>‹</button>
+                  <button onClick={next} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>›</button>
+                </div>
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-black leading-tight" style={{ color: 'var(--foreground)' }}>
+                {isVI ? 'Tập' : 'Volume'} {active.volume_number ?? '—'}
+              </h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+                <div className="rounded-xl p-3" style={{ background: 'rgba(124,58,237,.12)', border: '1px solid rgba(124,58,237,.24)' }}>
+                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Ngày phát hành' : 'Release'}</p>
+                  <p className="text-xs font-black mt-1" style={{ color: 'var(--foreground)' }}>{lnFormatDate(active.release_date, locale)}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'rgba(34,197,94,.10)', border: '1px solid rgba(34,197,94,.22)' }}>
+                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Giá' : 'Price'}</p>
+                  <p className="text-xs font-black mt-1" style={{ color: '#4ade80' }}>{formatVnd(active.price)}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.22)' }}>
+                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trang' : 'Pages'}</p>
+                  <p className="text-xs font-black mt-1" style={{ color: '#7dd3fc' }}>{active.pages ?? active.page_count ?? '—'}</p>
+                </div>
+                <div className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,.10)', border: '1px solid rgba(251,191,36,.22)' }}>
+                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Mới nhất' : 'Latest'}</p>
+                  <p className="text-xs font-black mt-1" style={{ color: '#fbbf24' }}>{latestVolume?.id === active.id || activeIndex === 0 ? (isVI ? 'Có' : 'Yes') : '—'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative mt-4 overflow-x-auto pb-1">
+            <div className="flex gap-2 min-w-max">
+              {volumes.map((vol, idx) => {
+                const isActive = idx === activeIndex
+                return (
+                  <button
+                    key={vol.id || `${vol.volume_number}-${idx}`}
+                    onClick={() => setActiveIndex(idx)}
+                    className="relative w-[44px] h-[64px] rounded-lg overflow-hidden transition-all hover:scale-105"
+                    style={{
+                      border: isActive ? '2px solid #8b5cf6' : '1px solid var(--card-border)',
+                      opacity: isActive ? 1 : 0.62,
+                      background: 'var(--background-secondary)',
+                    }}
+                    title={`${isVI ? 'Tập' : 'Volume'} ${vol.volume_number ?? idx + 1}`}
+                  >
+                    {vol.cover_url ? (
+                      <img src={vol.cover_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <BookOpen className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />
+                    )}
+                    <span className="absolute left-0 right-0 bottom-0 text-[8px] font-black py-0.5 text-white" style={{ background: 'rgba(0,0,0,.70)' }}>
+                      {vol.volume_number ?? idx + 1}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </NovelSection>
@@ -1505,7 +1525,6 @@ function NovelSideCards({
   const progress = ratio == null ? 0 : Math.max(0, Math.min(100, ratio * 100))
   const latestDate = latestVolume?.release_date || ranking?.max_release_at || null
   const releaseStatus = ranking ? lnReleaseStatus(ranking) : (series.status || '—')
-  const originalStatus = ranking?.original_status || '—'
 
   return (
     <>
@@ -1524,7 +1543,9 @@ function NovelSideCards({
           <div>
             <div className="flex items-center justify-between text-xs mb-2">
               <span style={{ color: 'var(--foreground-muted)' }}>JP</span>
-              <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>{normalizeNovelStatus(originalStatus, isVI)}</span>
+              <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
+                {ranking?.original_volumes != null ? `${ranking.original_volumes} Vols` : '—'}
+              </span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
               <div className="h-full rounded-full" style={{ width: '100%', background: 'rgba(124,106,245,.48)' }} />
@@ -1535,7 +1556,7 @@ function NovelSideCards({
             <div className="flex items-center justify-between text-xs mb-2">
               <span style={{ color: 'var(--foreground-muted)' }}>VN</span>
               <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                {ranking ? `${ranking.number_of_volumes ?? volumes.length} / ${ranking.original_volumes ?? '—'} ${isVI ? 'tập' : 'vols'}` : `${volumes.length} ${isVI ? 'tập' : 'vols'}`}
+                {ranking ? `${ranking.number_of_volumes ?? volumes.length}` : `${volumes.length}`}
               </span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
