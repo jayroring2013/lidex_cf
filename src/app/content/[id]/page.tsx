@@ -638,10 +638,10 @@ export default function ContentDetail() {
         </div>
 
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
+          <div className="flex flex-col md:flex-row md:items-start gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
 
             {/* ── Cover ── */}
-            <div className="flex-shrink-0 mx-auto md:mx-0">
+            <div className="flex-shrink-0 mx-auto md:mx-0 md:self-start">
               <div className="relative w-36 sm:w-44 md:w-52 lg:w-60 rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 bg-dark-800">
                 {coverSrc && !imageError ? (
                   <img
@@ -726,10 +726,6 @@ export default function ContentDetail() {
                     <div className={`text-sm sm:text-base leading-relaxed text-gray-300 ${synopsisExpanded ? '' : 'line-clamp-3'}`}>
                       {formatSynopsis(series.description || series.description_vi || '')}
                     </div>
-                    {!synopsisExpanded && (
-                      <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }} />
-                    )}
                   </div>
                   <button
                     onClick={() => setSynopsisExpanded(!synopsisExpanded)}
