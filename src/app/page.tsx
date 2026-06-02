@@ -112,8 +112,8 @@ function CardSkeleton() {
 }
 
 // ── Top Card ──────────────────────────────────────────────────────────────────
-function TopCard({ item, rank, accentColor, scoreLabel }: {
-  item: CarouselItem; rank: number; accentColor: string; scoreLabel?: string
+function TopCard({ item, rank, accentColor, scoreLabel, onInteract }: {
+  item: CarouselItem; rank: number; accentColor: string; scoreLabel?: string; onInteract?: () => void
 }) {
   const [imgErr, setImgErr] = useState(false)
 
@@ -171,7 +171,9 @@ function TopCard({ item, rank, accentColor, scoreLabel }: {
     </div>
   )
 
-  return item.href !== '#' ? <Link href={item.href}>{card}</Link> : <div>{card}</div>
+  return item.href !== '#'
+    ? <Link href={item.href} onMouseEnter={onInteract} onPointerDown={onInteract} onFocus={onInteract}>{card}</Link>
+    : <div onMouseEnter={onInteract} onPointerDown={onInteract}>{card}</div>
 }
 
 
@@ -577,6 +579,8 @@ export default function Home() {
     setTimeout(() => { setActiveSection(section); setTransitioning(false) }, 220)
   }, [activeSection])
 
+  const stopTop10Rotation = useCallback(() => setAutoRotate(false), [])
+
   useEffect(() => {
     if (!autoRotate) return
     const t = setInterval(() => {
@@ -733,6 +737,9 @@ export default function Home() {
             <div
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-2 sm:gap-x-4 gap-y-8 sm:gap-y-10"
               style={{ opacity: transitioning ? 0 : 1, transition: 'opacity 0.22s ease' }}
+              onMouseEnter={stopTop10Rotation}
+              onPointerDown={stopTop10Rotation}
+              onFocus={stopTop10Rotation}
             >
               {!carouselReady ? (
                 Array.from({ length: 10 }).map((_, i) => <CardSkeleton key={i} />)
@@ -743,7 +750,8 @@ export default function Home() {
               ) : items.map((item, i) => (
                 <TopCard key={item.id} item={item} rank={i + 1}
                   accentColor={color}
-                  scoreLabel={activeSection === 'novel' ? 'votes' : undefined} />
+                  scoreLabel={activeSection === 'novel' ? 'votes' : undefined}
+                  onInteract={stopTop10Rotation} />
               ))}
             </div>
 
