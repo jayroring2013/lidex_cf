@@ -12,6 +12,7 @@ import {
   BookOpen,
   Building2,
   CheckCircle2,
+  ChevronDown,
   Gauge,
   LayoutDashboard,
   ListFilter,
@@ -1816,6 +1817,164 @@ function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   )
 }
 
+type PublisherPickerItem = {
+  publisher: string
+  licensed: number
+  releases24: number
+  reliability: number
+  rank: number
+}
+
+function PublisherLogoMark({ name, logoUrl, size = 'md' }: { name: string; logoUrl: string | null; size?: 'sm' | 'md' }) {
+  const dim = size === 'sm' ? 'w-9 h-9' : 'w-11 h-11'
+
+  return (
+    <div
+      className={`${dim} rounded-xl flex items-center justify-center shrink-0 overflow-hidden text-[10px] font-black`}
+      style={{
+        background: 'rgba(255,255,255,.96)',
+        color: '#1d4ed8',
+        border: '1px solid rgba(136,146,170,.22)',
+        boxShadow: '0 6px 20px rgba(15,23,42,.10)',
+      }}
+    >
+      {logoUrl ? (
+        <img src={logoUrl} alt="" className="w-full h-full object-contain p-0.5" loading="lazy" decoding="async" />
+      ) : (
+        name.slice(0, 3).toUpperCase()
+      )}
+    </div>
+  )
+}
+
+function PublisherPopupSelect({
+  currentName,
+  publishers,
+  publisherLogos,
+  onSelect,
+  vi,
+}: {
+  currentName: string
+  publishers: PublisherPickerItem[]
+  publisherLogos: PublisherLogoMap
+  onSelect: (publisher: string) => void
+  vi: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const wrapRef = useRef<HTMLDivElement | null>(null)
+  const currentLogo = proxyImg(publisherLogos[publisherKey(currentName)] || null)
+  const filtered = publishers.filter(p => p.publisher.toLowerCase().includes(query.trim().toLowerCase()))
+
+  useEffect(() => {
+    if (!open) return
+
+    function onPointerDown(event: Event) {
+      if (!wrapRef.current?.contains(event.target as Node)) setOpen(false)
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(false)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
+
+  return (
+    <div ref={wrapRef} className="relative mt-3">
+      <button
+        type="button"
+        onClick={() => setOpen(value => !value)}
+        className="w-full rounded-xl px-2.5 py-2 text-left outline-none transition-all hover:scale-[1.01]"
+        style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <PublisherLogoMark name={currentName} logoUrl={currentLogo} size="sm" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-black truncate">{currentName}</p>
+            <p className="text-[9px] truncate" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Chọn nhà phát hành' : 'Choose publisher'}</p>
+          </div>
+          <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} style={{ color: 'var(--foreground-muted)' }} />
+        </div>
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl shadow-2xl"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 22px 70px rgba(15,23,42,.28)' }}
+          role="dialog"
+        >
+          <div className="p-3 border-b" style={{ borderColor: 'var(--card-border)' }}>
+            <p className="text-sm font-black text-center mb-3" style={{ color: 'var(--foreground)' }}>{vi ? 'Chọn nhà phát hành' : 'Choose Publisher'}</p>
+            <div className="flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
+              <Search className="w-4 h-4 shrink-0" style={{ color: 'var(--foreground-muted)' }} />
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder={vi ? 'Tìm theo tên NPH' : 'Search publisher'}
+                className="w-full bg-transparent outline-none text-sm"
+                style={{ color: 'var(--foreground)' }}
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <div className="max-h-[420px] overflow-y-auto">
+            {filtered.map(p => {
+              const logoUrl = proxyImg(publisherLogos[publisherKey(p.publisher)] || null)
+              const active = p.publisher === currentName
+
+              return (
+                <button
+                  key={p.publisher}
+                  type="button"
+                  onClick={() => {
+                    onSelect(p.publisher)
+                    setOpen(false)
+                    setQuery('')
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors"
+                  style={{
+                    background: active ? 'rgba(124,106,245,.14)' : 'transparent',
+                    borderBottom: '1px solid var(--card-border)',
+                  }}
+                >
+                  <PublisherLogoMark name={p.publisher} logoUrl={logoUrl} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-black truncate" style={{ color: active ? '#7c6af5' : 'var(--foreground)' }}>{p.publisher}</p>
+                    <p className="text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>
+                      {vi
+                        ? `${p.licensed} series · ${p.releases24} tập phát hành`
+                        : `${p.licensed} series · ${p.releases24} released volumes`}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-[11px] font-black" style={{ color: publisherScoreColor(p.reliability) }}>{p.reliability.toFixed(0)}</p>
+                    <p className="text-[9px] font-bold" style={{ color: 'var(--foreground-muted)' }}>#{p.rank}</p>
+                  </div>
+                </button>
+              )
+            })}
+
+            {filtered.length === 0 && (
+              <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--foreground-muted)' }}>
+                {vi ? 'Không tìm thấy nhà phát hành.' : 'No publishers found.'}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublisher, setSelectedPublisher, selectedKey, onSelectSeries, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; publisherLogos: PublisherLogoMap; selectedPublisher: string | null; setSelectedPublisher: (publisher: string) => void; selectedKey: string | null; onSelectSeries: (row: LNRow) => void; vi: boolean }) {
   const publishers = buildPublishers(rows, volumeRows).filter(p => p.releases24 > 0)
   const currentName = selectedPublisher || publishers[0]?.publisher || 'Unknown'
@@ -1845,6 +2004,17 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
     .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
   const avgScoreRank = Math.max(1, avgScoreRanks.findIndex(p => p.publisher === currentName) + 1)
   const marketShare = publisher?.marketShare || 0
+  const publisherPickerItems = publishers.map(p => {
+    const score = reliabilityRanks.find(item => item.publisher === p.publisher)?.score ?? 0
+    const pickerRank = Math.max(1, reliabilityRanks.findIndex(item => item.publisher === p.publisher) + 1)
+    return {
+      publisher: p.publisher,
+      licensed: p.seriesCount,
+      releases24: p.releases24,
+      reliability: score,
+      rank: pickerRank,
+    }
+  })
 
   if (!publisher) {
     return <Card className="p-6 text-sm"><span style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có dữ liệu nhà phát hành.' : 'No publisher data available.'}</span></Card>
@@ -1907,14 +2077,13 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
             <div className="h-2 rounded-full overflow-hidden mt-3" style={{ background: 'var(--ln-track-bg)' }}>
               <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, reliability))}%`, background: 'linear-gradient(90deg,#38bdf8,#a78bfa)' }} />
             </div>
-            <select
-              value={currentName}
-              onChange={e => setSelectedPublisher(e.target.value)}
-              className="mt-3 w-full rounded-lg px-2 py-1.5 text-xs font-bold outline-none"
-              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
-            >
-              {publishers.map(p => <option key={p.publisher} value={p.publisher}>{p.publisher}</option>)}
-            </select>
+            <PublisherPopupSelect
+              currentName={currentName}
+              publishers={publisherPickerItems}
+              publisherLogos={publisherLogos}
+              onSelect={setSelectedPublisher}
+              vi={vi}
+            />
           </div>
         </div>
       </Card>
