@@ -1854,68 +1854,192 @@ function NovelDoAStats({
 
   const drop = lnDropPercent(ranking.drop_percent)
   const ratio = lnCompletionRatio(ranking)
-  const avgPrice = volumes.length
-    ? Math.round(volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((a, b) => a + b, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length))
-    : 0
   const releaseStatus = lnReleaseStatus(ranking)
-  const evalColor = lnEvalColor(ranking.evalution)
-  const releaseDate = lnFormatDate(ranking.max_release_at, locale)
+  const latestDate = ranking.max_release_at || volumes[0]?.release_date || null
+  const avgGap = ranking.average_gap_months == null ? null : Number(ranking.average_gap_months)
+  const monthsAgo = ranking.months_since_last_release == null ? null : Number(ranking.months_since_last_release)
+  const demand = lnPercentileScore(marketRows, ranking.average_view_count, row => lnNum(row.average_view_count))
+  const releasePace = lnReleasePaceScore(ranking)
+  const catchUp = lnCatchUpScore(ranking)
+  const publisherSupport = lnPublisherSupportScore(ranking)
+  const safety = lnCompletionSafetyScore(ranking)
+  const momentum = lnMomentumScore(ranking)
+  const avgPrice = ranking.average_price || (
+    volumes.length
+      ? Math.round(volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((a, b) => a + b, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length))
+      : 0
+  )
+
+  const scoreRows: LnBreakdownItem[] = [
+    {
+      label: isVI ? 'Tần suất phát hành' : 'Release pace',
+      sub: isVI ? 'Nhịp ra tập và độ mới' : 'Gap and recency',
+      value: releasePace * 10,
+      delta: `+${(releasePace / 10 * 0.7).toFixed(1)}`,
+      color: '#7c6af5',
+    },
+    {
+      label: isVI ? 'Tiến độ bắt kịp JP' : 'Catch-up progress',
+      sub: isVI ? 'VN so với bản gốc' : 'VN vs original',
+      value: catchUp * 10,
+      delta: `+${(catchUp / 10 * 0.8).toFixed(1)}`,
+      color: '#a78bfa',
+    },
+    {
+      label: isVI ? 'Nhà phát hành hoạt động' : 'Publisher activity',
+      sub: isVI ? 'Sản lượng và hỗ trợ' : 'Output and support',
+      value: publisherSupport * 10,
+      delta: `+${(publisherSupport / 10 * 0.6).toFixed(1)}`,
+      color: '#38bdf8',
+    },
+    {
+      label: isVI ? 'Mức độ quan tâm' : 'Demand',
+      sub: isVI ? 'Phân vị lượt xem' : 'View percentile',
+      value: demand * 10,
+      delta: `+${(demand / 10 * 0.4).toFixed(1)}`,
+      color: '#22c55e',
+    },
+    {
+      label: isVI ? 'Độ ổn định' : 'Safety',
+      sub: isVI ? 'Nghịch đảo rủi ro drop' : 'Inverse drop risk',
+      value: safety * 10,
+      delta: `${safety >= 7 ? '+' : ''}${((safety - 5) / 10).toFixed(1)}`,
+      color: safety >= 6 ? '#22c55e' : '#f97316',
+    },
+  ]
+
+  const riskRows: LnBreakdownItem[] = [
+    {
+      label: isVI ? 'Thời gian chưa có tập mới' : 'Release inactivity',
+      sub: isVI ? `${monthsAgo == null ? '—' : monthsAgo.toFixed(1)} tháng` : `${monthsAgo == null ? '—' : monthsAgo.toFixed(1)} months`,
+      value: Math.min(100, Math.max(8, (monthsAgo || 0) / 24 * 100)),
+      delta: monthsAgo == null ? '—' : `+${Math.min(18, Math.round(monthsAgo / 2))}%`,
+      color: '#ef4444',
+    },
+    {
+      label: isVI ? 'Gần bắt kịp JP' : 'Near caught-up',
+      sub: isVI ? 'Có thể chậm do thiếu tập gốc' : 'May slow because source is close',
+      value: catchUp * 10,
+      delta: catchUp >= 8 ? '-5%' : '+2%',
+      color: catchUp >= 8 ? '#22c55e' : '#eab308',
+    },
+    {
+      label: isVI ? 'Nhịp phát hành' : 'Release rhythm',
+      sub: avgGap == null ? '—' : `${avgGap.toFixed(1)} ${isVI ? 'tháng/tập' : 'months/vol'}`,
+      value: Math.max(5, 100 - releasePace * 10),
+      delta: releasePace >= 7 ? '-4%' : '+6%',
+      color: releasePace >= 7 ? '#22c55e' : '#f97316',
+    },
+    {
+      label: isVI ? 'NXB hoạt động' : 'Publisher activity',
+      sub: ranking.publisher_activity || '—',
+      value: Math.max(5, 100 - publisherSupport * 10),
+      delta: publisherSupport >= 7 ? '-5%' : '+4%',
+      color: publisherSupport >= 7 ? '#22c55e' : '#f97316',
+    },
+    {
+      label: isVI ? 'Quan tâm thị trường' : 'Market attention',
+      sub: ranking.average_view_count ? fmtBig(Number(ranking.average_view_count)) : '—',
+      value: Math.max(5, 100 - demand * 10),
+      delta: demand >= 6 ? '-2%' : '+3%',
+      color: demand >= 6 ? '#22c55e' : '#eab308',
+    },
+  ]
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatBig label={isVI ? 'Điểm LN' : 'LN Score'} value={ranking.ln_score != null ? Number(ranking.ln_score).toFixed(1) : '—'} sub="/10" color={lnScoreColor(ranking.ln_score)} />
-        <StatBig label={isVI ? 'Rủi ro Drop' : 'Drop Risk'} value={`${drop}%`} color={lnDropColor(ranking.drop_percent)} />
-        <StatBig label={isVI ? 'Tập VN / Gốc' : 'VN / Original'} value={`${lnNum(ranking.number_of_volumes)}/${ranking.original_volumes ?? '—'}`} color="#a78bfa" />
-        <StatBig label={isVI ? 'Lượt xem TB' : 'Avg Views'} value={ranking.average_view_count ? fmtBig(Number(ranking.average_view_count)) : '—'} color="#38bdf8" />
+    <div className="space-y-4 sm:space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+        <LnKpiCard
+          label={isVI ? 'Điểm LN' : 'LN Score'}
+          value={ranking.ln_score != null ? Number(ranking.ln_score).toFixed(1) : '—'}
+          sub="/10"
+          helper={isVI ? lnEvalLabel(ranking.evalution, true) : lnEvalLabel(ranking.evalution, false)}
+          color={lnScoreColor(ranking.ln_score)}
+          progress={(Number(ranking.ln_score || 0) / 10) * 100}
+        />
+        <LnKpiCard
+          label={isVI ? 'Khả năng Drop' : 'Drop Risk'}
+          value={`${drop}%`}
+          helper={drop <= 25 ? (isVI ? 'Thấp' : 'Low') : drop <= 55 ? (isVI ? 'Trung bình' : 'Medium') : (isVI ? 'Cao' : 'High')}
+          color={lnDropColor(ranking.drop_percent)}
+          progress={100 - drop}
+        />
+        <LnKpiCard
+          label={isVI ? 'Tiến độ VN' : 'VN Progress'}
+          value={`${lnNum(ranking.number_of_volumes)}`}
+          sub={`/ ${ranking.original_volumes ?? '—'}`}
+          helper={ratio != null ? `${Math.round(ratio * 100)}%` : '—'}
+          color="#a78bfa"
+          progress={ratio != null ? ratio * 100 : 0}
+        />
+        <LnKpiCard
+          label={isVI ? 'Lượt xem TB' : 'Avg Views'}
+          value={ranking.average_view_count ? fmtBig(Number(ranking.average_view_count)) : '—'}
+          helper={isVI ? 'Mỗi tập' : 'Per volume'}
+          color="#38bdf8"
+          progress={demand * 10}
+        />
+        <LnKpiCard
+          label={isVI ? 'Khoảng cách phát hành' : 'Release Gap'}
+          value={avgGap != null ? avgGap.toFixed(1) : '—'}
+          sub={isVI ? ' tháng' : ' months'}
+          helper={isVI ? 'Trung bình' : 'Average'}
+          color="#7c6af5"
+          progress={releasePace * 10}
+        />
+        <LnKpiCard
+          label={isVI ? 'Lần phát hành gần nhất' : 'Latest Release'}
+          value={monthsAgo != null ? monthsAgo.toFixed(0) : '—'}
+          sub={isVI ? ' tháng trước' : ' months ago'}
+          helper={lnFormatDateDDMM(latestDate)}
+          color="#f59e0b"
+          progress={Math.max(0, 100 - Math.min(100, (monthsAgo || 0) / 24 * 100))}
+        />
       </div>
 
-      <div className="glass rounded-2xl p-4 sm:p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}44` }}>
-                {lnEvalLabel(ranking.evalution, isVI)}
-              </span>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-black" style={{ color: 'var(--foreground-secondary)', background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                {lnReleaseStatusLabel(releaseStatus, isVI)}
-              </span>
-              {ranking.publisher_activity && (
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-black" style={{ color: '#93c5fd', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.24)' }}>
-                  {ranking.publisher_activity}
-                </span>
-              )}
-            </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>
-              {ranking.evaluation_basis || (isVI ? 'Chưa có mô tả đánh giá.' : 'No evaluation explanation available.')}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 shrink-0 min-w-[230px]">
-            <MiniMetric label={isVI ? 'Ngày mới nhất' : 'Latest Release'} value={releaseDate} />
-            <MiniMetric label={isVI ? 'Cách đây' : 'Months Ago'} value={ranking.months_since_last_release != null ? `${Number(ranking.months_since_last_release).toFixed(1)}m` : '—'} />
-            <MiniMetric label={isVI ? 'Nhịp TB' : 'Avg Gap'} value={ranking.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)}m` : '—'} />
-            <MiniMetric label={isVI ? 'Tiến độ' : 'Progress'} value={ratio != null ? `${Math.round(ratio * 100)}%` : '—'} />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-[1.35fr_0.9fr] gap-4">
-        <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
+      <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_0.95fr_1.08fr_1.25fr] gap-4">
+        <LnBreakdownPanel
+          index="1"
+          title={isVI ? 'Phân rã Điểm LN' : 'LN Score Breakdown'}
+          subtitle={isVI ? 'Các yếu tố chính ảnh hưởng điểm sức khỏe.' : 'Main factors behind the health score.'}
+          rows={scoreRows}
+          footerLabel={isVI ? 'Tổng điểm' : 'Total score'}
+          footerValue={ranking.ln_score != null ? Number(ranking.ln_score).toFixed(1) : '—'}
+          footerSub="/10"
+          footerColor={lnScoreColor(ranking.ln_score)}
+        />
+        <LnBreakdownPanel
+          index="2"
+          title={isVI ? 'Phân rã Rủi ro Drop' : 'Drop Risk Breakdown'}
+          subtitle={isVI ? 'Các yếu tố làm tăng hoặc giảm khả năng drop.' : 'Signals increasing or reducing drop risk.'}
+          rows={riskRows}
+          footerLabel={isVI ? 'Khả năng Drop' : 'Drop risk'}
+          footerValue={`${drop}%`}
+          footerColor={lnDropColor(ranking.drop_percent)}
+        />
         <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} />
+        <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-4">
+        <LnReleaseTimeline volumes={volumes} ranking={ranking} locale={locale} />
+        <LnProgressTracker ranking={ranking} locale={locale} releaseStatus={releaseStatus} />
+      </div>
+
+      <SimilarNovelsCarousel active={ranking} marketRows={marketRows} locale={locale} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <BreakdownCard
-          title={isVI ? 'Thành phần Điểm LN' : 'LN Score Components'}
+          title={isVI ? 'Ghi chú Điểm LN' : 'LN Score Notes'}
           accent={lnScoreColor(ranking.ln_score)}
           body={ranking.score_components || ranking.evaluation_basis || ''}
-          empty={isVI ? 'Không có breakdown điểm.' : 'No score breakdown available.'}
+          empty={isVI ? 'Không có ghi chú điểm.' : 'No score notes available.'}
         />
         <BreakdownCard
-          title={isVI ? 'Thành phần Rủi ro Drop' : 'Drop Risk Components'}
+          title={isVI ? 'Ghi chú Rủi ro Drop' : 'Drop Risk Notes'}
           accent={lnDropColor(ranking.drop_percent)}
           body={ranking.drop_components || ranking.drop_basis || ''}
-          empty={isVI ? 'Không có breakdown rủi ro.' : 'No risk breakdown available.'}
+          empty={isVI ? 'Không có ghi chú rủi ro.' : 'No risk notes available.'}
         />
       </div>
 
@@ -1929,7 +2053,7 @@ function NovelDoAStats({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <MiniMetric label={isVI ? 'Tập trong DB' : 'DB Volumes'} value={String(volumes.length)} />
-            <MiniMetric label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? `${avgPrice.toLocaleString('vi-VN')}₫` : '—'} />
+            <MiniMetric label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? `${Math.round(avgPrice).toLocaleString('vi-VN')}₫` : '—'} />
             <MiniMetric label={isVI ? 'Tập mới nhất' : 'Latest Vol.'} value={volumes[0]?.volume_number != null ? `Vol. ${volumes[0].volume_number}` : '—'} />
             <MiniMetric label={isVI ? 'Nguồn bìa' : 'Cover Source'} value={ranking.cover_source_title || series.title || '—'} />
             {novelMeta && (
@@ -1941,6 +2065,316 @@ function NovelDoAStats({
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+
+type LnBreakdownItem = {
+  label: string
+  sub?: string
+  value: number
+  delta?: string
+  color?: string
+}
+
+function lnFormatDateDDMM(value: string | null | undefined) {
+  if (!value) return '—'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function LnKpiCard({
+  label,
+  value,
+  sub,
+  helper,
+  color,
+  progress,
+}: {
+  label: string
+  value: string
+  sub?: string
+  helper?: string
+  color: string
+  progress: number
+}) {
+  const width = Math.max(0, Math.min(100, progress || 0))
+
+  return (
+    <div className="glass rounded-xl p-3.5 overflow-hidden relative" style={{ border: `1px solid ${color}28` }}>
+      <div className="absolute right-0 top-0 w-20 h-20 rounded-full blur-2xl" style={{ background: `${color}18` }} />
+      <div className="relative">
+        <p className="text-[10px] font-black mb-1" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
+        <div className="flex items-end gap-1">
+          <p className="text-2xl sm:text-3xl font-black leading-none tabular-nums" style={{ color }}>{value}</p>
+          {sub && <span className="text-sm font-bold pb-0.5" style={{ color: 'var(--foreground-secondary)' }}>{sub}</span>}
+        </div>
+        <div className="h-1.5 rounded-full mt-3 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+          <div className="h-full rounded-full" style={{ width: `${width}%`, background: `linear-gradient(90deg, ${color}, ${color}aa)` }} />
+        </div>
+        {helper && <p className="text-[10px] mt-1.5 truncate" style={{ color: 'var(--foreground-muted)' }}>{helper}</p>}
+      </div>
+    </div>
+  )
+}
+
+function LnBreakdownPanel({
+  index,
+  title,
+  subtitle,
+  rows,
+  footerLabel,
+  footerValue,
+  footerSub,
+  footerColor,
+}: {
+  index: string
+  title: string
+  subtitle: string
+  rows: LnBreakdownItem[]
+  footerLabel: string
+  footerValue: string
+  footerSub?: string
+  footerColor: string
+}) {
+  return (
+    <div className="glass rounded-2xl p-4 h-full">
+      <div className="flex items-start gap-2 mb-3">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>{index}</span>
+        <div>
+          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>{title}</h2>
+          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--foreground-muted)' }}>{subtitle}</p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {rows.map(row => {
+          const color = row.color || footerColor
+          const width = Math.max(0, Math.min(100, row.value || 0))
+          return (
+            <div key={row.label}>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold truncate" style={{ color: 'var(--foreground-secondary)' }}>{row.label}</p>
+                  {row.sub && <p className="text-[9px] truncate" style={{ color: 'var(--foreground-muted)' }}>{row.sub}</p>}
+                </div>
+                {row.delta && <span className="text-[10px] font-black tabular-nums" style={{ color }}>{row.delta}</span>}
+              </div>
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                <div className="h-full rounded-full" style={{ width: `${width}%`, background: `linear-gradient(90deg, ${color}, ${color}aa)` }} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="mt-5 pt-4 flex items-end justify-between" style={{ borderTop: '1px solid var(--card-border)' }}>
+        <span className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{footerLabel}</span>
+        <span className="text-3xl font-black leading-none tabular-nums" style={{ color: footerColor }}>
+          {footerValue}
+          {footerSub && <span className="text-sm ml-1" style={{ color: 'var(--foreground-muted)' }}>{footerSub}</span>}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function LnReleaseTimeline({ volumes, ranking, locale }: { volumes: any[]; ranking: NovelRankingRow; locale: string }) {
+  const isVI = locale === 'vi'
+  const sorted = [...volumes]
+    .filter(v => v.release_date || v.volume_number != null)
+    .sort((a, b) => {
+      const da = a.release_date ? new Date(a.release_date).getTime() : 0
+      const db = b.release_date ? new Date(b.release_date).getTime() : 0
+      if (da && db && da !== db) return da - db
+      return Number(a.volume_number || 0) - Number(b.volume_number || 0)
+    })
+
+  if (!sorted.length) {
+    return (
+      <div className="glass rounded-2xl p-5">
+        <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Timeline phát hành' : 'Release Timeline'}</h2>
+        <p className="text-xs mt-2" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa có dữ liệu tập.' : 'No volume data available.'}</p>
+      </div>
+    )
+  }
+
+  const gaps = sorted.map((v, i) => {
+    if (i === 0 || !v.release_date || !sorted[i - 1]?.release_date) return null
+    const days = Math.max(0, (new Date(v.release_date).getTime() - new Date(sorted[i - 1].release_date).getTime()) / 86400000)
+    return Number((days / 30.4375).toFixed(1))
+  })
+  const maxGap = Math.max(...gaps.filter((v): v is number => v !== null), 0)
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5 overflow-hidden">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>5</span>
+          <div>
+            <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Timeline phát hành (VN)' : 'Release Timeline (VN)'}</h2>
+            <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Khoảng cách giữa các tập đã phát hành.' : 'Gap between released Vietnamese volumes.'}</p>
+          </div>
+        </div>
+        <div className="hidden sm:flex items-center gap-4 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#7c6af5' }} /> {isVI ? 'Đã phát hành' : 'Released'}</span>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-dashed" style={{ borderColor: '#7c6af5' }} /> {isVI ? 'Chưa có ngày' : 'Unknown date'}</span>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto pb-2">
+        <div className="min-w-[720px]">
+          <div className="relative h-24">
+            <div className="absolute left-4 right-4 top-9 h-1 rounded-full" style={{ background: 'var(--ln-track-bg)' }} />
+            {sorted.map((vol, i) => {
+              const left = sorted.length === 1 ? 50 : (i / (sorted.length - 1)) * 100
+              const hasDate = Boolean(vol.release_date)
+              const gap = gaps[i]
+              const isLargeGap = gap != null && maxGap > 0 && gap >= Math.max(maxGap * 0.85, 6)
+              return (
+                <div key={vol.id || `${vol.volume_number}-${i}`} className="absolute top-0 -translate-x-1/2 text-center" style={{ left: `${left}%` }}>
+                  <div className="h-9 flex items-end justify-center">
+                    <span className="text-[10px] font-black" style={{ color: 'var(--foreground-secondary)' }}>
+                      Vol.{vol.volume_number ?? i + 1}
+                    </span>
+                  </div>
+                  <div
+                    className="w-4 h-4 rounded-full mx-auto shadow-lg"
+                    style={{
+                      background: hasDate ? '#7c6af5' : 'transparent',
+                      border: hasDate ? '2px solid #a78bfa' : '2px dashed #7c6af5',
+                      boxShadow: hasDate ? '0 0 0 4px rgba(124,106,245,.18)' : 'none',
+                    }}
+                    title={`${isVI ? 'Tập' : 'Volume'} ${vol.volume_number ?? i + 1}: ${lnFormatDateDDMM(vol.release_date)}`}
+                  />
+                  <p className="text-[10px] mt-2 whitespace-nowrap" style={{ color: 'var(--foreground-muted)' }}>{lnFormatDateDDMM(vol.release_date)}</p>
+                  {gap != null && (
+                    <p className="text-[10px] mt-3 font-bold whitespace-nowrap" style={{ color: isLargeGap ? '#f59e0b' : 'var(--foreground-muted)' }}>
+                      {gap.toFixed(1)} {isVI ? 'tháng' : 'mo'}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      <p className="text-[10px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+        {isVI ? 'Tập mới nhất từ watchlist:' : 'Latest watchlist release:'} <span className="font-bold" style={{ color: 'var(--foreground-secondary)' }}>{lnFormatDateDDMM(ranking.max_release_at)}</span>
+      </p>
+    </div>
+  )
+}
+
+function LnProgressTracker({ ranking, locale, releaseStatus }: { ranking: NovelRankingRow; locale: string; releaseStatus: string }) {
+  const isVI = locale === 'vi'
+  const vn = lnNum(ranking.number_of_volumes)
+  const original = lnNum(ranking.original_volumes)
+  const ratio = original > 0 ? Math.min(100, vn / original * 100) : 0
+  const remaining = original > 0 ? Math.max(0, original - vn) : null
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5 h-full">
+      <div className="flex items-center gap-2 mb-5">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>6</span>
+        <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Theo dõi tiến độ' : 'Progress Tracker'}</h2>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <p className="text-[11px] font-bold mb-1" style={{ color: 'var(--foreground-muted)' }}>VN Progress</p>
+          <div className="flex items-end justify-between">
+            <p className="text-3xl font-black tabular-nums" style={{ color: '#c4b5fd' }}>
+              {vn}<span className="text-base ml-1" style={{ color: 'var(--foreground-muted)' }}>/ {original || '—'}</span>
+            </p>
+            <p className="text-lg font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{original ? `${ratio.toFixed(1)}%` : '—'}</p>
+          </div>
+          <div className="h-2.5 rounded-full mt-3 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+            <div className="h-full rounded-full" style={{ width: `${ratio}%`, background: 'linear-gradient(90deg,#7c6af5,#38bdf8)' }} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <MiniMetric label={isVI ? 'JP Status' : 'JP Status'} value={lnReleaseStatusLabel(releaseStatus, isVI)} />
+          <MiniMetric label={isVI ? 'Còn thiếu' : 'Remaining'} value={remaining == null ? '—' : `${remaining} ${isVI ? 'tập' : remaining === 1 ? 'vol' : 'vols'}`} />
+          <MiniMetric label={isVI ? 'Nhịp TB' : 'Avg Gap'} value={ranking.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)}m` : '—'} />
+          <MiniMetric label={isVI ? 'Lần mới nhất' : 'Latest'} value={lnFormatDateDDMM(ranking.max_release_at)} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SimilarNovelsCarousel({ active, marketRows, locale }: { active: NovelRankingRow; marketRows: NovelRankingRow[]; locale: string }) {
+  const isVI = locale === 'vi'
+  const activeKey = `${active.lidex_series_id || active.series_id || active.id}|${active.series_code || ''}`
+
+  const similar = marketRows
+    .filter(row => `${row.lidex_series_id || row.series_id || row.id}|${row.series_code || ''}` !== activeKey)
+    .map(row => {
+      const scoreDiff = Math.abs(lnNum(row.ln_score) - lnNum(active.ln_score))
+      const dropDiff = Math.abs(lnDropPercent(row.drop_percent) - lnDropPercent(active.drop_percent)) / 10
+      const samePublisher = row.publisher && active.publisher && row.publisher === active.publisher ? 4 : 0
+      const sameEval = row.evalution === active.evalution ? 2 : 0
+      const sameStatus = lnReleaseStatus(row) === lnReleaseStatus(active) ? 1.5 : 0
+      const volumeDiff = Math.abs(lnNum(row.number_of_volumes) - lnNum(active.number_of_volumes)) / 8
+      return { row, score: samePublisher + sameEval + sameStatus - scoreDiff - dropDiff - volumeDiff }
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .map(item => item.row)
+
+  if (!similar.length) return null
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Gợi ý Light Novel tương tự' : 'Similar Light Novels'}</h2>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Dựa trên NPH, trạng thái, điểm LN và rủi ro drop.' : 'Based on publisher, status, LN score, and drop risk.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto pb-1">
+        <div className="flex gap-3 min-w-max">
+          {similar.map(row => {
+            const href = row.lidex_series_id ? `/content/${row.lidex_series_id}` : `/browse?search=${encodeURIComponent(row.series_title || '')}`
+            return (
+              <Link
+                key={`${row.lidex_series_id || row.id}-${row.series_code || ''}`}
+                href={href}
+                className="group w-[150px] shrink-0 rounded-xl overflow-hidden transition-all hover:-translate-y-1"
+                style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}
+              >
+                <div className="relative h-[190px]" style={{ background: 'var(--background-secondary)' }}>
+                  {row.cover_url ? (
+                    <img src={row.cover_url} alt={row.series_title || ''} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <BookOpen className="w-8 h-8 opacity-30 text-primary-400" />
+                    </div>
+                  )}
+                  <div className="absolute left-2 top-2 px-2 py-1 rounded-lg text-[10px] font-black text-white" style={{ background: 'rgba(0,0,0,.58)' }}>
+                    {Number(row.ln_score || 0).toFixed(1)} LN
+                  </div>
+                </div>
+                <div className="p-2.5">
+                  <p className="text-xs font-black line-clamp-2 min-h-[32px]" style={{ color: 'var(--foreground)' }}>{row.series_title || 'Untitled'}</p>
+                  <div className="flex items-center justify-between mt-2 text-[10px]">
+                    <span style={{ color: lnDropColor(row.drop_percent) }}>{lnDropPercent(row.drop_percent)}% Drop</span>
+                    <span style={{ color: 'var(--foreground-muted)' }}>{row.publisher || '—'}</span>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
@@ -1980,99 +2414,70 @@ function BreakdownCard({ title, accent, body, empty }: { title: string; accent: 
 
 function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRankingRow[]; active: NovelRankingRow; locale: string }) {
   const isVI = locale === 'vi'
-  const [query, setQuery] = useState('')
-
-  const q = query.trim().toLowerCase()
-  const baseRows = marketRows.filter(row => {
-    const status = lnReleaseStatus(row)
-    const searchable = `${row.series_title || ''} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
-    return (
-      row.evalution !== 'Completed'
-      && status !== 'Đã bắt kịp bản gốc JP'
-      && (!q || searchable.includes(q))
-    )
-  })
+  const rows = marketRows.filter(row => row.ln_score != null && row.drop_percent != null)
   const activeKey = `${active.lidex_series_id || active.series_id || active.id}|${active.series_code || ''}`
-  const rows = baseRows.some(row => `${row.lidex_series_id || row.series_id || row.id}|${row.series_code || ''}` === activeKey)
-    ? baseRows
-    : [active, ...baseRows]
 
   return (
-    <div className="glass rounded-2xl p-4 sm:p-5">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+    <div className="glass rounded-2xl p-4 h-full">
+      <div className="flex items-start gap-2 mb-3">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>4</span>
         <div>
-          <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Điểm LN vs Rủi ro Drop' : 'LN Score vs Drop Risk'}</h2>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            {isVI ? 'So sánh series này với toàn bộ LN Watchlist.' : 'Compares this series against the full LN Watchlist.'}
-          </p>
-        </div>
-        <div className="relative shrink-0">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: 'var(--foreground-muted)' }} />
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder={isVI ? 'Tìm title / ID...' : 'Search title / ID...'}
-            className="pl-7 pr-2 py-1.5 rounded-lg text-[11px] outline-none w-full sm:w-[170px]"
-            style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
-          />
+          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>{isVI ? 'Vị thế thị trường LN' : 'LN Market Position'}</h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm LN so với khả năng drop.' : 'LN score against drop risk.'}</p>
         </div>
       </div>
 
-      <div className="relative h-[300px] rounded-xl overflow-hidden" style={{ background: 'rgba(3,7,18,0.42)', border: '1px solid var(--card-border)' }}>
-        <div className="absolute inset-x-8 inset-y-8">
+      <div className="relative h-[255px] rounded-xl overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+        <div className="absolute inset-x-7 inset-y-7">
           {[0, 25, 50, 75, 100].map(v => (
-            <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(148,163,184,.14)' }}>
+            <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'var(--ln-chart-grid)' }}>
               <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
             </div>
           ))}
           {[0, 2, 4, 6, 8, 10].map(v => (
-            <div key={`x-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(148,163,184,.10)' }}>
+            <div key={`x-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'var(--ln-chart-grid)' }}>
               <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
             </div>
           ))}
 
-          <span className="absolute left-2 top-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{isVI ? 'Rủi ro cao' : 'High Risk'}</span>
-          <span className="absolute right-2 bottom-2 text-[10px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{isVI ? 'Khỏe mạnh' : 'Healthy'}</span>
+          <span className="absolute left-2 top-2 text-[9px] font-black uppercase" style={{ color: '#ef4444' }}>HIGH RISK</span>
+          <span className="absolute right-2 top-2 text-[9px] font-black uppercase" style={{ color: '#22c55e' }}>HEALTHY</span>
+          <span className="absolute left-2 bottom-2 text-[9px] font-black uppercase" style={{ color: '#ef4444' }}>NEAR DROP</span>
+          <span className="absolute right-2 bottom-2 text-[9px] font-black uppercase" style={{ color: '#22c55e' }}>LOW RISK</span>
 
           {rows.map(row => {
             const key = `${row.lidex_series_id || row.series_id || row.id}|${row.series_code || ''}`
-            const jitter = lnStableNoise(key)
-            const x = Math.max(0, Math.min(100, (lnNum(row.ln_score) + jitter.x) * 10))
-            const y = 100 - Math.max(0, Math.min(100, lnDropPercent(row.drop_percent) + jitter.y))
+            const noise = lnStableNoise(key)
+            const x = Math.max(0, Math.min(100, (lnNum(row.ln_score) + noise.x) * 10))
+            const y = 100 - Math.max(0, Math.min(100, lnDropPercent(row.drop_percent) + noise.y))
             const selected = key === activeKey
-            const color = selected ? '#ffffff' : lnEvalColor(row.evalution)
-            const size = selected ? 18 : Math.max(8, Math.min(14, 7 + lnPercentileScore(marketRows, row.average_view_count, r => lnNum(r.average_view_count)) * 0.65))
+            const status = lnReleaseStatus(row)
+            const color = selected ? '#38bdf8' : status === 'Hoàn thành' ? '#94a3b8' : row.evalution === 'Dropped' ? '#ef4444' : row.evalution === 'Dead' ? '#f97316' : row.evalution === 'Limping' ? '#eab308' : '#22c55e'
+            const size = selected ? 18 : 7
 
             return (
               <button
                 key={key}
-                title={`${row.series_title || 'Untitled'}\nLN ${Number(row.ln_score || 0).toFixed(1)} · Drop ${lnDropPercent(row.drop_percent)}%`}
-                onClick={() => {
-                  if (row.lidex_series_id && row.lidex_series_id !== active.lidex_series_id) {
-                    window.location.href = `/content/${row.lidex_series_id}`
-                  }
-                }}
-                className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                title={`${row.series_title || 'Untitled'}\\nLN ${Number(row.ln_score || 0).toFixed(1)} · Drop ${lnDropPercent(row.drop_percent)}%`}
+                className="absolute rounded-full transition-all hover:scale-150 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 style={{
                   left: `${x}%`,
                   top: `${y}%`,
                   width: size,
                   height: size,
-                  background: selected ? lnScoreColor(row.ln_score) : color,
-                  border: selected ? '2px solid white' : '1px solid rgba(255,255,255,.35)',
-                  boxShadow: selected ? `0 0 0 8px ${lnScoreColor(row.ln_score)}30, 0 0 28px ${lnScoreColor(row.ln_score)}` : `0 0 12px ${color}66`,
+                  background: color,
+                  border: selected ? '2px solid #fff' : '1px solid rgba(255,255,255,.35)',
+                  boxShadow: selected ? `0 0 0 8px ${color}24, 0 0 22px ${color}` : `0 0 10px ${color}66`,
                   transform: 'translate(-50%, -50%)',
-                  zIndex: selected ? 20 : 5,
-                  cursor: row.lidex_series_id ? 'pointer' : 'default',
+                  zIndex: selected ? 30 : 10,
                 }}
               />
             )
           })}
         </div>
 
-        <div className="absolute left-10 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
-        <div className="absolute left-3 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Khả năng drop' : 'Drop Probability'}</div>
-        <div className="absolute right-3 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{rows.length.toLocaleString('vi-VN')} series</div>
+        <div className="absolute left-8 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm LN' : 'LN Score'} →</div>
+        <div className="absolute left-2 top-1/2 -rotate-90 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Khả năng drop' : 'Drop risk'}</div>
       </div>
     </div>
   )
@@ -2084,7 +2489,7 @@ function NovelLNRadar({ ranking, marketRows, locale }: { ranking: NovelRankingRo
   const size = 238
   const cx = size / 2
   const cy = size / 2
-  const maxR = 76
+  const maxR = 72
   const points = axes.map((axis, i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
     const r = lnClamp10(axis.value) / 10 * maxR
@@ -2097,47 +2502,47 @@ function NovelLNRadar({ ranking, marketRows, locale }: { ranking: NovelRankingRo
   }).join(' '))
 
   return (
-    <div className="glass rounded-2xl p-4 sm:p-5">
-      <div className="flex items-center justify-between mb-3">
+    <div className="glass rounded-2xl p-4 h-full">
+      <div className="flex items-start gap-2 mb-3">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>3</span>
         <div>
-          <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Radar sức khỏe LN' : 'LN Health Radar'}</h2>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            {isVI ? 'Tính từ dữ liệu phát hành, tiến độ, nhu cầu và nhà phát hành.' : 'Based on release pace, progress, demand, and publisher support.'}
-          </p>
+          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>{isVI ? 'Radar sức khỏe LN' : 'LN Health Radar'}</h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Sức khỏe phát hành và thị trường.' : 'Release and market health.'}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[240px_1fr] xl:grid-cols-1 gap-3 items-center">
-        <div className="flex justify-center">
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
-            {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="rgba(148,163,184,.20)" />)}
-            {axes.map((axis, i) => {
-              const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
-              const x = cx + Math.cos(angle) * (maxR + 24)
-              const y = cy + Math.sin(angle) * (maxR + 24)
-              return (
-                <g key={axis.label}>
-                  <line x1={cx} y1={cy} x2={cx + Math.cos(angle) * maxR} y2={cy + Math.sin(angle) * maxR} stroke="rgba(148,163,184,.14)" />
-                  <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="8.5" fill="rgba(226,232,240,.78)">{axis.label}</text>
-                </g>
-              )
-            })}
-            <polygon points={points} fill="rgba(124,106,245,.34)" stroke="#a78bfa" strokeWidth="2" />
-            {points.split(' ').map((p, i) => {
-              const [x, y] = p.split(',').map(Number)
-              return <circle key={i} cx={x} cy={y} r="3" fill="#c4b5fd" />
-            })}
-          </svg>
-        </div>
+      <div className="flex justify-center">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
+          {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="var(--ln-chart-grid)" />)}
+          {axes.map((axis, i) => {
+            const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+            const x = cx + Math.cos(angle) * (maxR + 26)
+            const y = cy + Math.sin(angle) * (maxR + 26)
+            const valueX = cx + Math.cos(angle) * (maxR + 12)
+            const valueY = cy + Math.sin(angle) * (maxR + 12)
+            return (
+              <g key={axis.label}>
+                <line x1={cx} y1={cy} x2={cx + Math.cos(angle) * maxR} y2={cy + Math.sin(angle) * maxR} stroke="var(--ln-chart-grid)" />
+                <text x={x} y={y - 4} textAnchor="middle" dominantBaseline="middle" fontSize="8.5" fontWeight="800" fill="var(--foreground-secondary)">{axis.label}</text>
+                <text x={valueX} y={valueY + 8} textAnchor="middle" dominantBaseline="middle" fontSize="8" fontWeight="900" fill="#a78bfa">{axis.value.toFixed(0)}</text>
+              </g>
+            )
+          })}
+          <polygon points={points} fill="rgba(124,106,245,.30)" stroke="#a78bfa" strokeWidth="2" />
+          {points.split(' ').map((p, i) => {
+            const [x, y] = p.split(',').map(Number)
+            return <circle key={i} cx={x} cy={y} r="3" fill="#c4b5fd" />
+          })}
+        </svg>
+      </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {axes.map(axis => (
-            <div key={axis.label} title={axis.hint} className="rounded-xl px-3 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-              <p className="text-[10px] uppercase tracking-wide font-bold" style={{ color: 'var(--foreground-muted)' }}>{axis.label}</p>
-              <p className="text-lg font-black" style={{ color: '#c4b5fd' }}>{axis.value.toFixed(1)}</p>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-2 gap-2 mt-1">
+        {axes.slice(0, 4).map(axis => (
+          <div key={axis.label} title={axis.hint} className="rounded-lg p-2" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+            <p className="text-[9px] font-black uppercase truncate" style={{ color: 'var(--foreground-muted)' }}>{axis.label}</p>
+            <p className="text-sm font-black" style={{ color: '#c4b5fd' }}>{axis.value.toFixed(1)}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
