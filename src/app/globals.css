@@ -21,10 +21,10 @@
   --ln-chart-grid: rgba(100, 116, 139, 0.20);
   --ln-tooltip-bg: rgba(255, 255, 255, 0.96);
   --publisher-picker-bg: #ffffff;
-  --content-detail-tile-bg: #f8fafc;
-  --content-detail-tile-border: rgba(15, 23, 42, 0.10);
-  --content-detail-volume-bg: #f8fafc;
-  --content-detail-volume-overlay: linear-gradient(90deg, rgba(248,250,252,.96), rgba(248,250,252,.86));
+  --content-detail-tile-bg: rgba(255, 255, 255, 0.92);
+  --content-detail-tile-border: rgba(15, 23, 42, 0.12);
+  --content-detail-volume-bg: rgba(255, 255, 255, 0.92);
+  --content-detail-volume-overlay: linear-gradient(90deg, rgba(255,255,255,.96), rgba(248,250,252,.88));
   --hero-wall-overlay: linear-gradient(to right, rgba(248, 250, 252, 0.38) 0%, rgba(248, 250, 252, 0.64) 18%, rgba(248, 250, 252, 0.74) 34%, rgba(248, 250, 252, 0.74) 66%, rgba(248, 250, 252, 0.64) 82%, rgba(248, 250, 252, 0.38) 100%);
   --hero-secondary-text: rgba(15, 23, 42, 0.66);
   --hero-muted-text: rgba(71, 85, 105, 0.58);
