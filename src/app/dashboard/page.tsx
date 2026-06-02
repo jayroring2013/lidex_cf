@@ -1237,6 +1237,7 @@ function avgValue(rows: LNRow[], fn: (row: LNRow) => number) {
 }
 
 function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; rows: LNRow[]; vi: boolean }) {
+  const [hoveredAxis, setHoveredAxis] = useState(0)
   const activeCount = rows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
   const completedCount = rows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
   const safety = Math.max(0, Math.min(100, 100 - publisher.avgDrop))
@@ -1248,26 +1249,75 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
   const momentum = avgValue(rows, row => row.momentum_score * 10)
 
   const axes = [
-    [vi ? 'Sản lượng' : 'Output', releaseActivity],
-    [vi ? 'Hoàn thành' : 'Completion', completion],
-    [vi ? 'Độ tin cậy' : 'Reliability', avgValue(rows, row => row.publisher_support_score * 10)],
-    [vi ? 'Đà phát hành' : 'Momentum', momentum],
-    [vi ? 'Bắt kịp' : 'Catch-up', catchup],
-    [vi ? 'Chất lượng' : 'Quality', quality],
-    [vi ? 'An toàn' : 'Safety', safety],
-    [vi ? 'Đang phát hành' : 'Active', active],
+    {
+      label: vi ? 'Sản lượng' : 'Output',
+      short: vi ? 'SL' : 'OUT',
+      icon: '↗',
+      value: releaseActivity,
+      description: vi ? 'Tỷ trọng số tập phát hành của nhà phát hành trong dữ liệu hiện tại.' : 'Publisher release share across the current dataset.',
+    },
+    {
+      label: vi ? 'Hoàn thành' : 'Completion',
+      short: vi ? 'HT' : 'CMP',
+      icon: '✓',
+      value: completion,
+      description: vi ? 'Tỷ lệ series đã hoàn thành trong portfolio.' : 'Share of completed series in the portfolio.',
+    },
+    {
+      label: vi ? 'Độ tin cậy' : 'Reliability',
+      short: vi ? 'TC' : 'REL',
+      icon: '◉',
+      value: avgValue(rows, row => row.publisher_support_score * 10),
+      description: vi ? 'Điểm hỗ trợ nhà phát hành trung bình từ dữ liệu LN watchlist.' : 'Average publisher support score from the LN watchlist.',
+    },
+    {
+      label: vi ? 'Đà phát hành' : 'Momentum',
+      short: vi ? 'ĐÀ' : 'MOM',
+      icon: '≋',
+      value: momentum,
+      description: vi ? 'Tổng hợp độ mới phát hành và nhịp hoạt động gần đây.' : 'Blend of release recency and recent activity.',
+    },
+    {
+      label: vi ? 'Bắt kịp' : 'Catch-up',
+      short: vi ? 'BK' : 'CUP',
+      icon: '⇄',
+      value: catchup,
+      description: vi ? 'Mức độ bản Việt bắt kịp số tập gốc/JP.' : 'How closely Vietnamese releases match original/JP volumes.',
+    },
+    {
+      label: vi ? 'Chất lượng' : 'Quality',
+      short: vi ? 'CL' : 'QLT',
+      icon: '◆',
+      value: quality,
+      description: vi ? 'Điểm LN trung bình được quy đổi về thang 100.' : 'Average LN score scaled to 100.',
+    },
+    {
+      label: vi ? 'An toàn' : 'Safety',
+      short: vi ? 'AT' : 'SAF',
+      icon: '◌',
+      value: safety,
+      description: vi ? 'Nghịch đảo của khả năng drop trung bình.' : 'Inverse of the average drop risk.',
+    },
+    {
+      label: vi ? 'Đang phát hành' : 'Active',
+      short: vi ? 'ĐP' : 'ACT',
+      icon: '●',
+      value: active,
+      description: vi ? 'Tỷ lệ series vẫn còn hoạt động hoặc đang được theo dõi.' : 'Share of active or still-tracked series.',
+    },
   ] as const
 
-  const size = 248
+  const activeAxis = axes[hoveredAxis] || axes[0]
+  const size = 260
   const cx = size / 2
   const cy = size / 2
-  const maxR = 76
-  const points = axes.map(([, value], i) => {
+  const maxR = 78
+  const points = axes.map((axis, i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
-    const r = Math.max(0, Math.min(100, value)) / 100 * maxR
+    const r = Math.max(0, Math.min(100, axis.value)) / 100 * maxR
     return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
   }).join(' ')
-  const grids = [0.33, 0.66, 1].map(level => axes.map(([,], i) => {
+  const grids = [0.25, 0.5, 0.75, 1].map(level => axes.map((_, i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
     const r = level * maxR
     return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
@@ -1278,32 +1328,66 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
       <div className="mb-1">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Thông số NPH' : 'Publisher DNA'}</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Giá trị được ghi trực tiếp trên radar.' : 'Values are shown directly on the radar.'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Rê chuột hoặc chạm vào từng trục để xem chi tiết.' : 'Hover or tap each axis for details.'}</p>
         </div>
       </div>
 
-      <div className="flex justify-center">
+      <div
+        className="mb-2 rounded-xl p-3 min-h-[104px]"
+        style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: publisherScoreColor(activeAxis.value) }}>{activeAxis.label}</p>
+            <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>{activeAxis.description}</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-2xl font-black tabular-nums" style={{ color: publisherScoreColor(activeAxis.value) }}>{activeAxis.value.toFixed(0)}</p>
+            <p className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>/100</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center overflow-visible">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
           {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="var(--ln-chart-grid)" />)}
-          {axes.map(([label, value], i) => {
+          {axes.map((axis, i) => {
             const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
             const x1 = cx + Math.cos(angle) * maxR
             const y1 = cy + Math.sin(angle) * maxR
-            const x = cx + Math.cos(angle) * (maxR + 28)
-            const y = cy + Math.sin(angle) * (maxR + 28)
-            const anchor = Math.cos(angle) > 0.35 ? 'start' : Math.cos(angle) < -0.35 ? 'end' : 'middle'
+            const x = cx + Math.cos(angle) * (maxR + 31)
+            const y = cy + Math.sin(angle) * (maxR + 31)
+            const isActive = hoveredAxis === i
+            const color = publisherScoreColor(axis.value)
             return (
-              <g key={label}>
+              <g
+                key={axis.label}
+                role="button"
+                tabIndex={0}
+                onMouseEnter={() => setHoveredAxis(i)}
+                onFocus={() => setHoveredAxis(i)}
+                onClick={() => setHoveredAxis(i)}
+                style={{ cursor: 'pointer' }}
+              >
                 <line x1={cx} y1={cy} x2={x1} y2={y1} stroke="var(--ln-chart-grid)" />
-                <text x={x} y={y - 5} textAnchor={anchor} dominantBaseline="middle" fontSize="8" fontWeight="800" fill="var(--foreground-muted)">{label}</text>
-                <text x={x} y={y + 7} textAnchor={anchor} dominantBaseline="middle" fontSize="10" fontWeight="900" fill={publisherScoreColor(value)}>{value.toFixed(0)}</text>
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={isActive ? 15 : 13}
+                  fill={isActive ? `${color}22` : 'var(--ln-control-bg)'}
+                  stroke={isActive ? color : 'var(--card-border)'}
+                  strokeWidth={isActive ? 2 : 1}
+                />
+                <text x={x} y={y - 2} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="900" fill={color}>{axis.icon}</text>
+                <text x={x} y={y + 11} textAnchor="middle" dominantBaseline="middle" fontSize="6.8" fontWeight="900" fill="var(--foreground-muted)">{axis.short}</text>
               </g>
             )
           })}
           <polygon points={points} fill="rgba(56,189,248,.26)" stroke="#38bdf8" strokeWidth="2" />
           {points.split(' ').map((p, i) => {
             const [x, y] = p.split(',').map(Number)
-            return <circle key={i} cx={x} cy={y} r="3" fill="#67e8f9" />
+            const activePoint = hoveredAxis === i
+            return <circle key={i} cx={x} cy={y} r={activePoint ? 4.5 : 3} fill={activePoint ? publisherScoreColor(axes[i].value) : '#67e8f9'} />
           })}
         </svg>
       </div>
