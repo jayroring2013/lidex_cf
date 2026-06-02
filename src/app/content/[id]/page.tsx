@@ -1313,12 +1313,19 @@ function NovelSection({ icon: Icon, title, children }: { icon: any; title: strin
 
 function NovelField({ icon: Icon, label, value, accent = '#8b5cf6' }: { icon: any; label: string; value: ReactNode; accent?: string }) {
   return (
-    <div className="rounded-xl p-3 min-w-0" style={{ background: 'rgba(15,23,42,.42)', border: '1px solid var(--card-border)' }}>
+    <div
+      className="rounded-xl p-3 min-w-0"
+      style={{
+        background: 'var(--content-detail-tile-bg)',
+        border: '1px solid var(--content-detail-tile-border)',
+        boxShadow: 'var(--ln-card-shadow)',
+      }}
+    >
       <div className="flex items-center gap-2 mb-1.5" style={{ color: 'var(--foreground-muted)' }}>
         <Icon className="w-4 h-4 flex-shrink-0" style={{ color: accent }} />
-        <span className="text-[10px] font-bold truncate">{label}</span>
+        <span className="text-[10px] font-black truncate">{label}</span>
       </div>
-      <div className="text-xs sm:text-sm font-bold leading-snug min-w-0 break-words" style={{ color: 'var(--foreground)' }}>
+      <div className="text-xs sm:text-sm font-black leading-snug min-w-0 break-words" style={{ color: 'var(--foreground)' }}>
         {value || '—'}
       </div>
     </div>
