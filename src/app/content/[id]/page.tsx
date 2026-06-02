@@ -638,10 +638,10 @@ export default function ContentDetail() {
         </div>
 
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
+          <div className="flex flex-col md:flex-row md:items-start gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
 
             {/* ── Cover ── */}
-            <div className="flex-shrink-0 mx-auto md:mx-0">
+            <div className="flex-shrink-0 mx-auto md:mx-0 md:self-start">
               <div className="relative w-36 sm:w-44 md:w-52 lg:w-60 rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 bg-dark-800">
                 {coverSrc && !imageError ? (
                   <img
@@ -665,7 +665,7 @@ export default function ContentDetail() {
             </div>
 
             {/* ── Meta ── */}
-            <div className="flex-1 min-w-0 text-center md:text-left">
+            <div className="flex-1 min-w-0 text-center md:text-left md:self-start">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
                 <span className="px-3 py-1 bg-primary-500/90 rounded-full text-xs font-semibold text-white whitespace-nowrap">{typeText}</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${isOngoing ? 'bg-green-500/90' : 'bg-blue-500/90'}`}>
@@ -722,14 +722,8 @@ export default function ContentDetail() {
 
               {(series.description || series.description_vi) && (
                 <div className="mt-4 max-w-2xl">
-                  <div className="relative">
-                    <div className={`text-sm sm:text-base leading-relaxed text-gray-300 ${synopsisExpanded ? '' : 'line-clamp-3'}`}>
-                      {formatSynopsis(series.description || series.description_vi || '')}
-                    </div>
-                    {!synopsisExpanded && (
-                      <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }} />
-                    )}
+                  <div className={`text-sm sm:text-base leading-relaxed text-gray-300 ${synopsisExpanded ? '' : 'line-clamp-3'}`}>
+                    {formatSynopsis(series.description || series.description_vi || '')}
                   </div>
                   <button
                     onClick={() => setSynopsisExpanded(!synopsisExpanded)}
@@ -1313,7 +1307,7 @@ function NovelSection({ icon: Icon, title, children }: { icon: any; title: strin
 
 function NovelField({ icon: Icon, label, value, accent = '#8b5cf6' }: { icon: any; label: string; value: ReactNode; accent?: string }) {
   return (
-    <div className="rounded-xl p-3 min-w-0" style={{ background: 'rgba(15,23,42,.42)', border: '1px solid var(--card-border)' }}>
+    <div className="rounded-xl p-3 min-w-0" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
       <div className="flex items-center gap-2 mb-1.5" style={{ color: 'var(--foreground-muted)' }}>
         <Icon className="w-4 h-4 flex-shrink-0" style={{ color: accent }} />
         <span className="text-[10px] font-bold truncate">{label}</span>
@@ -1415,12 +1409,12 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
 
   return (
     <NovelSection icon={Layers} title={isVI ? 'Danh Sách Tập' : 'Volume List'}>
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(15,23,42,.34)', border: '1px solid var(--card-border)' }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--content-detail-volume-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
         <div className="relative p-4 sm:p-5">
           {activeCover && (
             <img src={activeCover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-md scale-110" />
           )}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.92), rgba(2,6,23,.72))' }} />
+          <div className="absolute inset-0" style={{ background: 'var(--content-detail-volume-overlay)' }} />
 
           <div className="relative grid grid-cols-[96px_1fr] sm:grid-cols-[128px_1fr] gap-4 items-center">
             <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', background: 'var(--background-secondary)', border: '1px solid rgba(255,255,255,.14)' }}>
@@ -1442,8 +1436,8 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
                   {activeIndex + 1}/{volumes.length}
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <button onClick={prev} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>‹</button>
-                  <button onClick={next} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>›</button>
+                  <button onClick={prev} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--content-detail-tile-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--content-detail-tile-border)' }}>‹</button>
+                  <button onClick={next} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--content-detail-tile-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--content-detail-tile-border)' }}>›</button>
                 </div>
               </div>
 
@@ -1484,7 +1478,7 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
                     style={{
                       border: isActive ? '2px solid #8b5cf6' : '1px solid var(--card-border)',
                       opacity: isActive ? 1 : 0.62,
-                      background: 'var(--background-secondary)',
+                      background: 'var(--content-detail-tile-bg)',
                     }}
                     title={`${isVI ? 'Tập' : 'Volume'} ${vol.volume_number ?? idx + 1}`}
                   >
