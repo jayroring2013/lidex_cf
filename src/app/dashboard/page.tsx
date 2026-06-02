@@ -1819,10 +1819,6 @@ function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 
 type PublisherPickerItem = {
   publisher: string
-  licensed: number
-  releases24: number
-  reliability: number
-  rank: number
 }
 
 function PublisherLogoMark({ name, logoUrl, size = 'md' }: { name: string; logoUrl: string | null; size?: 'sm' | 'md' }) {
@@ -1908,7 +1904,7 @@ function PublisherPopupSelect({
       {open && (
         <div
           className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl shadow-2xl"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', boxShadow: '0 22px 70px rgba(15,23,42,.28)' }}
+          style={{ background: 'var(--publisher-picker-bg, var(--card-bg))', border: '1px solid var(--card-border)', boxShadow: '0 22px 70px rgba(15,23,42,.42)' }}
           role="dialog"
         >
           <div className="p-3 border-b" style={{ borderColor: 'var(--card-border)' }}>
@@ -1949,15 +1945,6 @@ function PublisherPopupSelect({
                   <PublisherLogoMark name={p.publisher} logoUrl={logoUrl} size="sm" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-black truncate" style={{ color: active ? '#7c6af5' : 'var(--foreground)' }}>{p.publisher}</p>
-                    <p className="text-[10px] truncate" style={{ color: 'var(--foreground-muted)' }}>
-                      {vi
-                        ? `${p.licensed} series · ${p.releases24} tập phát hành`
-                        : `${p.licensed} series · ${p.releases24} released volumes`}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[11px] font-black" style={{ color: publisherScoreColor(p.reliability) }}>{p.reliability.toFixed(0)}</p>
-                    <p className="text-[9px] font-bold" style={{ color: 'var(--foreground-muted)' }}>#{p.rank}</p>
                   </div>
                 </button>
               )
@@ -2004,17 +1991,7 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
     .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
   const avgScoreRank = Math.max(1, avgScoreRanks.findIndex(p => p.publisher === currentName) + 1)
   const marketShare = publisher?.marketShare || 0
-  const publisherPickerItems = publishers.map(p => {
-    const score = reliabilityRanks.find(item => item.publisher === p.publisher)?.score ?? 0
-    const pickerRank = Math.max(1, reliabilityRanks.findIndex(item => item.publisher === p.publisher) + 1)
-    return {
-      publisher: p.publisher,
-      licensed: p.seriesCount,
-      releases24: p.releases24,
-      reliability: score,
-      rank: pickerRank,
-    }
-  })
+  const publisherPickerItems = publishers.map(p => ({ publisher: p.publisher }))
 
   if (!publisher) {
     return <Card className="p-6 text-sm"><span style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có dữ liệu nhà phát hành.' : 'No publisher data available.'}</span></Card>
