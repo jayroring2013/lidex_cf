@@ -1360,7 +1360,7 @@ function NovelGeneralInfo({
       <NovelSection icon={Info} title={isVI ? 'Thông Tin Chung' : 'General Information'}>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <NovelField icon={Film} label={isVI ? 'Loại' : 'Type'} value="Light Novel" />
-          <NovelField icon={Calendar} label={isVI ? 'Trạng thái' : 'Status'} value={normalizeNovelStatus(releaseStatus, isVI)} />
+          <NovelField icon={Calendar} label={isVI ? 'Trạng thái' : 'Status'} value={normalizeNovelStatus(lnReleaseStatus, isVI)} />
           <NovelField icon={Languages} label={isVI ? 'Dịch giả' : 'Translator'} value={translator} />
           <NovelField icon={Building2} label={isVI ? 'Nhà phát hành' : 'Publisher'} value={vnPublisher} />
           <NovelField icon={Layers} label={isVI ? 'Số tập' : 'Volumes'} value={vnVolumes != null ? String(vnVolumes) : '—'} />
