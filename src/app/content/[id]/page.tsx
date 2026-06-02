@@ -1,11 +1,11 @@
 'use client'
 
-import { useRef, useState, useEffect, useId, type ReactNode } from 'react'
+import { useRef, useState, useEffect, useId } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
   Star, Calendar, BookOpen, Info, Tags,
-  ExternalLink, Share2, Copy, Loader2,
+  ExternalLink, Share2, Copy, Twitter, Loader2,
   ArrowLeft, Award, TrendingUp, Globe, ChevronDown, ChevronUp,
   BarChart2, FlaskConical, Users, Film, Layers, BookMarked,
   Languages, BadgeCheck, Building2, AlertTriangle, Search, Image as ImageIcon
@@ -14,6 +14,7 @@ import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
 import RadarChart from '@/components/RadarChart'
 import supabase from '@/lib/supabaseClient'
+import { proxyImageUrl } from '@/lib/imageProxy'
 import {
   calculateLiDexScore,
   buildPopulationStats,
@@ -572,9 +573,10 @@ export default function ContentDetail() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleShareFacebook = () => {
-    const url = encodeURIComponent(window.location.href)
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener,noreferrer')
+  const handleShareTwitter = () => {
+    const text = encodeURIComponent(`Check out "${series?.title}" on LiDex Analytics!`)
+    const url  = encodeURIComponent(window.location.href)
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank')
   }
 
   const formatSynopsis = (text: string) => {
@@ -625,7 +627,7 @@ export default function ContentDetail() {
         <div className="absolute inset-0">
           {bannerImage ? (
             <>
-              <img src={bannerImage} alt="" className="w-full h-full object-cover object-center" />
+              <img src={proxyImageUrl(bannerImage) || ''} alt="" className="w-full h-full object-cover object-center" />
               <div className="absolute inset-0 backdrop-blur-md bg-dark-900/55" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent" />
             </>
@@ -638,14 +640,14 @@ export default function ContentDetail() {
         </div>
 
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
+          <div className="flex flex-col md:flex-row md:items-start gap-5 md:gap-8 pt-24 sm:pt-28 pb-10 sm:pb-14">
 
             {/* ── Cover ── */}
             <div className="flex-shrink-0 mx-auto md:mx-0">
               <div className="relative w-36 sm:w-44 md:w-52 lg:w-60 rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 bg-dark-800">
                 {coverSrc && !imageError ? (
                   <img
-                    src={coverSrc}
+                    src={proxyImageUrl(coverSrc) || ''}
                     alt={series.title}
                     className="w-full h-auto block"
                     onError={() => setImageError(true)}
@@ -665,7 +667,7 @@ export default function ContentDetail() {
             </div>
 
             {/* ── Meta ── */}
-            <div className="flex-1 min-w-0 text-center md:text-left">
+            <div className="flex-1 min-w-0 text-center md:text-left md:pt-0">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
                 <span className="px-3 py-1 bg-primary-500/90 rounded-full text-xs font-semibold text-white whitespace-nowrap">{typeText}</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white whitespace-nowrap ${isOngoing ? 'bg-green-500/90' : 'bg-blue-500/90'}`}>
@@ -721,15 +723,11 @@ export default function ContentDetail() {
               )}
 
               {(series.description || series.description_vi) && (
-                <div className="mt-4 max-w-2xl">
+                <div className="mt-4 max-w-2xl md:min-h-[112px]">
                   <div className="relative">
                     <div className={`text-sm sm:text-base leading-relaxed text-gray-300 ${synopsisExpanded ? '' : 'line-clamp-3'}`}>
                       {formatSynopsis(series.description || series.description_vi || '')}
                     </div>
-                    {!synopsisExpanded && (
-                      <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }} />
-                    )}
                   </div>
                   <button
                     onClick={() => setSynopsisExpanded(!synopsisExpanded)}
@@ -850,17 +848,6 @@ export default function ContentDetail() {
 
             {/* ── Tab: General Info ── */}
             {activeTab === 'info' && (
-              isNovel ? (
-                <NovelGeneralInfo
-                  series={series}
-                  ranking={lnRanking}
-                  novelMeta={novelMeta}
-                  volumes={allVolumes}
-                  latestVolume={latestVolume}
-                  publisherName={publisherName}
-                  locale={locale}
-                />
-              ) : (
               <div className="space-y-6 animate-in fade-in duration-200">
 
                 {/* Base info grid */}
@@ -954,7 +941,7 @@ export default function ContentDetail() {
                         <div className="flex items-center gap-4 p-3 rounded-xl" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                           {latestVolume.cover_url && (
                             <img
-                              src={latestVolume.cover_url}
+                              src={proxyImageUrl(latestVolume.cover_url) || ''}
                               alt={`Vol. ${latestVolume.volume_number}`}
                               className="w-10 h-auto rounded-md flex-shrink-0 shadow"
                             />
@@ -1011,7 +998,6 @@ export default function ContentDetail() {
                   </div>
                 )}
               </div>
-              )
             )}
 
             {/* ── Tab: Stats ── */}
@@ -1157,16 +1143,6 @@ export default function ContentDetail() {
           {/* ── Right Sidebar ── */}
           <div className="space-y-4 sm:space-y-5 min-w-0">
 
-            {isNovel && (
-              <NovelSideCards
-                series={series}
-                ranking={lnRanking}
-                volumes={allVolumes}
-                latestVolume={latestVolume}
-                locale={locale}
-              />
-            )}
-
             {/* Share */}
             <div className="glass rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
@@ -1179,10 +1155,10 @@ export default function ContentDetail() {
                   <Copy className="w-3.5 h-3.5 flex-shrink-0" />
                   {copied ? 'Đã chép!' : 'Sao chép'}
                 </button>
-                <button onClick={handleShareFacebook} className="p-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-medium hover:text-[#1877f2]"
+                <button onClick={handleShareTwitter} className="p-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-medium hover:text-[#1d9bf0]"
                   style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>
-                  <Share2 className="w-3.5 h-3.5 flex-shrink-0" />
-                  Facebook
+                  <Twitter className="w-3.5 h-3.5 flex-shrink-0" />
+                  Twitter
                 </button>
               </div>
             </div>
@@ -1278,322 +1254,6 @@ export default function ContentDetail() {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-
-
-function formatVnd(value: unknown) {
-  const n = Number(value)
-  if (!Number.isFinite(n) || n <= 0) return '—'
-  return `${Math.round(n).toLocaleString('vi-VN')} ₫`
-}
-
-function normalizeNovelStatus(status: string | null | undefined, isVI: boolean) {
-  if (!status) return '—'
-  const s = String(status)
-  if (isVI) return s
-  return ({
-    'Đang phát hành': 'Ongoing',
-    'Hoàn thành': 'Completed',
-    'Lâu lắm rồi chưa có tập mới': 'Long inactive',
-    Drop: 'Dropped',
-    'Đã bắt kịp bản gốc JP': 'Caught up to JP',
-  } as Record<string, string>)[s] || s
-}
-
-function NovelSection({ icon: Icon, title, children }: { icon: any; title: string; children: ReactNode }) {
-  return (
-    <div className="glass rounded-2xl p-5 sm:p-6">
-      <div className="flex items-center gap-2 mb-5">
-        <Icon className="w-5 h-5 text-primary-400 flex-shrink-0" />
-        <h2 className="text-base font-black" style={{ color: 'var(--foreground)' }}>{title}</h2>
-      </div>
-      {children}
-    </div>
-  )
-}
-
-function NovelField({ icon: Icon, label, value, accent = '#8b5cf6' }: { icon: any; label: string; value: ReactNode; accent?: string }) {
-  return (
-    <div className="rounded-xl p-3 min-w-0" style={{ background: 'rgba(15,23,42,.42)', border: '1px solid var(--card-border)' }}>
-      <div className="flex items-center gap-2 mb-1.5" style={{ color: 'var(--foreground-muted)' }}>
-        <Icon className="w-4 h-4 flex-shrink-0" style={{ color: accent }} />
-        <span className="text-[10px] font-bold truncate">{label}</span>
-      </div>
-      <div className="text-xs sm:text-sm font-bold leading-snug min-w-0 break-words" style={{ color: 'var(--foreground)' }}>
-        {value || '—'}
-      </div>
-    </div>
-  )
-}
-
-function NovelGeneralInfo({
-  series,
-  ranking,
-  novelMeta,
-  volumes,
-  latestVolume,
-  publisherName,
-  locale,
-}: {
-  series: any
-  ranking: NovelRankingRow | null
-  novelMeta: any
-  volumes: any[]
-  latestVolume: any
-  publisherName: string | null
-  locale: string
-}) {
-  const isVI = locale === 'vi'
-  const sortedVolumes = [...volumes].sort((a, b) => Number(b.volume_number || 0) - Number(a.volume_number || 0))
-  const avgPrice = ranking?.average_price || (
-    volumes.length
-      ? volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((sum, price) => sum + price, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length)
-      : 0
-  )
-  const releaseStatus = ranking ? lnReleaseStatus(ranking) : (series.status || '—')
-  const author = series.author || novelMeta?.author || novelMeta?.writer || '—'
-  const artist = novelMeta?.artist || novelMeta?.illustrator || series.artist || '—'
-  const translator = novelMeta?.translator || novelMeta?.translator_name || '—'
-  const vnPublisher = ranking?.publisher || publisherName || series.publisher || '—'
-  const vnVolumes = ranking?.number_of_volumes ?? (volumes.length || null)
-
-  return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      <NovelSection icon={Info} title={isVI ? 'Thông Tin Chung' : 'General Information'}>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <NovelField icon={Film} label={isVI ? 'Loại' : 'Type'} value="Light Novel" />
-          <NovelField icon={Calendar} label={isVI ? 'Trạng thái' : 'Status'} value={normalizeNovelStatus(releaseStatus, isVI)} />
-          <NovelField icon={Languages} label={isVI ? 'Dịch giả' : 'Translator'} value={translator} />
-          <NovelField icon={Building2} label={isVI ? 'Nhà phát hành' : 'Publisher'} value={vnPublisher} />
-          <NovelField icon={Layers} label={isVI ? 'Số tập' : 'Volumes'} value={vnVolumes != null ? String(vnVolumes) : '—'} />
-          <NovelField icon={TrendingUp} label={isVI ? 'Khoảng cách TB' : 'Avg Release Gap'} value={ranking?.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)} ${isVI ? 'tháng' : 'months'}` : '—'} />
-          <NovelField icon={Award} label={isVI ? 'Giá TB' : 'Average Price'} value={formatVnd(avgPrice)} />
-          <NovelField icon={BookOpen} label={isVI ? 'Tác giả' : 'Author'} value={author} />
-          <NovelField icon={ImageIcon} label={isVI ? 'Họa sĩ' : 'Artist'} value={artist} />
-        </div>
-      </NovelSection>
-
-      <NovelVolumeCarousel volumes={sortedVolumes} latestVolume={latestVolume} locale={locale} />
-
-      {series.tags && series.tags.length > 0 && (
-        <NovelSection icon={Tags} title="Tags">
-          <div className="flex flex-wrap gap-2">
-            {series.tags.map((tag: string, i: number) => (
-              <span
-                key={`tag-${i}`}
-                className="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer"
-                style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </NovelSection>
-      )}
-    </div>
-  )
-}
-
-function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]; latestVolume: any; locale: string }) {
-  const isVI = locale === 'vi'
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  if (!volumes.length) {
-    return (
-      <NovelSection icon={Layers} title={isVI ? 'Danh Sách Tập' : 'Volume List'}>
-        <div className="rounded-xl p-8 text-center" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-          <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30 text-primary-400" />
-          <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa có dữ liệu tập.' : 'No volume data available.'}</p>
-        </div>
-      </NovelSection>
-    )
-  }
-
-  const active = volumes[Math.min(activeIndex, volumes.length - 1)]
-  const activeCover = active?.cover_url || latestVolume?.cover_url || null
-  const prev = () => setActiveIndex(i => (i - 1 + volumes.length) % volumes.length)
-  const next = () => setActiveIndex(i => (i + 1) % volumes.length)
-
-  return (
-    <NovelSection icon={Layers} title={isVI ? 'Danh Sách Tập' : 'Volume List'}>
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(15,23,42,.34)', border: '1px solid var(--card-border)' }}>
-        <div className="relative p-4 sm:p-5">
-          {activeCover && (
-            <img src={activeCover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-md scale-110" />
-          )}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.92), rgba(2,6,23,.72))' }} />
-
-          <div className="relative grid grid-cols-[96px_1fr] sm:grid-cols-[128px_1fr] gap-4 items-center">
-            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', background: 'var(--background-secondary)', border: '1px solid rgba(255,255,255,.14)' }}>
-              {activeCover ? (
-                <img src={activeCover} alt={`Vol. ${active.volume_number}`} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-8 h-8 opacity-40 text-primary-400" />
-                </div>
-              )}
-              <div className="absolute left-2 top-2 px-2 py-1 rounded-lg text-[10px] font-black text-white" style={{ background: 'rgba(0,0,0,.64)' }}>
-                #{active.volume_number ?? activeIndex + 1}
-              </div>
-            </div>
-
-            <div className="min-w-0">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
-                  {activeIndex + 1}/{volumes.length}
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <button onClick={prev} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>‹</button>
-                  <button onClick={next} className="w-8 h-8 rounded-lg text-sm font-black transition-all hover:scale-105" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>›</button>
-                </div>
-              </div>
-
-              <h3 className="text-xl sm:text-2xl font-black leading-tight" style={{ color: 'var(--foreground)' }}>
-                {isVI ? 'Tập' : 'Volume'} {active.volume_number ?? '—'}
-              </h3>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
-                <div className="rounded-xl p-3" style={{ background: 'rgba(124,58,237,.12)', border: '1px solid rgba(124,58,237,.24)' }}>
-                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Ngày phát hành' : 'Release'}</p>
-                  <p className="text-xs font-black mt-1" style={{ color: 'var(--foreground)' }}>{lnFormatDate(active.release_date, locale)}</p>
-                </div>
-                <div className="rounded-xl p-3" style={{ background: 'rgba(34,197,94,.10)', border: '1px solid rgba(34,197,94,.22)' }}>
-                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Giá' : 'Price'}</p>
-                  <p className="text-xs font-black mt-1" style={{ color: '#4ade80' }}>{formatVnd(active.price)}</p>
-                </div>
-                <div className="rounded-xl p-3" style={{ background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.22)' }}>
-                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trang' : 'Pages'}</p>
-                  <p className="text-xs font-black mt-1" style={{ color: '#7dd3fc' }}>{active.pages ?? active.page_count ?? '—'}</p>
-                </div>
-                <div className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,.10)', border: '1px solid rgba(251,191,36,.22)' }}>
-                  <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Mới nhất' : 'Latest'}</p>
-                  <p className="text-xs font-black mt-1" style={{ color: '#fbbf24' }}>{latestVolume?.id === active.id || activeIndex === 0 ? (isVI ? 'Có' : 'Yes') : '—'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative mt-4 overflow-x-auto pb-1">
-            <div className="flex gap-2 min-w-max">
-              {volumes.map((vol, idx) => {
-                const isActive = idx === activeIndex
-                return (
-                  <button
-                    key={vol.id || `${vol.volume_number}-${idx}`}
-                    onClick={() => setActiveIndex(idx)}
-                    className="relative w-[44px] h-[64px] rounded-lg overflow-hidden transition-all hover:scale-105"
-                    style={{
-                      border: isActive ? '2px solid #8b5cf6' : '1px solid var(--card-border)',
-                      opacity: isActive ? 1 : 0.62,
-                      background: 'var(--background-secondary)',
-                    }}
-                    title={`${isVI ? 'Tập' : 'Volume'} ${vol.volume_number ?? idx + 1}`}
-                  >
-                    {vol.cover_url ? (
-                      <img src={vol.cover_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <BookOpen className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />
-                    )}
-                    <span className="absolute left-0 right-0 bottom-0 text-[8px] font-black py-0.5 text-white" style={{ background: 'rgba(0,0,0,.70)' }}>
-                      {vol.volume_number ?? idx + 1}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-    </NovelSection>
-  )
-}
-
-function NovelSideCards({
-  series,
-  ranking,
-  volumes,
-  latestVolume,
-  locale,
-}: {
-  series: any
-  ranking: NovelRankingRow | null
-  volumes: any[]
-  latestVolume: any
-  locale: string
-}) {
-  const isVI = locale === 'vi'
-  const ratio = ranking ? lnCompletionRatio(ranking) : null
-  const progress = ratio == null ? 0 : Math.max(0, Math.min(100, ratio * 100))
-  const latestDate = latestVolume?.release_date || ranking?.max_release_at || null
-  const releaseStatus = ranking ? lnReleaseStatus(ranking) : (series.status || '—')
-
-  return (
-    <>
-      <div className="glass rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <BookMarked className="w-4 h-4 text-primary-500 flex-shrink-0" />
-            <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Tình Trạng Phát Hành' : 'Release Status'}</h3>
-          </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ color: '#22c55e', background: 'rgba(34,197,94,.12)', border: '1px solid rgba(34,197,94,.25)' }}>
-            {normalizeNovelStatus(releaseStatus, isVI)}
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between text-xs mb-2">
-              <span style={{ color: 'var(--foreground-muted)' }}>JP</span>
-              <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                {ranking?.original_volumes != null ? `${ranking.original_volumes} Vols` : '—'}
-              </span>
-            </div>
-            <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
-              <div className="h-full rounded-full" style={{ width: '100%', background: 'rgba(124,106,245,.48)' }} />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between text-xs mb-2">
-              <span style={{ color: 'var(--foreground-muted)' }}>VN</span>
-              <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                {ranking ? `${ranking.number_of_volumes ?? volumes.length}` : `${volumes.length}`}
-              </span>
-            </div>
-            <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
-              <div className="h-full rounded-full" style={{ width: `${progress || 8}%`, background: 'linear-gradient(90deg,#7c3aed,#38bdf8)' }} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-4 h-4 text-primary-500 flex-shrink-0" />
-          <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Thông Tin Thị Trường' : 'Market Info'}</h3>
-        </div>
-        <div className="space-y-3">
-          <NovelSidebarMetric icon={Star} label={isVI ? 'Điểm LN' : 'LN Score'} value={ranking?.ln_score != null ? `${Number(ranking.ln_score).toFixed(1)} / 10` : '—'} color={lnScoreColor(ranking?.ln_score)} />
-          <NovelSidebarMetric icon={AlertTriangle} label={isVI ? 'Rủi ro drop' : 'Drop Risk'} value={ranking ? `${lnDropPercent(ranking.drop_percent)}%` : '—'} color={lnDropColor(ranking?.drop_percent)} />
-          <NovelSidebarMetric icon={Users} label={isVI ? 'Lượt xem TB' : 'Avg Views'} value={ranking?.average_view_count != null ? fmtBig(Number(ranking.average_view_count)) : '—'} color="#38bdf8" />
-          <NovelSidebarMetric icon={Building2} label={isVI ? 'Nhà phát hành' : 'Publisher'} value={ranking?.publisher || series.publisher || '—'} color="#f97316" />
-          <NovelSidebarMetric icon={Calendar} label={isVI ? 'Tập mới nhất' : 'Latest Release'} value={lnFormatDate(latestDate, locale)} color="#a78bfa" />
-        </div>
-      </div>
-    </>
-  )
-}
-
-function NovelSidebarMetric({ icon: Icon, label, value, color }: { icon: any; label: string; value: ReactNode; color: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2 min-w-0">
-        <Icon className="w-4 h-4 flex-shrink-0" style={{ color }} />
-        <span className="text-xs truncate" style={{ color: 'var(--foreground-muted)' }}>{label}</span>
-      </div>
-      <span className="text-xs font-black text-right" style={{ color: 'var(--foreground-secondary)' }}>{value}</span>
-    </div>
-  )
-}
 
 function InfoItem({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
   return (
@@ -2315,7 +1975,7 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
               >
                 {hasImg ? (
                   <img
-                    src={vol.cover_url}
+                    src={proxyImageUrl(vol.cover_url) || ''}
                     alt={`Vol. ${vol.volume_number}`}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={() => setImgErrors(prev => ({ ...prev, [globalI]: true }))}
