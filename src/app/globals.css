@@ -21,6 +21,10 @@
   --ln-chart-grid: rgba(100, 116, 139, 0.20);
   --ln-tooltip-bg: rgba(255, 255, 255, 0.96);
   --publisher-picker-bg: #ffffff;
+  --content-detail-tile-bg: #f8fafc;
+  --content-detail-tile-border: rgba(15, 23, 42, 0.10);
+  --content-detail-volume-bg: #f8fafc;
+  --content-detail-volume-overlay: linear-gradient(90deg, rgba(248,250,252,.96), rgba(248,250,252,.86));
   --hero-wall-overlay: linear-gradient(to right, rgba(248, 250, 252, 0.38) 0%, rgba(248, 250, 252, 0.64) 18%, rgba(248, 250, 252, 0.74) 34%, rgba(248, 250, 252, 0.74) 66%, rgba(248, 250, 252, 0.64) 82%, rgba(248, 250, 252, 0.38) 100%);
   --hero-secondary-text: rgba(15, 23, 42, 0.66);
   --hero-muted-text: rgba(71, 85, 105, 0.58);
@@ -52,6 +56,10 @@
   --ln-chart-grid: rgba(136, 146, 170, 0.18);
   --ln-tooltip-bg: rgba(15, 23, 42, 0.94);
   --publisher-picker-bg: #111827;
+  --content-detail-tile-bg: rgba(15, 23, 42, 0.42);
+  --content-detail-tile-border: rgba(148, 163, 184, 0.18);
+  --content-detail-volume-bg: rgba(15, 23, 42, 0.34);
+  --content-detail-volume-overlay: linear-gradient(90deg, rgba(2,6,23,.92), rgba(2,6,23,.72));
   --hero-wall-overlay: linear-gradient(to right, rgba(10,15,30,0.25) 0%, rgba(10,15,30,0.55) 18%, rgba(10,15,30,0.72) 34%, rgba(10,15,30,0.72) 66%, rgba(10,15,30,0.55) 82%, rgba(10,15,30,0.25) 100%);
   --hero-secondary-text: rgba(255, 255, 255, 0.55);
   --hero-muted-text: rgba(255, 255, 255, 0.28);
