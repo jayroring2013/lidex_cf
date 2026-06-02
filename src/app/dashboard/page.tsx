@@ -283,6 +283,11 @@ function releaseStatus(row: LNRow) {
   )
 }
 
+function isStalledSeries(row: LNRow) {
+  const label = releaseStatusLabel(releaseStatus(row), false)
+  return row.evalution !== 'Completed' && label !== 'Completed' && label !== 'Caught up to JP'
+}
+
 function releaseStatusPriority(row: LNRow) {
   return RELEASE_STATUS_ORDER[releaseStatus(row)] ?? 99
 }
@@ -622,8 +627,8 @@ function KpiStrip({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 function ModeSwitch({ mode, setMode, vi }: { mode: Mode; setMode: (m: Mode) => void; vi: boolean }) {
   const items = [
     { id: 'dashboard' as Mode, icon: LayoutDashboard, label: vi ? 'Bảng điều khiển' : 'Dashboard', color: '#7c6af5', text: '#fff' },
-    { id: 'publisher' as Mode, icon: Building2, label: vi ? 'Nhà phát hành' : 'Publishers', color: '#38bdf8', text: '#03111d' },
     { id: 'watchlist' as Mode, icon: ListFilter, label: vi ? 'Watchlist LN' : 'LN Watchlist', color: '#22c55e', text: '#03150a' },
+    { id: 'publisher' as Mode, icon: Building2, label: vi ? 'Nhà phát hành' : 'Publishers', color: '#38bdf8', text: '#03111d' },
   ]
 
   return (
@@ -1589,7 +1594,7 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const groups = [
     { key: 'active', label: vi ? 'Ongoing' : 'Ongoing', color: '#2563eb', rows: rows.filter(r => ['Good', 'Limping'].includes(r.evalution || '')) },
     { key: 'completed', label: vi ? 'Completed' : 'Completed', color: '#22c55e', rows: rows.filter(r => r.evalution === 'Completed') },
-    { key: 'stalled', label: vi ? 'Stalled' : 'Stalled', color: '#eab308', rows: rows.filter(r => r.evalution === 'Dead') },
+    { key: 'stalled', label: vi ? 'Stalled' : 'Stalled', color: '#eab308', rows: rows.filter(isStalledSeries) },
     { key: 'dropped', label: vi ? 'Dropped' : 'Dropped', color: '#ef4444', rows: rows.filter(r => r.evalution === 'Dropped') },
     { key: 'caught', label: vi ? 'Caught Up' : 'Caught Up', color: '#7c6af5', rows: rows.filter(r => releaseStatus(r) === 'Đã bắt kịp bản gốc JP') },
   ].filter(group => group.rows.length > 0).sort((a, b) => b.rows.length - a.rows.length)
@@ -1768,7 +1773,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
 function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const risky = [...rows].sort((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)).slice(0, 5)
   const stalled = rows
-    .filter(row => row.evalution !== 'Completed' && releaseStatusLabel(releaseStatus(row), false) !== 'Completed')
+    .filter(isStalledSeries)
     .sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0))
     .slice(0, 5)
   return (
@@ -1795,7 +1800,7 @@ function PublisherRiskWatch({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const risky = [...rows].sort((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)).slice(0, 5)
   const stalled = rows
-    .filter(row => row.evalution !== 'Completed' && releaseStatusLabel(releaseStatus(row), false) !== 'Completed')
+    .filter(isStalledSeries)
     .sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0))
     .slice(0, 5)
 
@@ -1903,7 +1908,7 @@ function PublisherPopupSelect({
 
       {open && (
         <div
-          className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-2xl shadow-2xl"
+          className="absolute left-1/2 top-[calc(100%+8px)] z-50 w-[min(360px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-2xl shadow-2xl"
           style={{ background: 'var(--publisher-picker-bg, var(--card-bg))', border: '1px solid var(--card-border)', boxShadow: '0 22px 70px rgba(15,23,42,.42)' }}
           role="dialog"
         >
