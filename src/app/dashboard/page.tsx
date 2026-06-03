@@ -1765,7 +1765,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
     if (items.length <= 1) return
     const timer = window.setInterval(() => {
       setActiveIndex(idx => (idx + 1) % items.length)
-    }, 4500)
+    }, 8000)
     return () => window.clearInterval(timer)
   }, [items.length])
 
@@ -1820,7 +1820,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
         {showCover && <img src={cover || ''} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-md scale-110" onError={() => setFailedCoverKey(active.series_key)} />}
         <div className="absolute inset-0" style={{ background: 'var(--ln-slideshow-overlay)' }} />
 
-        <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02] min-w-[78px]" style={{ background: 'rgba(124,106,245,.22)', color: '#ddd6fe', border: '1px solid rgba(124,106,245,.36)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
+        <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02] min-w-[78px]" style={{ background: 'var(--ln-slideshow-open-bg)', color: 'var(--ln-slideshow-open-text)', border: '1px solid var(--ln-slideshow-open-border)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
 
         <div className="relative grid grid-cols-[122px_1fr] sm:grid-cols-[150px_1fr] gap-4 p-3 min-h-[244px]">
           <div className="relative">
@@ -1839,14 +1839,14 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
             <div className="pr-24">
               <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
-                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#7dd3fc', background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.18)' }}>{volumeLabel}</span>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--ln-slideshow-volume-text)', background: 'var(--ln-slideshow-volume-bg)', border: '1px solid var(--ln-slideshow-volume-border)' }}>{volumeLabel}</span>
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--ln-slideshow-date-text)', background: 'var(--ln-slideshow-date-bg)', border: '1px solid var(--card-border)' }}>
                   {fmtDate(active.max_release_at)}
                 </span>
                 {fanVoteLabel && (
                   <span
                     className="rounded-full px-2 py-0.5 text-[9px] font-black"
-                    style={{ color: '#fde68a', background: 'rgba(234,179,8,.14)', border: '1px solid rgba(234,179,8,.28)' }}
+                    style={{ color: 'var(--ln-slideshow-vote-text)', background: 'var(--ln-slideshow-vote-bg)', border: '1px solid var(--ln-slideshow-vote-border)' }}
                     title={active.fan_vote_votes ? `${fmtNum(active.fan_vote_votes, 0)} votes · ${active.fan_vote_period || active.fan_vote_year}` : active.fan_vote_period || undefined}
                   >
                     {fanVoteLabel}
