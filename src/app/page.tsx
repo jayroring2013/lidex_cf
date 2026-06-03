@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2 } from 'lucide-react'
+import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import { getTopRatedSeries } from '@/lib/supabase'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -364,12 +364,12 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
         <div
           className="grid md:grid-cols-[0.9fr_1.1fr] gap-0 overflow-hidden rounded-2xl"
           style={{
-            background: '#020617',
-            border: '1px solid rgba(255,255,255,.08)',
-            boxShadow: '0 18px 70px rgba(0,0,0,.35)',
+            background: 'var(--home-mission-bg)',
+            border: '1px solid var(--home-mission-border)',
+            boxShadow: 'var(--home-mission-shadow)',
           }}
         >
-          <div className="relative min-h-[190px] sm:min-h-[230px] overflow-hidden" style={{ background: '#050816' }}>
+          <div className="relative min-h-[190px] sm:min-h-[230px] overflow-hidden" style={{ background: 'var(--home-mission-cover-bg)' }}>
             {visualCovers.length > 0 ? (
               <div className="absolute inset-0 grid grid-cols-3 gap-3 p-4 sm:p-5 items-center">
                 {visualCovers.map((cover, idx) => (
@@ -380,38 +380,47 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
                       aspectRatio: '2 / 3',
                       maxHeight: '100%',
                       justifySelf: 'center',
-                      border: '1px solid rgba(255,255,255,.12)',
-                      boxShadow: '0 12px 32px rgba(0,0,0,.35)',
+                      border: '1px solid var(--home-mission-border)',
+                      boxShadow: '0 12px 32px rgba(15, 23, 42, .16)',
+                      background: 'var(--home-mission-cover-fallback)',
                     }}
                   >
+                    <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--foreground-muted)' }}>
+                      <BookOpen className="w-8 h-8 opacity-40" />
+                    </div>
                     {cover.cover_url ? (
-                      <img src={cover.cover_url} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={cover.cover_url}
+                        alt=""
+                        className="relative z-10 w-full h-full object-cover"
+                        onError={e => { e.currentTarget.style.display = 'none' }}
+                      />
                     ) : (
-                      <div className="w-full h-full" style={{ background: 'rgba(99,102,241,.18)' }} />
+                      <div className="relative z-10 w-full h-full" style={{ background: 'var(--home-mission-cover-fallback)' }} />
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,.35), rgba(2,6,23,1))' }} />
+              <div className="absolute inset-0" style={{ background: 'var(--home-mission-cover-fallback)' }} />
             )}
 
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.08), rgba(2,6,23,.70))' }} />
+            <div className="absolute inset-0" style={{ background: 'var(--home-mission-overlay)' }} />
 
           </div>
 
           <div className="relative p-6 sm:p-8 md:p-10 flex flex-col justify-center">
             <div className="absolute inset-0 opacity-70"
-              style={{ background: 'radial-gradient(circle at 85% 10%, rgba(124,92,255,.20), transparent 30%)' }} />
+              style={{ background: 'var(--home-mission-glow)' }} />
 
             <div className="relative">
 
 
-              <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-5" style={{ color: '#fff' }}>
+              <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-5" style={{ color: 'var(--home-mission-title)' }}>
                 {vi ? 'Một góc nhỏ gọn cho anh em mê Light Novel.' : 'A comfy portable hub for Light Novel fans.'}
               </h2>
 
-              <p className="text-base sm:text-lg leading-relaxed max-w-2xl" style={{ color: 'rgba(226,232,240,.78)' }}>
+              <p className="text-base sm:text-lg leading-relaxed max-w-2xl" style={{ color: 'var(--home-mission-text)' }}>
                 {vi
                   ? 'Một nền tảng nhỏ gọn để anh em có thể dễ dàng theo dõi các bộ Light Novel ưa thích của mình một cách dễ dàng nhất, theo hướng phân tích số liệu.'
                   : 'A comfy portable hub where everyone can keep track of their favourite Light Novel in the easiest possible, data-driven way.'}
@@ -500,7 +509,7 @@ export default function Home() {
     Promise.all([
       supabase.from('series').select('anime_meta!inner(season_year)', { count: 'exact', head: true }).eq('item_type', 'anime').eq('anime_meta.season_year', 2026).not('genres', 'cs', '{"Hentai"}'),
       supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}'),
-      supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}'),
+      supabase.from('ln_series_ranking').select('id', { count: 'exact', head: true }),
     ]).then(([a, m, n]) => setTypeCounts({ anime: a.count ?? 0, manga: m.count ?? 0, novel: n.count ?? 0 }))
   }, [])
 
