@@ -1236,14 +1236,35 @@ function avgValue(rows: LNRow[], fn: (row: LNRow) => number) {
   return rows.reduce((sum, row) => sum + fn(row), 0) / rows.length
 }
 
+function publisherPortfolioBuckets(rows: LNRow[]) {
+  const buckets = {
+    completed: [] as LNRow[],
+    ongoing: [] as LNRow[],
+    stalled: [] as LNRow[],
+    dropped: [] as LNRow[],
+    caught: [] as LNRow[],
+  }
+
+  rows.forEach(row => {
+    const status = releaseStatusLabel(releaseStatus(row), false)
+    if (row.evalution === 'Completed' || status === 'Completed') buckets.completed.push(row)
+    else if (row.evalution === 'Dropped' || status === 'Dropped') buckets.dropped.push(row)
+    else if (status === 'Caught up to JP') buckets.caught.push(row)
+    else if (row.evalution === 'Limping' || row.evalution === 'Dead' || status === 'Long inactive') buckets.stalled.push(row)
+    else buckets.ongoing.push(row)
+  })
+
+  return buckets
+}
+
 function publisherStatusHealth(row: LNRow) {
   const status = releaseStatusLabel(releaseStatus(row), false)
   if (row.evalution === 'Completed' || status === 'Completed') return 100
-  if (status === 'Caught up to JP') return 92
-  if (status === 'Active') return 85
-  if (status === 'Long inactive') return 18
-  if (row.evalution === 'Dead') return 10
   if (row.evalution === 'Dropped' || status === 'Dropped') return 0
+  if (row.evalution === 'Dead' || status === 'Long inactive') return 8
+  if (row.evalution === 'Limping') return 38
+  if (status === 'Caught up to JP') return 78
+  if (status === 'Active') return 85
   return 45
 }
 
@@ -1306,26 +1327,33 @@ function applyReliabilityInactivityCap(score: number, rows: LNRow[], volumeRows:
 
 function publisherReliabilityScore(rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
   if (rows.length === 0) return 0
+  const buckets = publisherPortfolioBuckets(rows)
+  const total = rows.length
   const avgDropSafety = Math.max(0, Math.min(100, 100 - avgValue(rows, row => pctValue(row.drop_percent))))
-  const badShare = rows.filter(row => {
-    const status = releaseStatusLabel(releaseStatus(row), false)
-    return row.evalution === 'Dead' || row.evalution === 'Dropped' || status === 'Long inactive' || status === 'Dropped'
-  }).length / rows.length
-  const portfolioHealth = Math.max(0, 100 - badShare * 170)
+  const stalledShare = buckets.stalled.length / total
+  const droppedShare = buckets.dropped.length / total
+  const portfolioHealth = (
+    (buckets.completed.length / total) * 84 +
+    (buckets.ongoing.length / total) * 92 +
+    (buckets.caught.length / total) * 74 +
+    stalledShare * 30
+  )
   const activitySupport = avgValue(rows, row => row.publisher_support_score * 10)
   const releasePace = publisherReleasePaceScore(rows)
   const releaseRecency = publisherReleaseRecencyScore(rows, volumeRows)
   const statusHealth = avgValue(rows, publisherStatusHealth)
-  const consistency = Math.min(portfolioHealth, Math.max(0, (releasePace * 0.55) + (releaseRecency * 0.45)))
+  const consistency = Math.min(portfolioHealth, Math.max(0, (releasePace * 0.65) + (releaseRecency * 0.35)))
 
   const score =
-    releaseRecency * 0.25 +
-    portfolioHealth * 0.24 +
-    releasePace * 0.18 +
-    avgDropSafety * 0.13 +
-    statusHealth * 0.12 +
+    portfolioHealth * 0.42 +
+    releasePace * 0.20 +
+    avgDropSafety * 0.14 +
+    releaseRecency * 0.09 +
+    statusHealth * 0.07 +
     activitySupport * 0.05 +
-    consistency * 0.03
+    consistency * 0.03 -
+    stalledShare * 18 -
+    droppedShare * 35
 
   return Math.max(0, Math.min(100, applyReliabilityInactivityCap(score, rows, volumeRows)))
 }
@@ -1781,12 +1809,13 @@ function PublisherProgressTable({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
 }
 
 function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const buckets = publisherPortfolioBuckets(rows)
   const groups = [
-    { key: 'active', label: vi ? 'Ongoing' : 'Ongoing', color: '#2563eb', rows: rows.filter(r => ['Good', 'Limping'].includes(r.evalution || '')) },
-    { key: 'completed', label: vi ? 'Completed' : 'Completed', color: '#22c55e', rows: rows.filter(r => r.evalution === 'Completed') },
-    { key: 'stalled', label: vi ? 'Stalled' : 'Stalled', color: '#eab308', rows: rows.filter(isStalledSeries) },
-    { key: 'dropped', label: vi ? 'Dropped' : 'Dropped', color: '#ef4444', rows: rows.filter(r => r.evalution === 'Dropped') },
-    { key: 'caught', label: vi ? 'Caught Up' : 'Caught Up', color: '#7c6af5', rows: rows.filter(r => releaseStatus(r) === 'Đã bắt kịp bản gốc JP') },
+    { key: 'completed', label: vi ? 'Completed' : 'Completed', color: '#22c55e', rows: buckets.completed },
+    { key: 'active', label: vi ? 'Ongoing' : 'Ongoing', color: '#2563eb', rows: buckets.ongoing },
+    { key: 'stalled', label: vi ? 'Stalled' : 'Stalled', color: '#eab308', rows: buckets.stalled },
+    { key: 'dropped', label: vi ? 'Dropped' : 'Dropped', color: '#ef4444', rows: buckets.dropped },
+    { key: 'caught', label: vi ? 'Caught Up' : 'Caught Up', color: '#7c6af5', rows: buckets.caught },
   ].filter(group => group.rows.length > 0).sort((a, b) => b.rows.length - a.rows.length)
 
   const total = Math.max(1, rows.length)
@@ -1818,7 +1847,7 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
                 <p className="text-3xl font-black leading-none mt-1" style={{ color: 'var(--foreground)' }}>{group.rows.length}</p>
               </div>
               <div>
-                <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{pct.toFixed(0)}% portfolio</p>
+                <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{pct.toFixed(1)}% portfolio</p>
               </div>
             </div>
           )
