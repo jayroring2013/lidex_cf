@@ -1753,6 +1753,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
 
   const initial = Math.max(0, items.findIndex(row => row.series_key === selectedKey))
   const [activeIndex, setActiveIndex] = useState(initial < 0 ? 0 : initial)
+  const [failedCoverKey, setFailedCoverKey] = useState<string | null>(null)
 
   useEffect(() => {
     const idx = items.findIndex(row => row.series_key === selectedKey)
@@ -1776,6 +1777,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
   const active = items[safeIndex]
   const activeStyle = releaseStatusStyle(active)
   const cover = proxyImg(active.cover_url)
+  const showCover = Boolean(cover && failedCoverKey !== active.series_key)
   const volumeCount = Math.max(0, Math.round(active.number_of_volumes || 0))
   const isCompletedOneshot = volumeCount === 1 && (active.evalution === 'Completed' || releaseStatusLabel(releaseStatus(active), false) === 'Completed')
   const volumeLabel = isCompletedOneshot
@@ -1814,20 +1816,20 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
         </div>
       </div>
 
-      <div className="relative rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #050816, #111827)', border: '1px solid rgba(148,163,184,.24)' }}>
-        {cover && <img src={cover} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.10] blur-md scale-110" />}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(2,6,23,.96), rgba(2,6,23,.75), rgba(2,6,23,.92))' }} />
+      <div className="relative rounded-2xl overflow-hidden" style={{ background: 'var(--ln-slideshow-bg)', border: '1px solid var(--card-border)' }}>
+        {showCover && <img src={cover || ''} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-md scale-110" onError={() => setFailedCoverKey(active.series_key)} />}
+        <div className="absolute inset-0" style={{ background: 'var(--ln-slideshow-overlay)' }} />
 
         <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02] min-w-[78px]" style={{ background: 'rgba(124,106,245,.22)', color: '#ddd6fe', border: '1px solid rgba(124,106,245,.36)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
 
         <div className="relative grid grid-cols-[122px_1fr] sm:grid-cols-[150px_1fr] gap-4 p-3 min-h-[244px]">
           <div className="relative">
-            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', border: '1px solid rgba(255,255,255,.16)', background: 'rgba(15,23,42,.72)' }}>
-              {cover ? (
-                <img src={cover} alt={active.series_title} className="w-full h-full object-cover" />
+            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', border: '1px solid var(--ln-slideshow-cover-border)', background: 'var(--ln-slideshow-cover-bg)' }}>
+              {showCover ? (
+                <img src={cover || ''} alt={active.series_title} className="w-full h-full object-cover" onError={() => setFailedCoverKey(active.series_key)} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <BookOpen className="w-8 h-8 opacity-50" style={{ color: '#cbd5e1' }} />
+                  <BookOpen className="w-8 h-8 opacity-50" style={{ color: 'var(--foreground-muted)' }} />
                 </div>
               )}
             </div>
@@ -1838,7 +1840,7 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
               <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
                 <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#7dd3fc', background: 'rgba(56,189,248,.10)', border: '1px solid rgba(56,189,248,.18)' }}>{volumeLabel}</span>
-                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: '#cbd5e1', background: 'rgba(148,163,184,.18)', border: '1px solid rgba(148,163,184,.18)' }}>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--ln-slideshow-date-text)', background: 'var(--ln-slideshow-date-bg)', border: '1px solid var(--card-border)' }}>
                   {fmtDate(active.max_release_at)}
                 </span>
                 {fanVoteLabel && (
@@ -1852,11 +1854,11 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
                 )}
               </div>
 
-              <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: '#f8fafc' }}>{active.series_title}</h3>
+              <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--ln-slideshow-title)' }}>{active.series_title}</h3>
             </div>
 
-            <div className="mt-3 rounded-xl p-3 min-h-[126px] max-h-[154px] overflow-hidden" style={{ background: 'rgba(15,23,42,.52)', border: '1px solid rgba(136,146,170,.14)' }}>
-              <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: '#cbd5e1' }}>{description}</p>
+            <div className="mt-3 rounded-xl p-3 min-h-[126px] max-h-[154px] overflow-hidden" style={{ background: 'var(--ln-slideshow-desc-bg)', border: '1px solid var(--ln-slideshow-desc-border)' }}>
+              <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: 'var(--ln-slideshow-text)' }}>{description}</p>
             </div>
           </div>
         </div>
