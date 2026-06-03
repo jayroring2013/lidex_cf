@@ -1236,6 +1236,51 @@ function avgValue(rows: LNRow[], fn: (row: LNRow) => number) {
   return rows.reduce((sum, row) => sum + fn(row), 0) / rows.length
 }
 
+function publisherStatusHealth(row: LNRow) {
+  const status = releaseStatusLabel(releaseStatus(row), false)
+  if (row.evalution === 'Completed' || status === 'Completed') return 100
+  if (status === 'Caught up to JP') return 92
+  if (status === 'Active') return 85
+  if (status === 'Long inactive') return 35
+  if (row.evalution === 'Dead') return 25
+  if (row.evalution === 'Dropped' || status === 'Dropped') return 0
+  return 55
+}
+
+function publisherReleasePaceScore(rows: LNRow[]) {
+  if (rows.length === 0) return 0
+  return avgValue(rows, row => {
+    const gap = row.average_gap_months
+    if (gap == null) return row.release_pace_score * 10
+    if (gap <= 4) return 95
+    if (gap <= 6) return 85
+    if (gap <= 12) return 65
+    if (gap <= 18) return 45
+    if (gap <= 24) return 30
+    return 15
+  })
+}
+
+function publisherReliabilityScore(rows: LNRow[]) {
+  if (rows.length === 0) return 0
+  const avgDropSafety = Math.max(0, Math.min(100, 100 - avgValue(rows, row => pctValue(row.drop_percent))))
+  const portfolioRisk = 100 - (rows.filter(row => {
+    const status = releaseStatusLabel(releaseStatus(row), false)
+    return row.evalution === 'Dead' || row.evalution === 'Dropped' || status === 'Long inactive' || status === 'Dropped'
+  }).length / rows.length * 100)
+  const activitySupport = avgValue(rows, row => row.publisher_support_score * 10)
+  const releasePace = publisherReleasePaceScore(rows)
+  const statusHealth = avgValue(rows, publisherStatusHealth)
+
+  return Math.max(0, Math.min(100,
+    avgDropSafety * 0.25 +
+    portfolioRisk * 0.25 +
+    activitySupport * 0.20 +
+    releasePace * 0.20 +
+    statusHealth * 0.10
+  ))
+}
+
 function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; rows: LNRow[]; vi: boolean }) {
   const [hoveredAxis, setHoveredAxis] = useState<number | null>(null)
   const activeCount = rows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
@@ -1246,7 +1291,8 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
   const completion = rows.length ? (completedCount / rows.length) * 100 : 0
   const active = rows.length ? (activeCount / rows.length) * 100 : 0
   const catchup = avgValue(rows, row => row.catch_up_score * 10)
-  const momentum = avgValue(rows, row => row.momentum_score * 10)
+  const releasePace = publisherReleasePaceScore(rows)
+  const reliability = publisherReliabilityScore(rows)
 
   const axes = [
     {
@@ -1267,15 +1313,15 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
       label: vi ? 'Độ tin cậy' : 'Reliability',
       short: vi ? 'TC' : 'REL',
       icon: '◉',
-      value: avgValue(rows, row => row.publisher_support_score * 10),
-      description: vi ? 'Điểm hỗ trợ nhà phát hành trung bình từ dữ liệu LN watchlist.' : 'Average publisher support score from the LN watchlist.',
+      value: reliability,
+      description: vi ? 'Tổng hợp an toàn drop, tỷ lệ truyện drop/lâu chưa ra, mức hoạt động, tốc độ phát hành và trạng thái portfolio.' : 'Composite of drop safety, dropped/stalled share, activity, release pace, and portfolio status health.',
     },
     {
-      label: vi ? 'Đà phát hành' : 'Momentum',
-      short: vi ? 'ĐÀ' : 'MOM',
+      label: vi ? 'Tốc độ phát hành' : 'Release Pace',
+      short: vi ? 'TĐ' : 'PACE',
       icon: '≋',
-      value: momentum,
-      description: vi ? 'Tổng hợp độ mới phát hành và nhịp hoạt động gần đây.' : 'Blend of release recency and recent activity.',
+      value: releasePace,
+      description: vi ? 'Dựa chủ yếu vào khoảng cách trung bình giữa các tập: càng ít tháng giữa các tập thì điểm càng cao.' : 'Based mainly on average months between volumes: shorter gaps score higher.',
     },
     {
       label: vi ? 'Bắt kịp' : 'Catch-up',
@@ -2075,11 +2121,11 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
   const completedSeries = portfolioRows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
   const avgScore = portfolioRows.length ? avgValue(portfolioRows, row => row.ln_score) : 0
   const avgDrop = portfolioRows.length ? avgValue(portfolioRows, row => pctValue(row.drop_percent)) : 0
-  const reliability = portfolioRows.length ? avgValue(portfolioRows, row => row.publisher_support_score * 10) : 0
+  const reliability = publisherReliabilityScore(portfolioRows)
   const reliabilityRanks = publishers
     .map(p => {
       const pRows = rows.filter(row => (row.publisher || 'Unknown') === p.publisher)
-      const score = pRows.length ? avgValue(pRows, row => row.publisher_support_score * 10) : 0
+      const score = publisherReliabilityScore(pRows)
       return { publisher: p.publisher, score }
     })
     .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
