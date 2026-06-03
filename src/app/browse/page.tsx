@@ -58,6 +58,19 @@ const SORT_OPTS: Record<ContentType, { id: string; label: string }[]> = {
   ],
 }
 
+function parseContentType(value: string | null): ContentType {
+  return value === 'manga' || value === 'novel' || value === 'anime' ? value : 'anime'
+}
+
+function getInitialBrowseParams() {
+  if (typeof window === 'undefined') return { type: 'anime' as ContentType, search: '' }
+  const params = new URLSearchParams(window.location.search)
+  return {
+    type: parseContentType(params.get('type')),
+    search: params.get('search') || '',
+  }
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function useDebounce<T>(value: T, ms = 300): T {
   const [dv, setDv] = useState(value)
@@ -414,10 +427,15 @@ function FilterPopover({ type, status, setStatus, format, setFormat, genre, setG
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function BrowsePage() {
-  const [type,        setType]        = useState<ContentType>('anime')
-  const [browseMode,  setBrowseMode]  = useState(false)
-  const [searchInput, setSearchInput] = useState('')
-  const [sort,        setSort]        = useState('score_desc')
+  const initialParams = useRef(getInitialBrowseParams()).current
+  const initialType = initialParams.type
+  const initialSearch = initialParams.search
+  const hasMounted = useRef(false)
+
+  const [type,        setType]        = useState<ContentType>(initialType)
+  const [browseMode,  setBrowseMode]  = useState(Boolean(initialSearch))
+  const [searchInput, setSearchInput] = useState(initialSearch)
+  const [sort,        setSort]        = useState(SORT_OPTS[initialType][0].id)
   const [status,      setStatus]      = useState('all')
   const [format,      setFormat]      = useState('all')
   const [genre,       setGenre]       = useState('all')
@@ -440,6 +458,10 @@ export default function BrowsePage() {
 
   // Reset on type change
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      return
+    }
     setSort(SORT_OPTS[type][0].id)
     setStatus('all'); setFormat('all'); setGenre('all')
     setPage(0); setCards([]); setBrowseMode(false); setSearchInput('')
