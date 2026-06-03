@@ -427,15 +427,13 @@ function FilterPopover({ type, status, setStatus, format, setFormat, genre, setG
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function BrowsePage() {
-  const initialParams = useRef(getInitialBrowseParams()).current
-  const initialType = initialParams.type
-  const initialSearch = initialParams.search
   const hasMounted = useRef(false)
+  const skipNextTypeReset = useRef(false)
 
-  const [type,        setType]        = useState<ContentType>(initialType)
-  const [browseMode,  setBrowseMode]  = useState(Boolean(initialSearch))
-  const [searchInput, setSearchInput] = useState(initialSearch)
-  const [sort,        setSort]        = useState(SORT_OPTS[initialType][0].id)
+  const [type,        setType]        = useState<ContentType>('anime')
+  const [browseMode,  setBrowseMode]  = useState(false)
+  const [searchInput, setSearchInput] = useState('')
+  const [sort,        setSort]        = useState(SORT_OPTS.anime[0].id)
   const [status,      setStatus]      = useState('all')
   const [format,      setFormat]      = useState('all')
   const [genre,       setGenre]       = useState('all')
@@ -456,10 +454,26 @@ export default function BrowsePage() {
   const TypeIcon  = TYPE_CONFIG[type].icon
   const { t }    = useLocale()
 
+  useEffect(() => {
+    const params = getInitialBrowseParams()
+    if (params.type !== type) {
+      skipNextTypeReset.current = true
+      setType(params.type)
+    }
+    setSort(SORT_OPTS[params.type][0].id)
+    setSearchInput(params.search)
+    setBrowseMode(Boolean(params.search))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Reset on type change
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true
+      return
+    }
+    if (skipNextTypeReset.current) {
+      skipNextTypeReset.current = false
       return
     }
     setSort(SORT_OPTS[type][0].id)
