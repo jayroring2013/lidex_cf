@@ -17,9 +17,9 @@ type CarouselSection = 'anime' | 'manga' | 'novel'
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const SECTION_CONFIG: Record<CarouselSection, { label: string; labelVI: string; color: string; href: string }> = {
-  anime: { label: 'Anime',       labelVI: 'Anime',       color: '#6366f1', href: '/browse' },
-  manga: { label: 'Manga',       labelVI: 'Manga',       color: '#ec4899', href: '/browse' },
-  novel: { label: 'Novel',       labelVI: 'Tiểu thuyết', color: '#22c55e', href: '/browse' },
+  anime: { label: 'Anime',       labelVI: 'Anime',       color: '#6366f1', href: '/browse?type=anime' },
+  manga: { label: 'Manga',       labelVI: 'Manga',       color: '#ec4899', href: '/browse?type=manga' },
+  novel: { label: 'Novel',       labelVI: 'Tiểu thuyết', color: '#22c55e', href: '/browse?type=novel' },
 }
 const ROTATE_INTERVAL = 6000
 
@@ -734,7 +734,7 @@ export default function Home() {
                   </div>
                 )}
 
-                <Link href="/browse"
+                <Link href={SECTION_CONFIG[activeSection].href}
                   className="hidden sm:flex items-center gap-1 text-xs font-semibold transition-all hover:gap-2"
                   style={{ color: 'var(--foreground-muted)' }}>
                   {vi ? 'Xem tất cả' : 'View all'}
@@ -765,7 +765,7 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center mt-8 sm:hidden">
-              <Link href="/browse"
+              <Link href={SECTION_CONFIG[activeSection].href}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
                 style={{ background: `${color}18`, color, border: `1px solid ${color}33` }}>
                 {vi ? 'Xem tất cả' : 'View all'}
