@@ -1237,7 +1237,7 @@ function avgValue(rows: LNRow[], fn: (row: LNRow) => number) {
 }
 
 function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; rows: LNRow[]; vi: boolean }) {
-  const [hoveredAxis, setHoveredAxis] = useState(0)
+  const [hoveredAxis, setHoveredAxis] = useState<number | null>(null)
   const activeCount = rows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
   const completedCount = rows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
   const safety = Math.max(0, Math.min(100, 100 - publisher.avgDrop))
@@ -1307,7 +1307,6 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
     },
   ] as const
 
-  const activeAxis = axes[hoveredAxis] || axes[0]
   const size = 260
   const cx = size / 2
   const cy = size / 2
@@ -1322,9 +1321,10 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
     const r = level * maxR
     return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
   }).join(' '))
+  const tooltipAxis = hoveredAxis === null ? null : axes[hoveredAxis]
 
   return (
-    <Card className="p-3 h-full overflow-hidden">
+    <Card className="p-3 h-full">
       <div className="mb-1">
         <div>
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Thông số NPH' : 'Publisher DNA'}</p>
@@ -1332,23 +1332,34 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
         </div>
       </div>
 
-      <div
-        className="mb-2 rounded-xl p-3 min-h-[104px]"
-        style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: publisherScoreColor(activeAxis.value) }}>{activeAxis.label}</p>
-            <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>{activeAxis.description}</p>
+      <div className="relative flex justify-center overflow-visible pt-3" onMouseLeave={() => setHoveredAxis(null)}>
+        {tooltipAxis && (
+          <div
+            className="absolute left-1/2 top-2 z-20 w-[min(250px,calc(100%-12px))] -translate-x-1/2 rounded-xl p-3 shadow-2xl pointer-events-none"
+            style={{
+              background: 'var(--ln-tooltip-bg)',
+              border: `1px solid ${publisherScoreColor(tooltipAxis.value)}55`,
+              boxShadow: `0 18px 45px ${publisherScoreColor(tooltipAxis.value)}22`,
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: publisherScoreColor(tooltipAxis.value) }}>
+                  {tooltipAxis.label}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>
+                  {tooltipAxis.description}
+                </p>
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="text-xl font-black tabular-nums" style={{ color: publisherScoreColor(tooltipAxis.value) }}>
+                  {tooltipAxis.value.toFixed(0)}
+                </p>
+                <p className="text-[9px] font-bold" style={{ color: 'var(--foreground-muted)' }}>/100</p>
+              </div>
+            </div>
           </div>
-          <div className="shrink-0 text-right">
-            <p className="text-2xl font-black tabular-nums" style={{ color: publisherScoreColor(activeAxis.value) }}>{activeAxis.value.toFixed(0)}</p>
-            <p className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>/100</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-center overflow-visible">
+        )}
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
           {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="var(--ln-chart-grid)" />)}
           {axes.map((axis, i) => {
@@ -1369,6 +1380,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
                 onClick={() => setHoveredAxis(i)}
                 style={{ cursor: 'pointer' }}
               >
+                <title>{axis.label}</title>
                 <line x1={cx} y1={cy} x2={x1} y2={y1} stroke="var(--ln-chart-grid)" />
                 <circle
                   cx={x}
@@ -1378,8 +1390,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
                   stroke={isActive ? color : 'var(--card-border)'}
                   strokeWidth={isActive ? 2 : 1}
                 />
-                <text x={x} y={y - 2} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="900" fill={color}>{axis.icon}</text>
-                <text x={x} y={y + 11} textAnchor="middle" dominantBaseline="middle" fontSize="6.8" fontWeight="900" fill="var(--foreground-muted)">{axis.short}</text>
+                <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="900" fill={color}>{axis.icon}</text>
               </g>
             )
           })}
@@ -1387,7 +1398,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
           {points.split(' ').map((p, i) => {
             const [x, y] = p.split(',').map(Number)
             const activePoint = hoveredAxis === i
-            return <circle key={i} cx={x} cy={y} r={activePoint ? 4.5 : 3} fill={activePoint ? publisherScoreColor(axes[i].value) : '#67e8f9'} />
+            return <circle key={i} cx={x} cy={y} r={activePoint ? 4.5 : 3} fill={activePoint ? publisherScoreColor(axes[i]?.value ?? 0) : '#67e8f9'} />
           })}
         </svg>
       </div>
