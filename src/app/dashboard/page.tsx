@@ -1241,47 +1241,96 @@ function publisherStatusHealth(row: LNRow) {
   if (row.evalution === 'Completed' || status === 'Completed') return 100
   if (status === 'Caught up to JP') return 92
   if (status === 'Active') return 85
-  if (status === 'Long inactive') return 35
-  if (row.evalution === 'Dead') return 25
+  if (status === 'Long inactive') return 18
+  if (row.evalution === 'Dead') return 10
   if (row.evalution === 'Dropped' || status === 'Dropped') return 0
-  return 55
+  return 45
 }
 
 function publisherReleasePaceScore(rows: LNRow[]) {
   if (rows.length === 0) return 0
   return avgValue(rows, row => {
     const gap = row.average_gap_months
-    if (gap == null) return row.release_pace_score * 10
-    if (gap <= 4) return 95
-    if (gap <= 6) return 85
-    if (gap <= 12) return 65
-    if (gap <= 18) return 45
-    if (gap <= 24) return 30
-    return 15
+    if (gap == null) return Math.min(55, row.release_pace_score * 10)
+    if (gap <= 3) return 100
+    if (gap <= 4) return 90
+    if (gap <= 6) return 75
+    if (gap <= 9) return 58
+    if (gap <= 12) return 42
+    if (gap <= 18) return 25
+    if (gap <= 24) return 12
+    return 0
   })
 }
 
-function publisherReliabilityScore(rows: LNRow[]) {
-  if (rows.length === 0) return 0
-  const avgDropSafety = Math.max(0, Math.min(100, 100 - avgValue(rows, row => pctValue(row.drop_percent))))
-  const portfolioRisk = 100 - (rows.filter(row => {
-    const status = releaseStatusLabel(releaseStatus(row), false)
-    return row.evalution === 'Dead' || row.evalution === 'Dropped' || status === 'Long inactive' || status === 'Dropped'
-  }).length / rows.length * 100)
-  const activitySupport = avgValue(rows, row => row.publisher_support_score * 10)
-  const releasePace = publisherReleasePaceScore(rows)
-  const statusHealth = avgValue(rows, publisherStatusHealth)
-
-  return Math.max(0, Math.min(100,
-    avgDropSafety * 0.25 +
-    portfolioRisk * 0.25 +
-    activitySupport * 0.20 +
-    releasePace * 0.20 +
-    statusHealth * 0.10
-  ))
+function monthsSinceDate(value: string | null | undefined) {
+  if (!value) return null
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return null
+  const now = new Date()
+  return Math.max(0, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()) + (now.getDate() - d.getDate()) / 30)
 }
 
-function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; rows: LNRow[]; vi: boolean }) {
+function latestPublisherReleaseMonths(rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
+  const dates = [
+    ...volumeRows.map(row => row.release_date),
+    ...rows.map(row => row.max_release_at).filter((date): date is string => Boolean(date)),
+  ]
+    .map(date => new Date(date))
+    .filter(date => !Number.isNaN(date.getTime()))
+    .sort((a, b) => b.getTime() - a.getTime())
+
+  return dates[0] ? monthsSinceDate(dates[0].toISOString()) : null
+}
+
+function publisherReleaseRecencyScore(rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
+  const months = latestPublisherReleaseMonths(rows, volumeRows)
+  if (months == null) return 0
+  if (months <= 6) return 100
+  if (months <= 12) return 85
+  if (months <= 18) return 65
+  if (months <= 24) return 45
+  if (months <= 36) return 25
+  if (months <= 48) return 12
+  if (months <= 60) return 5
+  return 0
+}
+
+function applyReliabilityInactivityCap(score: number, rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
+  const months = latestPublisherReleaseMonths(rows, volumeRows)
+  if (months == null) return Math.min(score, 25)
+  if (months >= 36) return 0
+  if (months > 24) return Math.min(score, 52)
+  return score
+}
+
+function publisherReliabilityScore(rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
+  if (rows.length === 0) return 0
+  const avgDropSafety = Math.max(0, Math.min(100, 100 - avgValue(rows, row => pctValue(row.drop_percent))))
+  const badShare = rows.filter(row => {
+    const status = releaseStatusLabel(releaseStatus(row), false)
+    return row.evalution === 'Dead' || row.evalution === 'Dropped' || status === 'Long inactive' || status === 'Dropped'
+  }).length / rows.length
+  const portfolioHealth = Math.max(0, 100 - badShare * 170)
+  const activitySupport = avgValue(rows, row => row.publisher_support_score * 10)
+  const releasePace = publisherReleasePaceScore(rows)
+  const releaseRecency = publisherReleaseRecencyScore(rows, volumeRows)
+  const statusHealth = avgValue(rows, publisherStatusHealth)
+  const consistency = Math.min(portfolioHealth, Math.max(0, (releasePace * 0.55) + (releaseRecency * 0.45)))
+
+  const score =
+    releaseRecency * 0.25 +
+    portfolioHealth * 0.24 +
+    releasePace * 0.18 +
+    avgDropSafety * 0.13 +
+    statusHealth * 0.12 +
+    activitySupport * 0.05 +
+    consistency * 0.03
+
+  return Math.max(0, Math.min(100, applyReliabilityInactivityCap(score, rows, volumeRows)))
+}
+
+function PublisherDNARadar({ publisher, rows, volumeRows, vi }: { publisher: PublisherAgg; rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean }) {
   const [hoveredAxis, setHoveredAxis] = useState<number | null>(null)
   const activeCount = rows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
   const completedCount = rows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
@@ -1292,7 +1341,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
   const active = rows.length ? (activeCount / rows.length) * 100 : 0
   const catchup = avgValue(rows, row => row.catch_up_score * 10)
   const releasePace = publisherReleasePaceScore(rows)
-  const reliability = publisherReliabilityScore(rows)
+  const reliability = publisherReliabilityScore(rows, volumeRows)
 
   const axes = [
     {
@@ -1314,7 +1363,7 @@ function PublisherDNARadar({ publisher, rows, vi }: { publisher: PublisherAgg; r
       short: vi ? 'TC' : 'REL',
       icon: '◉',
       value: reliability,
-      description: vi ? 'Tổng hợp an toàn drop, tỷ lệ truyện drop/lâu chưa ra, mức hoạt động, tốc độ phát hành và trạng thái portfolio.' : 'Composite of drop safety, dropped/stalled share, activity, release pace, and portfolio status health.',
+      description: vi ? 'Đánh giá năng lực NPH: độ mới phát hành, tỷ lệ truyện drop/lâu chưa ra, tốc độ ra tập, rủi ro drop và sức khỏe portfolio. NPH ngừng ra tập lâu năm bị giới hạn điểm mạnh.' : 'Publisher competency score: release recency, dropped/stalled share, pace, drop risk, and portfolio health. Long-inactive publishers are hard-capped.',
     },
     {
       label: vi ? 'Tốc độ phát hành' : 'Release Pace',
@@ -2121,11 +2170,12 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
   const completedSeries = portfolioRows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
   const avgScore = portfolioRows.length ? avgValue(portfolioRows, row => row.ln_score) : 0
   const avgDrop = portfolioRows.length ? avgValue(portfolioRows, row => pctValue(row.drop_percent)) : 0
-  const reliability = publisherReliabilityScore(portfolioRows)
+  const reliability = publisherReliabilityScore(portfolioRows, publisherVolumes)
   const reliabilityRanks = publishers
     .map(p => {
       const pRows = rows.filter(row => (row.publisher || 'Unknown') === p.publisher)
-      const score = publisherReliabilityScore(pRows)
+      const pVolumes = volumeRows.filter(row => (row.publisher || 'Unknown') === p.publisher)
+      const score = publisherReliabilityScore(pRows, pVolumes)
       return { publisher: p.publisher, score }
     })
     .sort((a, b) => b.score - a.score || a.publisher.localeCompare(b.publisher))
@@ -2214,7 +2264,7 @@ function PublisherFocusView({ rows, volumeRows, publisherLogos, selectedPublishe
       </Card>
 
       <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
-        <PublisherDNARadar publisher={publisher} rows={portfolioRows} vi={vi} />
+        <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
         <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
         <PublisherBreakdown rows={portfolioRows} vi={vi} />
       </div>
