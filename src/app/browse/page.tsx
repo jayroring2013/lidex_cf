@@ -258,13 +258,8 @@ function CardItem({ card, color }: { card: SeriesCard; color: string }) {
             <ExternalLink className="w-2.5 h-2.5 text-white/70" />
           </div>
         )}
-        <div className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 40%, transparent)' }}>
-          <div className="p-3 w-full">
-            <p className="text-white text-xs font-semibold line-clamp-2">{card.title}</p>
-            {card.meta && <p className="text-white/50 text-[10px] truncate mt-0.5">{card.meta}</p>}
-          </div>
-        </div>
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.24), rgba(0,0,0,0.04) 45%, transparent)' }} />
       </div>
       <div className="px-3 pt-2 pb-3 h-[72px] flex flex-col justify-between">
         <div>
