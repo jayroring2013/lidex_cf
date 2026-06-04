@@ -2008,8 +2008,8 @@ function NovelDoAStats({
         <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-4">
-        <LnReleaseTimeline volumes={volumes} ranking={ranking} locale={locale} />
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4">
+        <LnVolumeAnalytics volumes={volumes} ranking={ranking} locale={locale} />
         <LnProgressTracker ranking={ranking} locale={locale} releaseStatus={releaseStatus} />
       </div>
 
@@ -2252,6 +2252,133 @@ function LnProgressTracker({ ranking, locale, releaseStatus }: { ranking: NovelR
           <MiniMetric label={isVI ? 'Còn thiếu' : 'Remaining'} value={remaining == null ? '—' : `${remaining} ${isVI ? 'tập' : remaining === 1 ? 'vol' : 'vols'}`} />
           <MiniMetric label={isVI ? 'Nhịp TB' : 'Avg Gap'} value={ranking.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)}m` : '—'} />
           <MiniMetric label={isVI ? 'Lần mới nhất' : 'Latest'} value={lnFormatDateDDMM(ranking.max_release_at)} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranking: NovelRankingRow; locale: string }) {
+  const isVI = locale === 'vi'
+  const sorted = [...volumes]
+    .filter(v => v.volume_number != null || v.release_date || v.price)
+    .sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
+
+  if (sorted.length < 2) return null
+
+  const dated = sorted.filter(v => v.release_date)
+  const gaps = dated.map((vol, index) => {
+    if (index === 0) return null
+    const prev = dated[index - 1]
+    const months = Math.max(0, (new Date(vol.release_date).getTime() - new Date(prev.release_date).getTime()) / 86400000 / 30.4375)
+    return {
+      volume: vol,
+      months,
+      label: `Vol.${vol.volume_number ?? index + 1}`,
+    }
+  }).filter((item): item is { volume: any; months: number; label: string } => Boolean(item))
+
+  const prices = sorted
+    .map(vol => ({
+      volume: vol,
+      price: Number(vol.price || 0),
+      label: `Vol.${vol.volume_number ?? ''}`,
+    }))
+    .filter(item => Number.isFinite(item.price) && item.price > 0)
+
+  const avgGap = gaps.length ? gaps.reduce((sum, item) => sum + item.months, 0) / gaps.length : Number(ranking.average_gap_months || 0)
+  const longestGap = gaps.length ? gaps.reduce((max, item) => Math.max(max, item.months), 0) : 0
+  const avgPrice = prices.length ? prices.reduce((sum, item) => sum + item.price, 0) / prices.length : Number(ranking.average_price || 0)
+  const totalPrice = prices.reduce((sum, item) => sum + item.price, 0)
+  const maxGap = Math.max(1, longestGap)
+  const maxPrice = Math.max(1, ...prices.map(item => item.price))
+  const minPrice = prices.length ? Math.min(...prices.map(item => item.price)) : 0
+  const priceRange = Math.max(1, maxPrice - minPrice)
+  const pricePoints = prices.map((item, index) => {
+    const x = prices.length === 1 ? 50 : (index / (prices.length - 1)) * 100
+    const y = 100 - ((item.price - minPrice) / priceRange) * 78 - 8
+    return { ...item, x, y }
+  })
+  const pricePath = pricePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ')
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Phân tích tập phát hành' : 'Volume Release Analytics'}</h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Nhịp ra tập và giá bìa theo từng volume trong dữ liệu Supabase.' : 'Release cadence and cover price by volume from Supabase data.'}
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:w-[560px] gap-2">
+          <MiniMetric label={isVI ? 'Gap TB' : 'Avg Gap'} value={avgGap ? `${avgGap.toFixed(1)}m` : '—'} />
+          <MiniMetric label={isVI ? 'Gap dài nhất' : 'Longest Gap'} value={longestGap ? `${longestGap.toFixed(1)}m` : '—'} />
+          <MiniMetric label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? formatVnd(avgPrice) : '—'} />
+          <MiniMetric label={isVI ? 'Tổng giá bìa' : 'Total Cover Price'} value={totalPrice ? formatVnd(totalPrice) : '—'} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+        <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Khoảng cách giữa các tập' : 'Release Gap Between Volumes'}</p>
+            <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{gaps.length} {isVI ? 'khoảng' : 'gaps'}</span>
+          </div>
+          {gaps.length ? (
+            <div className="overflow-x-auto pb-1">
+              <div className="flex items-end gap-2 min-w-max h-[170px]">
+                {gaps.map(item => {
+                  const height = Math.max(8, (item.months / maxGap) * 112)
+                  const isSlow = item.months >= Math.max(6, avgGap * 1.4)
+                  return (
+                    <div key={`${item.label}-${item.volume.id || item.volume.release_date}`} className="w-12 flex flex-col items-center justify-end gap-1">
+                      <span className="text-[10px] font-bold tabular-nums" style={{ color: isSlow ? '#f59e0b' : 'var(--foreground-muted)' }}>{item.months.toFixed(1)}m</span>
+                      <div
+                        className="w-7 rounded-t-lg"
+                        style={{
+                          height,
+                          background: isSlow ? 'linear-gradient(180deg,#f59e0b,#fb923c)' : 'linear-gradient(180deg,#38bdf8,#7c6af5)',
+                          boxShadow: isSlow ? '0 0 16px rgba(245,158,11,.22)' : '0 0 16px rgba(56,189,248,.16)',
+                        }}
+                        title={`${item.label}: ${item.months.toFixed(1)} ${isVI ? 'tháng' : 'months'}`}
+                      />
+                      <span className="text-[10px] rotate-[-30deg] origin-top-left whitespace-nowrap translate-x-2" style={{ color: 'var(--foreground-muted)' }}>{item.label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa đủ ngày phát hành để tính gap.' : 'Not enough release dates to calculate gaps.'}</p>
+          )}
+        </div>
+
+        <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Xu hướng giá bìa' : 'Cover Price Trend'}</p>
+            <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{prices.length} {isVI ? 'tập có giá' : 'priced volumes'}</span>
+          </div>
+          {prices.length >= 2 ? (
+            <div className="relative h-[190px]">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible">
+                {[20, 40, 60, 80].map(y => <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="currentColor" strokeWidth="0.35" className="text-slate-400/20" />)}
+                <path d={`${pricePath} L 100 100 L 0 100 Z`} fill="rgba(34,197,94,.12)" />
+                <path d={pricePath} fill="none" stroke="#22c55e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                {pricePoints.map(point => (
+                  <circle key={`${point.label}-${point.volume.id || point.price}`} cx={point.x} cy={point.y} r="1.8" fill="#22c55e" stroke="white" strokeWidth="0.7" vectorEffect="non-scaling-stroke">
+                    <title>{`${point.label}: ${formatVnd(point.price)}`}</title>
+                  </circle>
+                ))}
+              </svg>
+              <div className="absolute left-0 top-0 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{formatVnd(maxPrice)}</div>
+              <div className="absolute left-0 bottom-0 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{formatVnd(minPrice)}</div>
+              <div className="absolute right-0 bottom-0 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+                {prices[0]?.label} → {prices[prices.length - 1]?.label}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa đủ dữ liệu giá để vẽ xu hướng.' : 'Not enough price data to draw a trend.'}</p>
+          )}
         </div>
       </div>
     </div>
