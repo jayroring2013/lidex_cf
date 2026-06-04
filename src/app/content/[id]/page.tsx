@@ -33,6 +33,13 @@ interface TooltipState {
   volNumber: number | undefined
 }
 
+type FanVotePoint = {
+  period: string
+  sort: number
+  votes: number
+  rank: number | null
+}
+
 // ── Score helpers ─────────────────────────────────────────────────────────────
 
 function scoreColor(s: number) {
@@ -345,6 +352,7 @@ export default function ContentDetail() {
   const [novelMeta,    setNovelMeta]    = useState<any>(null)
   const [lnRanking,    setLnRanking]    = useState<NovelRankingRow | null>(null)
   const [lnMarketRows, setLnMarketRows] = useState<NovelRankingRow[]>([])
+  const [fanVoteHistory, setFanVoteHistory] = useState<FanVotePoint[]>([])
   const [lnStatsLoading, setLnStatsLoading] = useState(false)
   const [lnStatsError, setLnStatsError] = useState<string | null>(null)
 
@@ -510,6 +518,46 @@ export default function ContentDetail() {
     }
 
     loadNovelRanking()
+  }, [series])
+
+  useEffect(() => {
+    if (!series || series.item_type !== 'novel') {
+      setFanVoteHistory([])
+      return
+    }
+
+    async function loadFanVoteHistory() {
+      const { data, error } = await supabase
+        .from('voting_results')
+        .select('votes, rank, voting_periods(month, year, label)')
+        .eq('series_id', series.id)
+
+      if (error) {
+        console.warn('Failed to load fan vote history:', error.message)
+        setFanVoteHistory([])
+        return
+      }
+
+      const history = (data || [])
+        .map((row: any) => {
+          const periodRaw = row.voting_periods
+          const period = Array.isArray(periodRaw) ? periodRaw[0] : periodRaw
+          const month = Number(period?.month || 0)
+          const year = Number(period?.year || 0)
+          return {
+            period: period?.label || (month && year ? `${String(month).padStart(2, '0')}/${year}` : '—'),
+            sort: year * 100 + month,
+            votes: Number(row.votes) || 0,
+            rank: row.rank == null ? null : Number(row.rank),
+          } as FanVotePoint
+        })
+        .filter(point => point.sort > 0)
+        .sort((a, b) => a.sort - b.sort)
+
+      setFanVoteHistory(history)
+    }
+
+    loadFanVoteHistory()
   }, [series])
 
   // ── Calculate LiDex Score (anime only) ──────────────────────────────────────
@@ -1051,6 +1099,7 @@ export default function ContentDetail() {
                     ranking={lnRanking}
                     marketRows={lnMarketRows}
                     volumes={allVolumes}
+                    fanVoteHistory={fanVoteHistory}
                     locale={locale}
                     loading={lnStatsLoading}
                     error={lnStatsError}
@@ -1788,6 +1837,7 @@ function NovelDoAStats({
   ranking,
   marketRows,
   volumes,
+  fanVoteHistory,
   locale,
   loading,
   error,
@@ -1795,6 +1845,7 @@ function NovelDoAStats({
   ranking: NovelRankingRow | null
   marketRows: NovelRankingRow[]
   volumes: any[]
+  fanVoteHistory: FanVotePoint[]
   locale: string
   loading: boolean
   error: string | null
@@ -2008,9 +2059,12 @@ function NovelDoAStats({
         <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
         <LnVolumeAnalytics volumes={volumes} ranking={ranking} locale={locale} />
-        <LnProgressTracker ranking={ranking} locale={locale} releaseStatus={releaseStatus} />
+        <div className="space-y-4">
+          <LnProgressTracker ranking={ranking} locale={locale} releaseStatus={releaseStatus} />
+          <FanVoteDemandCard history={fanVoteHistory} ranking={ranking} locale={locale} />
+        </div>
       </div>
 
       <SimilarNovelsCarousel active={ranking} marketRows={marketRows} locale={locale} />
@@ -2261,7 +2315,7 @@ function LnProgressTracker({ ranking, locale, releaseStatus }: { ranking: NovelR
 function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranking: NovelRankingRow; locale: string }) {
   const isVI = locale === 'vi'
   const sorted = [...volumes]
-    .filter(v => v.volume_number != null || v.release_date || v.price)
+    .filter(v => v.volume_number != null || v.release_date)
     .sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
 
   if (sorted.length < 2) return null
@@ -2278,109 +2332,219 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
     }
   }).filter((item): item is { volume: any; months: number; label: string } => Boolean(item))
 
-  const prices = sorted
-    .map(vol => ({
-      volume: vol,
-      price: Number(vol.price || 0),
-      label: `Vol.${vol.volume_number ?? ''}`,
-    }))
-    .filter(item => Number.isFinite(item.price) && item.price > 0)
-
   const avgGap = gaps.length ? gaps.reduce((sum, item) => sum + item.months, 0) / gaps.length : Number(ranking.average_gap_months || 0)
   const longestGap = gaps.length ? gaps.reduce((max, item) => Math.max(max, item.months), 0) : 0
-  const avgPrice = prices.length ? prices.reduce((sum, item) => sum + item.price, 0) / prices.length : Number(ranking.average_price || 0)
-  const totalPrice = prices.reduce((sum, item) => sum + item.price, 0)
+  const latestRelease = ranking.max_release_at || sorted[sorted.length - 1]?.release_date || null
   const maxGap = Math.max(1, longestGap)
-  const maxPrice = Math.max(1, ...prices.map(item => item.price))
-  const minPrice = prices.length ? Math.min(...prices.map(item => item.price)) : 0
-  const priceRange = Math.max(1, maxPrice - minPrice)
-  const pricePoints = prices.map((item, index) => {
-    const x = prices.length === 1 ? 50 : (index / (prices.length - 1)) * 100
-    const y = 100 - ((item.price - minPrice) / priceRange) * 78 - 8
+  const gapPoints = gaps.map((item, index) => {
+    const x = gaps.length === 1 ? 50 : (index / (gaps.length - 1)) * 100
+    const y = 88 - (item.months / maxGap) * 72
     return { ...item, x, y }
   })
-  const pricePath = pricePoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ')
+  const gapPath = gapPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(' ')
 
   return (
     <div className="glass rounded-2xl p-4 sm:p-5">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Phân tích tập phát hành' : 'Volume Release Analytics'}</h2>
+          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Nhịp phát hành VN' : 'VN Release Cadence'}</h2>
           <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            {isVI ? 'Nhịp ra tập và giá bìa theo từng volume trong dữ liệu Supabase.' : 'Release cadence and cover price by volume from Supabase data.'}
+            {isVI ? 'Timeline từng tập và xu hướng khoảng cách giữa các lần phát hành.' : 'Volume timeline and month-gap trend between releases.'}
           </p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:w-[560px] gap-2">
           <MiniMetric label={isVI ? 'Gap TB' : 'Avg Gap'} value={avgGap ? `${avgGap.toFixed(1)}m` : '—'} />
           <MiniMetric label={isVI ? 'Gap dài nhất' : 'Longest Gap'} value={longestGap ? `${longestGap.toFixed(1)}m` : '—'} />
-          <MiniMetric label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? formatVnd(avgPrice) : '—'} />
-          <MiniMetric label={isVI ? 'Tổng giá bìa' : 'Total Cover Price'} value={totalPrice ? formatVnd(totalPrice) : '—'} />
+          <MiniMetric label={isVI ? 'Số tập VN' : 'VN Volumes'} value={String(sorted.length)} />
+          <MiniMetric label={isVI ? 'Mới nhất' : 'Latest'} value={lnFormatDateDDMM(latestRelease)} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 2xl:grid-cols-[0.95fr_1.05fr] gap-4">
         <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Khoảng cách giữa các tập' : 'Release Gap Between Volumes'}</p>
-            <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{gaps.length} {isVI ? 'khoảng' : 'gaps'}</span>
+            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Release Timeline' : 'Release Timeline'}</p>
+            <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{sorted.length} {isVI ? 'tập' : 'volumes'}</span>
           </div>
-          {gaps.length ? (
+          {sorted.length ? (
             <div className="overflow-x-auto pb-1">
-              <div className="flex items-end gap-2 min-w-max h-[170px]">
-                {gaps.map(item => {
-                  const height = Math.max(8, (item.months / maxGap) * 112)
-                  const isSlow = item.months >= Math.max(6, avgGap * 1.4)
+              <div className="relative min-w-[620px] h-[170px]">
+                <div className="absolute left-5 right-5 top-[76px] h-1.5 rounded-full" style={{ background: 'var(--ln-track-bg)' }} />
+                {sorted.map((vol, index) => {
+                  const left = sorted.length === 1 ? 50 : (index / (sorted.length - 1)) * 100
+                  const hasDate = Boolean(vol.release_date)
+                  const date = lnFormatDateDDMM(vol.release_date)
                   return (
-                    <div key={`${item.label}-${item.volume.id || item.volume.release_date}`} className="w-12 flex flex-col items-center justify-end gap-1">
-                      <span className="text-[10px] font-bold tabular-nums" style={{ color: isSlow ? '#f59e0b' : 'var(--foreground-muted)' }}>{item.months.toFixed(1)}m</span>
+                    <div
+                      key={vol.id || `${vol.volume_number}-${index}`}
+                      className="absolute top-0 -translate-x-1/2 flex flex-col items-center text-center"
+                      style={{ left: `${left}%` }}
+                    >
+                      <span className="text-[10px] font-black mb-2" style={{ color: 'var(--foreground-secondary)' }}>Vol.{vol.volume_number ?? index + 1}</span>
                       <div
-                        className="w-7 rounded-t-lg"
+                        className="w-5 h-5 rounded-full"
                         style={{
-                          height,
-                          background: isSlow ? 'linear-gradient(180deg,#f59e0b,#fb923c)' : 'linear-gradient(180deg,#38bdf8,#7c6af5)',
-                          boxShadow: isSlow ? '0 0 16px rgba(245,158,11,.22)' : '0 0 16px rgba(56,189,248,.16)',
+                          marginTop: 48,
+                          background: hasDate ? 'linear-gradient(135deg,#7c6af5,#38bdf8)' : 'transparent',
+                          border: hasDate ? '2px solid #c4b5fd' : '2px dashed #7c6af5',
+                          boxShadow: hasDate ? '0 0 0 5px rgba(124,106,245,.16)' : 'none',
                         }}
-                        title={`${item.label}: ${item.months.toFixed(1)} ${isVI ? 'tháng' : 'months'}`}
+                        title={`Vol.${vol.volume_number ?? index + 1}: ${date}`}
                       />
-                      <span className="text-[10px] rotate-[-30deg] origin-top-left whitespace-nowrap translate-x-2" style={{ color: 'var(--foreground-muted)' }}>{item.label}</span>
+                      <span className="text-[10px] mt-3 whitespace-nowrap" style={{ color: 'var(--foreground-muted)' }}>{date}</span>
                     </div>
                   )
                 })}
               </div>
             </div>
           ) : (
-            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa đủ ngày phát hành để tính gap.' : 'Not enough release dates to calculate gaps.'}</p>
+            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa có dữ liệu tập.' : 'No volume data available.'}</p>
           )}
         </div>
 
         <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Xu hướng giá bìa' : 'Cover Price Trend'}</p>
-            <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{prices.length} {isVI ? 'tập có giá' : 'priced volumes'}</span>
+            <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Release Gap Trend' : 'Release Gap Trend'}</p>
+            <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{gaps.length} {isVI ? 'khoảng' : 'gaps'}</span>
           </div>
-          {prices.length >= 2 ? (
-            <div className="relative h-[190px]">
+          {gapPoints.length >= 2 ? (
+            <div className="relative h-[210px]">
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible">
                 {[20, 40, 60, 80].map(y => <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="currentColor" strokeWidth="0.35" className="text-slate-400/20" />)}
-                <path d={`${pricePath} L 100 100 L 0 100 Z`} fill="rgba(34,197,94,.12)" />
-                <path d={pricePath} fill="none" stroke="#22c55e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-                {pricePoints.map(point => (
-                  <circle key={`${point.label}-${point.volume.id || point.price}`} cx={point.x} cy={point.y} r="1.8" fill="#22c55e" stroke="white" strokeWidth="0.7" vectorEffect="non-scaling-stroke">
-                    <title>{`${point.label}: ${formatVnd(point.price)}`}</title>
+                <path d={`${gapPath} L 100 100 L 0 100 Z`} fill="rgba(124,106,245,.12)" />
+                <path d={gapPath} fill="none" stroke="#7c6af5" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                {gapPoints.map(point => (
+                  <circle key={`${point.label}-${point.volume.id || point.months}`} cx={point.x} cy={point.y} r="2" fill="#7c6af5" stroke="white" strokeWidth="0.8" vectorEffect="non-scaling-stroke">
+                    <title>{`${point.label}: ${point.months.toFixed(1)} ${isVI ? 'tháng' : 'months'}`}</title>
                   </circle>
                 ))}
               </svg>
-              <div className="absolute left-0 top-0 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{formatVnd(maxPrice)}</div>
-              <div className="absolute left-0 bottom-0 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{formatVnd(minPrice)}</div>
+              <div className="absolute left-0 top-0 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{maxGap.toFixed(1)}m</div>
+              <div className="absolute left-0 bottom-0 text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>0m</div>
               <div className="absolute right-0 bottom-0 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
-                {prices[0]?.label} → {prices[prices.length - 1]?.label}
+                {gapPoints[0]?.label} → {gapPoints[gapPoints.length - 1]?.label}
               </div>
             </div>
           ) : (
-            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa đủ dữ liệu giá để vẽ xu hướng.' : 'Not enough price data to draw a trend.'}</p>
+            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chưa đủ ngày phát hành để vẽ xu hướng gap.' : 'Not enough release dates to draw a gap trend.'}</p>
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+function FanVoteDemandCard({ history, ranking, locale }: { history: FanVotePoint[]; ranking: NovelRankingRow; locale: string }) {
+  const isVI = locale === 'vi'
+  const latest = history[history.length - 1] || null
+  const previous = history.length > 1 ? history[history.length - 2] : null
+  const bestRank = history.reduce<number | null>((best, point) => {
+    if (point.rank == null) return best
+    return best == null ? point.rank : Math.min(best, point.rank)
+  }, null)
+  const rankChange = latest?.rank != null && previous?.rank != null ? previous.rank - latest.rank : null
+  const support = lnPublisherSupportScore(ranking) * 10
+  const rankDemand = latest?.rank ? Math.max(0, Math.min(100, 105 - latest.rank)) : 0
+  const voteMomentum = latest && previous && previous.votes > 0
+    ? Math.max(-30, Math.min(30, ((latest.votes - previous.votes) / previous.votes) * 100))
+    : 0
+  const demand = latest ? Math.max(0, Math.min(100, rankDemand + voteMomentum * 0.35)) : 0
+  const demandGap = latest ? Math.round(demand - support) : null
+
+  const validRanks = history.map((point, index) => ({ ...point, index })).filter((point): point is FanVotePoint & { rank: number; index: number } => point.rank != null)
+  const sparkPath = (() => {
+    if (validRanks.length <= 1) return ''
+    const minRank = Math.min(...validRanks.map(point => point.rank))
+    const maxRank = Math.max(...validRanks.map(point => point.rank))
+    const span = Math.max(1, maxRank - minRank)
+    const lastIndex = Math.max(1, history.length - 1)
+    return validRanks.map((point, index) => {
+      const x = (point.index / lastIndex) * 92 + 4
+      const y = 8 + ((point.rank - minRank) / span) * 42
+      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
+    }).join(' ')
+  })()
+
+  return (
+    <div className="glass rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Fan Vote Demand' : 'Fan Vote Demand'}</h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Tín hiệu nhu cầu từ BXH LN yêu thích.' : 'Demand signal from favourite LN voting.'}
+          </p>
+        </div>
+        {latest && (
+          <span className="rounded-full px-2.5 py-1 text-[10px] font-black" style={{ color: '#f59e0b', background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.28)' }}>
+            {latest.period}
+          </span>
+        )}
+      </div>
+
+      {latest ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <MiniMetric label={isVI ? 'Hạng mới nhất' : 'Latest Rank'} value={latest.rank ? `#${latest.rank}` : '—'} />
+            <MiniMetric label={isVI ? 'Bình chọn' : 'Votes'} value={latest.votes.toLocaleString('vi-VN')} />
+            <MiniMetric label={isVI ? 'Hạng tốt nhất' : 'Best Rank'} value={bestRank ? `#${bestRank}` : '—'} />
+            <MiniMetric
+              label={isVI ? 'Thay đổi' : 'Change'}
+              value={rankChange == null ? '—' : rankChange === 0 ? '0' : `${rankChange > 0 ? '+' : ''}${rankChange}`}
+            />
+          </div>
+
+          <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Xu hướng hạng' : 'Rank Trend'}</p>
+              <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{history.length} {isVI ? 'kỳ' : 'periods'}</span>
+            </div>
+            {sparkPath ? (
+              <svg viewBox="0 0 100 60" className="w-full h-[72px]" aria-hidden="true">
+                <path d={sparkPath} fill="none" stroke={rankChange != null && rankChange >= 0 ? '#22c55e' : '#ef4444'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                {validRanks.map(point => {
+                  const minRank = Math.min(...validRanks.map(p => p.rank))
+                  const maxRank = Math.max(...validRanks.map(p => p.rank))
+                  const span = Math.max(1, maxRank - minRank)
+                  const lastIndex = Math.max(1, history.length - 1)
+                  const x = (point.index / lastIndex) * 92 + 4
+                  const y = 8 + ((point.rank - minRank) / span) * 42
+                  return <circle key={`${point.period}-${point.rank}`} cx={x} cy={y} r="3" fill="#38bdf8"><title>{`${point.period}: #${point.rank}`}</title></circle>
+                })}
+              </svg>
+            ) : (
+              <p className="text-xs py-5 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Cần ít nhất 2 kỳ vote để vẽ xu hướng.' : 'At least 2 voting periods are needed for a trend.'}</p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Demand Gap' : 'Demand Gap'}</span>
+              <span className="text-xs font-black" style={{ color: demandGap != null && demandGap > 15 ? '#f59e0b' : demandGap != null && demandGap < -15 ? '#38bdf8' : 'var(--foreground-secondary)' }}>
+                {demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
+              </span>
+            </div>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              <div>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, demand))}%`, background: '#f59e0b' }} />
+                </div>
+                <p className="text-[9px] mt-1" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Nhu cầu' : 'Demand'}</p>
+              </div>
+              <span className="text-[10px] font-black" style={{ color: 'var(--foreground-muted)' }}>vs</span>
+              <div>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, support))}%`, background: '#38bdf8' }} />
+                </div>
+                <p className="text-[9px] mt-1 text-right" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Hỗ trợ NPH' : 'Support'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs py-8 text-center" style={{ color: 'var(--foreground-muted)' }}>
+          {isVI ? 'Series này chưa có dữ liệu vote yêu thích.' : 'No favourite voting data for this series yet.'}
+        </p>
+      )}
     </div>
   )
 }
