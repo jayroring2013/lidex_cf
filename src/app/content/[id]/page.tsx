@@ -92,7 +92,6 @@ interface NovelRankingRow {
   number_of_volumes: number | null
   average_price: number | null
   max_release_at: string | null
-  average_view_count: number | null
   publisher: string | null
   original_volumes: number | null
   original_status: string | null
@@ -235,15 +234,6 @@ function lnCompletionRatio(row: NovelRankingRow) {
   return null
 }
 
-function lnPercentileScore(rows: NovelRankingRow[], value: number | null | undefined, getter: (row: NovelRankingRow) => number) {
-  const sorted = rows.map(getter).filter(Number.isFinite).sort((a, b) => a - b)
-  if (value == null || sorted.length <= 1) return 5
-  const n = lnNum(value)
-  const idx = sorted.findIndex(v => v >= n)
-  const rank = idx < 0 ? sorted.length - 1 : idx
-  return Number(((rank / (sorted.length - 1)) * 10).toFixed(1))
-}
-
 function lnPublisherSupportScore(row: NovelRankingRow) {
   const base = ({ Active: 8, Moderate: 6.5, Low: 4.5, Inactive: 2 } as Record<string, number>)[row.publisher_activity || ''] ?? 5
   return Number(lnClamp10(base + Math.min(lnNum(row.publisher_releases_last_24m) / 50 * 2, 2)).toFixed(1))
@@ -270,6 +260,18 @@ function lnMomentumScore(row: NovelRankingRow) {
   return Number((base * 0.45 + releases * 0.35 + freshness * 0.2).toFixed(1))
 }
 
+function lnReleaseConsistencyScore(row: NovelRankingRow) {
+  const gap = row.average_gap_months == null ? null : lnNum(row.average_gap_months)
+  if (gap === null) return 5
+  if (gap <= 4) return 9.5
+  if (gap <= 6) return 8.5
+  if (gap <= 9) return 7
+  if (gap <= 12) return 5.5
+  if (gap <= 18) return 3.5
+  if (gap <= 24) return 2
+  return 1
+}
+
 function buildNovelRadarAxes(row: NovelRankingRow, marketRows: NovelRankingRow[], isVI = true): NovelRadarAxis[] {
   return [
     {
@@ -283,9 +285,9 @@ function buildNovelRadarAxes(row: NovelRankingRow, marketRows: NovelRankingRow[]
       hint: isVI ? 'Tỷ lệ tập VN so với số tập gốc/JP.' : 'Vietnamese volumes compared with original/JP volumes.',
     },
     {
-      label: isVI ? 'Nhu cầu' : 'Demand',
-      value: lnPercentileScore(marketRows, row.average_view_count, r => lnNum(r.average_view_count)),
-      hint: isVI ? 'Phân vị lượt xem trung bình trong toàn bộ watchlist LN.' : 'Average view count percentile across the LN watchlist.',
+      label: isVI ? 'Ổn định' : 'Consistency',
+      value: lnReleaseConsistencyScore(row),
+      hint: isVI ? 'Độ đều của nhịp phát hành dựa trên khoảng cách trung bình giữa các tập.' : 'Release regularity based on the average gap between volumes.',
     },
     {
       label: isVI ? 'Nhà PH' : 'Publisher',
@@ -490,7 +492,7 @@ export default function ContentDetail() {
       try {
         const { data, error } = await supabase
           .from('ln_series_ranking')
-          .select('id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, average_view_count, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title, updated_at')
+          .select('id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title, updated_at')
           .order('ln_score', { ascending: false })
 
         if (error) throw error
@@ -1902,11 +1904,11 @@ function NovelDoAStats({
   const latestDate = ranking.max_release_at || volumes[0]?.release_date || null
   const avgGap = ranking.average_gap_months == null ? null : Number(ranking.average_gap_months)
   const monthsAgo = ranking.months_since_last_release == null ? null : Number(ranking.months_since_last_release)
-  const demand = lnPercentileScore(marketRows, ranking.average_view_count, row => lnNum(row.average_view_count))
   const releasePace = lnReleasePaceScore(ranking)
   const catchUp = lnCatchUpScore(ranking)
   const publisherSupport = lnPublisherSupportScore(ranking)
   const safety = lnCompletionSafetyScore(ranking)
+  const consistency = lnReleaseConsistencyScore(ranking)
 
   const scoreRows: LnBreakdownItem[] = [
     {
@@ -1931,18 +1933,18 @@ function NovelDoAStats({
       color: '#38bdf8',
     },
     {
-      label: isVI ? 'Mức độ quan tâm' : 'Demand',
-      sub: isVI ? 'Phân vị lượt xem' : 'View percentile',
-      value: demand * 10,
-      delta: `+${(demand / 10 * 0.4).toFixed(1)}`,
-      color: '#22c55e',
-    },
-    {
       label: isVI ? 'Độ ổn định' : 'Safety',
       sub: isVI ? 'Nghịch đảo rủi ro drop' : 'Inverse drop risk',
       value: safety * 10,
       delta: `${safety >= 7 ? '+' : ''}${((safety - 5) / 10).toFixed(1)}`,
       color: safety >= 6 ? '#22c55e' : '#f97316',
+    },
+    {
+      label: isVI ? 'Nhịp ổn định' : 'Consistency',
+      sub: avgGap == null ? '—' : `${avgGap.toFixed(1)} ${isVI ? 'tháng/tập' : 'months/vol'}`,
+      value: consistency * 10,
+      delta: `+${(consistency / 10 * 0.5).toFixed(1)}`,
+      color: consistency >= 6 ? '#22c55e' : '#f97316',
     },
   ]
 
@@ -1975,18 +1977,11 @@ function NovelDoAStats({
       delta: publisherSupport >= 7 ? '-5%' : '+4%',
       color: publisherSupport >= 7 ? '#22c55e' : '#f97316',
     },
-    {
-      label: isVI ? 'Quan tâm thị trường' : 'Market attention',
-      sub: ranking.average_view_count ? fmtBig(Number(ranking.average_view_count)) : '—',
-      value: Math.max(5, 100 - demand * 10),
-      delta: demand >= 6 ? '-2%' : '+3%',
-      color: demand >= 6 ? '#22c55e' : '#eab308',
-    },
   ]
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         <LnKpiCard
           label={isVI ? 'Điểm LN' : 'LN Score'}
           value={ranking.ln_score != null ? Number(ranking.ln_score).toFixed(1) : '—'}
@@ -2011,13 +2006,6 @@ function NovelDoAStats({
           progress={ratio != null ? ratio * 100 : 0}
         />
         <LnKpiCard
-          label={isVI ? 'Lượt xem TB' : 'Avg Views'}
-          value={ranking.average_view_count ? fmtBig(Number(ranking.average_view_count)) : '—'}
-          helper={isVI ? 'Mỗi tập' : 'Per volume'}
-          color="#38bdf8"
-          progress={demand * 10}
-        />
-        <LnKpiCard
           label={isVI ? 'Khoảng cách phát hành' : 'Release Gap'}
           value={avgGap != null ? avgGap.toFixed(1) : '—'}
           sub={isVI ? ' tháng' : ' months'}
@@ -2035,7 +2023,7 @@ function NovelDoAStats({
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_0.95fr_1.08fr_1.25fr] gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <LnBreakdownPanel
           index="1"
           title={isVI ? 'Phân rã Điểm LN' : 'LN Score Breakdown'}
@@ -2055,11 +2043,14 @@ function NovelDoAStats({
           footerValue={`${drop}%`}
           footerColor={lnDropColor(ranking.drop_percent)}
         />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.1fr] gap-4">
         <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} />
         <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-4 items-start">
         <LnVolumeAnalytics volumes={volumes} ranking={ranking} locale={locale} />
         <div className="space-y-4">
           <LnProgressTracker ranking={ranking} locale={locale} releaseStatus={releaseStatus} />
@@ -2281,7 +2272,7 @@ function LnProgressTracker({ ranking, locale, releaseStatus }: { ranking: NovelR
   const remaining = original > 0 ? Math.max(0, original - vn) : null
 
   return (
-    <div className="glass rounded-2xl p-4 sm:p-5 h-full">
+    <div className="glass rounded-2xl p-4 sm:p-5">
       <div className="flex items-center gap-2 mb-5">
         <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>6</span>
         <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Theo dõi tiến độ' : 'Progress Tracker'}</h2>
@@ -2318,7 +2309,18 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
     .filter(v => v.volume_number != null || v.release_date)
     .sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
 
-  if (sorted.length < 2) return null
+  if (!sorted.length) {
+    return (
+      <div className="glass rounded-2xl p-4 sm:p-5">
+        <div>
+          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Nhịp phát hành VN' : 'VN Release Cadence'}</h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Chưa có dữ liệu tập để vẽ timeline phát hành.' : 'No volume data available for a release timeline.'}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   const dated = sorted.filter(v => v.release_date)
   const gaps = dated.map((vol, index) => {
