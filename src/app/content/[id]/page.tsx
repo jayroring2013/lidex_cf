@@ -616,6 +616,7 @@ export default function ContentDetail() {
   const isAnime   = series.item_type === 'anime'
   const isManga   = series.item_type === 'manga'
   const isNovel   = series.item_type === 'novel'
+  const isStatsTab = activeTab === 'stats'
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--background)' }}>
@@ -821,7 +822,7 @@ export default function ContentDetail() {
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 items-start">
 
           {/* ── Left: Tabs ── */}
-          <div className="lg:col-span-2 min-w-0">
+          <div className={`${isStatsTab ? 'lg:col-span-3' : 'lg:col-span-2'} min-w-0`}>
 
             {/* Tab bar */}
             <div className="flex gap-1 p-1 rounded-2xl mb-6" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
@@ -1050,8 +1051,6 @@ export default function ContentDetail() {
                     ranking={lnRanking}
                     marketRows={lnMarketRows}
                     volumes={allVolumes}
-                    series={series}
-                    novelMeta={novelMeta}
                     locale={locale}
                     loading={lnStatsLoading}
                     error={lnStatsError}
@@ -1151,6 +1150,7 @@ export default function ContentDetail() {
           </div>
 
           {/* ── Right Sidebar ── */}
+          {!isStatsTab && (
           <div className="space-y-4 sm:space-y-5 min-w-0">
 
             {isNovel && (
@@ -1267,6 +1267,7 @@ export default function ContentDetail() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>
@@ -1787,8 +1788,6 @@ function NovelDoAStats({
   ranking,
   marketRows,
   volumes,
-  series,
-  novelMeta,
   locale,
   loading,
   error,
@@ -1796,8 +1795,6 @@ function NovelDoAStats({
   ranking: NovelRankingRow | null
   marketRows: NovelRankingRow[]
   volumes: any[]
-  series: any
-  novelMeta: any
   locale: string
   loading: boolean
   error: string | null
@@ -1859,12 +1856,6 @@ function NovelDoAStats({
   const catchUp = lnCatchUpScore(ranking)
   const publisherSupport = lnPublisherSupportScore(ranking)
   const safety = lnCompletionSafetyScore(ranking)
-  const momentum = lnMomentumScore(ranking)
-  const avgPrice = ranking.average_price || (
-    volumes.length
-      ? Math.round(volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((a, b) => a + b, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length))
-      : 0
-  )
 
   const scoreRows: LnBreakdownItem[] = [
     {
@@ -2024,43 +2015,6 @@ function NovelDoAStats({
 
       <SimilarNovelsCarousel active={ranking} marketRows={marketRows} locale={locale} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <BreakdownCard
-          title={isVI ? 'Ghi chú Điểm LN' : 'LN Score Notes'}
-          accent={lnScoreColor(ranking.ln_score)}
-          body={ranking.score_components || ranking.evaluation_basis || ''}
-          empty={isVI ? 'Không có ghi chú điểm.' : 'No score notes available.'}
-        />
-        <BreakdownCard
-          title={isVI ? 'Ghi chú Rủi ro Drop' : 'Drop Risk Notes'}
-          accent={lnDropColor(ranking.drop_percent)}
-          body={ranking.drop_components || ranking.drop_basis || ''}
-          empty={isVI ? 'Không có ghi chú rủi ro.' : 'No risk notes available.'}
-        />
-      </div>
-
-      {volumes.length > 0 && (
-        <div className="glass rounded-2xl p-5 sm:p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <BookOpen className="w-5 h-5 text-primary-500" />
-            <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
-              {isVI ? 'Dữ liệu tập đã phát hành' : 'Volume Release Data'}
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <MiniMetric label={isVI ? 'Tập trong DB' : 'DB Volumes'} value={String(volumes.length)} />
-            <MiniMetric label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? `${Math.round(avgPrice).toLocaleString('vi-VN')}₫` : '—'} />
-            <MiniMetric label={isVI ? 'Tập mới nhất' : 'Latest Vol.'} value={volumes[0]?.volume_number != null ? `Vol. ${volumes[0].volume_number}` : '—'} />
-            <MiniMetric label={isVI ? 'Nguồn bìa' : 'Cover Source'} value={ranking.cover_source_title || series.title || '—'} />
-            {novelMeta && (
-              <MiniMetric
-                label={isVI ? 'Novel Meta' : 'Novel Meta'}
-                value={novelMeta.updated_at ? lnFormatDate(novelMeta.updated_at, locale) : (isVI ? 'Có dữ liệu' : 'Available')}
-              />
-            )}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
