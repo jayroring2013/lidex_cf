@@ -1260,11 +1260,11 @@ function publisherPortfolioBuckets(rows: LNRow[]) {
 function publisherStatusHealth(row: LNRow) {
   const status = releaseStatusLabel(releaseStatus(row), false)
   if (row.evalution === 'Completed' || status === 'Completed') return 100
-  if (row.evalution === 'Dropped' || status === 'Dropped') return 0
-  if (row.evalution === 'Dead' || status === 'Long inactive') return 8
-  if (row.evalution === 'Limping') return 38
-  if (status === 'Caught up to JP') return 78
+  if (status === 'Caught up to JP') return 92
   if (status === 'Active') return 85
+  if (status === 'Long inactive') return 18
+  if (row.evalution === 'Dead') return 10
+  if (row.evalution === 'Dropped' || status === 'Dropped') return 0
   return 45
 }
 
@@ -1327,33 +1327,26 @@ function applyReliabilityInactivityCap(score: number, rows: LNRow[], volumeRows:
 
 function publisherReliabilityScore(rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
   if (rows.length === 0) return 0
-  const buckets = publisherPortfolioBuckets(rows)
-  const total = rows.length
   const avgDropSafety = Math.max(0, Math.min(100, 100 - avgValue(rows, row => pctValue(row.drop_percent))))
-  const stalledShare = buckets.stalled.length / total
-  const droppedShare = buckets.dropped.length / total
-  const portfolioHealth = (
-    (buckets.completed.length / total) * 84 +
-    (buckets.ongoing.length / total) * 92 +
-    (buckets.caught.length / total) * 74 +
-    stalledShare * 30
-  )
+  const badShare = rows.filter(row => {
+    const status = releaseStatusLabel(releaseStatus(row), false)
+    return row.evalution === 'Dead' || row.evalution === 'Dropped' || status === 'Long inactive' || status === 'Dropped'
+  }).length / rows.length
+  const portfolioHealth = Math.max(0, 100 - badShare * 170)
   const activitySupport = avgValue(rows, row => row.publisher_support_score * 10)
   const releasePace = publisherReleasePaceScore(rows)
   const releaseRecency = publisherReleaseRecencyScore(rows, volumeRows)
   const statusHealth = avgValue(rows, publisherStatusHealth)
-  const consistency = Math.min(portfolioHealth, Math.max(0, (releasePace * 0.65) + (releaseRecency * 0.35)))
+  const consistency = Math.min(portfolioHealth, Math.max(0, (releasePace * 0.55) + (releaseRecency * 0.45)))
 
   const score =
-    portfolioHealth * 0.42 +
-    releasePace * 0.20 +
-    avgDropSafety * 0.14 +
-    releaseRecency * 0.09 +
-    statusHealth * 0.07 +
+    releaseRecency * 0.25 +
+    portfolioHealth * 0.24 +
+    releasePace * 0.18 +
+    avgDropSafety * 0.13 +
+    statusHealth * 0.12 +
     activitySupport * 0.05 +
-    consistency * 0.03 -
-    stalledShare * 18 -
-    droppedShare * 35
+    consistency * 0.03
 
   return Math.max(0, Math.min(100, applyReliabilityInactivityCap(score, rows, volumeRows)))
 }
