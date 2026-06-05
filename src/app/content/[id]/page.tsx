@@ -1910,7 +1910,6 @@ function NovelDoAStats({
 
   const drop = lnDropPercent(ranking.drop_percent)
   const ratio = lnCompletionRatio(ranking)
-  const releaseStatus = lnReleaseStatus(ranking)
   const latestDate = ranking.max_release_at || volumes[0]?.release_date || null
   const avgGap = ranking.average_gap_months == null ? null : Number(ranking.average_gap_months)
   const monthsAgo = ranking.months_since_last_release == null ? null : Number(ranking.months_since_last_release)
@@ -2038,12 +2037,9 @@ function NovelDoAStats({
         <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-4 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-4 items-start">
         <LnVolumeAnalytics volumes={volumes} ranking={ranking} locale={locale} />
-        <div className="space-y-4">
-          <LnProgressTracker ranking={ranking} locale={locale} releaseStatus={releaseStatus} />
-          <FanVoteDemandCard history={fanVoteHistory} ranking={ranking} locale={locale} />
-        </div>
+        <FanVoteDemandCard history={fanVoteHistory} ranking={ranking} locale={locale} />
       </div>
 
       <SimilarNovelsCarousel active={ranking} marketRows={marketRows} locale={locale} />
@@ -2469,45 +2465,6 @@ function LnReleaseTimeline({ volumes, ranking, locale }: { volumes: any[]; ranki
   )
 }
 
-function LnProgressTracker({ ranking, locale, releaseStatus }: { ranking: NovelRankingRow; locale: string; releaseStatus: string }) {
-  const isVI = locale === 'vi'
-  const vn = lnNum(ranking.number_of_volumes)
-  const original = lnNum(ranking.original_volumes)
-  const ratio = original > 0 ? Math.min(100, vn / original * 100) : 0
-  const remaining = original > 0 ? Math.max(0, original - vn) : null
-
-  return (
-    <div className="glass rounded-2xl p-4 sm:p-5">
-      <div className="flex items-center gap-2 mb-5">
-        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>6</span>
-        <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Theo dõi tiến độ' : 'Progress Tracker'}</h2>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <p className="text-[11px] font-bold mb-1" style={{ color: 'var(--foreground-muted)' }}>VN Progress</p>
-          <div className="flex items-end justify-between">
-            <p className="text-3xl font-black tabular-nums" style={{ color: '#c4b5fd' }}>
-              {vn}<span className="text-base ml-1" style={{ color: 'var(--foreground-muted)' }}>/ {original || '—'}</span>
-            </p>
-            <p className="text-lg font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{original ? `${ratio.toFixed(1)}%` : '—'}</p>
-          </div>
-          <div className="h-2.5 rounded-full mt-3 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
-            <div className="h-full rounded-full" style={{ width: `${ratio}%`, background: 'linear-gradient(90deg,#7c6af5,#38bdf8)' }} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <MiniMetric label={isVI ? 'JP Status' : 'JP Status'} value={lnReleaseStatusLabel(releaseStatus, isVI)} />
-          <MiniMetric label={isVI ? 'Còn thiếu' : 'Remaining'} value={remaining == null ? '—' : `${remaining} ${isVI ? 'tập' : remaining === 1 ? 'vol' : 'vols'}`} />
-          <MiniMetric label={isVI ? 'Nhịp TB' : 'Avg Gap'} value={ranking.average_gap_months != null ? `${Number(ranking.average_gap_months).toFixed(1)}m` : '—'} />
-          <MiniMetric label={isVI ? 'Lần mới nhất' : 'Latest'} value={lnFormatDateDDMM(ranking.max_release_at)} />
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranking: NovelRankingRow; locale: string }) {
   const isVI = locale === 'vi'
   const sorted = [...volumes]
@@ -2634,44 +2591,89 @@ function FanVoteDemandCard({ history, ranking, locale }: { history: FanVotePoint
   const isVI = locale === 'vi'
   const latest = history[history.length - 1] || null
   const previous = history.length > 1 ? history[history.length - 2] : null
+  const first = history[0] || null
+
   const bestRank = history.reduce<number | null>((best, point) => {
     if (point.rank == null) return best
     return best == null ? point.rank : Math.min(best, point.rank)
   }, null)
+
   const rankChange = latest?.rank != null && previous?.rank != null ? previous.rank - latest.rank : null
-  const support = lnPublisherSupportScore(ranking) * 10
-  const rankDemand = latest?.rank ? Math.max(0, Math.min(100, 105 - latest.rank)) : 0
+  const totalVotes = history.reduce((sum, point) => sum + point.votes, 0)
+  const avgVotes = history.length ? Math.round(totalVotes / history.length) : 0
+  const voteChange = latest && previous ? latest.votes - previous.votes : null
   const voteMomentum = latest && previous && previous.votes > 0
-    ? Math.max(-30, Math.min(30, ((latest.votes - previous.votes) / previous.votes) * 100))
+    ? Math.max(-35, Math.min(35, ((latest.votes - previous.votes) / previous.votes) * 100))
     : 0
-  const demand = latest ? Math.max(0, Math.min(100, rankDemand + voteMomentum * 0.35)) : 0
+
+  const rankDemand = latest?.rank ? Math.max(0, Math.min(100, 105 - latest.rank)) : 0
+  const historyConfidence = Math.min(10, history.length * 1.5)
+  const demand = latest ? Math.max(0, Math.min(100, rankDemand + voteMomentum * 0.35 + historyConfidence)) : 0
+  const support = lnPublisherSupportScore(ranking) * 10
   const demandGap = latest ? Math.round(demand - support) : null
 
-  const validRanks = history.map((point, index) => ({ ...point, index })).filter((point): point is FanVotePoint & { rank: number; index: number } => point.rank != null)
-  const sparkPath = (() => {
+  const demandColor = demand >= 75 ? '#22c55e' : demand >= 55 ? '#38bdf8' : demand >= 35 ? '#f59e0b' : '#ef4444'
+  const gapColor = demandGap == null ? '#94a3b8' : demandGap > 15 ? '#f59e0b' : demandGap < -15 ? '#38bdf8' : '#22c55e'
+  const signalLabel = !latest
+    ? (isVI ? 'Chưa có tín hiệu' : 'No signal yet')
+    : demandGap != null && demandGap > 15
+      ? (isVI ? 'Nhu cầu cao hơn hỗ trợ' : 'Demand ahead of support')
+      : demandGap != null && demandGap < -15
+        ? (isVI ? 'Hỗ trợ NPH đang mạnh hơn nhu cầu' : 'Publisher support ahead of demand')
+        : (isVI ? 'Nhu cầu và hỗ trợ cân bằng' : 'Demand and support are balanced')
+
+  const explanation = !latest
+    ? (isVI
+      ? 'Chưa có dữ liệu bình chọn nên chưa thể đọc nhu cầu cộng đồng.'
+      : 'There is no vote history yet, so community demand cannot be estimated.')
+    : demandGap != null && demandGap > 15
+      ? (isVI
+        ? 'Người đọc đang thể hiện nhu cầu mạnh hơn mức hỗ trợ/phát hành hiện tại. Đây là tín hiệu đáng theo dõi cho series có thể cần được ưu tiên.'
+        : 'Readers are showing stronger demand than the current publisher support/release output. This is a watch signal for potential prioritization.')
+      : demandGap != null && demandGap < -15
+        ? (isVI
+          ? 'Nhà phát hành đang hỗ trợ tốt hơn mức nhu cầu bình chọn hiện tại. Series có nền phát hành ổn, nhưng chưa quá nóng trong BXH fan vote.'
+          : 'Publisher support is stronger than current voting demand. The series is well supported, but not especially hot in fan voting.')
+        : (isVI
+          ? 'Nhu cầu fan vote và mức hỗ trợ phát hành đang khá cân bằng. Đây là trạng thái ổn định.'
+          : 'Fan-vote demand and publisher support are broadly aligned. This is a stable state.')
+
+  const validRanks = history
+    .map((point, index) => ({ ...point, index }))
+    .filter((point): point is FanVotePoint & { rank: number; index: number } => point.rank != null)
+
+  const rankSpark = (() => {
     if (validRanks.length <= 1) return ''
     const minRank = Math.min(...validRanks.map(point => point.rank))
     const maxRank = Math.max(...validRanks.map(point => point.rank))
     const span = Math.max(1, maxRank - minRank)
     const lastIndex = Math.max(1, history.length - 1)
+
     return validRanks.map((point, index) => {
       const x = (point.index / lastIndex) * 92 + 4
-      const y = 8 + ((point.rank - minRank) / span) * 42
+      const y = 8 + ((point.rank - minRank) / span) * 44
       return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
     }).join(' ')
   })()
 
+  const voteBars = history.slice(-7)
+  const maxVotes = Math.max(...voteBars.map(point => point.votes), 1)
+
   return (
-    <div className="glass rounded-2xl p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-3 mb-4">
+    <div className="glass rounded-2xl p-4 sm:p-5 overflow-hidden">
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>{isVI ? 'Fan Vote Demand' : 'Fan Vote Demand'}</h2>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            {isVI ? 'Tín hiệu nhu cầu từ BXH LN yêu thích.' : 'Demand signal from favourite LN voting.'}
+          <h2 className="text-sm font-black" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Nhu cầu Fan Vote' : 'Fan Vote Demand'}
+          </h2>
+          <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI
+              ? 'Đọc mức quan tâm từ BXH yêu thích và so với độ hỗ trợ của NPH.'
+              : 'Reads fan-vote interest and compares it with publisher support.'}
           </p>
         </div>
         {latest && (
-          <span className="rounded-full px-2.5 py-1 text-[10px] font-black" style={{ color: '#f59e0b', background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.28)' }}>
+          <span className="rounded-full px-2.5 py-1 text-[10px] font-black shrink-0" style={{ color: '#f59e0b', background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.28)' }}>
             {latest.period}
           </span>
         )}
@@ -2679,67 +2681,183 @@ function FanVoteDemandCard({ history, ranking, locale }: { history: FanVotePoint
 
       {latest ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-2">
-            <MiniMetric label={isVI ? 'Hạng mới nhất' : 'Latest Rank'} value={latest.rank ? `#${latest.rank}` : '—'} />
-            <MiniMetric label={isVI ? 'Bình chọn' : 'Votes'} value={latest.votes.toLocaleString('vi-VN')} />
-            <MiniMetric label={isVI ? 'Hạng tốt nhất' : 'Best Rank'} value={bestRank ? `#${bestRank}` : '—'} />
-            <MiniMetric
-              label={isVI ? 'Thay đổi' : 'Change'}
-              value={rankChange == null ? '—' : rankChange === 0 ? '0' : `${rankChange > 0 ? '+' : ''}${rankChange}`}
-            />
+          <div className="grid grid-cols-[104px_1fr] gap-3 items-center">
+            <div
+              className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center"
+              style={{
+                background: `conic-gradient(${demandColor} ${demand * 3.6}deg, var(--ln-track-bg) 0deg)`,
+                boxShadow: `0 0 24px ${demandColor}22`,
+              }}
+            >
+              <div className="absolute inset-[9px] rounded-full" style={{ background: 'var(--background)' }} />
+              <div className="relative text-center">
+                <p className="text-2xl font-black tabular-nums leading-none" style={{ color: demandColor }}>
+                  {Math.round(demand)}
+                </p>
+                <p className="text-[9px] font-black uppercase mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? 'Nhu cầu' : 'Demand'}
+                </p>
+              </div>
+            </div>
+
+            <div className="min-w-0">
+              <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+                <p className="text-[10px] font-black uppercase tracking-wide mb-1" style={{ color: gapColor }}>
+                  {signalLabel}
+                </p>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--foreground-secondary)' }}>
+                  {explanation}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{isVI ? 'Xu hướng hạng' : 'Rank Trend'}</p>
-              <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{history.length} {isVI ? 'kỳ' : 'periods'}</span>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Hạng mới nhất' : 'Latest rank'}</p>
+              <p className="text-xl font-black mt-1" style={{ color: 'var(--foreground)' }}>{latest.rank ? `#${latest.rank}` : '—'}</p>
+              <p className="text-[10px] mt-1" style={{ color: rankChange == null ? 'var(--foreground-muted)' : rankChange > 0 ? '#22c55e' : rankChange < 0 ? '#ef4444' : 'var(--foreground-muted)' }}>
+                {rankChange == null
+                  ? (isVI ? 'Chưa đủ kỳ so sánh' : 'No comparison yet')
+                  : rankChange === 0
+                    ? (isVI ? 'Không đổi' : 'No change')
+                    : rankChange > 0
+                      ? `↑ ${rankChange} ${isVI ? 'bậc' : 'places'}`
+                      : `↓ ${Math.abs(rankChange)} ${isVI ? 'bậc' : 'places'}`}
+              </p>
             </div>
-            {sparkPath ? (
-              <svg viewBox="0 0 100 60" className="w-full h-[72px]" aria-hidden="true">
-                <path d={sparkPath} fill="none" stroke={rankChange != null && rankChange >= 0 ? '#22c55e' : '#ef4444'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+            <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Phiếu mới nhất' : 'Latest votes'}</p>
+              <p className="text-xl font-black mt-1" style={{ color: 'var(--foreground)' }}>{latest.votes.toLocaleString('vi-VN')}</p>
+              <p className="text-[10px] mt-1" style={{ color: voteChange == null ? 'var(--foreground-muted)' : voteChange > 0 ? '#22c55e' : voteChange < 0 ? '#ef4444' : 'var(--foreground-muted)' }}>
+                {voteChange == null
+                  ? `${avgVotes.toLocaleString('vi-VN')} ${isVI ? 'TB/kỳ' : 'avg/period'}`
+                  : `${voteChange > 0 ? '+' : ''}${voteChange.toLocaleString('vi-VN')} ${isVI ? 'so với kỳ trước' : 'vs previous'}`}
+              </p>
+            </div>
+
+            <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Hạng tốt nhất' : 'Best rank'}</p>
+              <p className="text-xl font-black mt-1" style={{ color: 'var(--foreground)' }}>{bestRank ? `#${bestRank}` : '—'}</p>
+              <p className="text-[10px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                {first ? `${history.length} ${isVI ? 'kỳ vote' : 'periods tracked'}` : '—'}
+              </p>
+            </div>
+
+            <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Chênh lệch' : 'Demand gap'}</p>
+              <p className="text-xl font-black mt-1" style={{ color: gapColor }}>
+                {demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
+              </p>
+              <p className="text-[10px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? 'Nhu cầu - hỗ trợ' : 'Demand - support'}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+                {isVI ? 'Xu hướng hạng' : 'Rank trend'}
+              </p>
+              <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? 'Hạng càng thấp càng tốt' : 'Lower rank is better'}
+              </span>
+            </div>
+
+            {rankSpark ? (
+              <svg viewBox="0 0 100 60" className="w-full h-[78px]" aria-hidden="true">
+                <defs>
+                  <linearGradient id="rankTrendGradient" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0%" stopColor="#38bdf8" />
+                    <stop offset="100%" stopColor={rankChange != null && rankChange >= 0 ? '#22c55e' : '#ef4444'} />
+                  </linearGradient>
+                </defs>
+                <path d={rankSpark} fill="none" stroke="url(#rankTrendGradient)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                 {validRanks.map(point => {
                   const minRank = Math.min(...validRanks.map(p => p.rank))
                   const maxRank = Math.max(...validRanks.map(p => p.rank))
                   const span = Math.max(1, maxRank - minRank)
                   const lastIndex = Math.max(1, history.length - 1)
                   const x = (point.index / lastIndex) * 92 + 4
-                  const y = 8 + ((point.rank - minRank) / span) * 42
-                  return <circle key={`${point.period}-${point.rank}`} cx={x} cy={y} r="3" fill="#38bdf8"><title>{`${point.period}: #${point.rank}`}</title></circle>
+                  const y = 8 + ((point.rank - minRank) / span) * 44
+                  return <circle key={`${point.period}-${point.rank}`} cx={x} cy={y} r="3.2" fill="#38bdf8"><title>{`${point.period}: #${point.rank}`}</title></circle>
                 })}
               </svg>
             ) : (
-              <p className="text-xs py-5 text-center" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Cần ít nhất 2 kỳ vote để vẽ xu hướng.' : 'At least 2 voting periods are needed for a trend.'}</p>
+              <p className="text-xs py-5 text-center" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? 'Cần ít nhất 2 kỳ vote để vẽ xu hướng.' : 'At least 2 voting periods are needed for a trend.'}
+              </p>
+            )}
+
+            {voteBars.length > 0 && (
+              <div className="mt-2">
+                <div className="flex items-end gap-1.5 h-12">
+                  {voteBars.map(point => (
+                    <div key={`${point.period}-${point.votes}`} className="flex-1 flex flex-col items-center gap-1">
+                      <div
+                        className="w-full rounded-t-md"
+                        style={{
+                          height: `${Math.max(8, point.votes / maxVotes * 42)}px`,
+                          background: 'linear-gradient(180deg,#38bdf8,#6366f1)',
+                          opacity: point.period === latest.period ? 1 : 0.62,
+                        }}
+                        title={`${point.period}: ${point.votes.toLocaleString('vi-VN')} votes`}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[9px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? 'Cột nhỏ bên dưới = số phiếu trong các kỳ gần nhất.' : 'Mini bars below = votes in recent periods.'}
+                </p>
+              </div>
             )}
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Demand Gap' : 'Demand Gap'}</span>
-              <span className="text-xs font-black" style={{ color: demandGap != null && demandGap > 15 ? '#f59e0b' : demandGap != null && demandGap < -15 ? '#38bdf8' : 'var(--foreground-secondary)' }}>
+          <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+                {isVI ? 'Nhu cầu vs hỗ trợ NPH' : 'Demand vs publisher support'}
+              </span>
+              <span className="text-[10px] font-black" style={{ color: gapColor }}>
                 {demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
               </span>
             </div>
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+
+            <div className="space-y-2">
               <div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, demand))}%`, background: '#f59e0b' }} />
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-bold" style={{ color: '#f59e0b' }}>{isVI ? 'Nhu cầu fan vote' : 'Fan demand'}</span>
+                  <span className="text-[9px] font-black" style={{ color: '#f59e0b' }}>{Math.round(demand)}</span>
                 </div>
-                <p className="text-[9px] mt-1" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Nhu cầu' : 'Demand'}</p>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, demand))}%`, background: 'linear-gradient(90deg,#f59e0b,#f97316)' }} />
+                </div>
               </div>
-              <span className="text-[10px] font-black" style={{ color: 'var(--foreground-muted)' }}>vs</span>
+
               <div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, support))}%`, background: '#38bdf8' }} />
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-bold" style={{ color: '#38bdf8' }}>{isVI ? 'Hỗ trợ NPH' : 'Publisher support'}</span>
+                  <span className="text-[9px] font-black" style={{ color: '#38bdf8' }}>{Math.round(support)}</span>
                 </div>
-                <p className="text-[9px] mt-1 text-right" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Hỗ trợ NPH' : 'Support'}</p>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, support))}%`, background: 'linear-gradient(90deg,#38bdf8,#6366f1)' }} />
+                </div>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <p className="text-xs py-8 text-center" style={{ color: 'var(--foreground-muted)' }}>
-          {isVI ? 'Series này chưa có dữ liệu vote yêu thích.' : 'No favourite voting data for this series yet.'}
-        </p>
+        <div className="rounded-xl p-5 text-center" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+          <Users className="w-8 h-8 mx-auto mb-3 opacity-40 text-primary-400" />
+          <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Chưa có dữ liệu fan vote' : 'No fan-vote data yet'}
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Khi series có mặt trong BXH yêu thích, phần này sẽ đọc nhu cầu cộng đồng.' : 'When this series appears in the favourite ranking, this card will explain community demand.'}
+          </p>
+        </div>
       )}
     </div>
   )
