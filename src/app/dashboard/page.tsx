@@ -2446,7 +2446,6 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
       scoreDesc: withReleaseStatusPriority((a, b) => b.ln_score - a.ln_score),
       scoreAsc: withReleaseStatusPriority((a, b) => a.ln_score - b.ln_score),
       releaseDesc: withReleaseStatusPriority(latest),
-      viewsDesc: withReleaseStatusPriority((a, b) => b.average_view_count - a.average_view_count),
       volumesDesc: withReleaseStatusPriority((a, b) => b.number_of_volumes - a.number_of_volumes),
       dropRiskDesc: withReleaseStatusPriority((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)),
       releaseStatus: (a, b) => (releaseStatusPriority(a) - releaseStatusPriority(b)) || (b.ln_score - a.ln_score) || latest(a, b),
@@ -2540,7 +2539,6 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
               <option value="scoreDesc">{vi ? 'Điểm cao → thấp' : 'Score high → low'}</option>
               <option value="scoreAsc">{vi ? 'Điểm thấp → cao' : 'Score low → high'}</option>
               <option value="releaseDesc">{vi ? 'Phát hành mới nhất' : 'Latest release'}</option>
-              <option value="viewsDesc">{vi ? 'Lượt xem TB' : 'Average views'}</option>
               <option value="volumesDesc">{vi ? 'Số tập VN' : 'VN volumes'}</option>
               <option value="dropRiskDesc">{vi ? 'Drop cao → thấp' : 'Drop high → low'}</option>
             </select>
@@ -2571,15 +2569,17 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                 const rankColor = idx <= 2 ? '#161616' : 'var(--foreground-muted)'
                 const rsStyle = releaseStatusStyle(row)
                 const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
+                const href = detailHref(row)
                 return (
                   <tr key={row.series_key} style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
                     <td className="py-2.5 px-3 text-center"><span className="inline-flex items-center justify-center min-w-[34px] h-[34px] rounded-lg font-black text-[11px]" style={{ background: rankBg, color: rankColor }}>#{idx + 1}</span></td>
                     <td className="py-2.5 px-3">
                       <div className="flex items-center gap-3 min-w-[300px]">
-                        {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[64px] h-[90px] object-cover rounded-lg shrink-0 shadow-lg" /> : <div className="w-[64px] h-[90px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                        <Link href={href} aria-label={row.series_title} className="shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                          {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[64px] h-[90px] object-cover rounded-lg shadow-lg transition-transform hover:scale-[1.03]" /> : <div className="w-[64px] h-[90px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                        </Link>
                         <div className="min-w-0">
-                          <p className="font-black leading-snug line-clamp-2 max-w-[340px]" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                          <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.lidex_series_id || row.series_id || '—'} · {row.series_code || '—'}</p>
+                          <Link href={href} className="font-black leading-snug line-clamp-2 max-w-[340px] hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
                         </div>
                       </div>
                     </td>
@@ -2614,14 +2614,16 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
             const rsStyle = releaseStatusStyle(row)
             const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
             const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
+            const href = detailHref(row)
             return (
               <div key={row.series_key} className="p-3" style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
                 <div className="flex gap-3">
                   <div className="w-8 shrink-0 pt-1"><span className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-[10px]" style={{ background: rankBg, color: idx <= 2 ? '#161616' : 'var(--foreground-muted)' }}>#{idx + 1}</span></div>
-                  {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[104px] h-[148px] object-cover rounded-lg shrink-0 shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg shrink-0" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                  <Link href={href} aria-label={row.series_title} className="shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[104px] h-[148px] object-cover rounded-lg shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                  </Link>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-black leading-snug line-clamp-4" style={{ color: 'var(--foreground)' }}>{row.series_title}</p>
-                    <p className="text-[10px] mt-1 font-semibold" style={{ color: 'var(--foreground-muted)' }}>ID {row.lidex_series_id || row.series_id || '—'} · {row.series_code || '—'}</p>
+                    <Link href={href} className="text-sm font-black leading-snug line-clamp-4 hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
                       <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(row.max_release_at)}</span>
