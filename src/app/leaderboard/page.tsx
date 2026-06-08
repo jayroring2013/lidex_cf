@@ -41,13 +41,6 @@ function fmtPeriod(period: Period | null) {
   return `${String(period.month).padStart(2, '0')}/${period.year}`
 }
 
-function rankLabel(rank: number) {
-  if (rank === 1) return '# 1'
-  if (rank === 2) return '# 2'
-  if (rank === 3) return '# 3'
-  return `# ${rank}`
-}
-
 function rankColor(rank: number) {
   if (rank === 1) return '#f59e0b'
   if (rank === 2) return '#94a3b8'
@@ -55,22 +48,32 @@ function rankColor(rank: number) {
   return 'var(--foreground-secondary)'
 }
 
+function rankBadgeBg(rank: number) {
+  if (rank === 1) return '#facc15'
+  if (rank === 2) return '#cbd5e1'
+  if (rank === 3) return '#f59e0b'
+  return 'var(--background-secondary)'
+}
+
 function Sparkline({ points }: { points: Array<{ rank: number | null }> }) {
-  const valid = points.map((p, i) => ({ ...p, i })).filter((p): p is { rank: number; i: number } => p.rank != null)
+  const valid = points
+    .map((point, index) => ({ ...point, index }))
+    .filter((point): point is { rank: number; index: number } => point.rank != null)
+
   if (valid.length <= 1) {
     return <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>-</span>
   }
 
   const w = 92
   const h = 28
-  const minRank = Math.min(...valid.map(p => p.rank))
-  const maxRank = Math.max(...valid.map(p => p.rank))
+  const minRank = Math.min(...valid.map(point => point.rank))
+  const maxRank = Math.max(...valid.map(point => point.rank))
   const span = Math.max(1, maxRank - minRank)
   const lastIndex = Math.max(1, points.length - 1)
-  const path = valid.map((p, idx) => {
-    const x = (p.i / lastIndex) * (w - 8) + 4
-    const y = 4 + ((p.rank - minRank) / span) * (h - 8)
-    return `${idx === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
+  const path = valid.map((point, index) => {
+    const x = (point.index / lastIndex) * (w - 8) + 4
+    const y = 4 + ((point.rank - minRank) / span) * (h - 8)
+    return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
   }).join(' ')
 
   const first = valid[0].rank
@@ -80,10 +83,19 @@ function Sparkline({ points }: { points: Array<{ rank: number | null }> }) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-[92px] h-7" aria-hidden="true">
       <path d={path} fill="none" stroke={stroke} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      {valid.map(p => {
-        const x = (p.i / lastIndex) * (w - 8) + 4
-        const y = 4 + ((p.rank - minRank) / span) * (h - 8)
-        return <circle key={p.i} cx={x} cy={y} r="2.4" fill={stroke} opacity={p.i === valid[valid.length - 1].i ? 1 : 0.55} />
+      {valid.map(point => {
+        const x = (point.index / lastIndex) * (w - 8) + 4
+        const y = 4 + ((point.rank - minRank) / span) * (h - 8)
+        return (
+          <circle
+            key={point.index}
+            cx={x}
+            cy={y}
+            r="2.4"
+            fill={stroke}
+            opacity={point.index === valid[valid.length - 1].index ? 1 : 0.55}
+          />
+        )
       })}
     </svg>
   )
@@ -91,18 +103,92 @@ function Sparkline({ points }: { points: Array<{ rank: number | null }> }) {
 
 function ChangeCell({ value, vi }: { value: number | null; vi: boolean }) {
   if (value == null) {
-    return <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-black" style={{ color: '#38bdf8', background: 'rgba(56,189,248,.12)' }}>{vi ? 'Mới' : 'New'}</span>
+    return (
+      <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-black" style={{ color: '#0284c7', background: 'rgba(56,189,248,.12)' }}>
+        {vi ? 'Mới' : 'New'}
+      </span>
+    )
   }
+
   if (value === 0) {
     return <span className="text-xs font-black" style={{ color: 'var(--foreground-muted)' }}>-</span>
   }
+
   const up = value > 0
   const Icon = up ? ArrowUp : ArrowDown
   return (
-    <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-black" style={{ color: up ? '#22c55e' : '#ef4444', background: up ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)' }}>
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-black"
+      style={{ color: up ? '#16a34a' : '#dc2626', background: up ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)' }}
+    >
       <Icon className="w-3.5 h-3.5" />
       {Math.abs(value)}
     </span>
+  )
+}
+
+function CoverThumb({ row, size = 'desktop' }: { row: LeaderboardRow; size?: 'desktop' | 'mobile' }) {
+  const classes = size === 'mobile'
+    ? 'w-[70px] h-[102px] rounded-xl'
+    : 'w-16 h-24 sm:w-[72px] sm:h-[104px] lg:w-20 lg:h-28 rounded-lg'
+
+  return (
+    <div className={`${classes} overflow-hidden shrink-0 shadow-md`} style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+      {row.cover_url ? (
+        <img src={row.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-[10px] font-black" style={{ color: 'var(--foreground-muted)' }}>LN</div>
+      )}
+    </div>
+  )
+}
+
+function MobileLeaderboardCard({ row, vi }: { row: LeaderboardRow; vi: boolean }) {
+  return (
+    <article className="rounded-2xl p-3 shadow-sm" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+      <div className="flex items-start gap-3">
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black tabular-nums"
+            style={{
+              color: row.displayRank <= 3 ? '#0f172a' : 'var(--foreground)',
+              background: rankBadgeBg(row.displayRank),
+              border: '1px solid var(--card-border)',
+            }}
+          >
+            #{row.displayRank}
+          </div>
+          <ChangeCell value={row.change} vi={vi} />
+        </div>
+
+        <CoverThumb row={row} size="mobile" />
+
+        <div className="min-w-0 flex-1">
+          <Link href={`/content/${row.series_id}`} className="text-sm font-black leading-snug line-clamp-2" style={{ color: 'var(--foreground)' }}>
+            {row.title_vi || row.title}
+          </Link>
+          {row.title_vi && row.title_vi !== row.title && (
+            <p className="text-[11px] mt-1 line-clamp-1" style={{ color: 'var(--foreground-muted)' }}>{row.title}</p>
+          )}
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="rounded-xl px-2.5 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+              <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Nhà phát hành' : 'Publisher'}</p>
+              <p className="text-xs font-bold truncate mt-0.5" style={{ color: 'var(--foreground)' }}>{row.publisher}</p>
+            </div>
+            <div className="rounded-xl px-2.5 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+              <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Bình chọn' : 'Votes'}</p>
+              <p className="text-xs font-black tabular-nums mt-0.5" style={{ color: 'var(--foreground)' }}>{row.votes.toLocaleString('vi-VN')}</p>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Xu hướng' : 'Trend'}</span>
+            <Sparkline points={row.trend} />
+          </div>
+        </div>
+      </div>
+    </article>
   )
 }
 
@@ -166,7 +252,7 @@ export default function LeaderboardPage() {
         if (!batch || batch.length < 1000) break
       }
 
-      const seriesIds = Array.from(new Set(raw.map((r: any) => Number(r.series_id)).filter(Boolean)))
+      const seriesIds = Array.from(new Set(raw.map((row: any) => Number(row.series_id)).filter(Boolean)))
       const publisherBySeries = new Map<number, string>()
 
       for (let i = 0; i < seriesIds.length; i += 500) {
@@ -233,6 +319,7 @@ export default function LeaderboardPage() {
 
   const leaderboard = useMemo<LeaderboardRow[]>(() => {
     if (!selectedPeriod) return []
+
     const prevRanks = new Map<number, number>()
     if (previousPeriod) {
       rows.filter(row => row.period.id === previousPeriod.id).forEach(row => {
@@ -271,42 +358,45 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[170px_1fr_220px] gap-3 mb-6">
-          <div className="rounded-2xl p-4 text-center" style={{ background: 'var(--glass-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
-            <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì bình chọn' : 'Poll Period'}</p>
+      <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[190px_1fr_220px] gap-3 mb-4 sm:mb-6">
+          <div className="rounded-2xl p-3.5 sm:p-4 text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
+            <p className="text-xs sm:text-sm" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì bình chọn' : 'Poll Period'}</p>
             <select
               value={selectedPeriodId ?? ''}
-              onChange={e => setSelectedPeriodId(Number(e.target.value))}
-              className="mt-3 w-full rounded-xl px-3 py-2 text-lg font-black text-center outline-none"
+              onChange={event => setSelectedPeriodId(Number(event.target.value))}
+              className="mt-2 sm:mt-3 w-full rounded-xl px-3 py-2 text-base sm:text-lg font-black text-center outline-none"
               style={{ background: 'var(--background-secondary)', color: '#fb7185', border: '1px solid var(--card-border)' }}
             >
               {periods.map(period => <option key={period.id} value={period.id}>{fmtPeriod(period)}</option>)}
             </select>
           </div>
 
-          <div className="rounded-2xl p-5 flex flex-col justify-center text-center" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase" style={{ color: '#fb7185' }}>
+          <div className="rounded-2xl p-4 sm:p-5 flex flex-col justify-center text-center" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+            <h1 className="text-xl sm:text-3xl font-black uppercase leading-tight" style={{ color: '#fb7185' }}>
               {vi ? 'Light Novel được yêu thích nhất' : 'Favourite Light Novel Ranking'}
             </h1>
-            <p className="mt-2 text-sm" style={{ color: 'var(--foreground)' }}>
+            <p className="mt-2 text-xs sm:text-sm" style={{ color: 'var(--foreground)' }}>
               {vi ? 'Hạng mục có tổng cộng' : 'Category contains'} <span className="font-black text-red-400">{topCount.toLocaleString('vi-VN')}</span> {vi ? 'tác phẩm!' : 'titles!'}
             </p>
           </div>
 
-          <div className="rounded-2xl p-4 flex flex-col justify-center items-center text-center" style={{ background: 'var(--glass-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
+          <div className="hidden lg:flex rounded-2xl p-4 flex-col justify-center items-center text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
             <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì tiếp theo' : 'Next Period'}</p>
             <p className="mt-3 text-lg font-black" style={{ color: '#ef4444' }}>{vi ? 'Chưa mở' : 'Not Open'}</p>
           </div>
         </div>
 
         <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
-            <div className="relative w-full sm:w-[320px]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+            <p className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>
+              {selectedPeriod ? fmtPeriod(selectedPeriod) : '--'} · {topCount.toLocaleString('vi-VN')} {vi ? 'tác phẩm' : 'titles'}
+            </p>
+            <div className="relative w-full sm:w-[360px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--foreground-muted)' }} />
               <input
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={event => setQuery(event.target.value)}
                 placeholder={vi ? 'Tìm tác phẩm hoặc nhà phát hành...' : 'Search title or publisher...'}
                 className="w-full pl-10 pr-3 py-2 rounded-xl text-sm outline-none"
                 style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
@@ -327,56 +417,64 @@ export default function LeaderboardPage() {
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1100px] text-sm">
-                <thead>
-                  <tr style={{ background: 'var(--background-secondary)', color: '#e2695f' }}>
-                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Xếp hạng' : 'Rank'}</th>
-                    <th className="px-4 py-3 text-left text-base font-black">{vi ? 'Tác phẩm' : 'Title'}</th>
-                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Nhà phát hành' : 'Publisher'}</th>
-                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Thay đổi' : 'Change'}</th>
-                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Xu hướng' : 'Trend'}</th>
-                    <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Số bình chọn' : 'Votes'}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboard.map(row => (
-                    <tr key={`${row.period_id}-${row.series_id}`} className="transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.04]" style={{ borderTop: '1px solid var(--card-border)' }}>
-                      <td className="px-4 py-2 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
-                        {rankLabel(row.displayRank)}
-                      </td>
-                      <td className="px-4 py-2">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-16 h-24 sm:w-[72px] sm:h-[104px] lg:w-20 lg:h-28 rounded-lg overflow-hidden shrink-0 shadow-md" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            {row.cover_url ? (
-                              <img src={row.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[10px] font-black" style={{ color: 'var(--foreground-muted)' }}>LN</div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <Link href={`/content/${row.series_id}`} className="font-bold hover:underline line-clamp-2" style={{ color: row.displayRank <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
-                              {row.title_vi || row.title}
-                            </Link>
-                            {row.title_vi && row.title_vi !== row.title && <p className="text-xs mt-1 line-clamp-1" style={{ color: 'var(--foreground-muted)' }}>{row.title}</p>}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-center" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher}</td>
-                      <td className="px-4 py-2 text-center"><ChangeCell value={row.change} vi={vi} /></td>
-                      <td className="px-4 py-2 text-center"><div className="flex justify-center"><Sparkline points={row.trend} /></div></td>
-                      <td className="px-4 py-2 text-center font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{row.votes.toLocaleString('vi-VN')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <>
+              <div className="lg:hidden p-3 space-y-3">
+                {leaderboard.map(row => (
+                  <MobileLeaderboardCard key={`${row.period_id}-${row.series_id}`} row={row} vi={vi} />
+                ))}
 
-              {leaderboard.length === 0 && (
-                <div className="h-[260px] flex items-center justify-center" style={{ color: 'var(--foreground-secondary)' }}>
-                  {vi ? 'Không có tác phẩm phù hợp.' : 'No matching titles.'}
-                </div>
-              )}
-            </div>
+                {leaderboard.length === 0 && (
+                  <div className="h-[240px] flex items-center justify-center text-sm" style={{ color: 'var(--foreground-secondary)' }}>
+                    {vi ? 'Không có tác phẩm phù hợp.' : 'No matching titles.'}
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full min-w-[1100px] text-sm">
+                  <thead>
+                    <tr style={{ background: 'var(--background-secondary)', color: '#e2695f' }}>
+                      <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Xếp hạng' : 'Rank'}</th>
+                      <th className="px-4 py-3 text-left text-base font-black">{vi ? 'Tác phẩm' : 'Title'}</th>
+                      <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Nhà phát hành' : 'Publisher'}</th>
+                      <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Thay đổi' : 'Change'}</th>
+                      <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Xu hướng' : 'Trend'}</th>
+                      <th className="px-4 py-3 text-center text-base font-black">{vi ? 'Số bình chọn' : 'Votes'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboard.map(row => (
+                      <tr key={`${row.period_id}-${row.series_id}`} className="transition-colors" style={{ borderTop: '1px solid var(--card-border)' }}>
+                        <td className="px-4 py-2 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
+                          #{row.displayRank}
+                        </td>
+                        <td className="px-4 py-2">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <CoverThumb row={row} />
+                            <div className="min-w-0">
+                              <Link href={`/content/${row.series_id}`} className="font-bold hover:underline line-clamp-2" style={{ color: row.displayRank <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
+                                {row.title_vi || row.title}
+                              </Link>
+                              {row.title_vi && row.title_vi !== row.title && <p className="text-xs mt-1 line-clamp-1" style={{ color: 'var(--foreground-muted)' }}>{row.title}</p>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-center" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher}</td>
+                        <td className="px-4 py-2 text-center"><ChangeCell value={row.change} vi={vi} /></td>
+                        <td className="px-4 py-2 text-center"><div className="flex justify-center"><Sparkline points={row.trend} /></div></td>
+                        <td className="px-4 py-2 text-center font-black tabular-nums" style={{ color: 'var(--foreground)' }}>{row.votes.toLocaleString('vi-VN')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {leaderboard.length === 0 && (
+                  <div className="h-[260px] flex items-center justify-center" style={{ color: 'var(--foreground-secondary)' }}>
+                    {vi ? 'Không có tác phẩm phù hợp.' : 'No matching titles.'}
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>
