@@ -19,11 +19,34 @@ export const metadata = {
   description: 'A personal project tracking LN/Anime/Manga data since 2026.',
 }
 
+const themeInitScript = `
+(function () {
+  try {
+    var theme = localStorage.getItem('lidex-theme');
+    var isDark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+  } catch (e) {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.style.colorScheme = 'light';
+  }
+})();
+`
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
-      <body className={`${inter.variable} ${jetbrains.variable} font-sans bg-light-900 dark:bg-dark-900 text-gray-900 dark:text-gray-100 min-h-screen`}
-        style={{ fontFamily: "var(--font-inter), 'Be Vietnam Pro', sans-serif" }}>
+    <html lang="vi" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body
+        className={`${inter.variable} ${jetbrains.variable} font-sans min-h-screen`}
+        style={{
+          fontFamily: "var(--font-inter), 'Be Vietnam Pro', sans-serif",
+          background: 'var(--background)',
+          color: 'var(--foreground)',
+        }}
+      >
         <Suspense>
           <LocaleProvider>
             <Navbar />
