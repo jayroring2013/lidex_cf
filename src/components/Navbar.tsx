@@ -17,6 +17,7 @@ export default function Navbar() {
     const savedTheme = localStorage.getItem('lidex-theme')
     const shouldUseDark = savedTheme === 'dark'
     document.documentElement.classList.toggle('dark', shouldUseDark)
+    document.documentElement.style.colorScheme = shouldUseDark ? 'dark' : 'light'
     setIsDark(shouldUseDark)
   }, [])
 
@@ -31,6 +32,7 @@ export default function Navbar() {
   const toggleTheme = () => {
     const nextIsDark = !isDark
     document.documentElement.classList.toggle('dark', nextIsDark)
+    document.documentElement.style.colorScheme = nextIsDark ? 'dark' : 'light'
     localStorage.setItem('lidex-theme', nextIsDark ? 'dark' : 'light')
     setIsDark(nextIsDark)
   }
@@ -49,7 +51,10 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200 dark:border-dark-700">
+    <nav
+      className="fixed top-0 left-0 right-0 z-50 glass border-b"
+      style={{ borderColor: 'var(--card-border)' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -153,14 +158,20 @@ export default function Navbar() {
 
             <button
               onClick={toggleTheme}
-              className="theme-toggle p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-800 transition-colors"
+              className="theme-toggle p-2 rounded-lg transition-colors"
+              style={{ color: 'var(--foreground)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--background-secondary)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden theme-toggle p-2"
+              className="md:hidden theme-toggle p-2 rounded-lg"
+              style={{ color: 'var(--foreground)' }}
+              aria-label="Toggle navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -170,7 +181,10 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass border-t border-gray-200 dark:border-dark-700">
+        <div
+          className="md:hidden glass border-t"
+          style={{ borderColor: 'var(--card-border)', background: 'var(--card-bg)' }}
+        >
           <div className="px-4 py-4 space-y-4">
             {flatLinks.map(link => (
               <Link
