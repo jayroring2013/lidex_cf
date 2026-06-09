@@ -1,9 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, Menu, Moon, Sun, ChevronDown } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { BarChart3, Menu, Moon, Sun, ChevronDown, LogIn, LogOut, UserCircle, X } from 'lucide-react'
+import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { useLocale } from '@/contexts/LocaleContext'
+import supabase from '@/lib/supabaseClient'
+import type { User } from '@supabase/supabase-js'
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -11,6 +13,14 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [chartsOpen, setChartsOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authMessage, setAuthMessage] = useState<string | null>(null)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const chartsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -28,6 +38,87 @@ export default function Navbar() {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  useEffect(() => {
+    let mounted = true
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) setUser(data.session?.user ?? null)
+    })
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        setAuthOpen(false)
+        setAuthError(null)
+        setAuthMessage(null)
+      }
+    })
+
+    return () => {
+      mounted = false
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
+
+  const displayName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email?.split('@')[0] ||
+    ''
+
+  const openAuth = (mode: 'signin' | 'signup' = 'signin') => {
+    setAuthMode(mode)
+    setAuthOpen(true)
+    setAuthError(null)
+    setAuthMessage(null)
+  }
+
+  const handleGoogleAuth = async () => {
+    setAuthLoading(true)
+    setAuthError(null)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+    if (error) {
+      setAuthError(error.message)
+      setAuthLoading(false)
+    }
+  }
+
+  const handleEmailAuth = async (e: FormEvent) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    setAuthError(null)
+    setAuthMessage(null)
+
+    const credentials = {
+      email: authEmail.trim(),
+      password: authPassword,
+      options: { emailRedirectTo: window.location.origin },
+    }
+
+    const { error } = authMode === 'signup'
+      ? await supabase.auth.signUp(credentials)
+      : await supabase.auth.signInWithPassword({ email: credentials.email, password: credentials.password })
+
+    if (error) {
+      setAuthError(error.message)
+    } else if (authMode === 'signup') {
+      setAuthMessage(locale === 'vi' ? 'Kiểm tra email để xác nhận tài khoản.' : 'Check your email to confirm your account.')
+    } else {
+      setAuthOpen(false)
+    }
+
+    setAuthLoading(false)
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    setMobileMenuOpen(false)
+  }
 
   const toggleTheme = () => {
     const nextIsDark = !isDark
@@ -167,6 +258,37 @@ export default function Navbar() {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
+            {user ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold"
+                  style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+                >
+                  <UserCircle className="w-4 h-4 text-primary-500" />
+                  <span className="max-w-[120px] truncate">{displayName}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--background-secondary)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                  aria-label={locale === 'vi' ? 'Đăng xuất' : 'Log out'}
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => openAuth('signin')}
+                className="hidden sm:flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition-colors"
+                style={{ background: '#6366f1', color: '#fff' }}
+              >
+                <LogIn className="w-4 h-4" />
+                {locale === 'vi' ? 'Đăng nhập' : 'Login'}
+              </button>
+            )}
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden theme-toggle p-2 rounded-lg"
@@ -210,6 +332,132 @@ export default function Navbar() {
                 {child.label}
               </Link>
             ))}
+            <div className="pt-3" style={{ borderTop: '1px solid var(--card-border)' }}>
+              {user ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--foreground)' }}>
+                    <UserCircle className="w-5 h-5 text-primary-500" />
+                    <span className="truncate">{displayName}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold"
+                    style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {locale === 'vi' ? 'Đăng xuất' : 'Log out'}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    openAuth('signin')
+                  }}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold"
+                  style={{ background: '#6366f1', color: '#fff' }}
+                >
+                  <LogIn className="w-4 h-4" />
+                  {locale === 'vi' ? 'Đăng nhập' : 'Login'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {authOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center px-4" style={{ background: 'rgba(2,6,23,.62)' }}>
+          <div
+            className="w-full max-w-md rounded-2xl p-5 shadow-2xl"
+            style={{ background: 'var(--card-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+          >
+            <div className="flex items-start justify-between gap-3 mb-5">
+              <div>
+                <h2 className="text-xl font-black">
+                  {authMode === 'signin'
+                    ? (locale === 'vi' ? 'Đăng nhập' : 'Login')
+                    : (locale === 'vi' ? 'Tạo tài khoản' : 'Create account')}
+                </h2>
+                <p className="text-sm mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                  {locale === 'vi' ? 'Dùng Google hoặc email để lưu đánh giá của bạn.' : 'Use Google or email to save your ratings.'}
+                </p>
+              </div>
+              <button
+                onClick={() => setAuthOpen(false)}
+                className="p-2 rounded-lg"
+                style={{ color: 'var(--foreground-secondary)' }}
+                aria-label="Close login dialog"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <button
+              onClick={handleGoogleAuth}
+              disabled={authLoading}
+              className="w-full rounded-xl px-4 py-3 text-sm font-black disabled:opacity-60"
+              style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+            >
+              {locale === 'vi' ? 'Tiếp tục với Google' : 'Continue with Google'}
+            </button>
+
+            <div className="my-4 flex items-center gap-3">
+              <div className="h-px flex-1" style={{ background: 'var(--card-border)' }} />
+              <span className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>EMAIL</span>
+              <div className="h-px flex-1" style={{ background: 'var(--card-border)' }} />
+            </div>
+
+            <form onSubmit={handleEmailAuth} className="space-y-3">
+              <input
+                type="email"
+                value={authEmail}
+                onChange={e => setAuthEmail(e.target.value)}
+                placeholder={locale === 'vi' ? 'Email' : 'Email'}
+                required
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+              />
+              <input
+                type="password"
+                value={authPassword}
+                onChange={e => setAuthPassword(e.target.value)}
+                placeholder={locale === 'vi' ? 'Mật khẩu' : 'Password'}
+                required
+                minLength={6}
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+              />
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full rounded-xl px-4 py-3 text-sm font-black disabled:opacity-60"
+                style={{ background: '#6366f1', color: '#fff' }}
+              >
+                {authLoading
+                  ? (locale === 'vi' ? 'Đang xử lý...' : 'Working...')
+                  : authMode === 'signin'
+                    ? (locale === 'vi' ? 'Đăng nhập bằng email' : 'Login with email')
+                    : (locale === 'vi' ? 'Đăng ký bằng email' : 'Sign up with email')}
+              </button>
+            </form>
+
+            {authError && <p className="text-xs mt-3" style={{ color: '#ef4444' }}>{authError}</p>}
+            {authMessage && <p className="text-xs mt-3" style={{ color: '#22c55e' }}>{authMessage}</p>}
+
+            <button
+              onClick={() => {
+                setAuthMode(authMode === 'signin' ? 'signup' : 'signin')
+                setAuthError(null)
+                setAuthMessage(null)
+              }}
+              className="w-full mt-4 text-sm font-bold"
+              style={{ color: '#6366f1' }}
+            >
+              {authMode === 'signin'
+                ? (locale === 'vi' ? 'Chưa có tài khoản? Đăng ký' : 'No account? Sign up')
+                : (locale === 'vi' ? 'Đã có tài khoản? Đăng nhập' : 'Already have an account? Login')}
+            </button>
           </div>
         </div>
       )}
