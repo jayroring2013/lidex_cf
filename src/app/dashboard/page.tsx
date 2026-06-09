@@ -2239,7 +2239,7 @@ function PublisherHeaderPicker({
 
       {open && (
         <div
-          className="absolute left-0 sm:left-1/2 top-[calc(100%+8px)] z-50 w-[min(360px,calc(100vw-32px))] sm:-translate-x-1/2 overflow-hidden rounded-2xl shadow-2xl"
+          className="fixed left-1/2 top-28 z-50 w-[calc(100vw-24px)] max-w-[360px] -translate-x-1/2 overflow-hidden rounded-2xl shadow-2xl sm:absolute sm:left-1/2 sm:top-[calc(100%+8px)] sm:w-[min(360px,calc(100vw-32px))] sm:max-w-none sm:-translate-x-1/2"
           style={{ background: 'var(--publisher-picker-bg, var(--card-bg))', border: '1px solid var(--card-border)', boxShadow: '0 22px 70px rgba(15,23,42,.42)' }}
           role="dialog"
         >
@@ -2258,7 +2258,7 @@ function PublisherHeaderPicker({
             </div>
           </div>
 
-          <div className="max-h-[420px] overflow-y-auto">
+          <div className="max-h-[min(420px,60vh)] overflow-y-auto">
             {filtered.map(p => {
               const logoUrl = proxyImg(publisherLogos[publisherKey(p.publisher)] || null)
               const active = p.publisher === currentName
