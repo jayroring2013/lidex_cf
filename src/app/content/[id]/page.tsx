@@ -1478,14 +1478,14 @@ function RatingStars({
   const current = Number(value || 0)
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex w-full items-center justify-between gap-1.5 sm:justify-start">
       {[1, 2, 3, 4, 5].map(star => {
         const fill = Math.max(0, Math.min(100, (current - (star - 1)) * 100))
         return (
-          <div key={star} className="relative h-9 w-9">
-            <Star className="absolute inset-0 h-9 w-9" style={{ color: 'var(--card-border)' }} />
+          <div key={star} className="relative h-10 w-10 sm:h-9 sm:w-9">
+            <Star className="absolute inset-0 h-10 w-10 sm:h-9 sm:w-9" style={{ color: 'var(--card-border)' }} />
             <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - fill}% 0 0)` }}>
-              <Star className="h-9 w-9 text-amber-400 fill-amber-400" />
+              <Star className="h-10 w-10 text-amber-400 fill-amber-400 sm:h-9 sm:w-9" />
             </div>
             <button
               type="button"
@@ -1530,9 +1530,9 @@ function UserSeriesLibraryPanel({
   const selectedStatus = USER_SERIES_STATUS_OPTIONS.find(option => option.value === entry.status)
 
   return (
-    <div className="glass rounded-2xl p-5">
+    <div className="glass rounded-2xl p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3 mb-4">
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Star className="w-4 h-4 text-amber-400 fill-amber-400 flex-shrink-0" />
             <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>
@@ -1574,7 +1574,7 @@ function UserSeriesLibraryPanel({
               {selectedStatus ? (isVI ? selectedStatus.labelVI : selectedStatus.labelEN) : '—'}
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
             {USER_SERIES_STATUS_OPTIONS.map(option => {
               const selected = option.value === entry.status
               return (
@@ -1583,7 +1583,7 @@ function UserSeriesLibraryPanel({
                   type="button"
                   disabled={disabled}
                   onClick={() => onChange({ status: option.value })}
-                  className="rounded-xl px-3 py-2 text-xs font-black transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                  className="min-h-11 rounded-xl px-3 py-2 text-xs font-black transition-all disabled:cursor-not-allowed disabled:opacity-60"
                   style={{
                     color: selected ? option.color : 'var(--foreground-secondary)',
                     background: selected ? `${option.color}18` : 'var(--background-secondary)',
