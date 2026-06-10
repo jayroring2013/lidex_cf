@@ -201,8 +201,8 @@ export async function GET(req: NextRequest) {
     const buffer = await res.arrayBuffer()
 
     return imageResponse(buffer, contentType, parsed.hostname)
-  } catch (error: any) {
-    console.error('[image-proxy]', error?.message || error)
+  } catch {
+    console.error('[image-proxy] request failed')
 
     return new NextResponse('Proxy error', {
       status: 502,
@@ -210,7 +210,7 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'no-store',
         'Access-Control-Allow-Origin': '*',
         'X-Image-Proxy-Host': parsed.hostname,
-        'X-Image-Proxy-Error': String(error?.name || error?.message || 'unknown'),
+        'X-Image-Proxy-Error': 'proxy_failed',
       },
     })
   }
