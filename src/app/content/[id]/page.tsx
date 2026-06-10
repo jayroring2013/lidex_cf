@@ -475,35 +475,62 @@ export default function ContentDetail() {
     let cancelled = false
 
     async function loadSeriesRatingSummary() {
-      const { data, error } = await publicSupabase
-        .from('series_user_library')
-        .select('rating')
-        .eq('series_id', seriesId)
-        .not('rating', 'is', null)
+      try {
+        // Public rating summary should be read through a SECURITY DEFINER RPC.
+        // Directly selecting series_user_library can return 0 rows under RLS,
+        // which incorrectly shows "No ratings yet" even when other users rated.
+        const { data: summaryData, error: summaryError } = await publicSupabase
+          .rpc('get_series_rating_summary', { p_series_id: seriesId })
 
-      if (cancelled) return
+        if (cancelled) return
 
-      if (error) {
-        console.warn('Failed to load series rating summary:', error.message)
-        setSeriesRatingSummary({ average: null, count: 0 })
-        return
+        if (!summaryError) {
+          const summary = Array.isArray(summaryData) ? summaryData[0] : summaryData
+          const average = Number(summary?.average_rating ?? summary?.average ?? 0)
+          const count = Number(summary?.rating_count ?? summary?.count ?? 0)
+
+          setSeriesRatingSummary({
+            average: count > 0 && Number.isFinite(average) ? average : null,
+            count: Number.isFinite(count) ? count : 0,
+          })
+          return
+        }
+
+        // Temporary fallback for local/dev before the SQL function is created.
+        // This may still return 0 rows if RLS hides other users' library rows.
+        console.warn('Rating summary RPC unavailable; falling back to direct table read:', summaryError.message)
+
+        const { data, error } = await publicSupabase
+          .from('series_user_library')
+          .select('rating')
+          .eq('series_id', seriesId)
+          .not('rating', 'is', null)
+
+        if (cancelled) return
+
+        if (error) {
+          console.warn('Failed to load series rating summary:', error.message)
+          setSeriesRatingSummary({ average: null, count: 0 })
+          return
+        }
+
+        const ratings = (data || [])
+          .map((row: any) => Number(row.rating))
+          .filter((rating: number) => Number.isFinite(rating))
+
+        if (!ratings.length) {
+          setSeriesRatingSummary({ average: null, count: 0 })
+          return
+        }
+
+        const average = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+        setSeriesRatingSummary({ average, count: ratings.length })
+      } catch (err: any) {
+        if (!cancelled) {
+          console.warn('Failed to load series rating summary:', err?.message || err)
+          setSeriesRatingSummary({ average: null, count: 0 })
+        }
       }
-
-      const ratings = (data || [])
-        .map((row: any) => Number(row.rating))
-        .filter((rating: number) => Number.isFinite(rating))
-
-      if (!ratings.length) {
-        setSeriesRatingSummary({ average: null, count: 0 })
-        return
-      }
-
-      const average = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-
-      setSeriesRatingSummary({
-        average,
-        count: ratings.length,
-      })
     }
 
     loadSeriesRatingSummary()
@@ -915,7 +942,7 @@ export default function ContentDetail() {
                     </span>
                     <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
                     <span className="text-sm sm:text-base text-gray-300">
-                      ({seriesRatingSummary.count.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')} {isVI ? 'lượt đánh giá' : 'voters'})
+                      ({seriesRatingSummary.count.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')} {isVI ? 'lượt đánh giá' : seriesRatingSummary.count === 1 ? 'rating' : 'ratings'})
                     </span>
                   </>
                 ) : (
