@@ -54,10 +54,10 @@ export async function GET(
 
     return NextResponse.json({ ...series, anime_meta, manga_meta })
   } catch (error: any) {
-    console.error('API Error:', error)
+    console.error('API Error')
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
+      { error: 'Series not found' },
+      { status: 404 }
     )
   }
 }
