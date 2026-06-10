@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen } from 'lucide-react'
-import supabase from '@/lib/supabaseClient'
+import supabase from '@/lib/publicSupabaseClient'
 import { getTopRatedSeries } from '@/lib/supabase'
 import { useLocale } from '@/contexts/LocaleContext'
 
