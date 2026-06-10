@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle()
 
     if (error) {
-      console.error('[series-library] read failed:', error)
+      console.error('[series-library] read failed')
       return jsonError('Unable to load rating', 404)
     }
 
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       status: data?.status || null,
     })
   } catch (error) {
-    console.error('[series-library] unexpected read failure:', error)
+    console.error('[series-library] unexpected read failure')
     return jsonError('Unable to load rating', 404)
   }
 }
@@ -101,13 +101,13 @@ export async function POST(request: NextRequest) {
       }, { onConflict: 'user_id,series_id' })
 
     if (error) {
-      console.error('[series-library] write failed:', error)
+      console.error('[series-library] write failed')
       return jsonError('Unable to save rating', 400)
     }
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('[series-library] unexpected write failure:', error)
+    console.error('[series-library] unexpected write failure')
     return jsonError('Unable to save rating', 400)
   }
 }
