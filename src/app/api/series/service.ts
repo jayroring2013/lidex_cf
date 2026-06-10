@@ -26,7 +26,7 @@ export class SeriesService {
 
     const { data, error, count } = await query
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to load series')
 
     return { data, count: count || 0 }
   }
@@ -52,7 +52,7 @@ export class SeriesService {
       .select()
       .single()
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to create series')
 
     return result
   }
@@ -78,7 +78,7 @@ export class SeriesService {
       .delete()
       .eq('id', id)
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to delete series')
 
     return { success: true }
   }
@@ -90,7 +90,7 @@ export class SeriesService {
       .order('is_featured', { ascending: false })
       .limit(limit)
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to load trending series')
     return data
   }
 
@@ -102,7 +102,7 @@ export class SeriesService {
       .order('score', { ascending: false })
       .limit(limit)
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to load top-rated series')
     return data
   }
 }
