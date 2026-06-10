@@ -400,8 +400,8 @@ export default function ContentDetail() {
         const data = await fetchSeries(seriesId)
         setSeries(data)
       } catch (err: any) {
-        console.error('Failed to load series:', err)
-        setError(err.message)
+        console.error('Failed to load series')
+        setError('Series not found')
       } finally {
         setLoading(false)
       }
@@ -413,17 +413,15 @@ export default function ContentDetail() {
     if (!seriesId) return
     let cancelled = false
 
-    async function loadUserSeriesLibrary(userId?: string | null) {
+    async function loadUserSeriesLibrary(sessionOverride?: any) {
       setUserLibraryError(null)
       setUserLibraryLoading(true)
 
       try {
-        let currentUserId = userId
-        if (currentUserId === undefined) {
-          const { data, error } = await supabase.auth.getUser()
-          if (error) throw error
-          currentUserId = data.user?.id ?? null
-        }
+        const session = sessionOverride !== undefined
+          ? sessionOverride
+          : (await supabase.auth.getSession()).data.session
+        const currentUserId = session?.user?.id ?? null
 
         if (cancelled) return
         setAuthUserId(currentUserId || null)
@@ -433,14 +431,14 @@ export default function ContentDetail() {
           return
         }
 
-        const { data, error } = await supabase
-          .from('series_user_library')
-          .select('rating, status')
-          .eq('series_id', seriesId)
-          .eq('user_id', currentUserId)
-          .maybeSingle()
+        const response = await fetch(`/api/series-library?seriesId=${seriesId}`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        })
 
-        if (error) throw error
+        if (!response.ok) throw new Error('Unable to load rating')
+        const data = await response.json()
         if (cancelled) return
 
         setUserLibraryEntry({
@@ -449,8 +447,8 @@ export default function ContentDetail() {
         })
       } catch (err: any) {
         if (!cancelled) {
-          console.error('Failed to load user series library:', err)
-          setUserLibraryError(err.message || 'Failed to load your rating')
+          console.error('Failed to load user series library')
+          setUserLibraryError(isVI ? 'Không tải được đánh giá của bạn.' : 'Could not load your rating.')
         }
       } finally {
         if (!cancelled) setUserLibraryLoading(false)
@@ -460,7 +458,7 @@ export default function ContentDetail() {
     loadUserSeriesLibrary()
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      loadUserSeriesLibrary(session?.user?.id ?? null)
+      loadUserSeriesLibrary(session)
     })
 
     return () => {
@@ -476,9 +474,8 @@ export default function ContentDetail() {
 
     async function loadSeriesRatingSummary() {
       try {
-        // Do not read series_user_library directly with the public client.
-        // RLS usually hides user-specific rows from anon users, which makes
-        // logged-out visitors see "No ratings yet" even when ratings exist.
+        // Read aggregate rating data through the RPC so logged-out visitors
+        // can see public rating totals without accessing user-specific rows.
         const { data: summaryData, error: summaryError } = await publicSupabase
           .rpc('get_series_rating_summary', { p_series_id: seriesId })
 
@@ -496,11 +493,11 @@ export default function ContentDetail() {
           return
         }
 
-        console.warn('Rating summary RPC unavailable:', summaryError.message)
+        console.warn('Rating summary RPC unavailable')
         setSeriesRatingSummary({ average: null, count: 0 })
       } catch (err: any) {
         if (!cancelled) {
-          console.warn('Failed to load series rating summary:', err?.message || err)
+          console.warn('Failed to load series rating summary')
           setSeriesRatingSummary({ average: null, count: 0 })
         }
       }
@@ -645,8 +642,8 @@ export default function ContentDetail() {
         setLnMarketRows(rows)
         setLnRanking(current)
       } catch (err: any) {
-        console.error('Failed to load LN ranking data:', err)
-        setLnStatsError(err.message || 'Failed to load LN ranking data')
+        console.error('Failed to load LN ranking data')
+        setLnStatsError(isVI ? 'Không tải được dữ liệu LN.' : 'Unable to load LN data.')
       } finally {
         setLnStatsLoading(false)
       }
@@ -668,7 +665,7 @@ export default function ContentDetail() {
         .eq('series_id', series.id)
 
       if (error) {
-        console.warn('Failed to load fan vote history:', error.message)
+        console.warn('Failed to load fan vote history')
         setFanVoteHistory([])
         return
       }
@@ -766,20 +763,26 @@ export default function ContentDetail() {
     setUserLibraryError(null)
 
     try {
-      const { error } = await supabase
-        .from('series_user_library')
-        .upsert({
-          user_id: authUserId,
-          series_id: seriesId,
+      const { data } = await supabase.auth.getSession()
+      if (!data.session?.access_token) throw new Error('Unauthorized')
+
+      const response = await fetch('/api/series-library', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          seriesId,
           rating: nextEntry.rating,
           status: nextEntry.status,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id,series_id' })
+        }),
+      })
 
-      if (error) throw error
+      if (!response.ok) throw new Error('Unable to save rating')
     } catch (err: any) {
-      console.error('Failed to save user series library:', err)
-      setUserLibraryError(err.message || (isVI ? 'Không lưu được đánh giá.' : 'Could not save your rating.'))
+      console.error('Failed to save user series library')
+      setUserLibraryError(isVI ? 'Không lưu được đánh giá.' : 'Could not save your rating.')
     } finally {
       setUserLibrarySaving(false)
     }
