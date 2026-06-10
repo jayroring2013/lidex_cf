@@ -22,7 +22,7 @@ import {
   ShieldCheck,
   TrendingUp,
 } from 'lucide-react'
-import supabase from '@/lib/supabaseClient'
+import publicSupabase from '@/lib/publicSupabaseClient'
 import { useLocale } from '@/contexts/LocaleContext'
 
 type Mode = 'dashboard' | 'watchlist' | 'publisher'
@@ -483,7 +483,7 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
 
   for (let i = 0; i < ids.length; i += batchSize) {
     const chunk = ids.slice(i, i + batchSize)
-    const { data, error } = await supabase
+    const { data, error } = await publicSupabase
       .from('series')
       .select('id, title, cover_url, description, description_vi')
       .in('id', chunk)
@@ -525,7 +525,7 @@ async function hydrateRowsWithFanVotes(rows: LNRow[]): Promise<LNRow[]> {
   for (let i = 0; i < ids.length; i += batchSize) {
     const chunk = ids.slice(i, i + batchSize)
     for (let offset = 0; ; offset += 1000) {
-      const { data, error } = await supabase
+      const { data, error } = await publicSupabase
         .from('voting_results')
         .select('series_id, votes, rank, voting_periods(month, year, label)')
         .in('series_id', chunk)
@@ -2452,7 +2452,7 @@ async function loadNovelVolumeReleases(dashboardRows: LNRow[]): Promise<VolumeRe
   }).filter((id): id is number => Boolean(id))))
 
   if (seriesIds.length === 0) {
-    const { data: seriesData, error: seriesError } = await supabase
+    const { data: seriesData, error: seriesError } = await publicSupabase
       .from('series')
       .select('id, publisher')
       .eq('item_type', 'novel')
@@ -2474,7 +2474,7 @@ async function loadNovelVolumeReleases(dashboardRows: LNRow[]): Promise<VolumeRe
   const batchSize = 200
   for (let i = 0; i < seriesIds.length; i += batchSize) {
     const chunk = seriesIds.slice(i, i + batchSize)
-    const { data: volumeData, error: volumeError } = await supabase
+    const { data: volumeData, error: volumeError } = await publicSupabase
       .from('volumes')
       .select('series_id, release_date, is_special')
       .in('series_id', chunk)
@@ -2502,7 +2502,7 @@ async function loadNovelVolumeReleases(dashboardRows: LNRow[]): Promise<VolumeRe
 }
 
 async function loadPublisherLogos(): Promise<PublisherLogoMap> {
-  const { data, error } = await supabase
+  const { data, error } = await publicSupabase
     .from('publishers')
     .select('name, name_vi, logo_url')
     .not('logo_url', 'is', null)
@@ -2785,7 +2785,7 @@ export default function Dashboard() {
     setLoading(true)
     setError(null)
 
-    const { data, error } = await supabase
+    const { data, error } = await publicSupabase
       .from('ln_series_ranking')
       .select('*')
       .order('ln_score', { ascending: false })
