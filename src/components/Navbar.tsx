@@ -468,8 +468,9 @@ export default function Navbar() {
                 : (locale === 'vi' ? 'Đã có tài khoản? Đăng nhập' : 'Already have an account? Login')}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </nav>
+    </>
   )
 }
