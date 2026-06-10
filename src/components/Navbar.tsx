@@ -83,7 +83,7 @@ export default function Navbar() {
       options: { redirectTo: window.location.origin },
     })
     if (error) {
-      setAuthError(error.message)
+      setAuthError(locale === 'vi' ? 'Không đăng nhập được bằng Google.' : 'Unable to sign in with Google.')
       setAuthLoading(false)
     }
   }
@@ -105,7 +105,9 @@ export default function Navbar() {
       : await supabase.auth.signInWithPassword({ email: credentials.email, password: credentials.password })
 
     if (error) {
-      setAuthError(error.message)
+      setAuthError(authMode === 'signup'
+        ? (locale === 'vi' ? 'Không tạo được tài khoản.' : 'Unable to create account.')
+        : (locale === 'vi' ? 'Không đăng nhập được.' : 'Unable to sign in.'))
     } else if (authMode === 'signup') {
       setAuthMessage(locale === 'vi' ? 'Kiểm tra email để xác nhận tài khoản.' : 'Check your email to confirm your account.')
     } else {
@@ -262,13 +264,14 @@ export default function Navbar() {
 
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
-                <div
+                <Link
+                  href="/user"
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold"
                   style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
                 >
                   <UserCircle className="w-4 h-4 text-primary-500" />
                   <span className="max-w-[88px] lg:max-w-[120px] truncate">{displayName}</span>
-                </div>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="p-2 rounded-lg transition-colors"
@@ -337,10 +340,15 @@ export default function Navbar() {
             <div className="pt-3" style={{ borderTop: '1px solid var(--card-border)' }}>
               {user ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--foreground)' }}>
+                  <Link
+                    href="/user"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2 text-sm font-bold rounded-xl px-3 py-2"
+                    style={{ color: 'var(--foreground)', background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}
+                  >
                     <UserCircle className="w-5 h-5 text-primary-500" />
                     <span className="truncate">{displayName}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold"
