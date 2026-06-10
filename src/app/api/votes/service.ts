@@ -11,7 +11,7 @@ export class VotesService {
       .gte('created_at', startDate.toISOString())
       .order('created_at', { ascending: true })
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to load vote stats')
 
     // Group by day
     const votesByDay: Record<string, number> = {}
@@ -36,7 +36,7 @@ export class VotesService {
       .select('*', { count: 'exact', head: true })
       .eq('novel_id', seriesId)
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to load vote count')
 
     return { seriesId, count: count || 0 }
   }
@@ -51,7 +51,7 @@ export class VotesService {
       .select()
       .single()
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to save vote')
 
     return data
   }
@@ -71,7 +71,7 @@ export class VotesService {
       .order('created_at', { ascending: false })
       .limit(limit)
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error('Unable to load recent votes')
 
     return data
   }
