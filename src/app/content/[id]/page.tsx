@@ -909,6 +909,18 @@ export default function ContentDetail() {
                   </button>
                 </div>
               )}
+
+              {isNovel && (
+                <HeroUserSeriesActions
+                  entry={userLibraryEntry}
+                  isLoggedIn={Boolean(authUserId)}
+                  loading={userLibraryLoading}
+                  saving={userLibrarySaving}
+                  error={userLibraryError}
+                  locale={locale}
+                  onChange={saveUserSeriesLibrary}
+                />
+              )}
             </div>
 
             {/* ── LiDex Score Box (anime only) ── */}
@@ -1334,18 +1346,6 @@ export default function ContentDetail() {
               />
             )}
 
-            {isNovel && (
-              <UserSeriesLibraryPanel
-                entry={userLibraryEntry}
-                isLoggedIn={Boolean(authUserId)}
-                loading={userLibraryLoading}
-                saving={userLibrarySaving}
-                error={userLibraryError}
-                locale={locale}
-                onChange={saveUserSeriesLibrary}
-              />
-            )}
-
             {/* Share */}
             <div className="glass rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
@@ -1504,6 +1504,179 @@ function RatingStars({
           </div>
         )
       })}
+    </div>
+  )
+}
+
+function HeroStarPicker({
+  value,
+  disabled,
+  onSelect,
+}: {
+  value: number | null
+  disabled: boolean
+  onSelect: (rating: number) => void
+}) {
+  const [preview, setPreview] = useState<number | null>(null)
+  const shown = preview ?? value ?? 0
+
+  const ratingFromPointer = (event: any) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+    return Math.max(0.5, Math.min(5, Math.ceil(ratio * 10) / 2))
+  }
+
+  return (
+    <div>
+      <div
+        className={`flex w-full max-w-[280px] items-center justify-between gap-2 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+        onMouseMove={event => !disabled && setPreview(ratingFromPointer(event))}
+        onMouseLeave={() => setPreview(null)}
+        onClick={event => {
+          if (disabled) return
+          onSelect(ratingFromPointer(event))
+        }}
+      >
+        {[1, 2, 3, 4, 5].map(star => {
+          const fill = Math.max(0, Math.min(100, (shown - (star - 1)) * 100))
+          return (
+            <div key={star} className="relative h-10 w-10">
+              <Star className="absolute inset-0 h-10 w-10" style={{ color: 'rgba(255,255,255,.28)' }} />
+              <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - fill}% 0 0)` }}>
+                <Star className="h-10 w-10 text-amber-400 fill-amber-400" />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <p className="mt-2 text-xs font-bold" style={{ color: shown ? '#fbbf24' : 'rgba(255,255,255,.58)' }}>
+        {shown ? `${shown.toFixed(1)} / 5` : '—'}
+      </p>
+    </div>
+  )
+}
+
+function HeroUserSeriesActions({
+  entry,
+  isLoggedIn,
+  loading,
+  saving,
+  error,
+  locale,
+  onChange,
+}: {
+  entry: UserSeriesLibraryEntry
+  isLoggedIn: boolean
+  loading: boolean
+  saving: boolean
+  error: string | null
+  locale: string
+  onChange: (patch: Partial<UserSeriesLibraryEntry>) => void
+}) {
+  const isVI = locale === 'vi'
+  const [openPanel, setOpenPanel] = useState<'rating' | 'status' | null>(null)
+  const disabled = !isLoggedIn || loading || saving
+  const selectedStatus = USER_SERIES_STATUS_OPTIONS.find(option => option.value === entry.status)
+
+  const buttonStyle = {
+    background: 'rgba(15,23,42,.58)',
+    color: '#fff',
+    border: '1px solid rgba(255,255,255,.16)',
+    backdropFilter: 'blur(10px)',
+  }
+
+  return (
+    <div className="mt-4 max-w-2xl text-left">
+      <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
+        <button
+          type="button"
+          onClick={() => setOpenPanel(openPanel === 'rating' ? null : 'rating')}
+          className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition-all"
+          style={buttonStyle}
+        >
+          <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+          {entry.rating ? `${entry.rating.toFixed(1)} / 5` : (isVI ? 'Đánh giá' : 'Rate')}
+          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setOpenPanel(openPanel === 'status' ? null : 'status')}
+          className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition-all"
+          style={buttonStyle}
+        >
+          <BookOpen className="h-4 w-4 text-cyan-300" />
+          <span style={{ color: selectedStatus?.color || '#fff' }}>
+            {selectedStatus ? (isVI ? selectedStatus.labelVI : selectedStatus.labelEN) : (isVI ? 'Trạng thái' : 'Status')}
+          </span>
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${openPanel === 'status' ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      {openPanel === 'rating' && (
+        <div className="mt-3 rounded-2xl p-4 shadow-2xl" style={{ background: 'rgba(15,23,42,.86)', border: '1px solid rgba(255,255,255,.16)', backdropFilter: 'blur(14px)' }}>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-black text-white">{isVI ? 'Đánh giá series' : 'Rate this series'}</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,.62)' }}>
+                {isVI ? 'Di chuột qua sao để xem điểm, bấm để lưu.' : 'Hover across the stars to preview, click to save.'}
+              </p>
+            </div>
+            {saving && <Loader2 className="h-4 w-4 animate-spin text-primary-300" />}
+          </div>
+          <HeroStarPicker
+            value={entry.rating}
+            disabled={disabled}
+            onSelect={rating => {
+              onChange({ rating })
+              setOpenPanel(null)
+            }}
+          />
+          {!isLoggedIn && (
+            <p className="mt-3 text-xs" style={{ color: '#fca5a5' }}>
+              {isVI ? 'Bạn cần đăng nhập để lưu đánh giá.' : 'Sign in to save your rating.'}
+            </p>
+          )}
+        </div>
+      )}
+
+      {openPanel === 'status' && (
+        <div className="mt-3 grid grid-cols-1 gap-2 rounded-2xl p-3 shadow-2xl min-[420px]:grid-cols-2" style={{ background: 'rgba(15,23,42,.86)', border: '1px solid rgba(255,255,255,.16)', backdropFilter: 'blur(14px)' }}>
+          {USER_SERIES_STATUS_OPTIONS.map(option => {
+            const selected = option.value === entry.status
+            return (
+              <button
+                key={option.value}
+                type="button"
+                disabled={disabled}
+                onClick={() => {
+                  onChange({ status: option.value })
+                  setOpenPanel(null)
+                }}
+                className="min-h-10 rounded-xl px-3 py-2 text-xs font-black transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                style={{
+                  color: selected ? option.color : '#fff',
+                  background: selected ? `${option.color}22` : 'rgba(255,255,255,.06)',
+                  border: `1px solid ${selected ? `${option.color}66` : 'rgba(255,255,255,.12)'}`,
+                }}
+              >
+                {isVI ? option.labelVI : option.labelEN}
+              </button>
+            )
+          })}
+          {!isLoggedIn && (
+            <p className="col-span-full px-1 text-xs" style={{ color: '#fca5a5' }}>
+              {isVI ? 'Bạn cần đăng nhập để lưu trạng thái.' : 'Sign in to save your status.'}
+            </p>
+          )}
+        </div>
+      )}
+
+      {error && (
+        <p className="mt-2 text-xs" style={{ color: '#fca5a5' }}>
+          {error}
+        </p>
+      )}
     </div>
   )
 }
