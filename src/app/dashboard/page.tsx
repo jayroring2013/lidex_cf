@@ -489,7 +489,7 @@ async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
       .in('id', chunk)
 
     if (error) {
-      console.warn('[Dashboard] canonical series fetch failed:', error.message)
+      console.warn('[Dashboard] canonical series fetch failed')
       continue
     }
 
@@ -532,7 +532,7 @@ async function hydrateRowsWithFanVotes(rows: LNRow[]): Promise<LNRow[]> {
         .range(offset, offset + 999)
 
       if (error) {
-        console.warn('[Dashboard] fan vote fetch failed:', error.message)
+        console.warn('[Dashboard] fan vote fetch failed')
         break
       }
 
@@ -2522,12 +2522,14 @@ async function loadPublisherLogos(): Promise<PublisherLogoMap> {
 }
 
 function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LNRow) => void; vi: boolean }) {
+  const pageSize = 25
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [publisher, setPublisher] = useState('')
   const [releaseStatusFilter, setReleaseStatusFilter] = useState('')
   const [sortBy, setSortBy] = useState('scoreRelease')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [page, setPage] = useState(0)
 
   const statuses = useMemo(() => Array.from(new Set(rows.map(d => d.evalution).filter((v): v is string => Boolean(v))))
     .sort((a, b) => EVAL_ORDER.indexOf(a) - EVAL_ORDER.indexOf(b)), [rows])
@@ -2568,6 +2570,15 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
 
     return [...base].sort(sorters[sortBy] || sorters.scoreRelease)
   }, [rows, search, status, publisher, releaseStatusFilter, sortBy])
+
+  useEffect(() => {
+    setPage(0)
+  }, [search, status, publisher, releaseStatusFilter, sortBy])
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const safePage = Math.min(page, pageCount - 1)
+  const pageStart = safePage * pageSize
+  const pagedRows = filtered.slice(pageStart, pageStart + pageSize)
 
   const avg = filtered.length ? filtered.reduce((s, r) => s + r.ln_score, 0) / filtered.length : 0
   const good = filtered.filter(r => ['Good', 'Completed'].includes(r.evalution || '')).length
@@ -2677,21 +2688,22 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
             <tbody>
               {filtered.length === 0 ? (
                 <tr><td colSpan={9} className="text-center py-10" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series nào phù hợp với bộ lọc.' : 'No series match the current filters.'}</td></tr>
-              ) : filtered.map((row, idx) => {
+              ) : pagedRows.map((row, idx) => {
+                const displayRank = pageStart + idx + 1
                 const scoreBar = Math.max(0, Math.min(100, row.ln_score * 10))
                 const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
-                const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
-                const rankColor = idx <= 2 ? '#161616' : 'var(--foreground-muted)'
+                const rankBg = displayRank === 1 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : displayRank === 2 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : displayRank === 3 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
+                const rankColor = displayRank <= 3 ? '#161616' : 'var(--foreground-muted)'
                 const rsStyle = releaseStatusStyle(row)
                 const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
                 const href = detailHref(row)
                 return (
                   <tr key={row.series_key} style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
-                    <td className="py-2.5 px-3 text-center"><span className="inline-flex items-center justify-center min-w-[34px] h-[34px] rounded-lg font-black text-[11px]" style={{ background: rankBg, color: rankColor }}>#{idx + 1}</span></td>
+                    <td className="py-2.5 px-3 text-center"><span className="inline-flex items-center justify-center min-w-[34px] h-[34px] rounded-lg font-black text-[11px]" style={{ background: rankBg, color: rankColor }}>#{displayRank}</span></td>
                     <td className="py-2.5 px-3">
                       <div className="flex items-center gap-3 min-w-[300px]">
                         <Link href={href} aria-label={row.series_title} className="shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                          {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[64px] h-[90px] object-cover rounded-lg shadow-lg transition-transform hover:scale-[1.03]" /> : <div className="w-[64px] h-[90px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                          {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" loading="lazy" className="w-[64px] h-[90px] object-cover rounded-lg shadow-lg transition-transform hover:scale-[1.03]" /> : <div className="w-[64px] h-[90px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
                         </Link>
                         <div className="min-w-0">
                           <Link href={href} className="font-black leading-snug line-clamp-2 max-w-[340px] hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
@@ -2723,19 +2735,20 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
         </div>
 
         <div className="md:hidden">
-          {filtered.map((row, idx) => {
+          {pagedRows.map((row, idx) => {
+            const displayRank = pageStart + idx + 1
             const scoreBar = Math.max(0, Math.min(100, row.ln_score * 10))
             const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
             const rsStyle = releaseStatusStyle(row)
             const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
-            const rankBg = idx === 0 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : idx === 1 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : idx === 2 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
+            const rankBg = displayRank === 1 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : displayRank === 2 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : displayRank === 3 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
             const href = detailHref(row)
             return (
               <div key={row.series_key} className="p-3" style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
                 <div className="flex gap-3">
-                  <div className="w-8 shrink-0 pt-1"><span className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-[10px]" style={{ background: rankBg, color: idx <= 2 ? '#161616' : 'var(--foreground-muted)' }}>#{idx + 1}</span></div>
+                  <div className="w-8 shrink-0 pt-1"><span className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-[10px]" style={{ background: rankBg, color: displayRank <= 3 ? '#161616' : 'var(--foreground-muted)' }}>#{displayRank}</span></div>
                   <Link href={href} aria-label={row.series_title} className="shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" className="w-[104px] h-[148px] object-cover rounded-lg shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                    {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" loading="lazy" className="w-[104px] h-[148px] object-cover rounded-lg shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
                   </Link>
                   <div className="min-w-0 flex-1">
                     <Link href={href} className="text-sm font-black leading-snug line-clamp-4 hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
@@ -2765,6 +2778,37 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
           })}
         </div>
       </div>
+
+      {filtered.length > pageSize && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl px-3 py-2" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
+          <p className="text-[11px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+            {vi ? 'Hiển thị' : 'Showing'} {pageStart + 1}-{Math.min(pageStart + pageSize, filtered.length)} / {filtered.length.toLocaleString('vi-VN')}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={safePage === 0}
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+            >
+              {vi ? 'Trước' : 'Prev'}
+            </button>
+            <span className="px-2 text-xs font-black tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
+              {safePage + 1} / {pageCount}
+            </span>
+            <button
+              type="button"
+              disabled={safePage >= pageCount - 1}
+              onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+              className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+            >
+              {vi ? 'Sau' : 'Next'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -2792,7 +2836,8 @@ export default function Dashboard() {
       .order('max_release_at', { ascending: false })
 
     if (error) {
-      setError(error.message)
+      console.error('[Dashboard] ranking fetch failed:', error)
+      setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
       setLoading(false)
       return
     }
