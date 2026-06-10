@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, ArrowUp, Loader2, Search } from 'lucide-react'
-import supabase from '@/lib/supabaseClient'
+import supabase from '@/lib/publicSupabaseClient'
 import { useLocale } from '@/contexts/LocaleContext'
 
 type Period = {
