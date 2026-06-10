@@ -8,7 +8,7 @@ import {
   Search, SlidersHorizontal, X, ChevronDown, Loader2,
   BookOpen, Tv, Book, TrendingUp, Clock, ArrowRight, ExternalLink, LayoutGrid
 } from 'lucide-react'
-import supabase from '@/lib/supabaseClient'
+import supabase from '@/lib/publicSupabaseClient'
 import { useLocale } from '@/contexts/LocaleContext'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
