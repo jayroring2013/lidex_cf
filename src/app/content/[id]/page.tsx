@@ -2544,12 +2544,12 @@ function NovelDoAStats({
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.1fr] gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} />
         <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-4 items-start">
+      <div className="grid grid-cols-1 gap-4">
         <LnVolumeAnalytics volumes={volumes} ranking={ranking} locale={locale} />
         <FanVoteDemandCard history={fanVoteHistory} ranking={ranking} locale={locale} />
       </div>
@@ -3019,12 +3019,14 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
   }).filter((item): item is { volume: any; months: number; label: string } => Boolean(item))
 
   const avgGap = gaps.length ? gaps.reduce((sum, item) => sum + item.months, 0) / gaps.length : Number(ranking.average_gap_months || 0)
+  const longestGap = gaps.length ? gaps.reduce((max, item) => Math.max(max, item.months), 0) : 0
   const latestRelease = ranking.max_release_at || sorted[sorted.length - 1]?.release_date || null
   const latestVolume = sorted[sorted.length - 1]
+  const showEvery = sorted.length > 12 ? Math.ceil(sorted.length / 10) : 1
 
   return (
     <div className="glass rounded-2xl p-4 sm:p-5">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>5</span>
@@ -3038,15 +3040,16 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
               : 'Volume timeline showing whether releases are steady or interrupted.'}
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:w-[360px]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 lg:w-[520px]">
           <MiniMetric label={isVI ? 'Gap TB' : 'Avg Gap'} value={avgGap ? `${avgGap.toFixed(1)}m` : '—'} />
+          <MiniMetric label={isVI ? 'Gap dài nhất' : 'Longest Gap'} value={longestGap ? `${longestGap.toFixed(1)}m` : '—'} />
           <MiniMetric label={isVI ? 'Số tập VN' : 'VN Vols'} value={String(sorted.length)} />
           <MiniMetric label={isVI ? 'Mới nhất' : 'Latest'} value={lnFormatDateDDMM(latestRelease)} />
         </div>
       </div>
 
-      <div className="rounded-xl p-3 overflow-hidden" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-        <div className="flex items-center justify-between mb-3">
+      <div className="rounded-xl p-3 sm:p-4 overflow-hidden" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+        <div className="flex items-center justify-between mb-4">
           <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
             {isVI ? 'Release Timeline' : 'Release Timeline'}
           </p>
@@ -3056,21 +3059,27 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
         </div>
 
         <div className="overflow-x-auto pb-2">
-          <div className="relative min-w-[620px] h-[150px]">
-            <div className="absolute left-5 right-5 top-[72px] h-1.5 rounded-full" style={{ background: 'var(--ln-track-bg)' }} />
+          <div className="relative min-w-[560px] h-[170px]">
+            <div className="absolute left-5 right-5 top-[78px] h-1.5 rounded-full" style={{ background: 'var(--ln-track-bg)' }} />
             {sorted.map((vol, index) => {
               const left = sorted.length === 1 ? 50 : (index / (sorted.length - 1)) * 100
               const hasDate = Boolean(vol.release_date)
               const date = lnFormatDateDDMM(vol.release_date)
+              const showLabel = index === 0 || index === sorted.length - 1 || index % showEvery === 0
+
               return (
                 <div
                   key={vol.id || `${vol.volume_number}-${index}`}
                   className="absolute top-0 -translate-x-1/2 flex flex-col items-center text-center"
                   style={{ left: `${left}%` }}
                 >
-                  <span className="text-[10px] font-black mb-2" style={{ color: 'var(--foreground-secondary)' }}>
-                    Vol.{vol.volume_number ?? index + 1}
-                  </span>
+                  {showLabel ? (
+                    <span className="text-[10px] font-black mb-2 whitespace-nowrap" style={{ color: 'var(--foreground-secondary)' }}>
+                      Vol.{vol.volume_number ?? index + 1}
+                    </span>
+                  ) : (
+                    <span className="h-[20px]" />
+                  )}
                   <div
                     className="w-5 h-5 rounded-full"
                     style={{
@@ -3081,14 +3090,22 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
                     }}
                     title={`Vol.${vol.volume_number ?? index + 1}: ${date}`}
                   />
-                  <span className="text-[10px] mt-3 whitespace-nowrap" style={{ color: 'var(--foreground-muted)' }}>
-                    {date}
-                  </span>
+                  {showLabel ? (
+                    <span className="text-[10px] mt-3 whitespace-nowrap" style={{ color: 'var(--foreground-muted)' }}>
+                      {date}
+                    </span>
+                  ) : (
+                    <span className="h-[16px]" />
+                  )}
                 </div>
               )
             })}
           </div>
         </div>
+
+        <p className="text-[10px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+          {isVI ? 'Cuộn ngang nếu series có nhiều tập.' : 'Scroll horizontally when the series has many volumes.'}
+        </p>
       </div>
     </div>
   )
@@ -3187,28 +3204,28 @@ function FanVoteDemandCard({ history, ranking, locale }: { history: FanVotePoint
       </div>
 
       {latest ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-[104px_1fr] gap-3 items-center">
-            <div
-              className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center"
-              style={{
-                background: `conic-gradient(${demandColor} ${demand * 3.6}deg, var(--ln-track-bg) 0deg)`,
-                boxShadow: `0 0 24px ${demandColor}22`,
-              }}
-            >
-              <div className="absolute inset-[9px] rounded-full" style={{ background: 'var(--background)' }} />
-              <div className="relative text-center">
-                <p className="text-2xl font-black tabular-nums leading-none" style={{ color: demandColor }}>
-                  {Math.round(demand)}
-                </p>
-                <p className="text-[9px] font-black uppercase mt-1" style={{ color: 'var(--foreground-muted)' }}>
-                  {isVI ? 'Nhu cầu' : 'Demand'}
-                </p>
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.05fr] gap-4">
+          <div className="space-y-3">
+            <div className="grid grid-cols-[104px_1fr] gap-3 items-center">
+              <div
+                className="relative w-[104px] h-[104px] rounded-full flex items-center justify-center"
+                style={{
+                  background: `conic-gradient(${demandColor} ${demand * 3.6}deg, var(--ln-track-bg) 0deg)`,
+                  boxShadow: `0 0 24px ${demandColor}22`,
+                }}
+              >
+                <div className="absolute inset-[9px] rounded-full" style={{ background: 'var(--background)' }} />
+                <div className="relative text-center">
+                  <p className="text-2xl font-black tabular-nums leading-none" style={{ color: demandColor }}>
+                    {Math.round(demand)}
+                  </p>
+                  <p className="text-[9px] font-black uppercase mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                    {isVI ? 'Nhu cầu' : 'Demand'}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className="min-w-0">
-              <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <div className="min-w-0 rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
                 <p className="text-[10px] font-black uppercase tracking-wide mb-1" style={{ color: gapColor }}>
                   {signalLabel}
                 </p>
@@ -3217,103 +3234,105 @@ function FanVoteDemandCard({ history, ranking, locale }: { history: FanVotePoint
                 </p>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <MiniMetric label={isVI ? 'Hạng mới nhất' : 'Latest rank'} value={latest.rank ? `#${latest.rank}` : '—'} />
-            <MiniMetric label={isVI ? 'Phiếu mới nhất' : 'Latest votes'} value={latest.votes.toLocaleString('vi-VN')} />
-            <MiniMetric label={isVI ? 'Hạng tốt nhất' : 'Best rank'} value={bestRank ? `#${bestRank}` : '—'} />
-            <MiniMetric
-              label={isVI ? 'Chênh lệch' : 'Demand gap'}
-              value={demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
-            />
-          </div>
-
-          <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
-                {isVI ? 'Xu hướng hạng' : 'Rank trend'}
-              </p>
-              <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
-                {isVI ? 'Hạng càng thấp càng tốt' : 'Lower rank is better'}
-              </span>
+            <div className="grid grid-cols-2 gap-2">
+              <MiniMetric label={isVI ? 'Hạng mới nhất' : 'Latest rank'} value={latest.rank ? `#${latest.rank}` : '—'} />
+              <MiniMetric label={isVI ? 'Phiếu mới nhất' : 'Latest votes'} value={latest.votes.toLocaleString('vi-VN')} />
+              <MiniMetric label={isVI ? 'Hạng tốt nhất' : 'Best rank'} value={bestRank ? `#${bestRank}` : '—'} />
+              <MiniMetric
+                label={isVI ? 'Chênh lệch' : 'Demand gap'}
+                value={demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
+              />
             </div>
+          </div>
 
-            {rankSpark ? (
-              <svg viewBox="0 0 100 60" className="w-full h-[78px]" aria-hidden="true">
-                <defs>
-                  <linearGradient id="rankTrendGradient" x1="0" x2="1" y1="0" y2="0">
-                    <stop offset="0%" stopColor="#38bdf8" />
-                    <stop offset="100%" stopColor={rankChange != null && rankChange >= 0 ? '#22c55e' : '#ef4444'} />
-                  </linearGradient>
-                </defs>
-                <path d={rankSpark} fill="none" stroke="url(#rankTrendGradient)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                {validRanks.map(point => {
-                  const minRank = Math.min(...validRanks.map(p => p.rank))
-                  const maxRank = Math.max(...validRanks.map(p => p.rank))
-                  const span = Math.max(1, maxRank - minRank)
-                  const lastIndex = Math.max(1, history.length - 1)
-                  const x = (point.index / lastIndex) * 92 + 4
-                  const y = 8 + ((point.rank - minRank) / span) * 44
-                  return <circle key={`${point.period}-${point.rank}`} cx={x} cy={y} r="3.2" fill="#38bdf8"><title>{`${point.period}: #${point.rank}`}</title></circle>
-                })}
-              </svg>
-            ) : (
-              <p className="text-xs py-5 text-center" style={{ color: 'var(--foreground-muted)' }}>
-                {isVI ? 'Cần ít nhất 2 kỳ vote để vẽ xu hướng.' : 'At least 2 voting periods are needed for a trend.'}
-              </p>
-            )}
-
-            {voteBars.length > 0 && (
-              <div className="mt-2">
-                <div className="flex items-end gap-1.5 h-12">
-                  {voteBars.map(point => (
-                    <div key={`${point.period}-${point.votes}`} className="flex-1 flex flex-col items-center gap-1">
-                      <div
-                        className="w-full rounded-t-md"
-                        style={{
-                          height: `${Math.max(8, point.votes / maxVotes * 42)}px`,
-                          background: 'linear-gradient(180deg,#38bdf8,#6366f1)',
-                          opacity: point.period === latest.period ? 1 : 0.62,
-                        }}
-                        title={`${point.period}: ${point.votes.toLocaleString('vi-VN')} votes`}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[9px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
-                  {isVI ? 'Cột nhỏ = số phiếu trong các kỳ gần nhất.' : 'Mini bars = votes in recent periods.'}
+          <div className="space-y-3">
+            <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+                  {isVI ? 'Xu hướng hạng' : 'Rank trend'}
                 </p>
+                <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? 'Hạng càng thấp càng tốt' : 'Lower rank is better'}
+                </span>
               </div>
-            )}
-          </div>
 
-          <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
-                {isVI ? 'Nhu cầu vs hỗ trợ NPH' : 'Demand vs publisher support'}
-              </span>
-              <span className="text-[10px] font-black" style={{ color: gapColor }}>
-                {demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
-              </span>
+              {rankSpark ? (
+                <svg viewBox="0 0 100 60" className="w-full h-[78px]" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="rankTrendGradient" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#38bdf8" />
+                      <stop offset="100%" stopColor={rankChange != null && rankChange >= 0 ? '#22c55e' : '#ef4444'} />
+                    </linearGradient>
+                  </defs>
+                  <path d={rankSpark} fill="none" stroke="url(#rankTrendGradient)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  {validRanks.map(point => {
+                    const minRank = Math.min(...validRanks.map(p => p.rank))
+                    const maxRank = Math.max(...validRanks.map(p => p.rank))
+                    const span = Math.max(1, maxRank - minRank)
+                    const lastIndex = Math.max(1, history.length - 1)
+                    const x = (point.index / lastIndex) * 92 + 4
+                    const y = 8 + ((point.rank - minRank) / span) * 44
+                    return <circle key={`${point.period}-${point.rank}`} cx={x} cy={y} r="3.2" fill="#38bdf8"><title>{`${point.period}: #${point.rank}`}</title></circle>
+                  })}
+                </svg>
+              ) : (
+                <p className="text-xs py-5 text-center" style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? 'Cần ít nhất 2 kỳ vote để vẽ xu hướng.' : 'At least 2 voting periods are needed for a trend.'}
+                </p>
+              )}
+
+              {voteBars.length > 0 && (
+                <div className="mt-2">
+                  <div className="flex items-end gap-1.5 h-12">
+                    {voteBars.map(point => (
+                      <div key={`${point.period}-${point.votes}`} className="flex-1 flex flex-col items-center gap-1">
+                        <div
+                          className="w-full rounded-t-md"
+                          style={{
+                            height: `${Math.max(8, point.votes / maxVotes * 42)}px`,
+                            background: 'linear-gradient(180deg,#38bdf8,#6366f1)',
+                            opacity: point.period === latest.period ? 1 : 0.62,
+                          }}
+                          title={`${point.period}: ${point.votes.toLocaleString('vi-VN')} votes`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[9px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                    {isVI ? 'Cột nhỏ = số phiếu trong các kỳ gần nhất.' : 'Mini bars = votes in recent periods.'}
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="space-y-2">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] font-bold" style={{ color: '#f59e0b' }}>{isVI ? 'Nhu cầu fan vote' : 'Fan demand'}</span>
-                  <span className="text-[9px] font-black" style={{ color: '#f59e0b' }}>{Math.round(demand)}</span>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, demand))}%`, background: 'linear-gradient(90deg,#f59e0b,#f97316)' }} />
-                </div>
+
+            <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+                  {isVI ? 'Nhu cầu vs hỗ trợ NPH' : 'Demand vs publisher support'}
+                </span>
+                <span className="text-[10px] font-black" style={{ color: gapColor }}>
+                  {demandGap == null ? '—' : `${demandGap > 0 ? '+' : ''}${demandGap}`}
+                </span>
               </div>
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] font-bold" style={{ color: '#38bdf8' }}>{isVI ? 'Hỗ trợ NPH' : 'Publisher support'}</span>
-                  <span className="text-[9px] font-black" style={{ color: '#38bdf8' }}>{Math.round(support)}</span>
+              <div className="space-y-2">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[9px] font-bold" style={{ color: '#f59e0b' }}>{isVI ? 'Nhu cầu fan vote' : 'Fan demand'}</span>
+                    <span className="text-[9px] font-black" style={{ color: '#f59e0b' }}>{Math.round(demand)}</span>
+                  </div>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, demand))}%`, background: 'linear-gradient(90deg,#f59e0b,#f97316)' }} />
+                  </div>
                 </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, support))}%`, background: 'linear-gradient(90deg,#38bdf8,#6366f1)' }} />
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[9px] font-bold" style={{ color: '#38bdf8' }}>{isVI ? 'Hỗ trợ NPH' : 'Publisher support'}</span>
+                    <span className="text-[9px] font-black" style={{ color: '#38bdf8' }}>{Math.round(support)}</span>
+                  </div>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, support))}%`, background: 'linear-gradient(90deg,#38bdf8,#6366f1)' }} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -3444,32 +3463,43 @@ function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRanki
   const activeKey = `${active.lidex_series_id || active.series_id || active.id}|${active.series_code || ''}`
 
   return (
-    <div className="glass rounded-2xl p-4 h-full">
-      <div className="flex items-start gap-2 mb-3">
-        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>4</span>
-        <div>
-          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>{isVI ? 'Vị thế thị trường LN' : 'LN Market Position'}</h2>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm LN so với khả năng drop.' : 'LN score against drop risk.'}</p>
+    <div className="glass rounded-2xl p-4 sm:p-5">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+        <div className="flex items-start gap-2">
+          <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(124,106,245,.16)', color: '#a78bfa' }}>4</span>
+          <div>
+            <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>{isVI ? 'Vị thế thị trường LN' : 'LN Market Position'}</h2>
+            <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'So sánh Điểm LN và rủi ro drop với toàn bộ watchlist.' : 'Compares LN score and drop risk against the full watchlist.'}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#22c55e' }} /> {isVI ? 'Khỏe' : 'Healthy'}</span>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#f59e0b' }} /> {isVI ? 'Rủi ro vừa' : 'Mid risk'}</span>
+          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: '#ef4444' }} /> {isVI ? 'Rủi ro cao' : 'High risk'}</span>
         </div>
       </div>
 
-      <div className="relative h-[255px] rounded-xl overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
-        <div className="absolute inset-x-7 inset-y-7">
+      <div className="relative h-[310px] sm:h-[340px] rounded-xl overflow-hidden" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+        <div className="absolute inset-x-9 sm:inset-x-11 inset-y-8 sm:inset-y-9">
+          <div className="absolute inset-0 rounded-lg" style={{ background: 'linear-gradient(90deg, rgba(239,68,68,.05), transparent 45%, rgba(34,197,94,.05))' }} />
+
           {[0, 25, 50, 75, 100].map(v => (
             <div key={`y-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'var(--ln-chart-grid)' }}>
-              <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
+              <span className="absolute -left-3 -translate-x-full -top-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
             </div>
           ))}
           {[0, 2, 4, 6, 8, 10].map(v => (
             <div key={`x-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'var(--ln-chart-grid)' }}>
-              <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
+              <span className="absolute -bottom-5 -translate-x-1/2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
             </div>
           ))}
 
-          <span className="absolute left-2 top-2 text-[9px] font-black uppercase" style={{ color: '#ef4444' }}>HIGH RISK</span>
-          <span className="absolute right-2 top-2 text-[9px] font-black uppercase" style={{ color: '#22c55e' }}>HEALTHY</span>
-          <span className="absolute left-2 bottom-2 text-[9px] font-black uppercase" style={{ color: '#ef4444' }}>NEAR DROP</span>
-          <span className="absolute right-2 bottom-2 text-[9px] font-black uppercase" style={{ color: '#22c55e' }}>LOW RISK</span>
+          <span className="absolute left-3 top-3 text-[10px] font-black uppercase" style={{ color: '#ef4444' }}>{isVI ? 'Rủi ro cao' : 'High risk'}</span>
+          <span className="absolute right-3 top-3 text-[10px] font-black uppercase" style={{ color: '#22c55e' }}>{isVI ? 'Khỏe' : 'Healthy'}</span>
+          <span className="absolute left-3 bottom-3 text-[10px] font-black uppercase" style={{ color: '#ef4444' }}>{isVI ? 'Gần drop' : 'Near drop'}</span>
+          <span className="absolute right-3 bottom-3 text-[10px] font-black uppercase" style={{ color: '#22c55e' }}>{isVI ? 'Rủi ro thấp' : 'Low risk'}</span>
 
           {rows.map(row => {
             const key = `${row.lidex_series_id || row.series_id || row.id}|${row.series_code || ''}`
@@ -3479,12 +3509,12 @@ function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRanki
             const selected = key === activeKey
             const status = lnReleaseStatus(row)
             const color = selected ? '#38bdf8' : status === 'Hoàn thành' ? '#94a3b8' : row.evalution === 'Dropped' ? '#ef4444' : row.evalution === 'Dead' ? '#f97316' : row.evalution === 'Limping' ? '#eab308' : '#22c55e'
-            const size = selected ? 18 : 7
+            const size = selected ? 20 : 7
 
             return (
               <button
                 key={key}
-                title={`${row.series_title || 'Untitled'}\\nLN ${Number(row.ln_score || 0).toFixed(1)} · Drop ${lnDropPercent(row.drop_percent)}%`}
+                title={`${row.series_title || 'Untitled'}\nLN ${Number(row.ln_score || 0).toFixed(1)} · Drop ${lnDropPercent(row.drop_percent)}%`}
                 className="absolute rounded-full transition-all hover:scale-150 focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 style={{
                   left: `${x}%`,
@@ -3492,8 +3522,8 @@ function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRanki
                   width: size,
                   height: size,
                   background: color,
-                  border: selected ? '2px solid #fff' : '1px solid rgba(255,255,255,.35)',
-                  boxShadow: selected ? `0 0 0 8px ${color}24, 0 0 22px ${color}` : `0 0 10px ${color}66`,
+                  border: selected ? '3px solid #fff' : '1px solid rgba(255,255,255,.35)',
+                  boxShadow: selected ? `0 0 0 10px ${color}24, 0 0 28px ${color}` : `0 0 10px ${color}66`,
                   transform: 'translate(-50%, -50%)',
                   zIndex: selected ? 30 : 10,
                 }}
@@ -3502,8 +3532,8 @@ function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRanki
           })}
         </div>
 
-        <div className="absolute left-8 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm LN' : 'LN Score'} →</div>
-        <div className="absolute left-2 top-1/2 -rotate-90 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Khả năng drop' : 'Drop risk'}</div>
+        <div className="absolute left-10 bottom-2 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm LN' : 'LN Score'} →</div>
+        <div className="absolute left-2 top-1/2 -rotate-90 text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Rủi ro drop' : 'Drop risk'}</div>
       </div>
     </div>
   )
