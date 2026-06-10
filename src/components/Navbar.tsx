@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { BarChart3, Menu, Moon, Sun, ChevronDown, LogIn, LogOut, UserCircle, X } from 'lucide-react'
 import { useState, useEffect, useRef, type FormEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocale } from '@/contexts/LocaleContext'
 import supabase from '@/lib/supabaseClient'
 import type { User } from '@supabase/supabase-js'
@@ -142,19 +143,20 @@ export default function Navbar() {
   ]
 
   return (
+    <>
     <nav
       className="fixed top-0 left-0 right-0 z-50 glass border-b"
       style={{ borderColor: 'var(--card-border)' }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-white" />
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">LiDex</span>
+            <span className="text-lg sm:text-xl font-bold gradient-text">LiDex</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -216,7 +218,7 @@ export default function Navbar() {
           </div>
 
           {/* Right side: language toggle + theme + mobile menu */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
 
             {/* VI / EN pill toggle */}
             <div
@@ -225,7 +227,7 @@ export default function Navbar() {
             >
               <button
                 onClick={() => setLocale('vi')}
-                className="px-2.5 py-1.5 transition-colors"
+                className="px-2 py-1.5 sm:px-2.5 transition-colors"
                 style={locale === 'vi'
                   ? { background: '#6366f1', color: '#fff' }
                   : { background: 'var(--background-secondary)', color: 'var(--foreground-secondary)' }
@@ -236,7 +238,7 @@ export default function Navbar() {
               </button>
               <button
                 onClick={() => setLocale('en')}
-                className="px-2.5 py-1.5 transition-colors"
+                className="px-2 py-1.5 sm:px-2.5 transition-colors"
                 style={locale === 'en'
                   ? { background: '#6366f1', color: '#fff' }
                   : { background: 'var(--background-secondary)', color: 'var(--foreground-secondary)' }
@@ -265,7 +267,7 @@ export default function Navbar() {
                   style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
                 >
                   <UserCircle className="w-4 h-4 text-primary-500" />
-                  <span className="max-w-[120px] truncate">{displayName}</span>
+                  <span className="max-w-[88px] lg:max-w-[120px] truncate">{displayName}</span>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -307,7 +309,7 @@ export default function Navbar() {
           className="md:hidden glass border-t"
           style={{ borderColor: 'var(--card-border)', background: 'var(--card-bg)' }}
         >
-          <div className="px-4 py-4 space-y-4">
+          <div className="px-4 py-4 space-y-4 max-h-[calc(100svh-4rem)] overflow-y-auto">
             {flatLinks.map(link => (
               <Link
                 key={link.href}
@@ -366,11 +368,18 @@ export default function Navbar() {
         </div>
       )}
 
-      {authOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center px-4" style={{ background: 'rgba(2,6,23,.62)' }}>
+    </nav>
+
+      {authOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto px-3 py-4 sm:px-4 sm:py-6" style={{ background: 'rgba(2,6,23,.64)' }}>
           <div
-            className="w-full max-w-md rounded-2xl p-5 shadow-2xl"
-            style={{ background: 'var(--card-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+            className="w-full max-w-[420px] max-h-[calc(100svh-2rem)] overflow-y-auto rounded-2xl p-4 shadow-2xl sm:p-5"
+            style={{
+              background: 'var(--card-bg)',
+              color: 'var(--foreground)',
+              border: '1px solid var(--card-border)',
+              boxShadow: '0 28px 80px rgba(2,6,23,.34)',
+            }}
           >
             <div className="flex items-start justify-between gap-3 mb-5">
               <div>
@@ -385,7 +394,7 @@ export default function Navbar() {
               </div>
               <button
                 onClick={() => setAuthOpen(false)}
-                className="p-2 rounded-lg"
+                className="p-2 rounded-lg min-h-11 min-w-11 flex items-center justify-center"
                 style={{ color: 'var(--foreground-secondary)' }}
                 aria-label="Close login dialog"
               >
@@ -396,7 +405,7 @@ export default function Navbar() {
             <button
               onClick={handleGoogleAuth}
               disabled={authLoading}
-              className="w-full rounded-xl px-4 py-3 text-sm font-black disabled:opacity-60"
+              className="w-full min-h-11 rounded-xl px-4 py-3 text-sm font-black disabled:opacity-60"
               style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
             >
               {locale === 'vi' ? 'Tiếp tục với Google' : 'Continue with Google'}
@@ -415,7 +424,7 @@ export default function Navbar() {
                 onChange={e => setAuthEmail(e.target.value)}
                 placeholder={locale === 'vi' ? 'Email' : 'Email'}
                 required
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                className="w-full min-h-11 rounded-xl px-4 py-3 text-base outline-none sm:text-sm"
                 style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
               />
               <input
@@ -425,13 +434,13 @@ export default function Navbar() {
                 placeholder={locale === 'vi' ? 'Mật khẩu' : 'Password'}
                 required
                 minLength={6}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                className="w-full min-h-11 rounded-xl px-4 py-3 text-base outline-none sm:text-sm"
                 style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
               />
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full rounded-xl px-4 py-3 text-sm font-black disabled:opacity-60"
+                className="w-full min-h-11 rounded-xl px-4 py-3 text-sm font-black disabled:opacity-60"
                 style={{ background: '#6366f1', color: '#fff' }}
               >
                 {authLoading
@@ -451,7 +460,7 @@ export default function Navbar() {
                 setAuthError(null)
                 setAuthMessage(null)
               }}
-              className="w-full mt-4 text-sm font-bold"
+              className="w-full mt-4 min-h-11 text-sm font-bold"
               style={{ color: '#6366f1' }}
             >
               {authMode === 'signin'
