@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('novel_id', parseInt(seriesId))
 
-    if (error) throw new Error(error.message)
+    if (error) throw error
 
     return NextResponse.json({ seriesId, count: count || 0 })
   } catch (error: any) {
     console.error('API Error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Unable to load votes' }, { status: 404 })
   }
 }
 
@@ -40,11 +40,11 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) throw new Error(error.message)
+    if (error) throw error
 
     return NextResponse.json(data, { status: 201 })
   } catch (error: any) {
     console.error('API Error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Unable to save vote' }, { status: 400 })
   }
 }
