@@ -2118,7 +2118,7 @@ function NovelSideCards({
             <div className="flex items-center justify-between text-xs mb-2">
               <span style={{ color: 'var(--foreground-muted)' }}>VN</span>
               <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                {ranking ? `${ranking.number_of_volumes ?? volumes.length}` : `${volumes.length}`}
+                {ranking ? `${ranking.number_of_volumes ?? volumes.length} Vols` : `${volumes.length} Vols`}
               </span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
@@ -3407,14 +3407,11 @@ function SimilarNovelsCarousel({ active, marketRows, locale }: { active: NovelRa
                       <BookOpen className="w-8 h-8 opacity-30 text-primary-400" />
                     </div>
                   )}
-                  <div className="absolute left-2 top-2 px-2 py-1 rounded-lg text-[10px] font-black text-white" style={{ background: 'rgba(0,0,0,.58)' }}>
-                    {Number(row.ln_score || 0).toFixed(1)} LN
-                  </div>
                 </div>
                 <div className="p-2.5">
                   <p className="text-xs font-black line-clamp-2 min-h-[32px]" style={{ color: 'var(--foreground)' }}>{row.series_title || 'Untitled'}</p>
                   <div className="flex items-center justify-between mt-2 text-[10px]">
-                    <span style={{ color: lnDropColor(row.drop_percent) }}>{lnDropPercent(row.drop_percent)}% Drop</span>
+                    <span style={{ color: lnScoreColor(row.ln_score) }}>{row.ln_score != null ? Number(row.ln_score).toFixed(1) : '—'} LN</span>
                     <span style={{ color: 'var(--foreground-muted)' }}>{row.publisher || '—'}</span>
                   </div>
                 </div>
