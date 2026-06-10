@@ -31,13 +31,13 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await query
     if (error) {
-      console.error('[api/series] query failed:', error)
+      console.error('[api/series] query failed')
       return NextResponse.json({ error: 'Unable to load series' }, { status: 404 })
     }
 
     return NextResponse.json({ data })
   } catch (err: any) {
-    console.error('[api/series] unexpected failure:', err)
+    console.error('[api/series] unexpected failure')
     return NextResponse.json({ error: 'Unable to load series' }, { status: 404 })
   }
 }
