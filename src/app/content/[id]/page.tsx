@@ -382,6 +382,10 @@ export default function ContentDetail() {
   const [userLibraryLoading, setUserLibraryLoading] = useState(false)
   const [userLibrarySaving, setUserLibrarySaving] = useState(false)
   const [userLibraryError, setUserLibraryError] = useState<string | null>(null)
+  const [seriesRatingSummary, setSeriesRatingSummary] = useState<{
+    average: number | null
+    count: number
+  }>({ average: null, count: 0 })
 
   const { locale } = useLocale()
   const isVI       = locale === 'vi'
@@ -464,6 +468,50 @@ export default function ContentDetail() {
       authListener.subscription.unsubscribe()
     }
   }, [seriesId])
+
+  useEffect(() => {
+    if (!seriesId) return
+
+    let cancelled = false
+
+    async function loadSeriesRatingSummary() {
+      const { data, error } = await publicSupabase
+        .from('series_user_library')
+        .select('rating')
+        .eq('series_id', seriesId)
+        .not('rating', 'is', null)
+
+      if (cancelled) return
+
+      if (error) {
+        console.warn('Failed to load series rating summary:', error.message)
+        setSeriesRatingSummary({ average: null, count: 0 })
+        return
+      }
+
+      const ratings = (data || [])
+        .map((row: any) => Number(row.rating))
+        .filter((rating: number) => Number.isFinite(rating))
+
+      if (!ratings.length) {
+        setSeriesRatingSummary({ average: null, count: 0 })
+        return
+      }
+
+      const average = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+
+      setSeriesRatingSummary({
+        average,
+        count: ratings.length,
+      })
+    }
+
+    loadSeriesRatingSummary()
+
+    return () => {
+      cancelled = true
+    }
+  }, [seriesId, userLibraryEntry.rating, userLibrarySaving])
 
   // ── Manga/Novel-specific: fetch meta + latest volume cover ───────────────────
   useEffect(() => {
@@ -859,12 +907,23 @@ export default function ContentDetail() {
                 {series.title}
               </h1>
 
-              {(series.title_vi || series.title_native) && (
-                <div className="mb-3">
-                  {series.title_vi     && <p className="text-base sm:text-lg text-gray-300 mb-0.5 break-words">{series.title_vi}</p>}
-                  {series.title_native && <p className="text-sm sm:text-base text-gray-400 break-words">{series.title_native}</p>}
-                </div>
-              )}
+              <div className="mb-3 flex items-center justify-center md:justify-start gap-2 text-base sm:text-lg">
+                {seriesRatingSummary.count > 0 && seriesRatingSummary.average != null ? (
+                  <>
+                    <span className="font-bold text-white">
+                      {seriesRatingSummary.average.toFixed(1)}
+                    </span>
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
+                    <span className="text-sm sm:text-base text-gray-300">
+                      ({seriesRatingSummary.count.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')} {isVI ? 'lượt đánh giá' : 'voters'})
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-sm sm:text-base text-gray-400">
+                    {isVI ? 'Chưa có đánh giá' : 'No ratings yet'}
+                  </span>
+                )}
+              </div>
 
               {series.score && (
                 <div className="flex items-center justify-center md:justify-start gap-1.5 mb-4">
