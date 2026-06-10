@@ -547,7 +547,7 @@ export default function ContentDetail() {
       // 3. All non-special volumes ordered DESC by volume_number
       const { data: vols } = await publicSupabase
         .from('volumes')
-        .select('id, volume_number, release_date, cover_url, price, currency, is_special')
+        .select('id, volume_number, release_date, cover_url, price, currency, page_count, is_special')
         .eq('series_id', series.id)
         .eq('is_special', false) 
         .not('volume_number', 'is', null)
@@ -2014,9 +2014,6 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
                   <BookOpen className="w-8 h-8 opacity-40 text-primary-400" />
                 </div>
               )}
-              <div className="absolute left-2 top-2 px-2 py-1 rounded-lg text-[10px] font-black text-white" style={{ background: 'rgba(0,0,0,.64)' }}>
-                #{active.volume_number ?? safeIndex + 1}
-              </div>
             </div>
 
             <div className="min-w-0 flex flex-col justify-between">
