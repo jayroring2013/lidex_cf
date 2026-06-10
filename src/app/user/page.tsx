@@ -185,6 +185,7 @@ export default function UserDashboardPage() {
       return
     }
 
+    const accessToken = session.access_token
     let cancelled = false
 
     async function loadUserDashboard() {
@@ -194,7 +195,7 @@ export default function UserDashboardPage() {
       try {
         const response = await fetch('/api/user-dashboard', {
           headers: {
-            Authorization: `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         })
 
@@ -217,7 +218,7 @@ export default function UserDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [authReady, session?.access_token, isVI])
+  }, [authReady, session, isVI])
 
   const seriesById = useMemo(() => new Map(seriesOptions.map(series => [series.id, series])), [seriesOptions])
   const volumesById = useMemo(() => new Map(volumeOptions.map(volume => [volume.id, volume])), [volumeOptions])
@@ -259,7 +260,8 @@ export default function UserDashboardPage() {
   }
 
   const saveBookshelf = async () => {
-    if (!session) return
+    const accessToken = session?.access_token
+    if (!accessToken) return
     setSaving(true)
     setError(null)
     setMessage(null)
@@ -268,7 +270,7 @@ export default function UserDashboardPage() {
       const response = await fetch('/api/user-dashboard', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ volumeIds: selectedVolumeIds }),
