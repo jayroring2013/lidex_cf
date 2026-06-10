@@ -14,6 +14,7 @@ import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
 import RadarChart from '@/components/RadarChart'
 import supabase from '@/lib/supabaseClient'
+import publicSupabase from '@/lib/publicSupabaseClient'
 import {
   calculateLiDexScore,
   buildPopulationStats,
@@ -471,7 +472,7 @@ export default function ContentDetail() {
     async function loadMangaEnrichment() {
       // 1. Metadata. Manga has manga_meta; novel can optionally use novel_meta when available.
       if (series.item_type === 'manga') {
-        const { data: meta } = await supabase
+        const { data: meta } = await publicSupabase
           .from('manga_meta')
           .select('series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at')
           .eq('series_id', series.id)
@@ -481,7 +482,7 @@ export default function ContentDetail() {
 
           // 2. Resolve publisher name from vn_publisher_id
           if (meta.vn_publisher_id) {
-            const { data: pub } = await supabase
+            const { data: pub } = await publicSupabase
               .from('publishers')
               .select('name, name_vi')
               .eq('id', meta.vn_publisher_id)
@@ -490,7 +491,7 @@ export default function ContentDetail() {
           }
         }
       } else if (series.item_type === 'novel') {
-        const { data: meta } = await supabase
+        const { data: meta } = await publicSupabase
           .from('novel_meta')
           .select('*')
           .eq('series_id', series.id)
@@ -499,7 +500,7 @@ export default function ContentDetail() {
       }
 
       // 3. All non-special volumes ordered DESC by volume_number
-      const { data: vols } = await supabase
+      const { data: vols } = await publicSupabase
         .from('volumes')
         .select('id, volume_number, release_date, cover_url, price, currency, is_special')
         .eq('series_id', series.id)
@@ -523,7 +524,7 @@ export default function ContentDetail() {
       // 4. series_links — fetch links for the latest volume only
       const latestVol = vols && vols.length > 0 ? vols[0] : null
       if (latestVol) {
-        const { data: links } = await supabase
+          const { data: links } = await publicSupabase
           .from('series_links')
           .select('link_type, label, url')
           .eq('series_id', series.id)
@@ -548,7 +549,7 @@ export default function ContentDetail() {
     if (!series || series.item_type !== 'anime') return
 
     async function loadAnimeLinks() {
-      const { data: links } = await supabase
+      const { data: links } = await publicSupabase
         .from('series_links')
         .select('link_type, label, url')
         .eq('series_id', series.id)
@@ -574,7 +575,7 @@ export default function ContentDetail() {
       setLnStatsError(null)
 
       try {
-        const { data, error } = await supabase
+        const { data, error } = await publicSupabase
           .from('ln_series_ranking')
           .select('id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title, updated_at')
           .order('ln_score', { ascending: false })
@@ -613,7 +614,7 @@ export default function ContentDetail() {
     }
 
     async function loadFanVoteHistory() {
-      const { data, error } = await supabase
+      const { data, error } = await publicSupabase
         .from('voting_results')
         .select('votes, rank, voting_periods(month, year, label)')
         .eq('series_id', series.id)
@@ -653,12 +654,12 @@ export default function ContentDetail() {
     async function calcScore() {
       setScoreLoading(true)
       try {
-        const { data: popData } = await supabase
+        const { data: popData } = await publicSupabase
           .from('anime_meta')
           .select('mean_score, popularity, favourites')
           .limit(3000)
 
-        const { data: studioData } = await supabase
+        const { data: studioData } = await publicSupabase
           .from('series')
           .select('studio, anime_meta(mean_score)')
           .eq('item_type', 'anime')
