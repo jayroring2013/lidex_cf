@@ -195,6 +195,7 @@ function MobileLeaderboardCard({ row, vi }: { row: LeaderboardRow; vi: boolean }
 export default function LeaderboardPage() {
   const { locale } = useLocale()
   const vi = locale === 'vi'
+  const pageSize = 25
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -202,6 +203,7 @@ export default function LeaderboardPage() {
   const [periods, setPeriods] = useState<Period[]>([])
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null)
   const [query, setQuery] = useState('')
+  const [page, setPage] = useState(0)
 
   useEffect(() => {
     async function load() {
@@ -215,7 +217,8 @@ export default function LeaderboardPage() {
         .order('month', { ascending: false })
 
       if (periodError) {
-        setError(periodError.message)
+        console.error('[leaderboard] period fetch failed:', periodError)
+        setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
         setLoading(false)
         return
       }
@@ -243,7 +246,8 @@ export default function LeaderboardPage() {
           .range(from, from + 999)
 
         if (voteError) {
-          setError(voteError.message)
+          console.error('[leaderboard] vote fetch failed:', voteError)
+          setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
           setLoading(false)
           return
         }
@@ -300,6 +304,10 @@ export default function LeaderboardPage() {
     load()
   }, [])
 
+  useEffect(() => {
+    setPage(0)
+  }, [selectedPeriodId, query])
+
   const selectedPeriod = useMemo(() => periods.find(period => period.id === selectedPeriodId) || periods[0] || null, [periods, selectedPeriodId])
   const previousPeriod = useMemo(() => {
     if (!selectedPeriod) return null
@@ -355,6 +363,10 @@ export default function LeaderboardPage() {
   }, [rows, selectedPeriod, previousPeriod, query, periods, rowsBySeries])
 
   const topCount = rows.filter(row => row.period.id === selectedPeriod?.id).length
+  const pageCount = Math.max(1, Math.ceil(leaderboard.length / pageSize))
+  const safePage = Math.min(page, pageCount - 1)
+  const pageStart = safePage * pageSize
+  const pagedLeaderboard = leaderboard.slice(pageStart, pageStart + pageSize)
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
@@ -419,7 +431,7 @@ export default function LeaderboardPage() {
           ) : (
             <>
               <div className="lg:hidden p-3 space-y-3">
-                {leaderboard.map(row => (
+                {pagedLeaderboard.map(row => (
                   <MobileLeaderboardCard key={`${row.period_id}-${row.series_id}`} row={row} vi={vi} />
                 ))}
 
@@ -443,7 +455,7 @@ export default function LeaderboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard.map(row => (
+                    {pagedLeaderboard.map(row => (
                       <tr key={`${row.period_id}-${row.series_id}`} className="transition-colors" style={{ borderTop: '1px solid var(--card-border)' }}>
                         <td className="px-4 py-2 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
                           #{row.displayRank}
@@ -475,6 +487,37 @@ export default function LeaderboardPage() {
                 )}
               </div>
             </>
+          )}
+
+          {!loading && !error && leaderboard.length > pageSize && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3" style={{ borderTop: '1px solid var(--card-border)' }}>
+              <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+                {vi ? 'Hiển thị' : 'Showing'} {pageStart + 1}-{Math.min(pageStart + pageSize, leaderboard.length)} / {leaderboard.length.toLocaleString('vi-VN')}
+              </p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={safePage === 0}
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+                  style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+                >
+                  {vi ? 'Trước' : 'Prev'}
+                </button>
+                <span className="px-2 text-xs font-black tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
+                  {safePage + 1} / {pageCount}
+                </span>
+                <button
+                  type="button"
+                  disabled={safePage >= pageCount - 1}
+                  onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+                  className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+                  style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+                >
+                  {vi ? 'Sau' : 'Next'}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
