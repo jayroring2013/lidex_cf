@@ -48,6 +48,13 @@ type UserSeriesLibraryEntry = {
   status: UserSeriesStatus | null
 }
 
+type SeriesLibrarySummary = {
+  ratingBuckets: Record<string, number>
+  statusCounts: Record<UserSeriesStatus, number>
+  ratingCount: number
+  statusCount: number
+}
+
 const USER_SERIES_STATUS_OPTIONS: {
   value: UserSeriesStatus
   labelVI: string
@@ -59,6 +66,52 @@ const USER_SERIES_STATUS_OPTIONS: {
   { value: 'finished', labelVI: 'Hoàn thành', labelEN: 'Finished', color: '#8b5cf6' },
   { value: 'dropped', labelVI: 'Bỏ', labelEN: 'Dropped', color: '#ef4444' },
 ]
+
+const RATING_BUCKETS = ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']
+
+function emptySeriesLibrarySummary(): SeriesLibrarySummary {
+  return {
+    ratingBuckets: Object.fromEntries(RATING_BUCKETS.map(bucket => [bucket, 0])),
+    statusCounts: { reading: 0, planned: 0, finished: 0, dropped: 0 },
+    ratingCount: 0,
+    statusCount: 0,
+  }
+}
+
+function parseSeriesLibrarySummary(raw: any): SeriesLibrarySummary {
+  const summary = Array.isArray(raw) ? raw[0] : raw
+  const empty = emptySeriesLibrarySummary()
+  if (!summary || typeof summary !== 'object') return empty
+
+  const ratingSource = summary.rating_distribution || summary.rating_buckets || summary.ratings || summary
+  const statusSource = summary.status_counts || summary.status_distribution || summary.statuses || summary
+  const ratingBuckets = Object.fromEntries(RATING_BUCKETS.map(bucket => {
+    const normalized = bucket.replace('.', '_')
+    return [
+      bucket,
+      Number(
+        ratingSource?.[bucket]
+        ?? ratingSource?.[`rating_${normalized}`]
+        ?? ratingSource?.[`star_${normalized}`]
+        ?? 0
+      ) || 0,
+    ]
+  })) as Record<string, number>
+
+  const statusCounts = {
+    reading: Number(statusSource?.reading_count ?? statusSource?.reading ?? 0) || 0,
+    planned: Number(statusSource?.planned_count ?? statusSource?.planned ?? 0) || 0,
+    finished: Number(statusSource?.finished_count ?? statusSource?.finished ?? 0) || 0,
+    dropped: Number(statusSource?.dropped_count ?? statusSource?.dropped ?? 0) || 0,
+  }
+
+  return {
+    ratingBuckets,
+    statusCounts,
+    ratingCount: Number(summary.rating_count ?? Object.values(ratingBuckets).reduce((sum, count) => sum + count, 0)) || 0,
+    statusCount: Number(summary.status_count ?? Object.values(statusCounts).reduce((sum, count) => sum + count, 0)) || 0,
+  }
+}
 
 // ── Score helpers ─────────────────────────────────────────────────────────────
 
@@ -386,6 +439,7 @@ export default function ContentDetail() {
     average: number | null
     count: number
   }>({ average: null, count: 0 })
+  const [seriesLibrarySummary, setSeriesLibrarySummary] = useState<SeriesLibrarySummary>(() => emptySeriesLibrarySummary())
 
   const { locale } = useLocale()
   const isVI       = locale === 'vi'
@@ -509,6 +563,36 @@ export default function ContentDetail() {
       cancelled = true
     }
   }, [seriesId, userLibraryEntry.rating, userLibrarySaving])
+
+  useEffect(() => {
+    if (!seriesId) return
+
+    let cancelled = false
+
+    async function loadSeriesLibrarySummary() {
+      try {
+        const { data, error } = await publicSupabase
+          .rpc('get_series_library_summary', { p_series_id: seriesId })
+
+        if (cancelled) return
+
+        if (error) {
+          setSeriesLibrarySummary(emptySeriesLibrarySummary())
+          return
+        }
+
+        setSeriesLibrarySummary(parseSeriesLibrarySummary(data))
+      } catch (err: any) {
+        if (!cancelled) setSeriesLibrarySummary(emptySeriesLibrarySummary())
+      }
+    }
+
+    loadSeriesLibrarySummary()
+
+    return () => {
+      cancelled = true
+    }
+  }, [seriesId, userLibraryEntry.rating, userLibraryEntry.status, userLibrarySaving])
 
   // ── Manga/Novel-specific: fetch meta + latest volume cover ───────────────────
   useEffect(() => {
@@ -1298,6 +1382,7 @@ export default function ContentDetail() {
                     marketRows={lnMarketRows}
                     volumes={allVolumes}
                     fanVoteHistory={fanVoteHistory}
+                    librarySummary={seriesLibrarySummary}
                     locale={locale}
                     loading={lnStatsLoading}
                     error={lnStatsError}
@@ -2361,6 +2446,7 @@ function NovelDoAStats({
   marketRows,
   volumes,
   fanVoteHistory,
+  librarySummary,
   locale,
   loading,
   error,
@@ -2369,6 +2455,7 @@ function NovelDoAStats({
   marketRows: NovelRankingRow[]
   volumes: any[]
   fanVoteHistory: FanVotePoint[]
+  librarySummary: SeriesLibrarySummary
   locale: string
   loading: boolean
   error: string | null
@@ -2544,8 +2631,12 @@ function NovelDoAStats({
         />
       </div>
 
+      <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.25fr] gap-4 items-stretch">
+        <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} compact />
+        <SeriesCommunityCharts summary={librarySummary} locale={locale} />
+      </div>
+
       <div className="grid grid-cols-1 gap-4">
-        <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} />
         <NovelLNScatter marketRows={marketRows} active={ranking} locale={locale} />
       </div>
 
@@ -3430,6 +3521,123 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
   )
 }
 
+function SeriesCommunityCharts({ summary, locale }: { summary: SeriesLibrarySummary; locale: string }) {
+  const isVI = locale === 'vi'
+  const statusOrder: UserSeriesStatus[] = ['reading', 'finished', 'planned', 'dropped']
+  const statusMeta = Object.fromEntries(USER_SERIES_STATUS_OPTIONS.map(option => [option.value, option])) as Record<UserSeriesStatus, typeof USER_SERIES_STATUS_OPTIONS[number]>
+  const statusTotal = Math.max(0, summary.statusCount || Object.values(summary.statusCounts).reduce((sum, count) => sum + count, 0))
+  const ratingTotal = Math.max(0, summary.ratingCount || Object.values(summary.ratingBuckets).reduce((sum, count) => sum + count, 0))
+  const maxRatingBucket = Math.max(1, ...RATING_BUCKETS.map(bucket => summary.ratingBuckets[bucket] || 0))
+
+  const waffleCells = Array.from({ length: 100 }, (_, index) => {
+    if (!statusTotal) return null
+    const point = index + 0.5
+    let cursor = 0
+    for (const status of statusOrder) {
+      cursor += (summary.statusCounts[status] || 0) / statusTotal * 100
+      if (point <= cursor) return status
+    }
+    return statusOrder[statusOrder.length - 1]
+  })
+
+  return (
+    <div className="glass rounded-2xl p-4 h-full">
+      <div className="flex items-start gap-2 mb-4">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(34,197,94,.15)', color: '#22c55e' }}>4</span>
+        <div>
+          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Phản hồi người đọc' : 'Reader Snapshot'}
+          </h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Trạng thái đọc và phân bố điểm sao.' : 'Reading status and star-rating distribution.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-4">
+        <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+              {isVI ? 'Trạng thái' : 'Status'}
+            </p>
+            <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
+              {statusTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'người' : 'users'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-10 gap-1">
+            {waffleCells.map((status, index) => (
+              <span
+                key={index}
+                className="aspect-square rounded-[3px]"
+                style={{
+                  background: status ? statusMeta[status].color : 'var(--ln-track-bg)',
+                  opacity: status ? 0.92 : 0.45,
+                }}
+                title={status ? `${isVI ? statusMeta[status].labelVI : statusMeta[status].labelEN}: ${summary.statusCounts[status] || 0}` : undefined}
+              />
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            {statusOrder.map(status => {
+              const meta = statusMeta[status]
+              const count = summary.statusCounts[status] || 0
+              const pct = statusTotal ? Math.round(count / statusTotal * 100) : 0
+              return (
+                <div key={status} className="flex items-center gap-2 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: meta.color }} />
+                  <span className="text-[10px] font-bold truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                    {isVI ? meta.labelVI : meta.labelEN}
+                  </span>
+                  <span className="ml-auto text-[10px] font-black tabular-nums" style={{ color: meta.color }}>
+                    {count}{statusTotal ? ` · ${pct}%` : ''}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+              {isVI ? 'Phân bố điểm sao' : 'Star Distribution'}
+            </p>
+            <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
+              {ratingTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'đánh giá' : 'ratings'}
+            </span>
+          </div>
+
+          <div className="space-y-1.5">
+            {[...RATING_BUCKETS].reverse().map(bucket => {
+              const count = summary.ratingBuckets[bucket] || 0
+              const pct = ratingTotal ? Math.round(count / ratingTotal * 100) : 0
+              return (
+                <div key={bucket} className="grid grid-cols-[38px_1fr_46px] items-center gap-2">
+                  <span className="text-[10px] font-black tabular-nums" style={{ color: '#f59e0b' }}>{bucket}★</span>
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${count ? Math.max(7, count / maxRatingBucket * 100) : 0}%`,
+                        background: 'linear-gradient(90deg,#fbbf24,#f97316)',
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-right tabular-nums" style={{ color: 'var(--foreground-muted)' }}>
+                    {count}{ratingTotal ? ` · ${pct}%` : ''}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function BreakdownCard({ title, accent, body, empty }: { title: string; accent: string; body: string; empty: string }) {
   const lines = body.split('\n').map(line => line.trim()).filter(Boolean)
 
@@ -3536,13 +3744,13 @@ function NovelLNScatter({ marketRows, active, locale }: { marketRows: NovelRanki
   )
 }
 
-function NovelLNRadar({ ranking, marketRows, locale }: { ranking: NovelRankingRow; marketRows: NovelRankingRow[]; locale: string }) {
+function NovelLNRadar({ ranking, marketRows, locale, compact = false }: { ranking: NovelRankingRow; marketRows: NovelRankingRow[]; locale: string; compact?: boolean }) {
   const isVI = locale === 'vi'
   const axes = buildNovelRadarAxes(ranking, marketRows, isVI)
-  const size = 238
+  const size = compact ? 204 : 238
   const cx = size / 2
   const cy = size / 2
-  const maxR = 72
+  const maxR = compact ? 58 : 72
   const points = axes.map((axis, i) => {
     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
     const r = lnClamp10(axis.value) / 10 * maxR
@@ -3589,8 +3797,8 @@ function NovelLNRadar({ ranking, marketRows, locale }: { ranking: NovelRankingRo
         </svg>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mt-1">
-        {axes.slice(0, 4).map(axis => (
+      <div className={`grid ${compact ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mt-1`}>
+        {axes.slice(0, compact ? 3 : 4).map(axis => (
           <div key={axis.label} title={axis.hint} className="rounded-lg p-2" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
             <p className="text-[9px] font-black uppercase truncate" style={{ color: 'var(--foreground-muted)' }}>{axis.label}</p>
             <p className="text-sm font-black" style={{ color: '#c4b5fd' }}>{axis.value.toFixed(1)}</p>
