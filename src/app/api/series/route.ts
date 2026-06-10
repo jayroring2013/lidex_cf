@@ -30,10 +30,14 @@ export async function GET(req: NextRequest) {
     query = query.order(orderBy, { ascending: asc })
 
     const { data, error } = await query
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      console.error('[api/series] query failed:', error)
+      return NextResponse.json({ error: 'Unable to load series' }, { status: 404 })
+    }
 
     return NextResponse.json({ data })
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[api/series] unexpected failure:', err)
+    return NextResponse.json({ error: 'Unable to load series' }, { status: 404 })
   }
 }
