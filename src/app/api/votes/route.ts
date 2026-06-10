@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ seriesId, count: count || 0 })
   } catch (error: any) {
-    console.error('API Error:', error)
+    console.error('API Error')
     return NextResponse.json({ error: 'Unable to load votes' }, { status: 404 })
   }
 }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 })
   } catch (error: any) {
-    console.error('API Error:', error)
+    console.error('API Error')
     return NextResponse.json({ error: 'Unable to save vote' }, { status: 400 })
   }
 }
