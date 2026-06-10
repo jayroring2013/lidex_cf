@@ -52,7 +52,7 @@ export async function GET() {
       popularityStats, // ✅ Dynamic percentiles
     })
   } catch (error: any) {
-    console.error('API Error:', error)
+    console.error('API Error')
     return NextResponse.json({ error: 'Unable to load stats' }, { status: 404 })
   }
 }
