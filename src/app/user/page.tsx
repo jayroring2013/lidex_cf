@@ -545,7 +545,7 @@ export default function UserDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-5 items-start">
-          <aside className="glass relative rounded-2xl p-4 sm:p-5 xl:sticky xl:top-20">
+          <aside className="glass relative z-50 rounded-2xl p-4 sm:p-5 xl:sticky xl:top-20">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>
@@ -623,7 +623,7 @@ export default function UserDashboardPage() {
 
           </aside>
 
-          <main className="glass rounded-2xl p-4 sm:p-5 min-w-0">
+          <main className="glass relative z-0 rounded-2xl p-4 sm:p-5 min-w-0">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
               <div>
                 <h2 className="text-xl font-black" style={{ color: 'var(--foreground)' }}>
@@ -749,7 +749,7 @@ function VolumeSelectionDrawer({
       />
 
       <div
-        className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-3xl xl:absolute xl:inset-auto xl:left-[calc(100%+16px)] xl:top-0 xl:z-50 xl:w-[520px] xl:max-w-[calc(100vw-390px)] xl:max-h-[calc(100vh-96px)]"
+        className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-3xl xl:absolute xl:inset-auto xl:left-[calc(100%+16px)] xl:top-0 xl:z-[90] xl:w-[520px] xl:max-w-[calc(100vw-390px)] xl:max-h-[calc(100vh-96px)]"
         style={{
           background: 'var(--background)',
           border: '1px solid var(--card-border)',
