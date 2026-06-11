@@ -401,9 +401,7 @@ export default function LeaderboardPage() {
             <p className="mt-2 text-base sm:text-lg font-black" style={{ color: nextPeriod ? '#fb7185' : '#ef4444' }}>
               {nextPeriod ? fmtPeriod(nextPeriod as Period) : '--'}
             </p>
-            <p className="text-[11px] mt-0.5" style={{ color: '#ef4444' }}>
-              {nextPeriod ? (vi ? 'Chưa mở' : 'Not Open') : (vi ? 'Không có' : 'N/A')}
-            </p>
+
           </div>
 
           {/* Title — full width on mobile, centre col on desktop */}
