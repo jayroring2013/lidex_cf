@@ -5,6 +5,7 @@ import { Be_Vietnam_Pro, JetBrains_Mono } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { LocaleProvider } from '@/contexts/LocaleContext'
+import { AvatarProvider } from '@/contexts/AvatarContext'
 import { Suspense } from 'react'
 
 const inter = Be_Vietnam_Pro({
@@ -49,11 +50,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <Suspense>
           <LocaleProvider>
-            <Navbar />
-            <main className="pt-16">
-              {children}
-            </main>
-            <Footer />
+            <AvatarProvider>
+              <Navbar />
+              <main className="pt-16">
+                {children}
+              </main>
+              <Footer />
+            </AvatarProvider>
           </LocaleProvider>
         </Suspense>
       </body>

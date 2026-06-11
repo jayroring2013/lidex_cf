@@ -5,12 +5,14 @@ import { BarChart3, Menu, Moon, Sun, ChevronDown, LogIn, LogOut, UserCircle, X }
 import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocale } from '@/contexts/LocaleContext'
+import { useAvatar } from '@/contexts/AvatarContext'
 import supabase from '@/lib/supabaseClient'
 import type { User } from '@supabase/supabase-js'
 
 export default function Navbar() {
   const pathname = usePathname()
   const { locale, setLocale, t } = useLocale()
+  const { avatarUrl: navbarAvatarUrl } = useAvatar()
   const [isDark, setIsDark] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [chartsOpen, setChartsOpen] = useState(false)
@@ -269,7 +271,15 @@ export default function Navbar() {
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold"
                   style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
                 >
-                  <UserCircle className="w-4 h-4 text-primary-500" />
+                  {navbarAvatarUrl ? (
+                    <img
+                      src={navbarAvatarUrl}
+                      alt={displayName}
+                      className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <UserCircle className="w-4 h-4 text-primary-500" />
+                  )}
                   <span className="max-w-[88px] lg:max-w-[120px] truncate">{displayName}</span>
                 </Link>
                 <button
@@ -346,7 +356,15 @@ export default function Navbar() {
                     className="flex items-center gap-2 text-sm font-bold rounded-xl px-3 py-2"
                     style={{ color: 'var(--foreground)', background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}
                   >
-                    <UserCircle className="w-5 h-5 text-primary-500" />
+                    {navbarAvatarUrl ? (
+                      <img
+                        src={navbarAvatarUrl}
+                        alt={displayName}
+                        className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <UserCircle className="w-5 h-5 text-primary-500" />
+                    )}
                     <span className="truncate">{displayName}</span>
                   </Link>
                   <button

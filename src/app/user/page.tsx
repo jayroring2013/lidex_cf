@@ -19,6 +19,7 @@ import supabase from '@/lib/supabaseClient'
 import publicSupabase from '@/lib/publicSupabaseClient'
 import { proxyImageUrl } from '@/lib/imageProxy'
 import { useLocale } from '@/contexts/LocaleContext'
+import { useAvatar } from '@/contexts/AvatarContext'
 import type { Session } from '@supabase/supabase-js'
 
 type ViewMode = 'series' | 'bookshelf'
@@ -131,6 +132,7 @@ function statusColor(status: string | null | undefined) {
 
 export default function UserDashboardPage() {
   const { locale } = useLocale()
+  const { setAvatarUrl: setNavbarAvatarUrl } = useAvatar()
   const isVI = locale === 'vi'
 
   const [session, setSession] = useState<Session | null>(null)
@@ -578,6 +580,9 @@ export default function UserDashboardPage() {
         isPremium: Boolean(current?.isPremium),
         premiumTier: current?.premiumTier || null,
       }))
+
+      // Update the navbar avatar immediately
+      setNavbarAvatarUrl(nextAvatarUrl)
 
       setMessage(isVI ? 'Đã cập nhật ảnh đại diện.' : 'Avatar updated.')
     } catch (err: any) {
