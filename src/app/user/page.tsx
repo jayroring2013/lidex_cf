@@ -312,15 +312,16 @@ export default function UserDashboardPage() {
   useEffect(() => {
     if (!selectedSeriesId || loadedVolumeSeriesIds.has(selectedSeriesId)) return
 
+    const seriesIdToLoad = selectedSeriesId
     let cancelled = false
 
     async function loadSelectedSeriesVolumeDetails() {
-      setVolumeDetailLoadingId(selectedSeriesId)
+      setVolumeDetailLoadingId(seriesIdToLoad)
 
       const { data, error } = await publicSupabase
         .from('volumes')
         .select('id, series_id, volume_number, title, price, currency, cover_url, release_date, is_special')
-        .eq('series_id', selectedSeriesId)
+        .eq('series_id', seriesIdToLoad)
         .eq('is_special', false)
         .not('volume_number', 'is', null)
         .order('volume_number', { ascending: true })
@@ -347,14 +348,14 @@ export default function UserDashboardPage() {
 
         setLoadedVolumeSeriesIds(current => {
           const next = new Set(current)
-          next.add(selectedSeriesId)
+          next.add(seriesIdToLoad)
           return next
         })
       } else if (error) {
         console.warn('Failed to lazy-load selected series volumes:', error.message)
       }
 
-      setVolumeDetailLoadingId(current => current === selectedSeriesId ? null : current)
+      setVolumeDetailLoadingId(current => current === seriesIdToLoad ? null : current)
     }
 
     loadSelectedSeriesVolumeDetails()
