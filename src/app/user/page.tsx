@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { BookOpen, Check, ChevronDown, LibraryBig, ListChecks, Loader2, Search, Star, UserCircle, Pencil, X, Save } from 'lucide-react'
+import { BookOpen, Check, ChevronDown, LibraryBig, ListChecks, Loader2, Search, Star, UserCircle } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import publicSupabase from '@/lib/publicSupabaseClient'
 import { proxyImageUrl } from '@/lib/imageProxy'
@@ -66,6 +66,8 @@ const STATUS_LABELS: Record<string, { vi: string; en: string; color: string }> =
   dropped: { vi: 'Bỏ', en: 'Dropped', color: '#ef4444' },
 }
 
+const STATUS_OPTIONS = ['reading', 'planned', 'finished', 'dropped'] as const
+
 function formatVnd(value: number) {
   return `${Math.round(value).toLocaleString('vi-VN')} VNĐ`
 }
@@ -94,6 +96,7 @@ export default function UserDashboardPage() {
   const [seriesQuery, setSeriesQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [savingRatingId, setSavingRatingId] = useState<number | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [bookshelfAvailable, setBookshelfAvailable] = useState(true)
@@ -208,7 +211,7 @@ export default function UserDashboardPage() {
         const nextPurchases = (data.purchases || []) as PurchaseEntry[]
         setRatedList((data.ratedList || []) as RatedEntry[])
         setSelectedVolumeIds(nextPurchases.map(item => item.volumeId))
-        setBookshelfAvailable(data.bookshelfAvailable !== false)
+        setBookshelfAvailable(true)
       } catch {
         if (!cancelled) setError(isVI ? 'Không tải được dashboard người dùng.' : 'Unable to load user dashboard.')
       } finally {
@@ -265,6 +268,10 @@ export default function UserDashboardPage() {
   const saveBookshelf = async () => {
     const accessToken = session?.access_token
     if (!accessToken) return
+    if (!bookshelfAvailable) {
+      setError(isVI ? 'Bookshelf chÆ°a kháº£ dá»¥ng.' : 'Bookshelf storage is not available yet.')
+      return
+    }
     setSaving(true)
     setError(null)
     setMessage(null)
@@ -281,7 +288,6 @@ export default function UserDashboardPage() {
 
       if (!response.ok) throw new Error('Unable to save bookshelf')
       setMessage(isVI ? 'Đã lưu bookshelf.' : 'Bookshelf saved.')
-      setBookshelfAvailable(true)
     } catch {
       setError(isVI ? 'Không lưu được bookshelf.' : 'Unable to save bookshelf.')
     } finally {
@@ -289,25 +295,41 @@ export default function UserDashboardPage() {
     }
   }
 
-  const updateRatedEntry = async (seriesId: number, rating: number | null, status: string | null) => {
+  const saveRatedEntry = async (entry: RatedEntry, next: { rating?: number | null; status?: string | null }) => {
     const accessToken = session?.access_token
-    if (!accessToken) return
+    if (!accessToken || savingRatingId === entry.seriesId) return
+
+    const nextEntry = {
+      ...entry,
+      rating: next.rating !== undefined ? next.rating : entry.rating,
+      status: next.status !== undefined ? next.status : entry.status,
+    }
+
+    setSavingRatingId(entry.seriesId)
+    setError(null)
+    setMessage(null)
+
     try {
-      const response = await fetch('/api/user-dashboard/rated', {
+      const response = await fetch('/api/series-library', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ seriesId, rating, status }),
+        body: JSON.stringify({
+          seriesId: entry.seriesId,
+          rating: nextEntry.rating,
+          status: nextEntry.status,
+        }),
       })
-      if (!response.ok) throw new Error('Failed')
-      setRatedList(prev => prev.map(e =>
-        e.seriesId === seriesId ? { ...e, rating, status } : e
-      ))
-      setMessage(isVI ? 'Đã cập nhật.' : 'Updated successfully.')
+
+      if (!response.ok) throw new Error('Unable to save rating')
+      setRatedList(current => current.map(item => item.seriesId === entry.seriesId ? nextEntry : item))
+      setMessage(isVI ? 'Đã cập nhật đánh giá.' : 'Rating updated.')
     } catch {
-      setError(isVI ? 'Không cập nhật được.' : 'Failed to update.')
+      setError(isVI ? 'Không lưu được đánh giá.' : 'Unable to save rating.')
+    } finally {
+      setSavingRatingId(null)
     }
   }
 
@@ -533,14 +555,56 @@ export default function UserDashboardPage() {
                   <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
                     {ratedList.map(entry => {
                       const series = entry.series || seriesById.get(entry.seriesId) || null
+                      const isSavingThis = savingRatingId === entry.seriesId
                       return (
-                        <RatedEntryRow
+                        <div
                           key={entry.seriesId}
-                          entry={entry}
-                          series={series}
-                          isVI={isVI}
-                          onUpdate={updateRatedEntry}
-                        />
+                          className="flex flex-col gap-4 p-4 transition-colors sm:flex-row sm:items-center"
+                          style={{ color: 'var(--foreground)', borderColor: 'var(--card-border)' }}
+                        >
+                          <Link href={`/content/${entry.seriesId}`} className="flex min-w-0 flex-1 items-center gap-4">
+                            <div className="w-14 h-20 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
+                              {series?.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-black line-clamp-2">{displayTitle(series, isVI)}</p>
+                              <p className="text-[11px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                                {isVI ? 'Bấm tên hoặc bìa để mở trang chi tiết.' : 'Click title or cover to open details.'}
+                              </p>
+                            </div>
+                          </Link>
+
+                          <div className="flex flex-col gap-3 sm:w-[360px]">
+                            <EditableRatingStars
+                              value={entry.rating}
+                              disabled={isSavingThis}
+                              onChange={rating => saveRatedEntry(entry, { rating })}
+                            />
+
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                              {STATUS_OPTIONS.map(statusKey => {
+                                const meta = STATUS_LABELS[statusKey]
+                                const active = entry.status === statusKey
+                                return (
+                                  <button
+                                    key={statusKey}
+                                    type="button"
+                                    disabled={isSavingThis}
+                                    onClick={() => saveRatedEntry(entry, { status: statusKey })}
+                                    className="rounded-xl px-2.5 py-2 text-xs font-black transition-all disabled:opacity-50"
+                                    style={{
+                                      background: active ? `${meta.color}18` : 'var(--background-secondary)',
+                                      color: active ? meta.color : 'var(--foreground-secondary)',
+                                      border: active ? `1px solid ${meta.color}44` : '1px solid var(--card-border)',
+                                    }}
+                                  >
+                                    {isVI ? meta.vi : meta.en}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
@@ -567,24 +631,45 @@ export default function UserDashboardPage() {
                 </div>
 
                 {selectedVolumes.length ? (
-                  <div className="space-y-8">
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-7 gap-x-4 gap-y-8">
-                      {selectedVolumes.map(volume => {
-                        const series = seriesById.get(volume.seriesId)
-                        const cover = proxyImageUrl(volume.coverUrl || series?.coverUrl)
-                        return (
-                          <div key={volume.id} className="group">
-                            <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-xl transition-transform group-hover:-translate-y-1" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                              {cover ? <img src={cover} alt="" className="w-full h-full object-cover" loading="lazy" /> : <BookOpen className="absolute left-1/2 top-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />}
-                            </div>
-                            <div className="h-3 rounded-b-full mx-2" style={{ background: 'linear-gradient(90deg, rgba(99,102,241,.45), rgba(34,197,94,.35))' }} />
-                            <p className="text-xs font-black mt-2 line-clamp-2" style={{ color: 'var(--foreground)' }}>{displayTitle(series, isVI)}</p>
-                            <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{volumeLabel(volume, isVI)}</p>
-                          </div>
-                        )
-                      })}
-                    </div>
-                    <div className="h-5 rounded-full" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,.18), rgba(15,23,42,.04))', border: '1px solid var(--card-border)' }} />
+                  <div className="space-y-10">
+                    {chunkArray(selectedVolumes, 6).map((row, rowIndex) => (
+                      <div key={`shelf-${rowIndex}`} className="relative rounded-2xl px-4 pb-8 pt-5 sm:px-6" style={{ background: 'linear-gradient(180deg, rgba(99,102,241,.05), rgba(15,23,42,.02))' }}>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
+                          {row.map(volume => {
+                            const series = seriesById.get(volume.seriesId)
+                            const cover = proxyImageUrl(volume.coverUrl || series?.coverUrl)
+                            return (
+                              <Link key={volume.id} href={`/content/${volume.seriesId}`} className="group min-w-0">
+                                <div className="mx-auto w-full max-w-[132px]">
+                                  <div
+                                    className="relative aspect-[2/3] overflow-hidden rounded-xl shadow-2xl transition-transform duration-200 group-hover:-translate-y-1 group-hover:rotate-[-1deg]"
+                                    style={{
+                                      background: 'var(--background-secondary)',
+                                      border: '1px solid var(--card-border)',
+                                      boxShadow: '0 18px 30px rgba(15,23,42,.20), 10px 0 18px rgba(15,23,42,.10)',
+                                    }}
+                                  >
+                                    {cover ? <img src={cover} alt="" className="w-full h-full object-cover" loading="lazy" /> : <BookOpen className="absolute left-1/2 top-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />}
+                                    <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/25 to-transparent" />
+                                    <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                                  </div>
+                                  <p className="text-xs font-black mt-3 line-clamp-2" style={{ color: 'var(--foreground)' }}>{displayTitle(series, isVI)}</p>
+                                  <p className="text-[11px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>{volumeLabel(volume, isVI)}</p>
+                                </div>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                        <div
+                          className="absolute bottom-3 left-4 right-4 h-5 rounded-full"
+                          style={{
+                            background: 'linear-gradient(180deg, rgba(226,232,240,.95), rgba(148,163,184,.42))',
+                            border: '1px solid rgba(100,116,139,.28)',
+                            boxShadow: '0 10px 22px rgba(15,23,42,.16)',
+                          }}
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="rounded-2xl p-10 text-center" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)', color: 'var(--foreground-muted)' }}>
@@ -600,115 +685,55 @@ export default function UserDashboardPage() {
   )
 }
 
-// ── RatedEntryRow ─────────────────────────────────────────────────────────────
-
-type RatedEntryRowProps = {
-  entry: RatedEntry
-  series: { id: number; title: string; titleVi?: string | null; coverUrl?: string | null } | null
-  isVI: boolean
-  onUpdate: (seriesId: number, rating: number | null, status: string | null) => Promise<void>
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size))
+  return chunks
 }
 
-function RatedEntryRow({ entry, series, isVI, onUpdate }: RatedEntryRowProps) {
-  const [editing, setEditing] = useState(false)
-  const [localRating, setLocalRating] = useState<number | null>(entry.rating)
-  const [localStatus, setLocalStatus] = useState<string | null>(entry.status)
-  const [saving, setSaving] = useState(false)
-  const [hoverStar, setHoverStar] = useState<number | null>(null)
+function EditableRatingStars({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: number | null
+  disabled: boolean
+  onChange: (rating: number) => void
+}) {
+  const rating = Number(value || 0)
 
-  const statusInfo = localStatus ? STATUS_LABELS[localStatus] : null
-
-  const handleSave = async () => {
-    setSaving(true)
-    await onUpdate(entry.seriesId, localRating, localStatus)
-    setSaving(false)
-    setEditing(false)
-  }
-
-  const handleCancel = () => {
-    setLocalRating(entry.rating)
-    setLocalStatus(entry.status)
-    setEditing(false)
+  const pickRating = (event: any, index: number) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const half = event.clientX - rect.left < rect.width / 2 ? 0.5 : 1
+    onChange(index + half)
   }
 
   return (
-    <div className="flex items-start gap-4 p-4">
-      <Link href={`/content/${entry.seriesId}`} className="w-14 h-20 rounded-lg overflow-hidden shrink-0 block" style={{ background: 'var(--background-secondary)' }}>
-        {series?.coverUrl
-          ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" />
-          : null}
-      </Link>
-
-      <div className="min-w-0 flex-1">
-        <Link href={`/content/${entry.seriesId}`} className="font-black line-clamp-1 hover:text-primary-400 transition-colors" style={{ color: 'var(--foreground)' }}>
-          {series ? ((isVI && (series as any).titleVi) ? (series as any).titleVi : series.title) : `Series #${entry.seriesId}`}
-        </Link>
-
-        {!editing ? (
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            {localRating != null && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black"
-                style={{ background: 'rgba(245,158,11,.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,.26)' }}>
-                <Star className="w-3.5 h-3.5 fill-current" /> {localRating}
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>Rating</span>
+      <div className="flex items-center gap-1">
+        {[0, 1, 2, 3, 4].map(index => {
+          const fill = Math.max(0, Math.min(1, rating - index))
+          return (
+            <button
+              key={index}
+              type="button"
+              disabled={disabled}
+              onClick={event => pickRating(event, index)}
+              className="relative h-7 w-7 disabled:opacity-50"
+              title={`${index + 0.5} / ${index + 1}`}
+            >
+              <Star className="absolute inset-0 h-7 w-7 text-slate-300" />
+              <span className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
+                <Star className="h-7 w-7 fill-amber-400 text-amber-400" />
               </span>
-            )}
-            {statusInfo && (
-              <span className="rounded-full px-2.5 py-1 text-xs font-black"
-                style={{ background: `${statusInfo.color}18`, color: statusInfo.color, border: `1px solid ${statusInfo.color}44` }}>
-                {isVI ? statusInfo.vi : statusInfo.en}
-              </span>
-            )}
-            <button onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-colors"
-              style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}>
-              <Pencil className="w-3 h-3" /> {isVI ? 'Sửa' : 'Edit'}
             </button>
-          </div>
-        ) : (
-          <div className="mt-2 space-y-2">
-            <div className="flex items-center gap-0.5 flex-wrap">
-              <span className="text-xs mr-1" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm:' : 'Rating:'}</span>
-              {[1,2,3,4,5,6,7,8,9,10].map(star => (
-                <button key={star}
-                  onMouseEnter={() => setHoverStar(star)}
-                  onMouseLeave={() => setHoverStar(null)}
-                  onClick={() => setLocalRating(localRating === star ? null : star)}
-                  className="transition-transform hover:scale-125 p-0.5">
-                  <Star className="w-4 h-4" style={{
-                    fill: (hoverStar ?? localRating ?? 0) >= star ? '#f59e0b' : 'none',
-                    color: (hoverStar ?? localRating ?? 0) >= star ? '#f59e0b' : 'var(--foreground-muted)',
-                  }} />
-                </button>
-              ))}
-              {localRating != null && <span className="text-xs font-bold ml-1" style={{ color: '#f59e0b' }}>{localRating}/10</span>}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trạng thái:' : 'Status:'}</span>
-              <select value={localStatus || ''} onChange={e => setLocalStatus(e.target.value || null)}
-                className="rounded-lg px-2 py-1 text-xs font-bold outline-none"
-                style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
-                <option value="">{isVI ? '— Chưa chọn —' : '— None —'}</option>
-                {Object.entries(STATUS_LABELS).map(([key, val]) => (
-                  <option key={key} value={key}>{isVI ? val.vi : val.en}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={handleSave} disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black disabled:opacity-60"
-                style={{ background: '#6366f1', color: '#fff' }}>
-                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                {isVI ? 'Lưu' : 'Save'}
-              </button>
-              <button onClick={handleCancel}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold"
-                style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}>
-                <X className="w-3.5 h-3.5" /> {isVI ? 'Huỷ' : 'Cancel'}
-              </button>
-            </div>
-          </div>
-        )}
+          )
+        })}
       </div>
+      <span className="rounded-full px-2 py-1 text-xs font-black" style={{ color: '#f59e0b', background: 'rgba(245,158,11,.12)', border: '1px solid rgba(245,158,11,.28)' }}>
+        {rating ? rating.toFixed(1).replace('.0', '') : '-'} / 5
+      </span>
     </div>
   )
 }
