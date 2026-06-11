@@ -199,12 +199,13 @@ export default function UserDashboardPage() {
   }, [])
 
   useEffect(() => {
-    const userId = session?.user.id
+    const userId = session?.user.id ?? null
     if (!userId) {
       setUserProfile(null)
       return
     }
 
+    const profileUserId: string = userId
     let cancelled = false
 
     async function loadUserProfile() {
@@ -223,7 +224,7 @@ export default function UserDashboardPage() {
       }
 
       setUserProfile({
-        userId,
+        userId: profileUserId,
         displayName: data?.display_name || null,
         avatarUrl: data?.avatar_url || null,
         isPremium: Boolean(data?.is_premium),
@@ -518,8 +519,10 @@ export default function UserDashboardPage() {
   }, [selectedSeriesVolumes, selectedVolumeSet])
 
   const uploadAvatar = async (file: File) => {
-    const userId = session?.user.id
+    const userId = session?.user.id ?? null
     if (!userId || !file) return
+
+    const profileUserId: string = userId
 
     if (!file.type.startsWith('image/')) {
       setAvatarError(isVI ? 'Vui lòng chọn file ảnh.' : 'Please choose an image file.')
@@ -539,7 +542,7 @@ export default function UserDashboardPage() {
     try {
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
       const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
-      const path = `${userId}/avatar.${safeExt}`
+      const path = `${profileUserId}/avatar.${safeExt}`
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -560,7 +563,7 @@ export default function UserDashboardPage() {
       const { error: profileError } = await supabase
         .from('user_profiles')
         .upsert({
-          user_id: userId,
+          user_id: profileUserId,
           display_name: displayName,
           avatar_url: nextAvatarUrl,
           updated_at: new Date().toISOString(),
@@ -569,7 +572,7 @@ export default function UserDashboardPage() {
       if (profileError) throw profileError
 
       setUserProfile(current => ({
-        userId,
+        userId: profileUserId,
         displayName: current?.displayName || displayName,
         avatarUrl: nextAvatarUrl,
         isPremium: Boolean(current?.isPremium),
