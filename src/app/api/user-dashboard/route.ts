@@ -53,23 +53,25 @@ export async function GET(request: NextRequest) {
     const { client, userId, error: authError } = await getAuthedUser(request)
     if (authError || !client || !userId) return authError || jsonError('Unauthorized', 401)
 
-    const [{ data: purchaseRows, error: purchaseError }, { data: libraryRows, error: libraryError }] = await Promise.all([
-      client
-        .from('series_user_volume_purchases')
-        .select('volume_id, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false }),
-      client
-        .from('series_user_library')
-        .select('series_id, rating, status, updated_at')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false }),
-    ])
+    const { data: libraryRows, error: libraryError } = await client
+      .from('series_user_library')
+      .select('series_id, rating, status, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false })
 
-    if (purchaseError || libraryError) {
-      console.error('[user-dashboard] read failed')
+    if (libraryError) {
+      console.error('[user-dashboard] rating read failed')
       return jsonError('Unable to load dashboard', 404)
     }
+
+    const { data: purchaseRows, error: purchaseError } = await client
+      .from('series_user_volume_purchases')
+      .select('volume_id, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    const bookshelfAvailable = !purchaseError
+    if (purchaseError) console.error('[user-dashboard] bookshelf read skipped')
 
     const volumeIds = (purchaseRows || []).map(row => Number(row.volume_id)).filter(Boolean)
     const librarySeriesIds = (libraryRows || []).map(row => Number(row.series_id)).filter(Boolean)
@@ -81,10 +83,7 @@ export async function GET(request: NextRequest) {
           .in('id', volumeIds)
       : { data: [], error: null }
 
-    if (volumeError) {
-      console.error('[user-dashboard] volume read failed')
-      return jsonError('Unable to load dashboard', 404)
-    }
+    if (volumeError) console.error('[user-dashboard] volume read skipped')
 
     const seriesIds = Array.from(new Set([
       ...librarySeriesIds,
@@ -98,10 +97,7 @@ export async function GET(request: NextRequest) {
           .in('id', seriesIds)
       : { data: [], error: null }
 
-    if (seriesError) {
-      console.error('[user-dashboard] series read failed')
-      return jsonError('Unable to load dashboard', 404)
-    }
+    if (seriesError) console.error('[user-dashboard] series read skipped')
 
     const seriesById = new Map((seriesRows || []).map((series: any) => [Number(series.id), series]))
     const volumesById = new Map((volumeRows || []).map((volume: any) => [Number(volume.id), volume]))
@@ -154,7 +150,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ purchases, ratedList })
+    return NextResponse.json({ purchases, ratedList, bookshelfAvailable })
   } catch (error) {
     console.error('[user-dashboard] unexpected read failure')
     return jsonError('Unable to load dashboard', 404)
