@@ -11,6 +11,7 @@ import {
   Save,
   Search,
   Star,
+  Upload,
   UserCircle,
   X,
 } from 'lucide-react'
@@ -70,6 +71,14 @@ type RatedEntry = {
     titleVi: string | null
     coverUrl: string | null
   } | null
+}
+
+type UserProfile = {
+  userId: string
+  displayName: string | null
+  avatarUrl: string | null
+  isPremium: boolean
+  premiumTier: string | null
 }
 
 const STATUS_LABELS: Record<UserSeriesStatus, { vi: string; en: string; color: string }> = {
@@ -150,12 +159,24 @@ export default function UserDashboardPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [bookshelfAvailable, setBookshelfAvailable] = useState(true)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
 
   const displayName =
+    userProfile?.displayName ||
     session?.user.user_metadata?.full_name ||
     session?.user.user_metadata?.name ||
     session?.user.email?.split('@')[0] ||
     'User'
+
+  const avatarUrl =
+    userProfile?.avatarUrl ||
+    session?.user.user_metadata?.avatar_url ||
+    session?.user.user_metadata?.picture ||
+    null
+
+  const isPremiumUser = Boolean(userProfile?.isPremium)
 
   useEffect(() => {
     let mounted = true
@@ -176,6 +197,46 @@ export default function UserDashboardPage() {
       authListener.subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    const userId = session?.user.id
+    if (!userId) {
+      setUserProfile(null)
+      return
+    }
+
+    let cancelled = false
+
+    async function loadUserProfile() {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('user_id, display_name, avatar_url, is_premium, premium_tier')
+        .eq('user_id', userId)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      if (error) {
+        console.warn('Failed to load user profile:', error.message)
+        setUserProfile(null)
+        return
+      }
+
+      setUserProfile({
+        userId,
+        displayName: data?.display_name || null,
+        avatarUrl: data?.avatar_url || null,
+        isPremium: Boolean(data?.is_premium),
+        premiumTier: data?.premium_tier || null,
+      })
+    }
+
+    loadUserProfile()
+
+    return () => {
+      cancelled = true
+    }
+  }, [session?.user.id])
 
   useEffect(() => {
     let cancelled = false
@@ -456,6 +517,73 @@ export default function UserDashboardPage() {
     )
   }, [selectedSeriesVolumes, selectedVolumeSet])
 
+  const uploadAvatar = async (file: File) => {
+    const userId = session?.user.id
+    if (!userId || !file) return
+
+    if (!file.type.startsWith('image/')) {
+      setAvatarError(isVI ? 'Vui lòng chọn file ảnh.' : 'Please choose an image file.')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError(isVI ? 'Ảnh đại diện nên nhỏ hơn 2MB.' : 'Avatar image should be under 2MB.')
+      return
+    }
+
+    setAvatarUploading(true)
+    setAvatarError(null)
+    setError(null)
+    setMessage(null)
+
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
+      const path = `${userId}/avatar.${safeExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type,
+        })
+
+      if (uploadError) throw uploadError
+
+      const { data: publicUrlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(path)
+
+      const nextAvatarUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
+
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .upsert({
+          user_id: userId,
+          display_name: displayName,
+          avatar_url: nextAvatarUrl,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+
+      if (profileError) throw profileError
+
+      setUserProfile(current => ({
+        userId,
+        displayName: current?.displayName || displayName,
+        avatarUrl: nextAvatarUrl,
+        isPremium: Boolean(current?.isPremium),
+        premiumTier: current?.premiumTier || null,
+      }))
+
+      setMessage(isVI ? 'Đã cập nhật ảnh đại diện.' : 'Avatar updated.')
+    } catch (err: any) {
+      setAvatarError(err?.message || (isVI ? 'Không upload được ảnh.' : 'Unable to upload avatar.'))
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
+
   const saveBookshelf = async () => {
     const accessToken = session?.access_token
     if (!accessToken) return
@@ -599,9 +727,34 @@ export default function UserDashboardPage() {
               {isVI ? 'Dashboard cá nhân' : 'User Dashboard'}
             </h1>
           </div>
-          <div className="flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--foreground-secondary)' }}>
-            <UserCircle className="w-5 h-5 text-primary-500" />
-            <span className="truncate max-w-[220px]">{displayName}</span>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <div className="flex items-center gap-3 text-sm font-bold" style={{ color: 'var(--foreground-secondary)' }}>
+              <UserAvatar src={avatarUrl} name={displayName} size="sm" />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="truncate max-w-[220px]">{displayName}</span>
+                  {isPremiumUser && <PremiumBadge tier={userProfile?.premiumTier} />}
+                </div>
+                <label className="mt-1 inline-flex cursor-pointer items-center gap-1.5 text-[11px] font-black text-primary-500 hover:text-primary-400">
+                  <Upload className="w-3 h-3" />
+                  {avatarUploading ? (isVI ? 'Đang upload...' : 'Uploading...') : (isVI ? 'Đổi avatar' : 'Change avatar')}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="sr-only"
+                    disabled={avatarUploading}
+                    onChange={event => {
+                      const file = event.target.files?.[0]
+                      event.target.value = ''
+                      if (file) uploadAvatar(file)
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+            {avatarError && (
+              <p className="max-w-xs text-right text-[11px] font-bold text-red-500">{avatarError}</p>
+            )}
           </div>
         </div>
 
@@ -818,6 +971,38 @@ export default function UserDashboardPage() {
 }
 
 
+
+
+function UserAvatar({ src, name, size = 'md' }: { src: string | null; name: string; size?: 'sm' | 'md' }) {
+  const sizeClass = size === 'sm' ? 'w-10 h-10' : 'w-12 h-12'
+  const initial = name?.trim()?.[0]?.toUpperCase() || 'U'
+
+  return (
+    <div
+      className={`${sizeClass} relative overflow-hidden rounded-full flex items-center justify-center shrink-0`}
+      style={{ background: 'linear-gradient(135deg, rgba(99,102,241,.22), rgba(139,92,246,.14))', border: '1px solid var(--card-border)' }}
+    >
+      {src ? (
+        <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+      ) : (
+        <span className="text-sm font-black text-primary-500">{initial}</span>
+      )}
+    </div>
+  )
+}
+
+function PremiumBadge({ tier }: { tier?: string | null }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide"
+      style={{ background: 'linear-gradient(135deg, rgba(245,158,11,.20), rgba(139,92,246,.18))', color: '#f59e0b', border: '1px solid rgba(245,158,11,.32)' }}
+      title={tier ? `Premium: ${tier}` : 'Premium user'}
+    >
+      <Star className="w-3 h-3 fill-current" />
+      {tier || 'Premium'}
+    </span>
+  )
+}
 
 function VolumeSelectionDrawer({
   open,
