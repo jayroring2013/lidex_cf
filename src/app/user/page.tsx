@@ -6,7 +6,6 @@ import {
   BookOpen,
   Check,
   ChevronRight,
-  Grid3X3,
   LibraryBig,
   Loader2,
   Save,
@@ -213,7 +212,7 @@ export default function UserDashboardPage() {
 
       setSeriesOptions(series)
       setVolumeOptions(volumes)
-      if (!selectedSeriesId && series.length) setSelectedSeriesId(series[0].id)
+      setSelectedSeriesId(current => current ?? (series.length ? series[0].id : null))
       setCatalogLoading(false)
     }
 
@@ -222,7 +221,7 @@ export default function UserDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [isVI, selectedSeriesId])
+  }, [isVI])
 
   useEffect(() => {
     const accessToken = session?.access_token
@@ -675,7 +674,7 @@ export default function UserDashboardPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black"
                 style={{ background: '#6366f1', color: '#fff', boxShadow: '0 12px 28px rgba(99,102,241,.22)' }}
               >
-                {viewMode === 'series' ? <LibraryBig className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
+                {viewMode === 'series' ? <LibraryBig className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
                 {viewMode === 'series'
                   ? (isVI ? 'Xem Bookshelf' : 'Bookshelf view')
                   : (isVI ? 'Xem Series' : 'Series view')}
@@ -838,7 +837,7 @@ function BookshelfGrid({
     <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
       {selectedVolumes.map(volume => {
         const series = seriesById.get(volume.seriesId)
-        const cover = proxyImageUrl(volume.coverUrl || series?.coverUrl)
+        const cover = proxyImageUrl(volume.coverUrl || series?.coverUrl || null)
 
         return (
           <Link key={volume.id} href={`/content/${volume.seriesId}`} className="group min-w-0">
