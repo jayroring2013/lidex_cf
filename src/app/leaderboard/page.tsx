@@ -314,6 +314,15 @@ export default function LeaderboardPage() {
     return periods.filter(period => period.sort < selectedPeriod.sort).sort((a, b) => b.sort - a.sort)[0] || null
   }, [periods, selectedPeriod])
 
+  const nextPeriod = useMemo(() => {
+    if (!selectedPeriod) return null
+    let nextMonth = selectedPeriod.month + 1
+    let nextYear  = selectedPeriod.year
+    if (nextMonth > 12) { nextMonth = 1; nextYear++ }
+    const label = `${String(nextMonth).padStart(2, '0')}/${nextYear}`
+    return periods.find(p => p.month === nextMonth && p.year === nextYear) ?? { label, open: false }
+  }, [selectedPeriod, periods])
+
   const rowsBySeries = useMemo(() => {
     const map = new Map<number, VoteRow[]>()
     for (const row of rows) {
@@ -395,15 +404,17 @@ export default function LeaderboardPage() {
 
           <div className="hidden lg:flex rounded-2xl p-4 flex-col justify-center items-center text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
             <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì tiếp theo' : 'Next Period'}</p>
-            <p className="mt-3 text-lg font-black" style={{ color: '#ef4444' }}>{vi ? 'Chưa mở' : 'Not Open'}</p>
+            <p className="mt-3 text-lg font-black" style={{ color: nextPeriod && 'id' in nextPeriod ? '#22c55e' : '#ef4444' }}>
+              {nextPeriod ? nextPeriod.label : '--'}
+            </p>
+            <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>
+              {nextPeriod && 'id' in nextPeriod ? (vi ? 'Đã mở' : 'Open') : (vi ? 'Chưa mở' : 'Not Open')}
+            </p>
           </div>
         </div>
 
         <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
-            <p className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>
-              {selectedPeriod ? fmtPeriod(selectedPeriod) : '--'} · {topCount.toLocaleString('vi-VN')} {vi ? 'tác phẩm' : 'titles'}
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
             <div className="relative w-full sm:w-[360px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--foreground-muted)' }} />
               <input
@@ -460,8 +471,8 @@ export default function LeaderboardPage() {
                         <td className="px-4 py-2 text-center font-black text-base" style={{ color: rankColor(row.displayRank) }}>
                           #{row.displayRank}
                         </td>
-                        <td className="px-4 py-2">
-                          <div className="flex items-center gap-3 min-w-0">
+                        <td className="px-3 py-2" style={{ width: '1px' }}>
+                          <div className="flex items-center gap-3" style={{ width: 'max(260px, 30vw)', maxWidth: 380 }}>
                             <CoverThumb row={row} />
                             <div className="min-w-0">
                               <Link href={`/content/${row.series_id}`} className="font-bold hover:underline line-clamp-2" style={{ color: row.displayRank <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
