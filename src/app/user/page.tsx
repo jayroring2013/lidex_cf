@@ -563,7 +563,7 @@ export default function UserDashboardPage() {
                   className="hidden xl:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black"
                   style={{ background: selectorExpanded ? 'rgba(239,68,68,.10)' : 'rgba(99,102,241,.12)', color: selectorExpanded ? '#ef4444' : '#6366f1', border: selectorExpanded ? '1px solid rgba(239,68,68,.26)' : '1px solid rgba(99,102,241,.28)' }}
                 >
-                  {selectorExpanded ? <X className="w-3.5 h-3.5" /> : <PackageCheck className="w-3.5 h-3.5" />}
+                  {selectorExpanded ? <X className="w-3.5 h-3.5" /> : <BookOpen className="w-3.5 h-3.5" />}
                   {selectorExpanded ? (isVI ? 'Đóng' : 'Close') : (isVI ? 'Mở rộng' : 'Expand')}
                 </button>
               </div>
