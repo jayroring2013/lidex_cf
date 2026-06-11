@@ -2631,9 +2631,10 @@ function NovelDoAStats({
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.25fr] gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-[0.9fr_1fr_1fr] gap-4 items-stretch">
         <NovelLNRadar ranking={ranking} marketRows={marketRows} locale={locale} compact />
-        <SeriesCommunityCharts summary={librarySummary} locale={locale} />
+        <ReaderStatusChart summary={librarySummary} locale={locale} />
+        <ReaderRatingChart summary={librarySummary} locale={locale} />
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -3517,6 +3518,141 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
     <div className="rounded-xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
       <p className="text-[10px] uppercase tracking-wide font-bold mb-1" style={{ color: 'var(--foreground-muted)' }}>{label}</p>
       <p className="text-sm font-black truncate" style={{ color: 'var(--foreground)' }}>{value}</p>
+    </div>
+  )
+}
+
+function ReaderStatusChart({ summary, locale }: { summary: SeriesLibrarySummary; locale: string }) {
+  const isVI = locale === 'vi'
+  const statusOrder: UserSeriesStatus[] = ['reading', 'finished', 'planned', 'dropped']
+  const statusMeta = Object.fromEntries(USER_SERIES_STATUS_OPTIONS.map(option => [option.value, option])) as Record<UserSeriesStatus, typeof USER_SERIES_STATUS_OPTIONS[number]>
+  const statusTotal = Math.max(0, summary.statusCount || Object.values(summary.statusCounts).reduce((sum, count) => sum + count, 0))
+
+  const waffleCells = Array.from({ length: 100 }, (_, index) => {
+    if (!statusTotal) return null
+    const point = index + 0.5
+    let cursor = 0
+    for (const status of statusOrder) {
+      cursor += (summary.statusCounts[status] || 0) / statusTotal * 100
+      if (point <= cursor) return status
+    }
+    return statusOrder[statusOrder.length - 1]
+  })
+
+  return (
+    <div className="glass rounded-2xl p-4 h-full">
+      <div className="flex items-start gap-2 mb-4">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(34,197,94,.15)', color: '#22c55e' }}>4</span>
+        <div>
+          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Trang thai nguoi doc' : 'Reader Status'}
+          </h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'So nguoi dang doc, hoan thanh, dinh doc hoac bo.' : 'Reading, finished, planned, and dropped counts.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Trang thai' : 'Status'}
+          </p>
+          <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
+            {statusTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'nguoi' : 'users'}
+          </span>
+        </div>
+
+        <div className="mx-auto grid max-w-[260px] grid-cols-10 gap-1 sm:max-w-none">
+          {waffleCells.map((status, index) => (
+            <span
+              key={index}
+              className="aspect-square rounded-[3px]"
+              style={{
+                background: status ? statusMeta[status].color : 'var(--ln-track-bg)',
+                opacity: status ? 0.92 : 0.45,
+              }}
+              title={status ? `${isVI ? statusMeta[status].labelVI : statusMeta[status].labelEN}: ${summary.statusCounts[status] || 0}` : undefined}
+            />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 mt-3 sm:grid-cols-2">
+          {statusOrder.map(status => {
+            const meta = statusMeta[status]
+            const count = summary.statusCounts[status] || 0
+            const pct = statusTotal ? Math.round(count / statusTotal * 100) : 0
+            return (
+              <div key={status} className="flex items-center gap-2 min-w-0 rounded-lg px-2 py-1.5" style={{ background: 'var(--background-secondary)' }}>
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: meta.color }} />
+                <span className="text-[10px] font-bold truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                  {isVI ? meta.labelVI : meta.labelEN}
+                </span>
+                <span className="ml-auto text-[10px] font-black tabular-nums" style={{ color: meta.color }}>
+                  {count}{statusTotal ? ` · ${pct}%` : ''}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ReaderRatingChart({ summary, locale }: { summary: SeriesLibrarySummary; locale: string }) {
+  const isVI = locale === 'vi'
+  const ratingTotal = Math.max(0, summary.ratingCount || Object.values(summary.ratingBuckets).reduce((sum, count) => sum + count, 0))
+  const maxRatingBucket = Math.max(1, ...RATING_BUCKETS.map(bucket => summary.ratingBuckets[bucket] || 0))
+
+  return (
+    <div className="glass rounded-2xl p-4 h-full">
+      <div className="flex items-start gap-2 mb-4">
+        <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(245,158,11,.15)', color: '#f59e0b' }}>5</span>
+        <div>
+          <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Phan bo diem sao' : 'Star Distribution'}
+          </h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
+            {isVI ? 'Cach nguoi dung danh gia series nay tu 1 den 5 sao.' : 'How users rate this series from 1 to 5 stars.'}
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+            {isVI ? 'Diem sao' : 'Stars'}
+          </p>
+          <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
+            {ratingTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'danh gia' : 'ratings'}
+          </span>
+        </div>
+
+        <div className="space-y-2">
+          {[...RATING_BUCKETS].reverse().map(bucket => {
+            const count = summary.ratingBuckets[bucket] || 0
+            const pct = ratingTotal ? Math.round(count / ratingTotal * 100) : 0
+            return (
+              <div key={bucket} className="grid grid-cols-[42px_1fr_54px] items-center gap-2">
+                <span className="text-[10px] font-black tabular-nums" style={{ color: '#f59e0b' }}>{bucket}★</span>
+                <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${count ? Math.max(7, count / maxRatingBucket * 100) : 0}%`,
+                      background: 'linear-gradient(90deg,#fbbf24,#f97316)',
+                    }}
+                  />
+                </div>
+                <span className="text-[10px] font-bold text-right tabular-nums" style={{ color: 'var(--foreground-muted)' }}>
+                  {count}{ratingTotal ? ` · ${pct}%` : ''}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
