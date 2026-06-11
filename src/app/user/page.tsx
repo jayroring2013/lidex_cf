@@ -80,7 +80,7 @@ const STATUS_LABELS: Record<UserSeriesStatus, { vi: string; en: string; color: s
 }
 
 const STATUS_OPTIONS: UserSeriesStatus[] = ['reading', 'planned', 'finished', 'dropped']
-const PAGE_SIZE = 24
+const PAGE_SIZE = 10
 
 function formatVnd(value: number) {
   return `${Math.round(value).toLocaleString('vi-VN')} VNĐ`
@@ -121,7 +121,7 @@ export default function UserDashboardPage() {
   const [seriesQuery, setSeriesQuery] = useState('')
   const deferredSeriesQuery = useDeferredValue(seriesQuery)
   const [viewMode, setViewMode] = useState<ViewMode>('series')
-  const [selectorExpanded, setSelectorExpanded] = useState(false)
+  const [volumeDrawerOpen, setVolumeDrawerOpen] = useState(false)
   const [seriesPage, setSeriesPage] = useState(1)
   const [bookshelfPage, setBookshelfPage] = useState(1)
   const [modalSeriesId, setModalSeriesId] = useState<number | null>(null)
@@ -544,8 +544,8 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        <div className={`grid grid-cols-1 ${selectorExpanded ? 'xl:grid-cols-[minmax(420px,520px)_minmax(0,1fr)]' : 'xl:grid-cols-[330px_minmax(0,1fr)]'} gap-5 items-start`}>
-          <aside className="glass rounded-2xl p-4 sm:p-5 xl:sticky xl:top-20">
+        <div className="grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-5 items-start">
+          <aside className="glass relative rounded-2xl p-4 sm:p-5 xl:sticky xl:top-20">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>
@@ -555,18 +555,7 @@ export default function UserDashboardPage() {
                   {isVI ? 'Tìm series, đánh dấu tập đã mua rồi lưu bookshelf.' : 'Find a series, mark owned volumes, then save.'}
                 </p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {catalogLoading && <Loader2 className="w-4 h-4 animate-spin text-primary-500" />}
-                <button
-                  type="button"
-                  onClick={() => setSelectorExpanded(current => !current)}
-                  className="hidden xl:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black"
-                  style={{ background: selectorExpanded ? 'rgba(239,68,68,.10)' : 'rgba(99,102,241,.12)', color: selectorExpanded ? '#ef4444' : '#6366f1', border: selectorExpanded ? '1px solid rgba(239,68,68,.26)' : '1px solid rgba(99,102,241,.28)' }}
-                >
-                  {selectorExpanded ? <X className="w-3.5 h-3.5" /> : <BookOpen className="w-3.5 h-3.5" />}
-                  {selectorExpanded ? (isVI ? 'Đóng' : 'Close') : (isVI ? 'Mở rộng' : 'Expand')}
-                </button>
-              </div>
+              {catalogLoading && <Loader2 className="w-4 h-4 animate-spin text-primary-500 shrink-0" />}
             </div>
 
             <div className="relative mb-3">
@@ -589,7 +578,7 @@ export default function UserDashboardPage() {
                 return (
                   <button
                     key={series.id}
-                    onClick={() => setSelectedSeriesId(series.id)}
+                    onClick={() => { setSelectedSeriesId(series.id); setVolumeDrawerOpen(true) }}
                     className="w-full flex items-center gap-3 rounded-xl p-2 text-left transition-all"
                     style={{
                       background: active ? 'rgba(99,102,241,.14)' : 'transparent',
@@ -617,78 +606,21 @@ export default function UserDashboardPage() {
               )}
             </div>
 
-            <div className="rounded-2xl p-3" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-14 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: 'var(--content-detail-tile-bg)' }}>
-                  {selectedSeries?.coverUrl ? <img src={proxyImageUrl(selectedSeries.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-black line-clamp-2" style={{ color: 'var(--foreground)' }}>
-                    {selectedSeries ? displayTitle(selectedSeries, isVI) : (isVI ? 'Chưa chọn series' : 'No series selected')}
-                  </h3>
-                  <p className="text-[11px] mt-1" style={{ color: 'var(--foreground-muted)' }}>
-                    {selectedSeriesOwnedCount}/{selectedSeriesVolumes.length} {isVI ? 'tập đã mua' : 'owned volumes'}
-                  </p>
-                </div>
-              </div>
+            <VolumeSelectionDrawer
+              open={volumeDrawerOpen}
+              series={selectedSeries || null}
+              volumes={selectedSeriesVolumes}
+              selectedVolumeSet={selectedVolumeSet}
+              ownedCount={selectedSeriesOwnedCount}
+              allSelected={selectedSeriesAllSelected}
+              saving={savingBookshelf}
+              isVI={isVI}
+              onClose={() => setVolumeDrawerOpen(false)}
+              onToggleAll={toggleSeriesVolumes}
+              onToggleVolume={toggleVolume}
+              onSave={saveBookshelf}
+            />
 
-              <div className="flex gap-2 mb-3">
-                <button
-                  onClick={toggleSeriesVolumes}
-                  disabled={!selectedSeriesVolumes.length}
-                  className="flex-1 rounded-xl px-3 py-2 text-xs font-black disabled:opacity-50"
-                  style={{ background: selectedSeriesAllSelected ? 'rgba(239,68,68,.12)' : 'rgba(34,197,94,.12)', color: selectedSeriesAllSelected ? '#ef4444' : '#22c55e', border: selectedSeriesAllSelected ? '1px solid rgba(239,68,68,.28)' : '1px solid rgba(34,197,94,.28)' }}
-                >
-                  {selectedSeriesAllSelected ? (isVI ? 'Bỏ tất cả' : 'Clear all') : (isVI ? 'Chọn tất cả' : 'Select all')}
-                </button>
-                <button
-                  onClick={saveBookshelf}
-                  disabled={savingBookshelf}
-                  className="rounded-xl px-3 py-2 text-xs font-black disabled:opacity-60"
-                  style={{ background: '#6366f1', color: '#fff' }}
-                >
-                  {savingBookshelf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                </button>
-              </div>
-
-              <div className={`${selectorExpanded ? 'max-h-[520px] xl:grid xl:grid-cols-2 xl:gap-2 xl:space-y-0' : 'max-h-[330px] space-y-2'} overflow-y-auto pr-1`}>
-                {selectedSeriesVolumes.length ? selectedSeriesVolumes.map(volume => {
-                  const selected = selectedVolumeSet.has(volume.id)
-                  return (
-                    <button
-                      key={volume.id}
-                      onClick={() => toggleVolume(volume.id)}
-                      className="w-full flex items-center gap-3 rounded-xl p-2 text-left transition-all"
-                      style={{
-                        background: selected ? 'rgba(34,197,94,.12)' : 'var(--content-detail-tile-bg)',
-                        border: selected ? '1px solid rgba(34,197,94,.36)' : '1px solid var(--content-detail-tile-border)',
-                        color: 'var(--foreground)',
-                      }}
-                    >
-                      <div className="w-10 h-14 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
-                        {volume.coverUrl ? <img src={proxyImageUrl(volume.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-black truncate">{volumeLabel(volume, isVI)}</p>
-                        <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
-                          {volume.price ? formatVnd(volume.price) : (isVI ? 'Chưa có giá' : 'No price')}
-                        </p>
-                      </div>
-                      <span
-                        className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                        style={{ background: selected ? '#22c55e' : 'var(--background-secondary)', color: selected ? '#fff' : 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}
-                      >
-                        {selected && <Check className="w-4 h-4" />}
-                      </span>
-                    </button>
-                  )
-                }) : (
-                  <p className="text-xs py-8 text-center" style={{ color: 'var(--foreground-muted)' }}>
-                    {isVI ? 'Series này chưa có tập trong dữ liệu.' : 'No volumes available for this series.'}
-                  </p>
-                )}
-              </div>
-            </div>
           </aside>
 
           <main className="glass rounded-2xl p-4 sm:p-5 min-w-0">
@@ -776,6 +708,152 @@ export default function UserDashboardPage() {
   )
 }
 
+
+
+function VolumeSelectionDrawer({
+  open,
+  series,
+  volumes,
+  selectedVolumeSet,
+  ownedCount,
+  allSelected,
+  saving,
+  isVI,
+  onClose,
+  onToggleAll,
+  onToggleVolume,
+  onSave,
+}: {
+  open: boolean
+  series: SeriesOption | null
+  volumes: VolumeOption[]
+  selectedVolumeSet: Set<number>
+  ownedCount: number
+  allSelected: boolean
+  saving: boolean
+  isVI: boolean
+  onClose: () => void
+  onToggleAll: () => void
+  onToggleVolume: (volumeId: number) => void
+  onSave: () => void
+}) {
+  if (!open || !series) return null
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label={isVI ? 'Đóng chọn tập' : 'Close volume selector'}
+        onClick={onClose}
+        className="fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-sm xl:hidden"
+      />
+
+      <div
+        className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-3xl xl:absolute xl:inset-auto xl:left-[calc(100%+16px)] xl:top-0 xl:z-50 xl:w-[520px] xl:max-w-[calc(100vw-390px)] xl:max-h-[calc(100vh-96px)]"
+        style={{
+          background: 'var(--background)',
+          border: '1px solid var(--card-border)',
+          boxShadow: '0 30px 80px rgba(15,23,42,.28)',
+        }}
+      >
+        <div className="flex items-start justify-between gap-3 p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
+          <div className="flex min-w-0 gap-3">
+            <div className="w-14 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: 'var(--content-detail-tile-bg)' }}>
+              {series.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary-500">
+                {isVI ? 'Chọn tập đã mua' : 'Owned volumes'}
+              </p>
+              <h3 className="text-base font-black line-clamp-2 mt-1" style={{ color: 'var(--foreground)' }}>
+                {displayTitle(series, isVI)}
+              </h3>
+              <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>
+                {ownedCount}/{volumes.length} {isVI ? 'tập đã mua' : 'owned volumes'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex gap-2 p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
+          <button
+            onClick={onToggleAll}
+            disabled={!volumes.length}
+            className="flex-1 rounded-xl px-3 py-2.5 text-sm font-black disabled:opacity-50"
+            style={{
+              background: allSelected ? 'rgba(239,68,68,.12)' : 'rgba(34,197,94,.12)',
+              color: allSelected ? '#ef4444' : '#22c55e',
+              border: allSelected ? '1px solid rgba(239,68,68,.28)' : '1px solid rgba(34,197,94,.28)',
+            }}
+          >
+            {allSelected ? (isVI ? 'Bỏ tất cả' : 'Clear all') : (isVI ? 'Chọn tất cả' : 'Select all')}
+          </button>
+
+          <button
+            onClick={onSave}
+            disabled={saving}
+            className="rounded-xl px-4 py-2.5 text-sm font-black disabled:opacity-60"
+            style={{ background: '#6366f1', color: '#fff' }}
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {volumes.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {volumes.map(volume => {
+                const selected = selectedVolumeSet.has(volume.id)
+
+                return (
+                  <button
+                    key={volume.id}
+                    onClick={() => onToggleVolume(volume.id)}
+                    className="flex items-center gap-3 rounded-xl p-2 text-left transition-all"
+                    style={{
+                      background: selected ? 'rgba(34,197,94,.12)' : 'var(--content-detail-tile-bg)',
+                      border: selected ? '1px solid rgba(34,197,94,.36)' : '1px solid var(--content-detail-tile-border)',
+                      color: 'var(--foreground)',
+                    }}
+                  >
+                    <div className="w-10 h-14 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
+                      {volume.coverUrl ? <img src={proxyImageUrl(volume.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-black truncate">{volumeLabel(volume, isVI)}</p>
+                      <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
+                        {volume.price ? formatVnd(volume.price) : (isVI ? 'Chưa có giá' : 'No price')}
+                      </p>
+                    </div>
+                    <span
+                      className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: selected ? '#22c55e' : 'var(--background-secondary)', color: selected ? '#fff' : 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}
+                    >
+                      {selected && <Check className="w-4 h-4" />}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="text-xs py-10 text-center" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Series này chưa có tập trong dữ liệu.' : 'No volumes available for this series.'}
+            </p>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
 
 function PaginationControls({
   page,
