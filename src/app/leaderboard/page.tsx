@@ -316,11 +316,10 @@ export default function LeaderboardPage() {
 
   const nextPeriod = useMemo(() => {
     if (!selectedPeriod) return null
-    let nextMonth = selectedPeriod.month + 1
-    let nextYear  = selectedPeriod.year
-    if (nextMonth > 12) { nextMonth = 1; nextYear++ }
-    const label = `${String(nextMonth).padStart(2, '0')}/${nextYear}`
-    return periods.find(p => p.month === nextMonth && p.year === nextYear) ?? { label, open: false }
+    // Find the period that comes immediately AFTER selectedPeriod in chronological order
+    return periods
+      .filter(p => p.sort > selectedPeriod.sort)
+      .sort((a, b) => a.sort - b.sort)[0] || null
   }, [selectedPeriod, periods])
 
   const rowsBySeries = useMemo(() => {
@@ -380,38 +379,44 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[190px_1fr_220px] gap-3 mb-4 sm:mb-6">
-          <div className="rounded-2xl p-3.5 sm:p-4 text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
-            <p className="text-xs sm:text-sm" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì bình chọn' : 'Poll Period'}</p>
+        {/* ── Header cards ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-[190px_1fr_220px] gap-3 mb-4 sm:mb-6">
+
+          {/* Poll Period selector */}
+          <div className="col-span-1 rounded-2xl p-3 sm:p-4 text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
+            <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì bình chọn' : 'Poll Period'}</p>
             <select
               value={selectedPeriodId ?? ''}
               onChange={event => setSelectedPeriodId(Number(event.target.value))}
-              className="mt-2 sm:mt-3 w-full rounded-xl px-3 py-2 text-base sm:text-lg font-black text-center outline-none"
+              className="mt-2 w-full rounded-xl px-2 py-2 text-base sm:text-lg font-black text-center outline-none"
               style={{ background: 'var(--background-secondary)', color: '#fb7185', border: '1px solid var(--card-border)' }}
             >
               {periods.map(period => <option key={period.id} value={period.id}>{fmtPeriod(period)}</option>)}
             </select>
           </div>
 
-          <div className="rounded-2xl p-4 sm:p-5 flex flex-col justify-center text-center" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-            <h1 className="text-xl sm:text-3xl font-black uppercase leading-tight" style={{ color: '#fb7185' }}>
-              {vi ? 'Light Novel được yêu thích nhất' : 'Favourite Light Novel Ranking'}
-            </h1>
-            <p className="mt-2 text-xs sm:text-sm" style={{ color: 'var(--foreground)' }}>
-              {vi ? 'Hạng mục có tổng cộng' : 'Category contains'} <span className="font-black text-red-400">{topCount.toLocaleString('vi-VN')}</span> {vi ? 'tác phẩm!' : 'titles!'}
+          {/* Next Period */}
+          <div className="col-span-1 rounded-2xl p-3 sm:p-4 flex flex-col justify-center items-center text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
+            <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì tiếp theo' : 'Next Period'}</p>
+            <p className="mt-2 text-base sm:text-lg font-black" style={{ color: nextPeriod ? '#fb7185' : '#ef4444' }}>
+              {nextPeriod ? fmtPeriod(nextPeriod as Period) : '--'}
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: '#ef4444' }}>
+              {nextPeriod ? (vi ? 'Chưa mở' : 'Not Open') : (vi ? 'Không có' : 'N/A')}
             </p>
           </div>
 
-          <div className="hidden lg:flex rounded-2xl p-4 flex-col justify-center items-center text-center" style={{ background: 'var(--card-bg)', border: '1px solid rgba(248,113,113,.28)' }}>
-            <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Kì tiếp theo' : 'Next Period'}</p>
-            <p className="mt-3 text-lg font-black" style={{ color: nextPeriod && 'id' in nextPeriod ? '#22c55e' : '#ef4444' }}>
-              {nextPeriod ? nextPeriod.label : '--'}
-            </p>
-            <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>
-              {nextPeriod && 'id' in nextPeriod ? (vi ? 'Đã mở' : 'Open') : (vi ? 'Chưa mở' : 'Not Open')}
+          {/* Title — full width on mobile, centre col on desktop */}
+          <div className="col-span-2 lg:col-span-1 lg:row-start-1 lg:col-start-2 rounded-2xl p-3 sm:p-5 flex flex-col justify-center text-center order-first lg:order-none" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+            <h1 className="text-lg sm:text-3xl font-black uppercase leading-tight" style={{ color: '#fb7185' }}>
+              {vi ? 'Light Novel được yêu thích nhất' : 'Favourite Light Novel Ranking'}
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm" style={{ color: 'var(--foreground)' }}>
+              {vi ? 'Hạng mục có tổng cộng' : 'Category contains'} <span className="font-black text-red-400">{topCount.toLocaleString('vi-VN')}</span> {vi ? 'tác phẩm!' : 'titles!'}
             </p>
           </div>
         </div>
+
 
         <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
