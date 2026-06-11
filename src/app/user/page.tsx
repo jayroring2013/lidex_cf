@@ -80,6 +80,7 @@ const STATUS_LABELS: Record<UserSeriesStatus, { vi: string; en: string; color: s
 }
 
 const STATUS_OPTIONS: UserSeriesStatus[] = ['reading', 'planned', 'finished', 'dropped']
+const PAGE_SIZE = 24
 
 function formatVnd(value: number) {
   return `${Math.round(value).toLocaleString('vi-VN')} VNĐ`
@@ -120,6 +121,9 @@ export default function UserDashboardPage() {
   const [seriesQuery, setSeriesQuery] = useState('')
   const deferredSeriesQuery = useDeferredValue(seriesQuery)
   const [viewMode, setViewMode] = useState<ViewMode>('series')
+  const [selectorExpanded, setSelectorExpanded] = useState(false)
+  const [seriesPage, setSeriesPage] = useState(1)
+  const [bookshelfPage, setBookshelfPage] = useState(1)
   const [modalSeriesId, setModalSeriesId] = useState<number | null>(null)
   const [modalRating, setModalRating] = useState<number | null>(null)
   const [modalStatus, setModalStatus] = useState<string | null>(null)
@@ -266,6 +270,14 @@ export default function UserDashboardPage() {
     }
   }, [authReady, session?.access_token, isVI])
 
+  useEffect(() => {
+    setSeriesPage(1)
+  }, [deferredSeriesQuery, viewMode])
+
+  useEffect(() => {
+    setBookshelfPage(1)
+  }, [selectedVolumeIds.length, viewMode])
+
   const seriesById = useMemo(() => new Map(seriesOptions.map(series => [series.id, series])), [seriesOptions])
   const volumesById = useMemo(() => new Map(volumeOptions.map(volume => [volume.id, volume])), [volumeOptions])
   const ratedBySeries = useMemo(() => new Map(ratedList.map(entry => [entry.seriesId, entry])), [ratedList])
@@ -314,6 +326,20 @@ export default function UserDashboardPage() {
       return displayTitle(a, isVI).localeCompare(displayTitle(b, isVI))
     })
   }, [deferredSeriesQuery, seriesOptions, ownedCountsBySeries, ratedBySeries, isVI])
+
+  const seriesTotalPages = Math.max(1, Math.ceil(filteredSeries.length / PAGE_SIZE))
+  const safeSeriesPage = Math.min(seriesPage, seriesTotalPages)
+  const paginatedSeries = useMemo(() => {
+    const start = (safeSeriesPage - 1) * PAGE_SIZE
+    return filteredSeries.slice(start, start + PAGE_SIZE)
+  }, [filteredSeries, safeSeriesPage])
+
+  const bookshelfTotalPages = Math.max(1, Math.ceil(selectedVolumes.length / PAGE_SIZE))
+  const safeBookshelfPage = Math.min(bookshelfPage, bookshelfTotalPages)
+  const paginatedSelectedVolumes = useMemo(() => {
+    const start = (safeBookshelfPage - 1) * PAGE_SIZE
+    return selectedVolumes.slice(start, start + PAGE_SIZE)
+  }, [selectedVolumes, safeBookshelfPage])
 
   const selectedSeries = selectedSeriesId ? seriesById.get(selectedSeriesId) : null
   const selectedSeriesVolumes = selectedSeriesId ? (volumesBySeries.get(selectedSeriesId) || []) : []
@@ -518,9 +544,9 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-5 items-start">
+        <div className={`grid grid-cols-1 ${selectorExpanded ? 'xl:grid-cols-[minmax(420px,520px)_minmax(0,1fr)]' : 'xl:grid-cols-[330px_minmax(0,1fr)]'} gap-5 items-start`}>
           <aside className="glass rounded-2xl p-4 sm:p-5 xl:sticky xl:top-20">
-            <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>
                   {isVI ? 'Chọn LN đã mua' : 'Select owned LN'}
@@ -529,7 +555,18 @@ export default function UserDashboardPage() {
                   {isVI ? 'Tìm series, đánh dấu tập đã mua rồi lưu bookshelf.' : 'Find a series, mark owned volumes, then save.'}
                 </p>
               </div>
-              {catalogLoading && <Loader2 className="w-4 h-4 animate-spin text-primary-500" />}
+              <div className="flex items-center gap-2 shrink-0">
+                {catalogLoading && <Loader2 className="w-4 h-4 animate-spin text-primary-500" />}
+                <button
+                  type="button"
+                  onClick={() => setSelectorExpanded(current => !current)}
+                  className="hidden xl:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black"
+                  style={{ background: selectorExpanded ? 'rgba(239,68,68,.10)' : 'rgba(99,102,241,.12)', color: selectorExpanded ? '#ef4444' : '#6366f1', border: selectorExpanded ? '1px solid rgba(239,68,68,.26)' : '1px solid rgba(99,102,241,.28)' }}
+                >
+                  {selectorExpanded ? <X className="w-3.5 h-3.5" /> : <PackageCheck className="w-3.5 h-3.5" />}
+                  {selectorExpanded ? (isVI ? 'Đóng' : 'Close') : (isVI ? 'Mở rộng' : 'Expand')}
+                </button>
+              </div>
             </div>
 
             <div className="relative mb-3">
@@ -614,7 +651,7 @@ export default function UserDashboardPage() {
                 </button>
               </div>
 
-              <div className="max-h-[330px] overflow-y-auto pr-1 space-y-2">
+              <div className={`${selectorExpanded ? 'max-h-[520px] xl:grid xl:grid-cols-2 xl:gap-2 xl:space-y-0' : 'max-h-[330px] space-y-2'} overflow-y-auto pr-1`}>
                 {selectedSeriesVolumes.length ? selectedSeriesVolumes.map(volume => {
                   const selected = selectedVolumeSet.has(volume.id)
                   return (
@@ -682,20 +719,40 @@ export default function UserDashboardPage() {
             </div>
 
             {viewMode === 'series' ? (
-              <SeriesCoverGrid
-                series={filteredSeries}
-                volumesBySeries={volumesBySeries}
-                ownedCountsBySeries={ownedCountsBySeries}
-                ratedBySeries={ratedBySeries}
-                isVI={isVI}
-                onManage={openSeriesModal}
-              />
+              <>
+                <SeriesCoverGrid
+                  series={paginatedSeries}
+                  volumesBySeries={volumesBySeries}
+                  ownedCountsBySeries={ownedCountsBySeries}
+                  ratedBySeries={ratedBySeries}
+                  isVI={isVI}
+                  onManage={openSeriesModal}
+                />
+                <PaginationControls
+                  page={safeSeriesPage}
+                  totalPages={seriesTotalPages}
+                  totalItems={filteredSeries.length}
+                  pageSize={PAGE_SIZE}
+                  isVI={isVI}
+                  onPageChange={setSeriesPage}
+                />
+              </>
             ) : (
-              <BookshelfGrid
-                selectedVolumes={selectedVolumes}
-                seriesById={seriesById}
-                isVI={isVI}
-              />
+              <>
+                <BookshelfGrid
+                  selectedVolumes={paginatedSelectedVolumes}
+                  seriesById={seriesById}
+                  isVI={isVI}
+                />
+                <PaginationControls
+                  page={safeBookshelfPage}
+                  totalPages={bookshelfTotalPages}
+                  totalItems={selectedVolumes.length}
+                  pageSize={PAGE_SIZE}
+                  isVI={isVI}
+                  onPageChange={setBookshelfPage}
+                />
+              </>
             )}
           </main>
         </div>
@@ -715,6 +772,93 @@ export default function UserDashboardPage() {
           onSave={saveModalEntry}
         />
       )}
+    </div>
+  )
+}
+
+
+function PaginationControls({
+  page,
+  totalPages,
+  totalItems,
+  pageSize,
+  isVI,
+  onPageChange,
+}: {
+  page: number
+  totalPages: number
+  totalItems: number
+  pageSize: number
+  isVI: boolean
+  onPageChange: (page: number) => void
+}) {
+  if (totalPages <= 1) {
+    return (
+      <div className="mt-5 text-center text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>
+        {totalItems.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'mục' : 'items'}
+      </div>
+    )
+  }
+
+  const start = totalItems === 0 ? 0 : (page - 1) * pageSize + 1
+  const end = Math.min(totalItems, page * pageSize)
+  const pages = Array.from(new Set([
+    1,
+    Math.max(1, page - 1),
+    page,
+    Math.min(totalPages, page + 1),
+    totalPages,
+  ])).sort((a, b) => a - b)
+
+  return (
+    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>
+        {isVI
+          ? `Hiển thị ${start}-${end} / ${totalItems.toLocaleString('vi-VN')}`
+          : `Showing ${start}-${end} of ${totalItems.toLocaleString('en-US')}`}
+      </p>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+          disabled={page <= 1}
+          className="rounded-xl px-3 py-2 text-xs font-black disabled:opacity-40"
+          style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+        >
+          {isVI ? 'Trước' : 'Prev'}
+        </button>
+
+        {pages.map((item, index) => {
+          const previous = pages[index - 1]
+          const needsGap = previous != null && item - previous > 1
+          return (
+            <div key={item} className="flex items-center gap-2">
+              {needsGap && <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>…</span>}
+              <button
+                type="button"
+                onClick={() => onPageChange(item)}
+                className="min-w-9 rounded-xl px-3 py-2 text-xs font-black"
+                style={item === page
+                  ? { background: '#6366f1', color: '#fff' }
+                  : { background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+              >
+                {item}
+              </button>
+            </div>
+          )
+        })}
+
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+          disabled={page >= totalPages}
+          className="rounded-xl px-3 py-2 text-xs font-black disabled:opacity-40"
+          style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+        >
+          {isVI ? 'Sau' : 'Next'}
+        </button>
+      </div>
     </div>
   )
 }
