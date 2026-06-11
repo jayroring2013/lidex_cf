@@ -96,6 +96,7 @@ export default function UserDashboardPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [bookshelfAvailable, setBookshelfAvailable] = useState(true)
 
   const displayName =
     session?.user.user_metadata?.full_name ||
@@ -180,12 +181,13 @@ export default function UserDashboardPage() {
   }, [])
 
   useEffect(() => {
-    if (!authReady || !session) {
+    const accessToken = session?.access_token
+
+    if (!authReady || !accessToken) {
       if (authReady) setLoading(false)
       return
     }
 
-    const accessToken = session.access_token
     let cancelled = false
 
     async function loadUserDashboard() {
@@ -206,6 +208,7 @@ export default function UserDashboardPage() {
         const nextPurchases = (data.purchases || []) as PurchaseEntry[]
         setRatedList((data.ratedList || []) as RatedEntry[])
         setSelectedVolumeIds(nextPurchases.map(item => item.volumeId))
+        setBookshelfAvailable(data.bookshelfAvailable !== false)
       } catch {
         if (!cancelled) setError(isVI ? 'Không tải được dashboard người dùng.' : 'Unable to load user dashboard.')
       } finally {
@@ -218,7 +221,7 @@ export default function UserDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [authReady, session, isVI])
+  }, [authReady, session?.access_token, isVI])
 
   const seriesById = useMemo(() => new Map(seriesOptions.map(series => [series.id, series])), [seriesOptions])
   const volumesById = useMemo(() => new Map(volumeOptions.map(volume => [volume.id, volume])), [volumeOptions])
@@ -227,7 +230,7 @@ export default function UserDashboardPage() {
     .filter(Boolean) as VolumeOption[]
 
   const totalPrice = selectedVolumes.reduce((sum, volume) => sum + (volume.price || 0), 0)
-  const selectedVolumeSet = new Set(selectedVolumeIds)
+  const selectedVolumeSet = useMemo(() => new Set(selectedVolumeIds), [selectedVolumeIds])
 
   const filteredSeries = useMemo(() => {
     const q = seriesQuery.trim().toLowerCase()
@@ -262,6 +265,10 @@ export default function UserDashboardPage() {
   const saveBookshelf = async () => {
     const accessToken = session?.access_token
     if (!accessToken) return
+    if (!bookshelfAvailable) {
+      setError(isVI ? 'Bookshelf chÆ°a kháº£ dá»¥ng.' : 'Bookshelf storage is not available yet.')
+      return
+    }
     setSaving(true)
     setError(null)
     setMessage(null)
@@ -319,7 +326,7 @@ export default function UserDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-8" style={{ background: 'var(--background)' }}>
+    <div className="min-h-screen overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8" style={{ background: 'var(--background)' }}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <p className="text-xs font-black uppercase tracking-[0.24em] text-primary-500">LiDex User</p>
@@ -328,7 +335,7 @@ export default function UserDashboardPage() {
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr] gap-5 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-5 items-start">
           <aside className="glass rounded-2xl p-2 lg:sticky lg:top-20">
             <div className="grid grid-cols-3 lg:grid-cols-1 gap-2">
               {tabs.map(tab => (
@@ -358,6 +365,11 @@ export default function UserDashboardPage() {
                 {message}
               </div>
             )}
+            {!bookshelfAvailable && (
+              <div className="rounded-xl px-4 py-3 text-sm font-bold" style={{ color: '#f59e0b', background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.24)' }}>
+                {isVI ? 'Bookshelf chÆ°a kháº£ dá»¥ng, nhÆ°ng danh sÃ¡ch Ä‘Ã¡nh giÃ¡ váº«n cÃ³ thá»ƒ xem.' : 'Bookshelf storage is not available yet, but your rated list can still load.'}
+              </div>
+            )}
 
             {activeTab === 'general' && (
               <>
@@ -371,8 +383,8 @@ export default function UserDashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.1fr] gap-5">
-                  <div className="glass rounded-2xl p-4 sm:p-5">
+                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] gap-5">
+                  <div className="glass min-w-0 rounded-2xl p-4 sm:p-5">
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div>
                         <h2 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>
@@ -422,7 +434,7 @@ export default function UserDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="glass rounded-2xl p-4 sm:p-5">
+                  <div className="glass min-w-0 overflow-hidden rounded-2xl p-4 sm:p-5">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                       <div className="min-w-0">
                         <h2 className="text-lg font-black truncate" style={{ color: 'var(--foreground)' }}>
@@ -442,7 +454,7 @@ export default function UserDashboardPage() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto pr-1">
                       {selectedSeriesVolumes.map(volume => {
                         const selected = selectedVolumeSet.has(volume.id)
                         return (
@@ -479,8 +491,8 @@ export default function UserDashboardPage() {
                     <div className="flex justify-end mt-4">
                       <button
                         onClick={saveBookshelf}
-                        disabled={saving}
-                        className="rounded-xl px-5 py-3 text-sm font-black disabled:opacity-60"
+                        disabled={saving || !bookshelfAvailable}
+                        className="max-w-full rounded-xl px-5 py-3 text-sm font-black disabled:opacity-60"
                         style={{ background: '#6366f1', color: '#fff' }}
                       >
                         {saving ? (isVI ? 'Đang lưu...' : 'Saving...') : (isVI ? 'Lưu bookshelf' : 'Save bookshelf')}
@@ -502,6 +514,7 @@ export default function UserDashboardPage() {
                   <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
                     {ratedList.map(entry => {
                       const status = entry.status ? STATUS_LABELS[entry.status] : null
+                      const series = entry.series || seriesById.get(entry.seriesId) || null
                       return (
                         <Link
                           key={entry.seriesId}
@@ -510,10 +523,10 @@ export default function UserDashboardPage() {
                           style={{ color: 'var(--foreground)', borderColor: 'var(--card-border)' }}
                         >
                           <div className="w-14 h-20 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
-                            {entry.series?.coverUrl ? <img src={proxyImageUrl(entry.series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
+                            {series?.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="font-black line-clamp-2">{displayTitle(entry.series, isVI)}</p>
+                            <p className="font-black line-clamp-2">{displayTitle(series, isVI)}</p>
                             <div className="flex flex-wrap items-center gap-2 mt-2">
                               {entry.rating != null && (
                                 <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black" style={{ background: 'rgba(245,158,11,.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,.26)' }}>
