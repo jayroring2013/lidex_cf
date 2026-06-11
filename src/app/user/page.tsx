@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { BookOpen, Check, ChevronDown, LibraryBig, ListChecks, Loader2, Search, Star, UserCircle } from 'lucide-react'
+import { BookOpen, Check, ChevronDown, LibraryBig, ListChecks, Loader2, Search, Star, UserCircle, Pencil, X, Save } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import publicSupabase from '@/lib/publicSupabaseClient'
 import { proxyImageUrl } from '@/lib/imageProxy'
@@ -265,10 +265,6 @@ export default function UserDashboardPage() {
   const saveBookshelf = async () => {
     const accessToken = session?.access_token
     if (!accessToken) return
-    if (!bookshelfAvailable) {
-      setError(isVI ? 'Bookshelf chÆ°a kháº£ dá»¥ng.' : 'Bookshelf storage is not available yet.')
-      return
-    }
     setSaving(true)
     setError(null)
     setMessage(null)
@@ -285,10 +281,33 @@ export default function UserDashboardPage() {
 
       if (!response.ok) throw new Error('Unable to save bookshelf')
       setMessage(isVI ? 'Đã lưu bookshelf.' : 'Bookshelf saved.')
+      setBookshelfAvailable(true)
     } catch {
       setError(isVI ? 'Không lưu được bookshelf.' : 'Unable to save bookshelf.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const updateRatedEntry = async (seriesId: number, rating: number | null, status: string | null) => {
+    const accessToken = session?.access_token
+    if (!accessToken) return
+    try {
+      const response = await fetch('/api/user-dashboard/rated', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ seriesId, rating, status }),
+      })
+      if (!response.ok) throw new Error('Failed')
+      setRatedList(prev => prev.map(e =>
+        e.seriesId === seriesId ? { ...e, rating, status } : e
+      ))
+      setMessage(isVI ? 'Đã cập nhật.' : 'Updated successfully.')
+    } catch {
+      setError(isVI ? 'Không cập nhật được.' : 'Failed to update.')
     }
   }
 
@@ -491,7 +510,7 @@ export default function UserDashboardPage() {
                     <div className="flex justify-end mt-4">
                       <button
                         onClick={saveBookshelf}
-                        disabled={saving || !bookshelfAvailable}
+                        disabled={saving}
                         className="max-w-full rounded-xl px-5 py-3 text-sm font-black disabled:opacity-60"
                         style={{ background: '#6366f1', color: '#fff' }}
                       >
@@ -513,34 +532,15 @@ export default function UserDashboardPage() {
                 {ratedList.length ? (
                   <div className="divide-y" style={{ borderColor: 'var(--card-border)' }}>
                     {ratedList.map(entry => {
-                      const status = entry.status ? STATUS_LABELS[entry.status] : null
                       const series = entry.series || seriesById.get(entry.seriesId) || null
                       return (
-                        <Link
+                        <RatedEntryRow
                           key={entry.seriesId}
-                          href={`/content/${entry.seriesId}`}
-                          className="flex items-center gap-4 p-4 transition-colors"
-                          style={{ color: 'var(--foreground)', borderColor: 'var(--card-border)' }}
-                        >
-                          <div className="w-14 h-20 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
-                            {series?.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-black line-clamp-2">{displayTitle(series, isVI)}</p>
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
-                              {entry.rating != null && (
-                                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black" style={{ background: 'rgba(245,158,11,.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,.26)' }}>
-                                  <Star className="w-3.5 h-3.5 fill-current" /> {entry.rating}
-                                </span>
-                              )}
-                              {status && (
-                                <span className="rounded-full px-2.5 py-1 text-xs font-black" style={{ background: `${status.color}18`, color: status.color, border: `1px solid ${status.color}44` }}>
-                                  {isVI ? status.vi : status.en}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
+                          entry={entry}
+                          series={series}
+                          isVI={isVI}
+                          onUpdate={updateRatedEntry}
+                        />
                       )
                     })}
                   </div>
@@ -595,6 +595,119 @@ export default function UserDashboardPage() {
             )}
           </section>
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ── RatedEntryRow ─────────────────────────────────────────────────────────────
+
+type RatedEntryRowProps = {
+  entry: RatedEntry
+  series: { id: number; title: string; titleVi?: string | null; coverUrl?: string | null } | null
+  isVI: boolean
+  onUpdate: (seriesId: number, rating: number | null, status: string | null) => Promise<void>
+}
+
+function RatedEntryRow({ entry, series, isVI, onUpdate }: RatedEntryRowProps) {
+  const [editing, setEditing] = useState(false)
+  const [localRating, setLocalRating] = useState<number | null>(entry.rating)
+  const [localStatus, setLocalStatus] = useState<string | null>(entry.status)
+  const [saving, setSaving] = useState(false)
+  const [hoverStar, setHoverStar] = useState<number | null>(null)
+
+  const statusInfo = localStatus ? STATUS_LABELS[localStatus] : null
+
+  const handleSave = async () => {
+    setSaving(true)
+    await onUpdate(entry.seriesId, localRating, localStatus)
+    setSaving(false)
+    setEditing(false)
+  }
+
+  const handleCancel = () => {
+    setLocalRating(entry.rating)
+    setLocalStatus(entry.status)
+    setEditing(false)
+  }
+
+  return (
+    <div className="flex items-start gap-4 p-4">
+      <Link href={`/content/${entry.seriesId}`} className="w-14 h-20 rounded-lg overflow-hidden shrink-0 block" style={{ background: 'var(--background-secondary)' }}>
+        {series?.coverUrl
+          ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" />
+          : null}
+      </Link>
+
+      <div className="min-w-0 flex-1">
+        <Link href={`/content/${entry.seriesId}`} className="font-black line-clamp-1 hover:text-primary-400 transition-colors" style={{ color: 'var(--foreground)' }}>
+          {series ? ((isVI && (series as any).titleVi) ? (series as any).titleVi : series.title) : `Series #${entry.seriesId}`}
+        </Link>
+
+        {!editing ? (
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            {localRating != null && (
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black"
+                style={{ background: 'rgba(245,158,11,.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,.26)' }}>
+                <Star className="w-3.5 h-3.5 fill-current" /> {localRating}
+              </span>
+            )}
+            {statusInfo && (
+              <span className="rounded-full px-2.5 py-1 text-xs font-black"
+                style={{ background: `${statusInfo.color}18`, color: statusInfo.color, border: `1px solid ${statusInfo.color}44` }}>
+                {isVI ? statusInfo.vi : statusInfo.en}
+              </span>
+            )}
+            <button onClick={() => setEditing(true)}
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-colors"
+              style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}>
+              <Pencil className="w-3 h-3" /> {isVI ? 'Sửa' : 'Edit'}
+            </button>
+          </div>
+        ) : (
+          <div className="mt-2 space-y-2">
+            <div className="flex items-center gap-0.5 flex-wrap">
+              <span className="text-xs mr-1" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Điểm:' : 'Rating:'}</span>
+              {[1,2,3,4,5,6,7,8,9,10].map(star => (
+                <button key={star}
+                  onMouseEnter={() => setHoverStar(star)}
+                  onMouseLeave={() => setHoverStar(null)}
+                  onClick={() => setLocalRating(localRating === star ? null : star)}
+                  className="transition-transform hover:scale-125 p-0.5">
+                  <Star className="w-4 h-4" style={{
+                    fill: (hoverStar ?? localRating ?? 0) >= star ? '#f59e0b' : 'none',
+                    color: (hoverStar ?? localRating ?? 0) >= star ? '#f59e0b' : 'var(--foreground-muted)',
+                  }} />
+                </button>
+              ))}
+              {localRating != null && <span className="text-xs font-bold ml-1" style={{ color: '#f59e0b' }}>{localRating}/10</span>}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trạng thái:' : 'Status:'}</span>
+              <select value={localStatus || ''} onChange={e => setLocalStatus(e.target.value || null)}
+                className="rounded-lg px-2 py-1 text-xs font-bold outline-none"
+                style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
+                <option value="">{isVI ? '— Chưa chọn —' : '— None —'}</option>
+                {Object.entries(STATUS_LABELS).map(([key, val]) => (
+                  <option key={key} value={key}>{isVI ? val.vi : val.en}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={handleSave} disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black disabled:opacity-60"
+                style={{ background: '#6366f1', color: '#fff' }}>
+                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                {isVI ? 'Lưu' : 'Save'}
+              </button>
+              <button onClick={handleCancel}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold"
+                style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}>
+                <X className="w-3.5 h-3.5" /> {isVI ? 'Huỷ' : 'Cancel'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
