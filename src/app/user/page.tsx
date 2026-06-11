@@ -96,6 +96,19 @@ function volumeLabel(volume: VolumeOption | PurchaseEntry, isVI: boolean) {
   return isVI ? `Tập ${volume.volumeNumber}` : `Vol. ${volume.volumeNumber}`
 }
 
+function volumeFromPurchase(entry: PurchaseEntry): VolumeOption {
+  return {
+    id: entry.volumeId,
+    seriesId: entry.seriesId,
+    volumeNumber: entry.volumeNumber,
+    title: entry.title,
+    price: entry.price,
+    currency: entry.currency || 'VND',
+    coverUrl: entry.coverUrl,
+    releaseDate: entry.releaseDate,
+  }
+}
+
 function statusLabel(status: string | null | undefined, isVI: boolean) {
   if (!status || !(status in STATUS_LABELS)) return isVI ? 'Chưa chọn' : 'No status'
   const meta = STATUS_LABELS[status as UserSeriesStatus]
@@ -115,12 +128,14 @@ export default function UserDashboardPage() {
   const [authReady, setAuthReady] = useState(false)
   const [seriesOptions, setSeriesOptions] = useState<SeriesOption[]>([])
   const [volumeOptions, setVolumeOptions] = useState<VolumeOption[]>([])
+  const [loadedVolumeSeriesIds, setLoadedVolumeSeriesIds] = useState<Set<number>>(() => new Set())
+  const [volumeDetailLoadingId, setVolumeDetailLoadingId] = useState<number | null>(null)
   const [ratedList, setRatedList] = useState<RatedEntry[]>([])
   const [selectedVolumeIds, setSelectedVolumeIds] = useState<number[]>([])
   const [selectedSeriesId, setSelectedSeriesId] = useState<number | null>(null)
   const [seriesQuery, setSeriesQuery] = useState('')
   const deferredSeriesQuery = useDeferredValue(seriesQuery)
-  const [viewMode, setViewMode] = useState<ViewMode>('series')
+  const [viewMode, setViewMode] = useState<ViewMode>('bookshelf')
   const [volumeDrawerOpen, setVolumeDrawerOpen] = useState(false)
   const [seriesPage, setSeriesPage] = useState(1)
   const [bookshelfPage, setBookshelfPage] = useState(1)
@@ -177,7 +192,9 @@ export default function UserDashboardPage() {
           .limit(1500),
         publicSupabase
           .from('volumes')
-          .select('id, series_id, volume_number, title, price, currency, cover_url, release_date, is_special')
+          // Lightweight index only: enough for counts + selection IDs.
+          // Full cover/price data is lazy-loaded per selected series below.
+          .select('id, series_id, volume_number')
           .eq('is_special', false)
           .not('volume_number', 'is', null)
           .order('series_id', { ascending: true })
@@ -255,6 +272,20 @@ export default function UserDashboardPage() {
         const nextPurchases = (data.purchases || []) as PurchaseEntry[]
         setRatedList((data.ratedList || []) as RatedEntry[])
         setSelectedVolumeIds(nextPurchases.map(item => item.volumeId))
+
+        // Reuse the API's purchase payload for bookshelf display.
+        // This avoids waiting for the full volume catalog with price/cover fields.
+        if (nextPurchases.length) {
+          setVolumeOptions(current => {
+            const byId = new Map(current.map(volume => [volume.id, volume]))
+            nextPurchases.forEach(entry => {
+              const detailed = volumeFromPurchase(entry)
+              byId.set(detailed.id, { ...(byId.get(detailed.id) || detailed), ...detailed })
+            })
+            return Array.from(byId.values())
+          })
+        }
+
         setBookshelfAvailable(true)
       } catch {
         if (!cancelled) setError(isVI ? 'Không tải được dashboard người dùng.' : 'Unable to load user dashboard.')
@@ -277,6 +308,61 @@ export default function UserDashboardPage() {
   useEffect(() => {
     setBookshelfPage(1)
   }, [selectedVolumeIds.length, viewMode])
+
+  useEffect(() => {
+    if (!selectedSeriesId || loadedVolumeSeriesIds.has(selectedSeriesId)) return
+
+    let cancelled = false
+
+    async function loadSelectedSeriesVolumeDetails() {
+      setVolumeDetailLoadingId(selectedSeriesId)
+
+      const { data, error } = await publicSupabase
+        .from('volumes')
+        .select('id, series_id, volume_number, title, price, currency, cover_url, release_date, is_special')
+        .eq('series_id', selectedSeriesId)
+        .eq('is_special', false)
+        .not('volume_number', 'is', null)
+        .order('volume_number', { ascending: true })
+
+      if (cancelled) return
+
+      if (!error && data) {
+        const detailed = data.map((row: any) => ({
+          id: Number(row.id),
+          seriesId: Number(row.series_id),
+          volumeNumber: row.volume_number == null ? null : Number(row.volume_number),
+          title: row.title || null,
+          price: row.price == null ? null : Number(row.price),
+          currency: row.currency || 'VND',
+          coverUrl: row.cover_url || null,
+          releaseDate: row.release_date || null,
+        })) as VolumeOption[]
+
+        setVolumeOptions(current => {
+          const byId = new Map(current.map(volume => [volume.id, volume]))
+          detailed.forEach(volume => byId.set(volume.id, { ...(byId.get(volume.id) || volume), ...volume }))
+          return Array.from(byId.values())
+        })
+
+        setLoadedVolumeSeriesIds(current => {
+          const next = new Set(current)
+          next.add(selectedSeriesId)
+          return next
+        })
+      } else if (error) {
+        console.warn('Failed to lazy-load selected series volumes:', error.message)
+      }
+
+      setVolumeDetailLoadingId(current => current === selectedSeriesId ? null : current)
+    }
+
+    loadSelectedSeriesVolumeDetails()
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedSeriesId, loadedVolumeSeriesIds])
 
   const seriesById = useMemo(() => new Map(seriesOptions.map(series => [series.id, series])), [seriesOptions])
   const volumesById = useMemo(() => new Map(volumeOptions.map(volume => [volume.id, volume])), [volumeOptions])
@@ -544,8 +630,8 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-5 items-start">
-          <aside className="glass relative z-50 rounded-2xl p-4 sm:p-5 xl:sticky xl:top-20">
+        <div className="relative z-0 grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-5 items-start">
+          <aside className="glass relative z-30 rounded-2xl p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>
@@ -576,27 +662,45 @@ export default function UserDashboardPage() {
                 const totalVolumes = volumesBySeries.get(series.id)?.length || 0
 
                 return (
-                  <button
+                  <div
                     key={series.id}
-                    onClick={() => { setSelectedSeriesId(series.id); setVolumeDrawerOpen(true) }}
-                    className="w-full flex items-center gap-3 rounded-xl p-2 text-left transition-all"
+                    className="w-full flex items-center gap-2 rounded-xl p-2 transition-all"
                     style={{
                       background: active ? 'rgba(99,102,241,.14)' : 'transparent',
                       color: 'var(--foreground)',
                       border: active ? '1px solid rgba(99,102,241,.32)' : '1px solid transparent',
                     }}
                   >
-                    <div className="w-9 h-12 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
-                      {series.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-black truncate">{displayTitle(series, isVI)}</p>
-                      <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
-                        {ownedCount}/{totalVolumes} {isVI ? 'tập đã mua' : 'owned'}
-                      </p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 shrink-0" style={{ color: active ? '#6366f1' : 'var(--foreground-muted)' }} />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSeriesId(series.id)}
+                      className="min-w-0 flex flex-1 items-center gap-3 text-left"
+                    >
+                      <div className="w-9 h-12 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
+                        {series.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-black truncate">{displayTitle(series, isVI)}</p>
+                        <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>
+                          {ownedCount}/{totalVolumes} {isVI ? 'tập đã mua' : 'owned'}
+                        </p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedSeriesId(series.id); setVolumeDrawerOpen(true) }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all"
+                      style={{
+                        background: volumeDrawerOpen && active ? 'rgba(99,102,241,.18)' : 'var(--background-secondary)',
+                        color: active ? '#6366f1' : 'var(--foreground-muted)',
+                        border: '1px solid var(--card-border)',
+                      }}
+                      aria-label={isVI ? 'Mở chọn tập' : 'Open volume selector'}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 )
               })}
               {filteredSeries.length > 80 && (
@@ -614,6 +718,7 @@ export default function UserDashboardPage() {
               ownedCount={selectedSeriesOwnedCount}
               allSelected={selectedSeriesAllSelected}
               saving={savingBookshelf}
+              loadingDetails={volumeDetailLoadingId === selectedSeriesId}
               isVI={isVI}
               onClose={() => setVolumeDrawerOpen(false)}
               onToggleAll={toggleSeriesVolumes}
@@ -639,7 +744,10 @@ export default function UserDashboardPage() {
               </div>
 
               <button
-                onClick={() => setViewMode(current => current === 'series' ? 'bookshelf' : 'series')}
+                onClick={() => {
+                  setVolumeDrawerOpen(false)
+                  setViewMode(current => current === 'series' ? 'bookshelf' : 'series')
+                }}
                 className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black"
                 style={{ background: '#6366f1', color: '#fff', boxShadow: '0 12px 28px rgba(99,102,241,.22)' }}
               >
@@ -718,6 +826,7 @@ function VolumeSelectionDrawer({
   ownedCount,
   allSelected,
   saving,
+  loadingDetails,
   isVI,
   onClose,
   onToggleAll,
@@ -731,6 +840,7 @@ function VolumeSelectionDrawer({
   ownedCount: number
   allSelected: boolean
   saving: boolean
+  loadingDetails: boolean
   isVI: boolean
   onClose: () => void
   onToggleAll: () => void
@@ -745,11 +855,11 @@ function VolumeSelectionDrawer({
         type="button"
         aria-label={isVI ? 'Đóng chọn tập' : 'Close volume selector'}
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-sm xl:hidden"
+        className="hidden"
       />
 
       <div
-        className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-3xl xl:absolute xl:inset-auto xl:left-[calc(100%+16px)] xl:top-0 xl:z-[90] xl:w-[520px] xl:max-w-[calc(100vw-390px)] xl:max-h-[calc(100vh-96px)]"
+        className="absolute left-0 right-0 top-full z-40 mt-3 flex max-h-[75vh] flex-col overflow-hidden rounded-3xl xl:left-[calc(100%+16px)] xl:right-auto xl:top-0 xl:mt-0 xl:w-[520px] xl:max-w-[calc(100vw-390px)]"
         style={{
           background: 'var(--background)',
           border: '1px solid var(--card-border)',
@@ -759,7 +869,7 @@ function VolumeSelectionDrawer({
         <div className="flex items-start justify-between gap-3 p-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
           <div className="flex min-w-0 gap-3">
             <div className="w-14 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: 'var(--content-detail-tile-bg)' }}>
-              {series.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
+              {series.coverUrl ? <img src={proxyImageUrl(series.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : null}
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary-500">
@@ -809,6 +919,12 @@ function VolumeSelectionDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
+          {loadingDetails && (
+            <div className="mb-3 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold" style={{ background: 'rgba(99,102,241,.10)', color: '#6366f1', border: '1px solid rgba(99,102,241,.24)' }}>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              {isVI ? 'Đang tải chi tiết tập...' : 'Loading volume details...'}
+            </div>
+          )}
           {volumes.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {volumes.map(volume => {
@@ -826,7 +942,7 @@ function VolumeSelectionDrawer({
                     }}
                   >
                     <div className="w-10 h-14 rounded-lg overflow-hidden shrink-0" style={{ background: 'var(--background-secondary)' }}>
-                      {volume.coverUrl ? <img src={proxyImageUrl(volume.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" /> : null}
+                      {volume.coverUrl ? <img src={proxyImageUrl(volume.coverUrl) || ''} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : null}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-black truncate">{volumeLabel(volume, isVI)}</p>
@@ -982,7 +1098,7 @@ function SeriesCoverGrid({
           >
             <div className="relative aspect-[2/3] overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
               {cover ? (
-                <img src={cover} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                <img src={cover} alt="" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async" />
               ) : (
                 <BookOpen className="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />
               )}
@@ -1071,7 +1187,7 @@ function BookshelfGrid({
                 boxShadow: '0 18px 30px rgba(15,23,42,.20), 10px 0 18px rgba(15,23,42,.10)',
               }}
             >
-              {cover ? <img src={cover} alt="" className="w-full h-full object-cover" loading="lazy" /> : <BookOpen className="absolute left-1/2 top-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />}
+              {cover ? <img src={cover} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" /> : <BookOpen className="absolute left-1/2 top-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 opacity-40 text-primary-400" />}
               <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/25 to-transparent" />
               <div className="absolute left-2 top-2 rounded-full px-2 py-1 text-[10px] font-black text-white" style={{ background: 'rgba(15,23,42,.72)' }}>
                 {volumeLabel(volume, isVI)}
