@@ -323,7 +323,7 @@ export default function UserDashboardPage() {
     selectedSeriesVolumes.every(volume => selectedVolumeSet.has(volume.id))
 
   const modalSeries = modalSeriesId ? seriesById.get(modalSeriesId) : null
-  const modalEntry = modalSeriesId ? ratedBySeries.get(modalSeriesId) : null
+  const modalEntry = modalSeriesId ? ratedBySeries.get(modalSeriesId) : undefined
 
   const toggleVolume = useCallback((volumeId: number) => {
     setMessage(null)
