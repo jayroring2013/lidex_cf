@@ -1,5 +1,4 @@
-export const dynamic = 'force-dynamic'
-
+// Removed force-dynamic — allow CDN to cache these public responses
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
@@ -35,7 +34,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unable to load series' }, { status: 404 })
     }
 
-    return NextResponse.json({ data })
+    return NextResponse.json({ data }, {
+      headers: {
+        // Cache 5 min at CDN, serve stale for 1 hour while revalidating
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+      },
+    })
   } catch (err: any) {
     console.error('[api/series] unexpected failure')
     return NextResponse.json({ error: 'Unable to load series' }, { status: 404 })

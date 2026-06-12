@@ -11,13 +11,14 @@ export async function GET() {
       supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
     ])
 
-    // ✅ Get dynamic popularity distribution from anime_meta
+    // ✅ Get dynamic popularity distribution from anime_meta (capped at 500 rows)
     const { data: popularityData, error } = await supabase
       .from('anime_meta')
       .select('popularity')
       .eq('season_year', 2026)
       .not('popularity', 'is', null)
       .order('popularity', { ascending: true })
+      .limit(500)
 
     let popularityStats = {
       min: 500000,
@@ -49,7 +50,12 @@ export async function GET() {
       totalAnime: animeCount.count || 0,
       totalManga: mangaCount.count || 0,
       totalNovels: novelCount.count || 0,
-      popularityStats, // ✅ Dynamic percentiles
+      popularityStats,
+    }, {
+      headers: {
+        // Cache at CDN for 1 hour; serve stale for 24h while revalidating
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
     })
   } catch (error: any) {
     console.error('API Error')

@@ -5,7 +5,7 @@ export async function fetchSeries(id?: number, options?: any) {
     ? `${API_BASE}/series/${id}`
     : `${API_BASE}/series?${new URLSearchParams(options as any)}`
 
-  const res = await fetch(url, { cache: 'no-store' })
+  const res = await fetch(url)
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Failed to fetch' }))
@@ -42,7 +42,7 @@ export async function submitVote(seriesId: number) {
 }
 
 export async function fetchStats() {
-  const res = await fetch(`${API_BASE}/stats`, { cache: 'no-store' })
+  const res = await fetch(`${API_BASE}/stats`)
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Failed to fetch stats' }))

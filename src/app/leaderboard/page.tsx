@@ -198,6 +198,7 @@ export default function LeaderboardPage() {
   const pageSize = 25
 
   const [loading, setLoading] = useState(true)
+  const [periodsLoading, setPeriodsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [rows, setRows] = useState<VoteRow[]>([])
   const [periods, setPeriods] = useState<Period[]>([])
@@ -205,11 +206,10 @@ export default function LeaderboardPage() {
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(0)
 
+  // Step 1: fetch period list only (tiny query)
   useEffect(() => {
-    async function load() {
-      setLoading(true)
-      setError(null)
-
+    async function loadPeriods() {
+      setPeriodsLoading(true)
       const { data: periodData, error: periodError } = await supabase
         .from('voting_periods')
         .select('id, month, year, label')
@@ -219,6 +219,7 @@ export default function LeaderboardPage() {
       if (periodError) {
         console.error('[leaderboard] period fetch failed:', periodError)
         setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
+        setPeriodsLoading(false)
         setLoading(false)
         return
       }
@@ -234,37 +235,59 @@ export default function LeaderboardPage() {
         .sort((a, b) => b.sort - a.sort)
 
       setPeriods(normalizedPeriods)
-      const periodById = new Map(normalizedPeriods.map(period => [period.id, period]))
+      setSelectedPeriodId(normalizedPeriods[0]?.id || null)
+      setPeriodsLoading(false)
+    }
 
-      const raw: any[] = []
-      for (let from = 0; ; from += 1000) {
-        const { data: batch, error: voteError } = await supabase
-          .from('voting_results')
-          .select('id, series_id, period_id, votes, rank, series(id, title, title_vi, cover_url)')
-          .order('period_id', { ascending: false })
-          .order('rank', { ascending: true })
-          .range(from, from + 999)
+    loadPeriods()
+  }, [])
 
-        if (voteError) {
-          console.error('[leaderboard] vote fetch failed:', voteError)
-          setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
-          setLoading(false)
-          return
-        }
+  // Step 2: fetch rows ONLY for the selected period + its previous period (for change/trend)
+  useEffect(() => {
+    if (!selectedPeriodId || periods.length === 0) return
 
-        raw.push(...(batch || []))
-        if (!batch || batch.length < 1000) break
+    let cancelled = false
+
+    async function loadPeriodRows() {
+      setLoading(true)
+      setError(null)
+
+      const selectedPeriod = periods.find(p => p.id === selectedPeriodId)
+      if (!selectedPeriod) { setLoading(false); return }
+
+      // Previous period for rank-change computation
+      const prevPeriod = periods
+        .filter(p => p.sort < selectedPeriod.sort)
+        .sort((a, b) => b.sort - a.sort)[0] || null
+
+      const periodIds = [selectedPeriodId, ...(prevPeriod ? [prevPeriod.id] : [])]
+
+      // Fetch only current + previous period rows (server-side filter — no loop needed)
+      const { data: voteData, error: voteError } = await supabase
+        .from('voting_results')
+        .select('id, series_id, period_id, votes, rank, series(id, title, title_vi, cover_url)')
+        .in('period_id', periodIds)
+        .order('rank', { ascending: true })
+        .limit(1000)
+
+      if (cancelled) return
+
+      if (voteError) {
+        console.error('[leaderboard] vote fetch failed:', voteError)
+        setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
+        setLoading(false)
+        return
       }
 
-      const seriesIds = Array.from(new Set(raw.map((row: any) => Number(row.series_id)).filter(Boolean)))
+      const periodById = new Map(periods.map(p => [p.id, p]))
+      const seriesIds = Array.from(new Set((voteData || []).map((r: any) => Number(r.series_id)).filter(Boolean)))
       const publisherBySeries = new Map<number, string>()
 
-      for (let i = 0; i < seriesIds.length; i += 500) {
-        const chunk = seriesIds.slice(i, i + 500)
+      if (seriesIds.length > 0) {
         const { data: rankingData } = await supabase
           .from('ln_series_ranking')
           .select('lidex_series_id, publisher')
-          .in('lidex_series_id', chunk)
+          .in('lidex_series_id', seriesIds)
 
         for (const row of rankingData || []) {
           const id = Number((row as any).lidex_series_id)
@@ -272,7 +295,9 @@ export default function LeaderboardPage() {
         }
       }
 
-      const mapped: VoteRow[] = raw.map((row: any) => {
+      if (cancelled) return
+
+      const mapped: VoteRow[] = (voteData || []).map((row: any) => {
         const seriesRaw = Array.isArray(row.series) ? row.series[0] : row.series
         const period: Period = periodById.get(Number(row.period_id)) || {
           id: Number(row.period_id),
@@ -297,12 +322,12 @@ export default function LeaderboardPage() {
       })
 
       setRows(mapped)
-      setSelectedPeriodId(normalizedPeriods[0]?.id || null)
       setLoading(false)
     }
 
-    load()
-  }, [])
+    loadPeriodRows()
+    return () => { cancelled = true }
+  }, [selectedPeriodId, periods])
 
   useEffect(() => {
     setPage(0)

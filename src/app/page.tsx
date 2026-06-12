@@ -45,6 +45,7 @@ async function fetchLatestVolCovers(ids: (string | number)[]): Promise<Record<st
     .eq('is_special', false)
     .not('cover_url', 'is', null)
     .order('volume_number', { ascending: false })
+    .limit(ids.length * 3) // Cap: max 3 volumes per series to find the latest
   if (!data) return {}
   const map: Record<string | number, string | null> = {}
   for (const row of data) {
@@ -460,7 +461,7 @@ export default function Home() {
       .in('item_type', ['anime', 'manga', 'novel'])
       .not('cover_url', 'is', null)
       .not('genres', 'cs', '{"Hentai"}')
-      .limit(60)
+      .limit(30)
       .then(({ data, error }) => {
         const source = error ? null : data
         const load = (d: any[]) => {
@@ -483,19 +484,19 @@ export default function Home() {
         .not('trending', 'is', null)
         .not('series.genres', 'cs', '{"Hentai"}')
         .order('trending', { ascending: true })
-        .limit(4),
+        .limit(3),
       supabase.from('manga_meta')
         .select('series_id, md_follows, series!inner(id, title, cover_url, updated_at)')
         .not('series.cover_url', 'is', null)
         .not('series.genres', 'cs', '{"Hentai"}')
         .order('md_follows', { ascending: false, nullsFirst: false })
-        .limit(4),
+        .limit(3),
       supabase.from('novel_meta')
         .select('series_id, series!inner(id, title, cover_url, updated_at)')
         .not('series.cover_url', 'is', null)
         .not('series.genres', 'cs', '{"Hentai"}')
         .order('series(updated_at)', { ascending: false })
-        .limit(4),
+        .limit(3),
     ]).then(([animeRes, mangaRes, novelRes]) => {
       const all: Cover[] = []
       if (animeRes.data) all.push(...animeRes.data.map((r: any) => ({ id: r.series.id, title: r.series.title, cover_url: r.series.cover_url })))
