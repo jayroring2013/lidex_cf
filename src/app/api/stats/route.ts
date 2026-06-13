@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/stats
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const [seriesCount, animeCount, mangaCount, novelCount] = await Promise.all([
       supabase.from('series').select('*', { count: 'exact', head: true }).not('genres', 'cs', '{"Hentai"}'),
@@ -53,7 +55,7 @@ export async function GET() {
       popularityStats,
     }, {
       headers: {
-        // Cache at CDN for 1 hour; serve stale for 24h while revalidating
+        // Cache at CDN for 1 day; serve stale for 7 days while revalidating
         'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
     })
