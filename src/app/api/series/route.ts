@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ data }, {
       headers: {
         // Cache 5 min at CDN, serve stale for 1 hour while revalidating
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
       },
     })
   } catch (err: any) {
