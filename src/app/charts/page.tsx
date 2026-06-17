@@ -12,7 +12,7 @@ import {
 } from 'chart.js'
 import { Loader2, RefreshCw, BarChart2, Tv, BookOpen, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
-import supabase from '@/lib/supabaseClient'
+import { fetchChartAnime, fetchChartNovelsData } from '@/lib/db'
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
 
@@ -223,15 +223,8 @@ export default function ChartsPage() {
   useEffect(() => {
     async function load() {
       setAnimeLoading(true)
-      const { data, error } = await supabase
-        .from('series')
-        .select('id, title, anime_meta!inner(*)')
-        .eq('item_type', 'anime')
-        .eq('anime_meta.season_year', 2026)
-        .not('anime_meta', 'is', null)
-        .not('genres', 'cs', '{"Hentai"}')
-        .limit(2000)
-      if (!error && data) setAllAnime(data as any)
+      const data = await fetchChartAnime()
+      setAllAnime(data as any)
       setAnimeLoading(false)
     }
     load()
@@ -241,145 +234,11 @@ export default function ChartsPage() {
   useEffect(() => {
     async function load() {
       setNovelLoading(true)
-
-      // Step 1: Get all novel series
-      const { data: seriesData, error: sErr } = await supabase
-        .from('series')
-        .select('id, title, publisher')
-        .eq('item_type', 'novel')
-        .not('genres', 'cs', '{"Hentai"}')
-
-      if (sErr || !seriesData) {
-        console.error('[Novel] series fetch error:', sErr)
-        setNovelLoading(false)
-        return
-      }
-      console.log('[Novel] series count:', seriesData.length)
-
-      // Step 2: Get volumes in batches of 200 (Supabase .in() limit)
-      const seriesIds = seriesData.map(s => s.id)
-      const BATCH = 200
-      const allVolData: any[] = []
-      for (let i = 0; i < seriesIds.length; i += BATCH) {
-        const chunk = seriesIds.slice(i, i + BATCH)
-        const { data: vb } = await supabase
-          .from('volumes')
-          .select('series_id, release_date, is_special, price')   // ← include price
-          .in('series_id', chunk)
-          .limit(10000)
-        if (vb) allVolData.push(...vb)
-      }
-      console.log('[Novel] total volumes fetched:', allVolData.length)
-      if (allVolData.length > 0) console.log('[Novel] sample volume is_special value:', allVolData[0]?.is_special, typeof allVolData[0]?.is_special)
-
-      // Filter out specials — handle both boolean false and string 'FALSE'/'false'
-      const volData = allVolData.filter(v => {
-        const val = v.is_special
-        if (typeof val === 'boolean') return val === false
-        if (typeof val === 'string')  return val.toUpperCase() !== 'TRUE'
-        return true // null/undefined → include
-      })
-      console.log('[Novel] volumes after special filter:', volData.length)
-
-      // Step 3: Get voting results — try both possible table names
-      let voteData: any[] | null = null
-      let voteTableUsed = ''
-
-      for (const tbl of ['voting_result', 'voting_results', 'vote_result', 'votes']) {
-        const { data, error } = await supabase.from(tbl).select('title, votes, period').limit(5)
-        console.log(`[Novel] trying table "${tbl}":`, data?.length ?? 0, error?.message ?? 'ok')
-        if (!error && data && data.length > 0) {
-          // Found it — now fetch all rows
-          const { data: allVotes } = await supabase.from(tbl).select('title, votes, period')
-          voteData = allVotes
-          voteTableUsed = tbl
-          break
-        }
-      }
-      console.log('[Novel] voting table used:', voteTableUsed, '| rows:', voteData?.length ?? 0)
-      if (voteData && voteData.length > 0) console.log('[Novel] sample vote row:', voteData[0])
-
-      // Collect ALL unique periods from raw data (before per-title dedup)
-      const periodSet = new Set<string>()
-      for (const vr of voteData || []) {
-        if (vr.period) periodSet.add(vr.period)
-      }
-      const parsePeriodSort = (p: string) => {
-        const parts = p.split('/')
-        if (parts.length !== 2) return 0
-        return parseInt(parts[1]) * 100 + parseInt(parts[0])
-      }
-      const sortedPeriods = ['All', ...Array.from(periodSet).sort((a, b) => parsePeriodSort(b) - parsePeriodSort(a))]
-      setAllPeriods(sortedPeriods)
-
-      // Build period → title → votes map so period filter works correctly
-      const byPeriod: Record<string, Record<string, number>> = {}
-      for (const vr of voteData || []) {
-        if (!vr.period) continue
-        if (!byPeriod[vr.period]) byPeriod[vr.period] = {}
-        byPeriod[vr.period][vr.title] = Number(vr.votes) || 0
-      }
-      setVotesByPeriod(byPeriod)
-
-      // Build raw volumes map: series_id → [{year, price}] for dynamic year filtering
-      const rawVols: Record<number, {year: number|null, price: number}[]> = {}
-      for (const v of volData || []) {
-        if (!rawVols[v.series_id]) rawVols[v.series_id] = []
-        const yr = v.release_date ? new Date(v.release_date).getFullYear() : null
-        rawVols[v.series_id].push({ year: yr, price: Number(v.price) || 0 })
-      }
-      setRawVolsBySeriesId(rawVols)
-
-      // Build lookup maps (all-time totals — used for latest_year only now)
-      const volMap: Record<number, { count: number; price: number; maxYear: number | null }> = {}
-      for (const v of volData || []) {
-        if (!volMap[v.series_id]) volMap[v.series_id] = { count: 0, price: 0, maxYear: null }
-        volMap[v.series_id].count++
-        volMap[v.series_id].price += Number(v.price) || 0
-        if (v.release_date) {
-          const yr = new Date(v.release_date).getFullYear()
-          if (!volMap[v.series_id].maxYear || yr > volMap[v.series_id].maxYear!) {
-            volMap[v.series_id].maxYear = yr
-          }
-        }
-      }
-
-      // Parse MM/YYYY string -> sortable number (YYYYMM) for correct chronological order
-      const parsePeriod = (p: string | null): number => {
-        if (!p) return 0
-        const parts = p.split('/')
-        if (parts.length !== 2) return 0
-        const mm = parseInt(parts[0]), yyyy = parseInt(parts[1])
-        return isNaN(mm) || isNaN(yyyy) ? 0 : yyyy * 100 + mm
-      }
-
-      // voting_result joined by title — keep the LATEST period when duplicates exist
-      const voteMap: Record<string, { votes: number; period: string }> = {}
-      for (const vr of voteData || []) {
-        const existing = voteMap[vr.title]
-        if (!existing || parsePeriod(vr.period) > parsePeriod(existing.period)) {
-          voteMap[vr.title] = { votes: Number(vr.votes) || 0, period: vr.period }
-        }
-      }
-
-      const rows: NovelRow[] = seriesData.map(s => {
-        const vol   = volMap[s.id]
-        const count = vol?.count ?? 0
-        const price = vol?.price ? vol.price : null
-        return {
-          id:           s.id,
-          title:        s.title,
-          publisher:    s.publisher,
-          volume_count: count,
-          price:        price,
-          avg_price:    price != null && count > 0 ? Math.round(price / count) : null,
-          latest_year:  vol?.maxYear  ?? null,
-          votes:        voteMap[s.title]?.votes ?? null,
-          period:       voteMap[s.title]?.period ?? null,
-        }
-      })
-
-      setAllNovels(rows)
+      const res = await fetchChartNovelsData()
+      setAllNovels(res.allNovels)
+      setRawVolsBySeriesId(res.rawVolsBySeriesId)
+      setAllPeriods(res.allPeriods)
+      setVotesByPeriod(res.votesByPeriod)
       setNovelLoading(false)
     }
     load()

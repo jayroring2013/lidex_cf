@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { sql } from '@/lib/neonClient'
 
 // GET /api/series/:id
 export async function GET(
@@ -17,13 +17,10 @@ export async function GET(
       )
     }
 
-    const { data: series, error: seriesError } = await supabase
-      .from('series')
-      .select('*')
-      .eq('id', seriesId)
-      .single()
+    const seriesRows = await sql('SELECT * FROM series WHERE id = $1 LIMIT 1', [seriesId])
+    const series = seriesRows[0]
 
-    if (seriesError || !series) {
+    if (!series) {
       return NextResponse.json(
         { error: `Series with ID ${seriesId} not found` },
         { status: 404 }
@@ -32,32 +29,22 @@ export async function GET(
 
     let anime_meta = null
     if (series.item_type === 'anime') {
-      const { data, error } = await supabase
-        .from('anime_meta')
-        .select('*')
-        .eq('series_id', seriesId)
-        .single()
-      
-      if (!error && data) anime_meta = data
+      const metaRows = await sql('SELECT * FROM anime_meta WHERE series_id = $1 LIMIT 1', [seriesId])
+      if (metaRows.length > 0) anime_meta = metaRows[0]
     }
 
     let manga_meta = null
     if (series.item_type === 'manga') {
-      const { data, error } = await supabase
-        .from('manga_meta')
-        .select('*')
-        .eq('series_id', seriesId)
-        .single()
-      
-      if (!error && data) manga_meta = data
+      const metaRows = await sql('SELECT * FROM manga_meta WHERE series_id = $1 LIMIT 1', [seriesId])
+      if (metaRows.length > 0) manga_meta = metaRows[0]
     }
 
     return NextResponse.json({ ...series, anime_meta, manga_meta })
   } catch (error: any) {
-    console.error('API Error')
+    console.error('API Error in /api/series/[id]:', error)
     return NextResponse.json(
       { error: 'Series not found' },
-      { status: 404 }
+      { status: 500 }
     )
   }
 }

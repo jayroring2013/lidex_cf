@@ -16,7 +16,12 @@ import {
   X,
 } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
-import publicSupabase from '@/lib/publicSupabaseClient'
+import {
+  fetchUserCatalog,
+  getUserProfile,
+  upsertUserProfile,
+  fetchSeriesVolumeDetails
+} from '@/lib/db'
 import { proxyImageUrl } from '@/lib/imageProxy'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useAvatar } from '@/contexts/AvatarContext'
@@ -211,26 +216,22 @@ export default function UserDashboardPage() {
     let cancelled = false
 
     async function loadUserProfile() {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('user_id, display_name, avatar_url, is_premium, premium_tier')
-        .eq('user_id', userId)
-        .maybeSingle()
+      const data = await getUserProfile(profileUserId)
 
       if (cancelled) return
 
-      if (error) {
-        console.warn('Failed to load user profile:', error.message)
+      if (!data) {
+        console.warn('Failed to load user profile or profile not found')
         setUserProfile(null)
         return
       }
 
       setUserProfile({
         userId: profileUserId,
-        displayName: data?.display_name || null,
-        avatarUrl: data?.avatar_url || null,
-        isPremium: Boolean(data?.is_premium),
-        premiumTier: data?.premium_tier || null,
+        displayName: data.display_name || null,
+        avatarUrl: data.avatar_url || null,
+        isPremium: Boolean(data.is_premium),
+        premiumTier: data.premium_tier || null,
       })
     }
 
@@ -247,52 +248,35 @@ export default function UserDashboardPage() {
     async function loadCatalog() {
       setCatalogLoading(true)
 
-      const [{ data: seriesData, error: seriesError }, { data: volumeData, error: volumeError }] = await Promise.all([
-        publicSupabase
-          .from('series')
-          .select('id, title, title_vi, cover_url')
-          .eq('item_type', 'novel')
-          .order('title', { ascending: true })
-          .limit(1500),
-        publicSupabase
-          .from('volumes')
-          // Lightweight index only: enough for counts + selection IDs.
-          // Full cover/price data is lazy-loaded per selected series below.
-          .select('id, series_id, volume_number')
-          .eq('is_special', false)
-          .not('volume_number', 'is', null)
-          .order('series_id', { ascending: true })
-          .order('volume_number', { ascending: true })
-          .limit(5000),
-      ])
+      const { series: rawSeries, volumes: rawVolumes } = await fetchUserCatalog()
 
       if (cancelled) return
 
-      if (seriesError || volumeError) {
+      if (!rawSeries.length && !rawVolumes.length) {
         setError(isVI ? 'Không tải được danh mục Light Novel.' : 'Unable to load light novel catalog.')
         setCatalogLoading(false)
         return
       }
 
-      const series = (seriesData || []).map((row: any) => ({
-        id: Number(row.id),
+      const series = rawSeries.map((row: any) => ({
+        id: row.id,
         title: row.title || 'Untitled',
         titleVi: row.title_vi || null,
         coverUrl: row.cover_url || null,
       }))
 
       const validSeries = new Set(series.map(item => item.id))
-      const volumes = (volumeData || [])
-        .filter((row: any) => validSeries.has(Number(row.series_id)))
+      const volumes = rawVolumes
+        .filter((row: any) => validSeries.has(row.series_id))
         .map((row: any) => ({
-          id: Number(row.id),
-          seriesId: Number(row.series_id),
-          volumeNumber: row.volume_number == null ? null : Number(row.volume_number),
-          title: row.title || null,
-          price: row.price == null ? null : Number(row.price),
-          currency: row.currency || 'VND',
-          coverUrl: row.cover_url || null,
-          releaseDate: row.release_date || null,
+          id: row.id,
+          seriesId: row.series_id,
+          volumeNumber: row.volume_number,
+          title: null,
+          price: null,
+          currency: 'VND',
+          coverUrl: null,
+          releaseDate: null,
         }))
 
       setSeriesOptions(series)
@@ -382,26 +366,20 @@ export default function UserDashboardPage() {
     async function loadSelectedSeriesVolumeDetails() {
       setVolumeDetailLoadingId(seriesIdToLoad)
 
-      const { data, error } = await publicSupabase
-        .from('volumes')
-        .select('id, series_id, volume_number, title, price, currency, cover_url, release_date, is_special')
-        .eq('series_id', seriesIdToLoad)
-        .eq('is_special', false)
-        .not('volume_number', 'is', null)
-        .order('volume_number', { ascending: true })
+      const data = await fetchSeriesVolumeDetails(seriesIdToLoad)
 
       if (cancelled) return
 
-      if (!error && data) {
+      if (data && data.length > 0) {
         const detailed = data.map((row: any) => ({
-          id: Number(row.id),
-          seriesId: Number(row.series_id),
-          volumeNumber: row.volume_number == null ? null : Number(row.volume_number),
+          id: row.id,
+          seriesId: row.seriesId,
+          volumeNumber: row.volumeNumber,
           title: row.title || null,
-          price: row.price == null ? null : Number(row.price),
+          price: row.price || null,
           currency: row.currency || 'VND',
-          coverUrl: row.cover_url || null,
-          releaseDate: row.release_date || null,
+          coverUrl: row.coverUrl || null,
+          releaseDate: row.releaseDate || null,
         })) as VolumeOption[]
 
         setVolumeOptions(current => {
@@ -415,10 +393,7 @@ export default function UserDashboardPage() {
           next.add(seriesIdToLoad)
           return next
         })
-      } else if (error) {
-        console.warn('Failed to lazy-load selected series volumes:', error.message)
       }
-
       setVolumeDetailLoadingId(current => current === seriesIdToLoad ? null : current)
     }
 
@@ -562,16 +537,8 @@ export default function UserDashboardPage() {
 
       const nextAvatarUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
 
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .upsert({
-          user_id: profileUserId,
-          display_name: displayName,
-          avatar_url: nextAvatarUrl,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' })
-
-      if (profileError) throw profileError
+      const res = await upsertUserProfile(profileUserId, displayName, nextAvatarUrl)
+      if (!res.success) throw new Error(res.error || 'Failed to save profile')
 
       setUserProfile(current => ({
         userId: profileUserId,

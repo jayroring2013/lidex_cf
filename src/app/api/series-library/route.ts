@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sql } from '@/lib/neonClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,15 +34,18 @@ function createUserClient(token: string) {
   )
 }
 
-async function getAuthedUser(request: NextRequest) {
+async function getAuthedUserId(request: NextRequest) {
   const token = getBearerToken(request)
-  if (!token) return { client: null, userId: null, error: jsonError('Unauthorized', 401) }
+  if (!token) return { userId: null, error: jsonError('Unauthorized', 401) }
 
-  const client = createUserClient(token)
-  const { data, error } = await client.auth.getUser(token)
-  if (error || !data.user) return { client: null, userId: null, error: jsonError('Unauthorized', 401) }
-
-  return { client, userId: data.user.id, error: null }
+  try {
+    const client = createUserClient(token)
+    const { data, error } = await client.auth.getUser(token)
+    if (error || !data.user) return { userId: null, error: jsonError('Unauthorized', 401) }
+    return { userId: data.user.id, error: null }
+  } catch (err) {
+    return { userId: null, error: jsonError('Unauthorized', 401) }
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -49,35 +53,32 @@ export async function GET(request: NextRequest) {
     const seriesId = Number(request.nextUrl.searchParams.get('seriesId'))
     if (!Number.isInteger(seriesId) || seriesId <= 0) return jsonError('Not found', 404)
 
-    const { client, userId, error: authError } = await getAuthedUser(request)
-    if (authError || !client || !userId) return authError || jsonError('Unauthorized', 401)
+    const { userId, error: authError } = await getAuthedUserId(request)
+    if (authError || !userId) return authError || jsonError('Unauthorized', 401)
 
-    const { data, error } = await client
-      .from('series_user_library')
-      .select('rating, status')
-      .eq('series_id', seriesId)
-      .eq('user_id', userId)
-      .maybeSingle()
+    const rows = await sql(`
+      SELECT rating, status 
+      FROM series_user_library 
+      WHERE series_id = $1 AND user_id = $2 
+      LIMIT 1
+    `, [seriesId, userId])
 
-    if (error) {
-      console.error('[series-library] read failed')
-      return jsonError('Unable to load rating', 404)
-    }
+    const data = rows[0]
 
     return NextResponse.json({
       rating: data?.rating == null ? null : Number(data.rating),
       status: data?.status || null,
     })
   } catch (error) {
-    console.error('[series-library] unexpected read failure')
-    return jsonError('Unable to load rating', 404)
+    console.error('[series-library] unexpected read failure:', error)
+    return jsonError('Unable to load rating', 500)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { client, userId, error: authError } = await getAuthedUser(request)
-    if (authError || !client || !userId) return authError || jsonError('Unauthorized', 401)
+    const { userId, error: authError } = await getAuthedUserId(request)
+    if (authError || !userId) return authError || jsonError('Unauthorized', 401)
 
     const body = await request.json()
     const seriesId = Number(body.seriesId)
@@ -90,24 +91,16 @@ export async function POST(request: NextRequest) {
     }
     if (status != null && !ALLOWED_STATUSES.has(status)) return jsonError('Invalid status', 400)
 
-    const { error } = await client
-      .from('series_user_library')
-      .upsert({
-        user_id: userId,
-        series_id: seriesId,
-        rating,
-        status,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id,series_id' })
-
-    if (error) {
-      console.error('[series-library] write failed')
-      return jsonError('Unable to save rating', 400)
-    }
+    await sql(`
+      INSERT INTO series_user_library (user_id, series_id, rating, status, updated_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (user_id, series_id) DO UPDATE 
+      SET rating = EXCLUDED.rating, status = EXCLUDED.status, updated_at = EXCLUDED.updated_at
+    `, [userId, seriesId, rating, status])
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('[series-library] unexpected write failure')
-    return jsonError('Unable to save rating', 400)
+    console.error('[series-library] unexpected write failure:', error)
+    return jsonError('Unable to save rating', 500)
   }
 }

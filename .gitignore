@@ -40,3 +40,8 @@ Thumbs.db
 
 # Vercel
 .vercel
+
+# Cloudflare Pages / OpenNext
+.open-next/
+.wrangler/
+scratch/

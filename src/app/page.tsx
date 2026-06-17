@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen } from 'lucide-react'
-import supabase from '@/lib/publicSupabaseClient'
-import { getTopRatedSeries } from '@/lib/supabase'
+import { fetchHomeData } from '@/lib/db'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface Cover { id: number; title: string; cover_url: string | null }
@@ -33,72 +32,6 @@ function proxyImg(url: string | null): string | null {
     }
   } catch {}
   return url
-}
-
-// Fetch latest non-special volume cover for each series id
-async function fetchLatestVolCovers(ids: (string | number)[]): Promise<Record<string | number, string | null>> {
-  if (!ids.length) return {}
-  const { data } = await supabase
-    .from('volumes')
-    .select('series_id, cover_url, volume_number')
-    .in('series_id', ids)
-    .eq('is_special', false)
-    .not('cover_url', 'is', null)
-    .order('volume_number', { ascending: false })
-    .limit(ids.length * 3) // Cap: max 3 volumes per series to find the latest
-  if (!data) return {}
-  const map: Record<string | number, string | null> = {}
-  for (const row of data) {
-    if (map[row.series_id] === undefined) {
-      map[row.series_id] = proxyImg(row.cover_url)
-    }
-  }
-  return map
-}
-
-async function fetchLatestVotingNovels(): Promise<CarouselItem[]> {
-  const { data: periodData, error: periodError } = await supabase
-    .from('voting_periods')
-    .select('id')
-    .order('year', { ascending: false })
-    .order('month', { ascending: false })
-    .limit(1)
-
-  const periodId = periodError ? null : periodData?.[0]?.id
-  if (!periodId) return []
-
-  const { data, error } = await supabase
-    .from('voting_results')
-    .select('series_id, votes, rank, series!inner(id, title, cover_url, item_type, genres)')
-    .eq('period_id', periodId)
-    .eq('series.item_type', 'novel')
-    .not('series.cover_url', 'is', null)
-    .not('series.genres', 'cs', '{"Hentai"}')
-    .order('rank', { ascending: true, nullsFirst: false })
-    .order('votes', { ascending: false })
-    .limit(10)
-
-  if (error || !data) return []
-
-  const rows = data
-    .map((row: any) => {
-      const series = Array.isArray(row.series) ? row.series[0] : row.series
-      if (!series) return null
-      return {
-        id: series.id,
-        title: series.title,
-        cover_url: proxyImg(series.cover_url),
-        score: Number(row.votes) || null,
-        href: `/content/${series.id}`,
-      } as CarouselItem
-    })
-    .filter(Boolean) as CarouselItem[]
-
-  const volumeCovers = await fetchLatestVolCovers(rows.map(row => row.id))
-  return rows.map(row => ({
-    ...row,
-    cover_url: volumeCovers[row.id] !== undefined ? volumeCovers[row.id] : row.cover_url,
-  }))
 }
 
 
@@ -454,119 +387,63 @@ export default function Home() {
   const sections: CarouselSection[] = ['anime', 'manga', 'novel']
 
   useEffect(() => {
-    // Cover wall
-    supabase
-      .from('series')
-      .select('id, title, cover_url, item_type')
-      .in('item_type', ['anime', 'manga', 'novel'])
-      .not('cover_url', 'is', null)
-      .not('genres', 'cs', '{"Hentai"}')
-      .limit(30)
-      .then(({ data, error }) => {
-        const source = error ? null : data
-        const load = (d: any[]) => {
-          const shuffled = [...d].sort(() => Math.random() - 0.5)
-          setCovers(shuffled.map((s: any) => ({ id: s.id, title: s.title, cover_url: s.cover_url })))
-        }
-        if (source && source.length > 0) { load(source); return }
-        supabase.from('series').select('id, title, cover_url')
-          .not('cover_url', 'is', null)
-          .not('genres', 'cs', '{"Hentai"}')
-          .limit(60)
-          .then(({ data: d2 }) => load(d2 || []))
-      })
-
-    // Trending
-    Promise.all([
-      supabase.from('anime_meta')
-        .select('series_id, trending, series!inner(id, title, cover_url)')
-        .eq('season_year', 2026)
-        .not('trending', 'is', null)
-        .not('series.genres', 'cs', '{"Hentai"}')
-        .order('trending', { ascending: true })
-        .limit(3),
-      supabase.from('manga_meta')
-        .select('series_id, md_follows, series!inner(id, title, cover_url, updated_at)')
-        .not('series.cover_url', 'is', null)
-        .not('series.genres', 'cs', '{"Hentai"}')
-        .order('md_follows', { ascending: false, nullsFirst: false })
-        .limit(3),
-      supabase.from('novel_meta')
-        .select('series_id, series!inner(id, title, cover_url, updated_at)')
-        .not('series.cover_url', 'is', null)
-        .not('series.genres', 'cs', '{"Hentai"}')
-        .order('series(updated_at)', { ascending: false })
-        .limit(3),
-    ]).then(([animeRes, mangaRes, novelRes]) => {
-      const all: Cover[] = []
-      if (animeRes.data) all.push(...animeRes.data.map((r: any) => ({ id: r.series.id, title: r.series.title, cover_url: r.series.cover_url })))
-      if (mangaRes.data) all.push(...mangaRes.data.map((r: any) => ({ id: r.series.id, title: r.series.title, cover_url: r.series.cover_url })))
-      if (novelRes.data) all.push(...novelRes.data.map((r: any) => ({ id: r.series.id, title: r.series.title, cover_url: r.series.cover_url })))
-      const shuffled = [...all].sort(() => Math.random() - 0.5)
-      setTrending(shuffled.slice(0, 8))
-    })
-
-    // Type counts
-    Promise.all([
-      supabase.from('series').select('anime_meta!inner(season_year)', { count: 'exact', head: true }).eq('item_type', 'anime').eq('anime_meta.season_year', 2026).not('genres', 'cs', '{"Hentai"}'),
-      supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}'),
-      supabase.from('ln_series_ranking').select('id', { count: 'exact', head: true }),
-    ]).then(([a, m, n]) => setTypeCounts({ anime: a.count ?? 0, manga: m.count ?? 0, novel: n.count ?? 0 }))
-  }, [])
-
-  useEffect(() => {
-    async function loadDashboardData() {
+    async function loadAllData() {
       try {
-        const [
-          topAnimeData,
-          mangaCarouselData,
-          novelTableData,
-          votingNovelData,
-        ] = await Promise.all([
-          getTopRatedSeries({ limit: 10 }),
-          supabase.from('series').select('id, title, cover_url')
-            .eq('item_type', 'manga').not('cover_url', 'is', null).not('genres', 'cs', '{"Hentai"}')
-            .order('updated_at', { ascending: false }).limit(10),
-          supabase.from('series').select('id, title, cover_url')
-            .eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
-            .order('updated_at', { ascending: false }).limit(10),
-          fetchLatestVotingNovels(),
-        ])
-
-        setCarouselData({
-          anime: (topAnimeData.data || []).map((s: any) => ({ id: s.id, title: s.title, cover_url: s.cover_url, score: s.anime_mean_score, href: `/content/${s.id}` })),
-          manga: [],
-          novel: [],
+        const data = await fetchHomeData()
+        
+        // 1. Cover wall
+        const shuffledCovers = [...data.covers].sort(() => Math.random() - 0.5)
+        setCovers(shuffledCovers)
+        
+        // 2. Trending
+        const allTrending = [
+          ...data.trendingAnime,
+          ...data.trendingManga,
+          ...data.trendingNovels
+        ]
+        const shuffledTrending = [...allTrending].sort(() => Math.random() - 0.5)
+        setTrending(shuffledTrending.slice(0, 8))
+        
+        // 3. Type counts
+        setTypeCounts({
+          anime: data.typeCounts[0],
+          manga: data.typeCounts[1],
+          novel: data.typeCounts[2],
         })
-
-        const mangaRows = (mangaCarouselData.data) || []
-        const novelRows = votingNovelData.length > 0 ? [] : ((novelTableData as any)?.data || novelTableData || [])
-        const [mangaVolCovers, novelVolCovers] = await Promise.all([
-          fetchLatestVolCovers(mangaRows.map((m: any) => m.id)),
-          fetchLatestVolCovers(novelRows.map((n: any) => n.id)),
-        ])
-
-        setCarouselData(prev => ({
-          ...prev,
-          manga: mangaRows.map((m: any) => ({
-            id: m.id, title: m.title,
-            cover_url: mangaVolCovers[m.id] !== undefined ? mangaVolCovers[m.id] : proxyImg(m.cover_url),
-            score: null, href: `/content/${m.id}`
+        
+        // 4. Carousel data
+        setCarouselData({
+          anime: data.topAnime.map((s) => ({
+            id: s.id,
+            title: s.title,
+            cover_url: s.cover_url,
+            score: s.anime_mean_score,
+            href: `/content/${s.id}`
           })),
-          novel: votingNovelData.length > 0
-            ? votingNovelData
-            : novelRows.map((n: any) => ({
-              id: n.id, title: n.title,
-              cover_url: novelVolCovers[n.id] !== undefined ? novelVolCovers[n.id] : proxyImg(n.cover_url),
-              score: null, href: `/content/${n.id}`
-            })),
-        }))
+          manga: data.recentManga.map((m) => ({
+            id: m.id,
+            title: m.title,
+            cover_url: data.mangaVolCovers[m.id] !== undefined ? data.mangaVolCovers[m.id] : m.cover_url,
+            score: null,
+            href: `/content/${m.id}`
+          })),
+          novel: data.votingNovels.length > 0
+            ? data.votingNovels
+            : data.recentNovels.map((n) => ({
+                id: n.id,
+                title: n.title,
+                cover_url: data.novelVolCovers[n.id] !== undefined ? data.novelVolCovers[n.id] : n.cover_url,
+                score: null,
+                href: `/content/${n.id}`
+              })),
+        })
+        
         setCarouselReady(true)
-      } catch (e) {
-        console.error(e)
+      } catch (err) {
+        console.error('Failed to load homepage data from Server Action:', err)
       }
     }
-    loadDashboardData()
+    loadAllData()
   }, [])
 
   // Cover wall columns

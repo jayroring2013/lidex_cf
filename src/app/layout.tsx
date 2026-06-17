@@ -1,6 +1,8 @@
 import './globals.css'
 
 export const dynamic = 'force-dynamic'
+
+
 import { Be_Vietnam_Pro, JetBrains_Mono } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'

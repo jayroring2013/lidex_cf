@@ -22,7 +22,7 @@ import {
   ShieldCheck,
   TrendingUp,
 } from 'lucide-react'
-import publicSupabase from '@/lib/publicSupabaseClient'
+import { fetchDashboardEnrichmentData } from '@/lib/db'
 import { useLocale } from '@/contexts/LocaleContext'
 
 type Mode = 'dashboard' | 'watchlist' | 'publisher'
@@ -470,103 +470,6 @@ function mapRows(raw: RawRankingRow[]) {
       publisher_support_score: publisherSupport(r.publisher_activity, releases24),
       completion_safety_score: safetyScore(r.evalution, drop),
       momentum_score: momentumScore(r.publisher_activity, releases24, monthsSince),
-    }
-  })
-}
-
-async function hydrateRowsWithCanonicalSeries(rows: LNRow[]): Promise<LNRow[]> {
-  const ids = Array.from(new Set(rows.map(row => row.lidex_series_id).filter((id): id is number => Boolean(id))))
-  if (ids.length === 0) return rows
-
-  const canonical = new Map<number, { title?: string | null; cover_url?: string | null; description?: string | null }>()
-  const batchSize = 200
-
-  for (let i = 0; i < ids.length; i += batchSize) {
-    const chunk = ids.slice(i, i + batchSize)
-    const { data, error } = await publicSupabase
-      .from('series')
-      .select('id, title, cover_url, description, description_vi')
-      .in('id', chunk)
-
-    if (error) {
-      console.warn('[Dashboard] canonical series fetch failed')
-      continue
-    }
-
-    for (const series of data || []) {
-      canonical.set(Number((series as any).id), {
-        title: (series as any).title,
-        cover_url: (series as any).cover_url,
-        description: String((series as any).description_vi || (series as any).description || '').trim() || null,
-      })
-    }
-  }
-
-  return rows.map(row => {
-    const meta = row.lidex_series_id ? canonical.get(row.lidex_series_id) : null
-    if (!meta) return row
-    return {
-      ...row,
-      // Keep the evaluated ranking title unless it is missing, but use canonical cover/description as fallback.
-      series_title: row.series_title || meta.title || row.series_title,
-      cover_url: row.cover_url || meta.cover_url || row.cover_url,
-      description: row.description || meta.description || row.description,
-    }
-  })
-}
-
-async function hydrateRowsWithFanVotes(rows: LNRow[]): Promise<LNRow[]> {
-  const ids = Array.from(new Set(rows.map(row => row.lidex_series_id).filter((id): id is number => Boolean(id))))
-  if (ids.length === 0) return rows
-
-  const latestBySeries = new Map<number, { votes: number; rank: number | null; period: string | null; year: number | null; sort: number }>()
-  const batchSize = 200
-
-  for (let i = 0; i < ids.length; i += batchSize) {
-    const chunk = ids.slice(i, i + batchSize)
-    for (let offset = 0; ; offset += 1000) {
-      const { data, error } = await publicSupabase
-        .from('voting_results')
-        .select('series_id, votes, rank, voting_periods(month, year, label)')
-        .in('series_id', chunk)
-        .range(offset, offset + 999)
-
-      if (error) {
-        console.warn('[Dashboard] fan vote fetch failed')
-        break
-      }
-
-      for (const vote of data || []) {
-        const seriesId = Number((vote as any).series_id)
-        const periodRaw = (vote as any).voting_periods
-        const period = Array.isArray(periodRaw) ? periodRaw[0] : periodRaw
-        const month = Number(period?.month || 0)
-        const year = Number(period?.year || 0)
-        const sort = year * 100 + month
-        const current = latestBySeries.get(seriesId)
-        if (current && current.sort > sort) continue
-        latestBySeries.set(seriesId, {
-          votes: num((vote as any).votes),
-          rank: (vote as any).rank == null ? null : num((vote as any).rank),
-          period: period?.label || (month && year ? `${String(month).padStart(2, '0')}/${year}` : null),
-          year: year || null,
-          sort,
-        })
-      }
-
-      if (!data || data.length < 1000) break
-    }
-  }
-
-  return rows.map(row => {
-    const fan = row.lidex_series_id ? latestBySeries.get(row.lidex_series_id) : null
-    if (!fan) return row
-    return {
-      ...row,
-      fan_vote_rank: fan.rank,
-      fan_vote_votes: fan.votes,
-      fan_vote_period: fan.period,
-      fan_vote_year: fan.year,
     }
   })
 }
@@ -2443,83 +2346,7 @@ function dropTooltip(row: LNRow) {
   ].join('\n')
 }
 
-async function loadNovelVolumeReleases(dashboardRows: LNRow[]): Promise<VolumeReleaseRow[]> {
-  const publisherBySeries = new Map<number, string>()
-  let seriesIds = Array.from(new Set(dashboardRows.map(row => {
-    if (!row.lidex_series_id) return null
-    publisherBySeries.set(row.lidex_series_id, row.publisher || 'Unknown')
-    return row.lidex_series_id
-  }).filter((id): id is number => Boolean(id))))
 
-  if (seriesIds.length === 0) {
-    const { data: seriesData, error: seriesError } = await publicSupabase
-      .from('series')
-      .select('id, publisher')
-      .eq('item_type', 'novel')
-      .not('genres', 'cs', '{"Hentai"}')
-
-    if (seriesError || !seriesData) {
-      console.warn('[Dashboard] novel series fetch failed:', seriesError?.message)
-      return []
-    }
-
-    seriesIds = seriesData.map((series: any) => {
-      const id = Number(series.id)
-      publisherBySeries.set(id, series.publisher || 'Unknown')
-      return id
-    }).filter(Boolean)
-  }
-
-  const releases: VolumeReleaseRow[] = []
-  const batchSize = 200
-  for (let i = 0; i < seriesIds.length; i += batchSize) {
-    const chunk = seriesIds.slice(i, i + batchSize)
-    const { data: volumeData, error: volumeError } = await publicSupabase
-      .from('volumes')
-      .select('series_id, release_date, is_special')
-      .in('series_id', chunk)
-      .not('release_date', 'is', null)
-      .limit(10000)
-
-    if (volumeError) {
-      console.warn('[Dashboard] volume fetch failed:', volumeError.message)
-      continue
-    }
-
-    for (const volume of volumeData || []) {
-      const special = (volume as any).is_special
-      if (special === true || String(special).toLowerCase() === 'true') continue
-      const seriesId = Number((volume as any).series_id)
-      releases.push({
-        series_id: seriesId,
-        publisher: publisherBySeries.get(seriesId) || 'Unknown',
-        release_date: String((volume as any).release_date).slice(0, 10),
-      })
-    }
-  }
-
-  return releases
-}
-
-async function loadPublisherLogos(): Promise<PublisherLogoMap> {
-  const { data, error } = await publicSupabase
-    .from('publishers')
-    .select('name, name_vi, logo_url')
-    .not('logo_url', 'is', null)
-
-  if (error || !data) {
-    console.warn('[Dashboard] publisher logo fetch failed:', error?.message)
-    return {}
-  }
-
-  const logos: PublisherLogoMap = {}
-  for (const row of data as Array<{ name?: string | null; name_vi?: string | null; logo_url?: string | null }>) {
-    if (!row.logo_url) continue
-    if (row.name) logos[publisherKey(row.name)] = row.logo_url
-    if (row.name_vi) logos[publisherKey(row.name_vi)] = row.logo_url
-  }
-  return logos
-}
 
 function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LNRow) => void; vi: boolean }) {
   const pageSize = 25
@@ -2829,32 +2656,93 @@ export default function Dashboard() {
     setLoading(true)
     setError(null)
 
-    const { data, error } = await publicSupabase
-      .from('ln_series_ranking')
-      .select('*')
-      .order('ln_score', { ascending: false })
-      .order('max_release_at', { ascending: false })
+    try {
+      const enrichment = await fetchDashboardEnrichmentData()
+      if (!enrichment) {
+        setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      console.error('[Dashboard] ranking fetch failed:', error)
+      const { rankingRows, canonicalList, voteRows, volumeRows, publisherRows } = enrichment
+
+      // 1. map raw ranking rows
+      const mapped = mapRows(rankingRows as RawRankingRow[])
+
+      // 2. Hydrate canonical series
+      const canonicalMap = new Map(canonicalList.map(c => [c.id, c]))
+      const hydrated = mapped.map(row => {
+        const meta = row.lidex_series_id ? canonicalMap.get(row.lidex_series_id) : null
+        if (!meta) return row
+        return {
+          ...row,
+          series_title: row.series_title || meta.title || row.series_title,
+          cover_url: row.cover_url || meta.cover_url || row.cover_url,
+          description: row.description || meta.description || row.description,
+        }
+      })
+
+      // 3. Hydrate fan votes
+      const latestVotesMap = new Map<number, { votes: number; rank: number | null; period: string | null; year: number | null; sort: number }>()
+      for (const vote of voteRows) {
+        const seriesId = vote.series_id
+        const sortVal = vote.voting_periods.year * 12 + vote.voting_periods.month
+        const existing = latestVotesMap.get(seriesId)
+        if (!existing || sortVal > existing.sort) {
+          latestVotesMap.set(seriesId, {
+            votes: vote.votes,
+            rank: vote.rank,
+            period: vote.voting_periods.label,
+            year: vote.voting_periods.year,
+            sort: sortVal
+          })
+        }
+      }
+
+      const fanHydrated = hydrated.map(row => {
+        if (!row.lidex_series_id) return row
+        const votes = latestVotesMap.get(row.lidex_series_id)
+        if (!votes) return row
+        return {
+          ...row,
+          fan_vote_rank: votes.rank,
+          fan_vote_votes: votes.votes,
+          fan_vote_period: votes.period,
+          fan_vote_year: votes.year
+        }
+      })
+
+      // 4. Volume releases
+      const volumeReleases = volumeRows
+        .filter(v => v.is_special === false || String(v.is_special).toLowerCase() !== 'true')
+        .map(v => {
+          const row = fanHydrated.find(r => r.lidex_series_id === v.series_id)
+          return {
+            series_id: v.series_id,
+            publisher: row?.publisher || 'Unknown',
+            release_date: String(v.release_date).slice(0, 10)
+          }
+        })
+
+      // 5. Publisher logos
+      const logos: PublisherLogoMap = {}
+      for (const row of publisherRows) {
+        if (!row.logo_url) continue
+        if (row.name) logos[publisherKey(row.name)] = row.logo_url
+        if (row.name_vi) logos[publisherKey(row.name_vi)] = row.logo_url
+      }
+
+      setRows(fanHydrated)
+      setVolumeRows(volumeReleases)
+      setPublisherLogos(logos)
+      setSelectedKey((fanHydrated.find(r => r.evalution === 'Good') || fanHydrated[0])?.series_key || null)
+      setSelectedPublisher(buildPublishers(fanHydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || fanHydrated[0]?.publisher || null)
+    } catch (e) {
+      console.error('[Dashboard] load failed:', e)
       setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    const mapped = mapRows((data || []) as RawRankingRow[])
-    const hydrated = await hydrateRowsWithCanonicalSeries(mapped)
-    const [fanHydrated, volumeReleases, logos] = await Promise.all([
-      hydrateRowsWithFanVotes(hydrated),
-      loadNovelVolumeReleases(hydrated),
-      loadPublisherLogos(),
-    ])
-    setRows(fanHydrated)
-    setVolumeRows(volumeReleases)
-    setPublisherLogos(logos)
-    setSelectedKey((fanHydrated.find(r => r.evalution === 'Good') || fanHydrated[0])?.series_key || null)
-    setSelectedPublisher(buildPublishers(fanHydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || fanHydrated[0]?.publisher || null)
-    setLoading(false)
   }
 
   useEffect(() => {

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, ArrowUp, Loader2, Search } from 'lucide-react'
-import supabase from '@/lib/publicSupabaseClient'
+import { fetchLeaderboardPeriods, fetchLeaderboardRows, fetchLeaderboardPublishers } from '@/lib/db'
 import { useLocale } from '@/contexts/LocaleContext'
 
 type Period = {
@@ -210,33 +210,28 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function loadPeriods() {
       setPeriodsLoading(true)
-      const { data: periodData, error: periodError } = await supabase
-        .from('voting_periods')
-        .select('id, month, year, label')
-        .order('year', { ascending: false })
-        .order('month', { ascending: false })
+      try {
+        const periodData = await fetchLeaderboardPeriods()
 
-      if (periodError) {
+        const normalizedPeriods: Period[] = (periodData || [])
+          .map((period: any) => ({
+            id: Number(period.id),
+            month: Number(period.month || 1),
+            year: Number(period.year || 0),
+            label: period.label || `${String(period.month || 1).padStart(2, '0')}/${period.year || 0}`,
+            sort: Number(period.year || 0) * 100 + Number(period.month || 1),
+          }))
+          .sort((a, b) => b.sort - a.sort)
+
+        setPeriods(normalizedPeriods)
+        setSelectedPeriodId(normalizedPeriods[0]?.id || null)
+      } catch (periodError) {
         console.error('[leaderboard] period fetch failed:', periodError)
         setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
+      } finally {
         setPeriodsLoading(false)
         setLoading(false)
-        return
       }
-
-      const normalizedPeriods: Period[] = (periodData || [])
-        .map((period: any) => ({
-          id: Number(period.id),
-          month: Number(period.month || 1),
-          year: Number(period.year || 0),
-          label: period.label || `${String(period.month || 1).padStart(2, '0')}/${period.year || 0}`,
-          sort: Number(period.year || 0) * 100 + Number(period.month || 1),
-        }))
-        .sort((a, b) => b.sort - a.sort)
-
-      setPeriods(normalizedPeriods)
-      setSelectedPeriodId(normalizedPeriods[0]?.id || null)
-      setPeriodsLoading(false)
     }
 
     loadPeriods()
@@ -260,69 +255,52 @@ export default function LeaderboardPage() {
         .filter(p => p.sort < selectedPeriod.sort)
         .sort((a, b) => b.sort - a.sort)[0] || null
 
-      const periodIds = [selectedPeriodId, ...(prevPeriod ? [prevPeriod.id] : [])]
+      const periodIds = [selectedPeriodId!, ...(prevPeriod ? [prevPeriod.id] : [])]
 
-      // Fetch only current + previous period rows (server-side filter — no loop needed)
-      const { data: voteData, error: voteError } = await supabase
-        .from('voting_results')
-        .select('id, series_id, period_id, votes, rank, series(id, title, title_vi, cover_url)')
-        .in('period_id', periodIds)
-        .order('rank', { ascending: true })
-        .limit(1000)
+      try {
+        // Fetch only current + previous period rows
+        const voteData = await fetchLeaderboardRows(periodIds)
 
-      if (cancelled) return
+        if (cancelled) return
 
-      if (voteError) {
+        const seriesIds = Array.from(new Set(voteData.map((r: any) => Number(r.series_id)).filter(Boolean)))
+        const publisherBySeriesMap = seriesIds.length > 0 
+          ? await fetchLeaderboardPublishers(seriesIds)
+          : {}
+
+        if (cancelled) return
+
+        const periodById = new Map(periods.map(p => [p.id, p]))
+        const mapped: VoteRow[] = voteData.map((row: any) => {
+          const period: Period = periodById.get(Number(row.period_id)) || {
+            id: Number(row.period_id),
+            month: 1,
+            year: 0,
+            label: '',
+            sort: 0,
+          }
+
+          return {
+            id: Number(row.id),
+            series_id: Number(row.series_id),
+            period_id: Number(row.period_id),
+            votes: Number(row.votes) || 0,
+            rank: row.rank == null ? null : Number(row.rank),
+            period,
+            title: row.title || `Series ${row.series_id}`,
+            title_vi: row.title_vi || null,
+            cover_url: row.cover_url || null,
+            publisher: publisherBySeriesMap[Number(row.series_id)] || '-',
+          }
+        })
+
+        setRows(mapped)
+      } catch (voteError) {
         console.error('[leaderboard] vote fetch failed:', voteError)
         setError(vi ? 'Không tải được bảng xếp hạng.' : 'Unable to load leaderboard.')
-        setLoading(false)
-        return
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-
-      const periodById = new Map(periods.map(p => [p.id, p]))
-      const seriesIds = Array.from(new Set((voteData || []).map((r: any) => Number(r.series_id)).filter(Boolean)))
-      const publisherBySeries = new Map<number, string>()
-
-      if (seriesIds.length > 0) {
-        const { data: rankingData } = await supabase
-          .from('ln_series_ranking')
-          .select('lidex_series_id, publisher')
-          .in('lidex_series_id', seriesIds)
-
-        for (const row of rankingData || []) {
-          const id = Number((row as any).lidex_series_id)
-          if (id && !publisherBySeries.has(id)) publisherBySeries.set(id, (row as any).publisher || '-')
-        }
-      }
-
-      if (cancelled) return
-
-      const mapped: VoteRow[] = (voteData || []).map((row: any) => {
-        const seriesRaw = Array.isArray(row.series) ? row.series[0] : row.series
-        const period: Period = periodById.get(Number(row.period_id)) || {
-          id: Number(row.period_id),
-          month: 1,
-          year: 0,
-          label: '',
-          sort: 0,
-        }
-
-        return {
-          id: Number(row.id),
-          series_id: Number(row.series_id),
-          period_id: Number(row.period_id),
-          votes: Number(row.votes) || 0,
-          rank: row.rank == null ? null : Number(row.rank),
-          period,
-          title: seriesRaw?.title || `Series ${row.series_id}`,
-          title_vi: seriesRaw?.title_vi || null,
-          cover_url: seriesRaw?.cover_url || null,
-          publisher: publisherBySeries.get(Number(row.series_id)) || '-',
-        }
-      })
-
-      setRows(mapped)
-      setLoading(false)
     }
 
     loadPeriodRows()

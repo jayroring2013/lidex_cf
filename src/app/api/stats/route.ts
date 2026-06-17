@@ -1,26 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { sql } from '@/lib/neonClient'
 
 export const dynamic = 'force-dynamic'
 
 // GET /api/stats
 export async function GET(request: NextRequest) {
   try {
-    const [seriesCount, animeCount, mangaCount, novelCount] = await Promise.all([
-      supabase.from('series').select('*', { count: 'exact', head: true }).not('genres', 'cs', '{"Hentai"}'),
-      supabase.from('series').select('anime_meta!inner(season_year)', { count: 'exact', head: true }).eq('item_type', 'anime').eq('anime_meta.season_year', 2026).not('genres', 'cs', '{"Hentai"}'),
-      supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}'),
-      supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
+    const [totalSeriesRes, animeCountRes, mangaCountRes, novelCountRes, popularityRes] = await Promise.all([
+      sql(`SELECT COUNT(*)::int as count FROM series WHERE NOT ('Hentai' = ANY(genres))`),
+      sql(`
+        SELECT COUNT(*)::int as count 
+        FROM series s 
+        JOIN anime_meta a ON s.id = a.series_id 
+        WHERE s.item_type = 'anime' AND a.season_year = 2026 AND NOT ('Hentai' = ANY(s.genres))
+      `),
+      sql(`SELECT COUNT(*)::int as count FROM series WHERE item_type = 'manga' AND NOT ('Hentai' = ANY(genres))`),
+      sql(`SELECT COUNT(*)::int as count FROM series WHERE item_type = 'novel' AND NOT ('Hentai' = ANY(genres))`),
+      sql(`
+        SELECT popularity::int 
+        FROM anime_meta 
+        WHERE season_year = 2026 AND popularity IS NOT NULL 
+        ORDER BY popularity ASC 
+        LIMIT 500
+      `)
     ])
 
-    // ✅ Get dynamic popularity distribution from anime_meta (capped at 500 rows)
-    const { data: popularityData, error } = await supabase
-      .from('anime_meta')
-      .select('popularity')
-      .eq('season_year', 2026)
-      .not('popularity', 'is', null)
-      .order('popularity', { ascending: true })
-      .limit(500)
+    const totalSeries = totalSeriesRes[0]?.count ?? 0
+    const totalAnime = animeCountRes[0]?.count ?? 0
+    const totalManga = mangaCountRes[0]?.count ?? 0
+    const totalNovels = novelCountRes[0]?.count ?? 0
+    const popularities = popularityRes.map((p: any) => p.popularity).filter((p: number | null) => p !== null)
 
     let popularityStats = {
       min: 500000,
@@ -32,10 +41,8 @@ export async function GET(request: NextRequest) {
       p99: 990000,
     }
 
-    if (!error && popularityData && popularityData.length > 0) {
-      const popularities = popularityData.map(p => p.popularity).filter((p): p is number => p !== null)
+    if (popularities.length > 0) {
       const count = popularities.length
-
       popularityStats = {
         min: Math.min(...popularities),
         max: Math.max(...popularities),
@@ -48,10 +55,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      totalSeries: seriesCount.count || 0,
-      totalAnime: animeCount.count || 0,
-      totalManga: mangaCount.count || 0,
-      totalNovels: novelCount.count || 0,
+      totalSeries,
+      totalAnime,
+      totalManga,
+      totalNovels,
       popularityStats,
     }, {
       headers: {
@@ -60,7 +67,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error: any) {
-    console.error('API Error')
-    return NextResponse.json({ error: 'Unable to load stats' }, { status: 404 })
+    console.error('API Error in /api/stats:', error)
+    return NextResponse.json({ error: 'Unable to load stats' }, { status: 500 })
   }
 }

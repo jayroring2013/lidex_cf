@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sql } from '@/lib/neonClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,15 +32,18 @@ function createUserClient(token: string) {
   )
 }
 
-async function getAuthedUser(request: NextRequest) {
+async function getAuthedUserId(request: NextRequest) {
   const token = getBearerToken(request)
-  if (!token) return { client: null, userId: null, error: jsonError('Unauthorized', 401) }
+  if (!token) return { userId: null, error: jsonError('Unauthorized', 401) }
 
-  const client = createUserClient(token)
-  const { data, error } = await client.auth.getUser(token)
-  if (error || !data.user) return { client: null, userId: null, error: jsonError('Unauthorized', 401) }
-
-  return { client, userId: data.user.id, error: null }
+  try {
+    const client = createUserClient(token)
+    const { data, error } = await client.auth.getUser(token)
+    if (error || !data.user) return { userId: null, error: jsonError('Unauthorized', 401) }
+    return { userId: data.user.id, error: null }
+  } catch (err) {
+    return { userId: null, error: jsonError('Unauthorized', 401) }
+  }
 }
 
 function normalizeVolumeIds(input: unknown) {
@@ -50,59 +54,72 @@ function normalizeVolumeIds(input: unknown) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { client, userId, error: authError } = await getAuthedUser(request)
-    if (authError || !client || !userId) return authError || jsonError('Unauthorized', 401)
+    const { userId, error: authError } = await getAuthedUserId(request)
+    if (authError || !userId) return authError || jsonError('Unauthorized', 401)
 
-    const { data: libraryRows, error: libraryError } = await client
-      .from('series_user_library')
-      .select('series_id, rating, status, updated_at')
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false })
+    // 1. Fetch library rows
+    const libraryRows = await sql(`
+      SELECT series_id, rating, status, updated_at 
+      FROM series_user_library 
+      WHERE user_id = $1 
+      ORDER BY updated_at DESC
+    `, [userId])
 
-    if (libraryError) {
-      console.error('[user-dashboard] rating read failed')
-      return jsonError('Unable to load dashboard', 404)
+    // 2. Fetch purchase rows
+    let purchaseRows: any[] = []
+    let bookshelfAvailable = true
+    try {
+      purchaseRows = await sql(`
+        SELECT volume_id, created_at 
+        FROM series_user_volume_purchases 
+        WHERE user_id = $1 
+        ORDER BY created_at DESC
+      `, [userId])
+    } catch (err) {
+      console.error('[user-dashboard] bookshelf read skipped', err)
+      bookshelfAvailable = false
     }
 
-    const { data: purchaseRows, error: purchaseError } = await client
-      .from('series_user_volume_purchases')
-      .select('volume_id, created_at')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    const volumeIds = purchaseRows.map(row => Number(row.volume_id)).filter(Boolean)
+    const librarySeriesIds = libraryRows.map(row => Number(row.series_id)).filter(Boolean)
 
-    const bookshelfAvailable = !purchaseError
-    if (purchaseError) console.error('[user-dashboard] bookshelf read skipped')
-
-    const volumeIds = (purchaseRows || []).map(row => Number(row.volume_id)).filter(Boolean)
-    const librarySeriesIds = (libraryRows || []).map(row => Number(row.series_id)).filter(Boolean)
-
-    const { data: volumeRows, error: volumeError } = volumeIds.length
-      ? await client
-          .from('volumes')
-          .select('id, series_id, volume_number, title, price, currency, cover_url, release_date')
-          .in('id', volumeIds)
-      : { data: [], error: null }
-
-    if (volumeError) console.error('[user-dashboard] volume read skipped')
+    // 3. Fetch volumes
+    let volumeRows: any[] = []
+    if (volumeIds.length > 0) {
+      try {
+        volumeRows = await sql(`
+          SELECT id, series_id, volume_number, title, price, currency, cover_url, release_date 
+          FROM volumes 
+          WHERE id = ANY($1::int[])
+        `, [volumeIds])
+      } catch (err) {
+        console.error('[user-dashboard] volume read skipped', err)
+      }
+    }
 
     const seriesIds = Array.from(new Set([
       ...librarySeriesIds,
-      ...(volumeRows || []).map(row => Number(row.series_id)).filter(Boolean),
+      ...volumeRows.map(row => Number(row.series_id)).filter(Boolean),
     ]))
 
-    const { data: seriesRows, error: seriesError } = seriesIds.length
-      ? await client
-          .from('series')
-          .select('id, title, title_vi, title_native, cover_url, slug, item_type, status')
-          .in('id', seriesIds)
-      : { data: [], error: null }
+    // 4. Fetch series details
+    let seriesRows: any[] = []
+    if (seriesIds.length > 0) {
+      try {
+        seriesRows = await sql(`
+          SELECT id, title, title_vi, title_native, cover_url, slug, item_type, status 
+          FROM series 
+          WHERE id = ANY($1::int[])
+        `, [seriesIds])
+      } catch (err) {
+        console.error('[user-dashboard] series read skipped', err)
+      }
+    }
 
-    if (seriesError) console.error('[user-dashboard] series read skipped')
+    const seriesById = new Map(seriesRows.map((series: any) => [Number(series.id), series]))
+    const volumesById = new Map(volumeRows.map((volume: any) => [Number(volume.id), volume]))
 
-    const seriesById = new Map((seriesRows || []).map((series: any) => [Number(series.id), series]))
-    const volumesById = new Map((volumeRows || []).map((volume: any) => [Number(volume.id), volume]))
-
-    const purchases = (purchaseRows || [])
+    const purchases = purchaseRows
       .map((purchase: any) => {
         const volume = volumesById.get(Number(purchase.volume_id))
         if (!volume) return null
@@ -130,7 +147,7 @@ export async function GET(request: NextRequest) {
       })
       .filter(Boolean)
 
-    const ratedList = (libraryRows || []).map((entry: any) => {
+    const ratedList = libraryRows.map((entry: any) => {
       const series = seriesById.get(Number(entry.series_id)) || null
       return {
         seriesId: Number(entry.series_id),
@@ -152,49 +169,37 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ purchases, ratedList, bookshelfAvailable })
   } catch (error) {
-    console.error('[user-dashboard] unexpected read failure')
-    return jsonError('Unable to load dashboard', 404)
+    console.error('[user-dashboard] unexpected read failure:', error)
+    return jsonError('Unable to load dashboard', 500)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { client, userId, error: authError } = await getAuthedUser(request)
-    if (authError || !client || !userId) return authError || jsonError('Unauthorized', 401)
+    const { userId, error: authError } = await getAuthedUserId(request)
+    if (authError || !userId) return authError || jsonError('Unauthorized', 401)
 
     const body = await request.json()
     const volumeIds = normalizeVolumeIds(body.volumeIds)
     if (!volumeIds) return jsonError('Invalid volumes', 400)
 
-    const { error: deleteError } = await client
-      .from('series_user_volume_purchases')
-      .delete()
-      .eq('user_id', userId)
+    // Delete existing purchases for this user
+    await sql(`
+      DELETE FROM series_user_volume_purchases 
+      WHERE user_id = $1
+    `, [userId])
 
-    if (deleteError) {
-      console.error('[user-dashboard] purchase clear failed')
-      return jsonError('Unable to save bookshelf', 400)
-    }
-
-    if (volumeIds.length) {
-      const rows = volumeIds.map(volumeId => ({
-        user_id: userId,
-        volume_id: volumeId,
-      }))
-
-      const { error: insertError } = await client
-        .from('series_user_volume_purchases')
-        .insert(rows)
-
-      if (insertError) {
-        console.error('[user-dashboard] purchase save failed')
-        return jsonError('Unable to save bookshelf', 400)
-      }
+    if (volumeIds.length > 0) {
+      // Perform batch insert using unnest
+      await sql(`
+        INSERT INTO series_user_volume_purchases (user_id, volume_id)
+        SELECT $1, unnest($2::int[])
+      `, [userId, volumeIds])
     }
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('[user-dashboard] unexpected write failure')
-    return jsonError('Unable to save bookshelf', 400)
+    console.error('[user-dashboard] unexpected write failure:', error)
+    return jsonError('Unable to save bookshelf', 500)
   }
 }

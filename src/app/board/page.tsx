@@ -4,8 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useEffect, useState, useCallback } from 'react'
 import { BookOpen, Tv, Book, Loader2, RefreshCw } from 'lucide-react'
-import { getTopRatedSeries } from '../../lib/supabase'
-import supabase from '@/lib/supabaseClient'
+import { getTopRatedSeries, fetchBoardStats, fetchBoardRecent } from '@/lib/db'
 import StatsCard from '../../components/StatsCard'
 import Link from 'next/link'
 
@@ -73,23 +72,19 @@ export default function Dashboard() {
       try {
         const [
           topAnimeData,
-          { count: animeCount },
-          { count: novelCount },
-          { count: mangaCount },
-          { data: mangaData },
-          { data: novelData }
+          boardStats,
+          mangaData,
+          novelData
         ] = await Promise.all([
           getTopRatedSeries({ limit: 10 }),
-          supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'anime').eq('anime_meta.season_year', 2026).not('genres', 'cs', '{"Hentai"}'),
-          supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}'),
-          supabase.from('series').select('*', { count: 'exact', head: true }).eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}'),
-          supabase.from('series').select('id, title, cover_url').eq('item_type', 'manga').not('cover_url', 'is', null).not('genres', 'cs', '{"Hentai"}').order('updated_at', { ascending: false }).limit(10),
-          supabase.from('series').select('id, title, cover_url').eq('item_type', 'novel').not('cover_url', 'is', null).not('genres', 'cs', '{"Hentai"}').order('updated_at', { ascending: false }).limit(10),
+          fetchBoardStats(),
+          fetchBoardRecent('manga'),
+          fetchBoardRecent('novel')
         ])
 
-        const anime = animeCount ?? 0
-        const novel = novelCount ?? 0
-        const manga = mangaCount ?? 0
+        const anime = boardStats.anime
+        const novel = boardStats.novel
+        const manga = boardStats.manga
 
         setStats({
           totalAnime:  anime,

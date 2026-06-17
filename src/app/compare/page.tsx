@@ -13,7 +13,7 @@ import {
 } from 'chart.js'
 import { Plus, X, Search, Loader2, GitCompare } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
-import supabase from '@/lib/supabaseClient'
+import { fetchCompareAllMeta, fetchCompareSearch, fetchCompareSeriesDetails } from '@/lib/db'
 import Link from 'next/link'
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
@@ -118,10 +118,7 @@ export default function ComparePage() {
 
   // Fetch all anime_meta for percentile baselines
   useEffect(() => {
-    supabase
-      .from('anime_meta')
-      .select('mean_score, popularity, favourites, episodes, duration_min')
-      .then(({ data }) => { if (data) setAllMeta(data as AnimeMeta[]) })
+    fetchCompareAllMeta().then((data) => { if (data) setAllMeta(data as AnimeMeta[]) })
   }, [])
 
   // Close dropdown on outside click
@@ -138,20 +135,8 @@ export default function ComparePage() {
     if (!query.trim()) { setSearchResults([]); setShowDropdown(false); return }
     const timer = setTimeout(async () => {
       setSearching(true)
-      // ✅ !inner ensures only series with a matching 2026 anime_meta row are returned
-      const { data } = await supabase
-        .from('series')
-        .select('id, title, cover_url, studio, anime_meta!inner(season_year)')
-        .eq('item_type', 'anime')
-        .eq('anime_meta.season_year', 2026)
-        .ilike('title', `%${query}%`)
-        .limit(8)
-      setSearchResults((data || []).map((r: any) => ({
-        id:        r.id,
-        title:     r.title,
-        cover_url: r.cover_url,
-        studio:    r.studio,
-      })))
+      const data = await fetchCompareSearch(query)
+      setSearchResults(data)
       setShowDropdown(true)
       setSearching(false)
     }, 300)
@@ -164,23 +149,10 @@ export default function ComparePage() {
     setQuery('')
     setShowDropdown(false)
 
-    // ✅ Fetch full details — no season_year filter needed here since we're fetching by ID
-    const { data } = await supabase
-      .from('series')
-      .select('id, title, studio, cover_url, status, anime_meta(*)')
-      .eq('id', result.id)
-      .single()
+    const data = await fetchCompareSeriesDetails(result.id)
 
     if (data) {
-      const entry = data as any
-      setSelected(prev => [...prev, {
-        id:         entry.id,
-        title:      entry.title,
-        studio:     entry.studio,
-        cover_url:  entry.cover_url,
-        status:     entry.status,
-        anime_meta: Array.isArray(entry.anime_meta) ? entry.anime_meta[0] : entry.anime_meta,
-      }])
+      setSelected(prev => [...prev, data])
     }
   }
 

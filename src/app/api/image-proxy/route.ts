@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Edge runtime: cheaper than Node.js serverless, and CDN can cache the 7-day Cache-Control response
-export const runtime = 'edge'
+// Allowed hosts referers map
 
 const REFERER_MAP: Record<string, string> = {
   'docln.net': 'https://docln.net/',

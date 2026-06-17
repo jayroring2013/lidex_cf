@@ -12,7 +12,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { Loader2, Building2 } from 'lucide-react'
-import supabase from '@/lib/supabaseClient'
+import { fetchStudioMatrix } from '@/lib/db'
 import { useLocale } from '@/contexts/LocaleContext'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
@@ -37,20 +37,7 @@ export default function StudioLeaderboardPage() {
       setLoading(true)
       setError(null)
 
-      const { data, error: qErr } = await supabase
-        .from('series')
-        .select('studio, anime_meta!inner(mean_score)')
-        .eq('item_type', 'anime')
-        .not('studio', 'is', null)
-        .not('anime_meta.mean_score', 'is', null)
-        .not('genres', 'cs', '{"Hentai"}')
-        .limit(5000)
-
-      if (qErr) {
-        setError(qErr.message)
-        setLoading(false)
-        return
-      }
+      const data = await fetchStudioMatrix()
 
       const grouped = new Map<string, { sum: number; count: number }>()
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Grid3X3 } from 'lucide-react'
-import supabase from '@/lib/supabaseClient'
+import { fetchGenreMatrix } from '@/lib/db'
 import { useLocale } from '@/contexts/LocaleContext'
 
 const SCORE_BUCKETS = [
@@ -45,57 +45,49 @@ export default function GenreMatrixPage() {
       setLoading(true)
       setError(null)
 
-      const { data, error: qErr } = await supabase
-        .from('series')
-        .select('genres, anime_meta!inner(mean_score)')
-        .eq('item_type', 'anime')
-        .not('anime_meta.mean_score', 'is', null)
-        .not('genres', 'cs', '{"Hentai"}')
-        .limit(5000)
+      try {
+        const data = await fetchGenreMatrix()
+        const grouped = new Map<string, { sum: number; count: number; buckets: Record<BucketKey, number> }>()
 
-      if (qErr) {
-        setError(qErr.message)
-        setLoading(false)
-        return
-      }
+        ;(data || []).forEach((row: any) => {
+          const meta = Array.isArray(row.anime_meta) ? row.anime_meta[0] : row.anime_meta
+          const meanScore = meta?.mean_score
+          const genres = Array.isArray(row.genres) ? row.genres : []
 
-      const grouped = new Map<string, { sum: number; count: number; buckets: Record<BucketKey, number> }>()
+          if (typeof meanScore !== 'number' || genres.length === 0) return
 
-      ;(data || []).forEach((row: any) => {
-        const meta = Array.isArray(row.anime_meta) ? row.anime_meta[0] : row.anime_meta
-        const meanScore = meta?.mean_score
-        const genres = Array.isArray(row.genres) ? row.genres : []
+          const bucket = bucketKeyForScore(meanScore)
 
-        if (typeof meanScore !== 'number' || genres.length === 0) return
+          genres.forEach((g: string) => {
+            const genre = (g || '').trim()
+            if (!genre) return
 
-        const bucket = bucketKeyForScore(meanScore)
+            const curr = grouped.get(genre) || {
+              sum: 0,
+              count: 0,
+              buckets: { lt60: 0, '60s': 0, '70s': 0, '80s': 0, '90p': 0 },
+            }
 
-        genres.forEach((g: string) => {
-          const genre = (g || '').trim()
-          if (!genre) return
-
-          const curr = grouped.get(genre) || {
-            sum: 0,
-            count: 0,
-            buckets: { lt60: 0, '60s': 0, '70s': 0, '80s': 0, '90p': 0 },
-          }
-
-          curr.sum += meanScore
-          curr.count += 1
-          curr.buckets[bucket] += 1
-          grouped.set(genre, curr)
+            curr.sum += meanScore
+            curr.count += 1
+            curr.buckets[bucket] += 1
+            grouped.set(genre, curr)
+          })
         })
-      })
 
-      const aggregated: GenreAggregate[] = Array.from(grouped.entries()).map(([genre, v]) => ({
-        genre,
-        count: v.count,
-        avgScore: Number((v.sum / v.count).toFixed(2)),
-        bucketCounts: v.buckets,
-      }))
+        const aggregated: GenreAggregate[] = Array.from(grouped.entries()).map(([genre, v]) => ({
+          genre,
+          count: v.count,
+          avgScore: Number((v.sum / v.count).toFixed(2)),
+          bucketCounts: v.buckets,
+        }))
 
-      setGenreRows(aggregated)
-      setLoading(false)
+        setGenreRows(aggregated)
+      } catch (err: any) {
+        setError(err.message || String(err))
+      } finally {
+        setLoading(false)
+      }
     }
 
     loadGenreStats()

@@ -14,7 +14,7 @@ import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
 import RadarChart from '@/components/RadarChart'
 import supabase from '@/lib/supabaseClient'
-import publicSupabase from '@/lib/publicSupabaseClient'
+import { fetchSeriesEnrichmentData } from '@/lib/db'
 import {
   calculateLiDexScore,
   buildPopulationStats,
@@ -522,313 +522,82 @@ export default function ContentDetail() {
   }, [seriesId])
 
   useEffect(() => {
-    if (!seriesId) return
+    if (!series || !seriesId) return
 
     let cancelled = false
 
-    async function loadSeriesRatingSummary() {
-      try {
-        // Read aggregate rating data through the RPC so logged-out visitors
-        // can see public rating totals without accessing user-specific rows.
-        const { data: summaryData, error: summaryError } = await publicSupabase
-          .rpc('get_series_rating_summary', { p_series_id: seriesId })
-
-        if (cancelled) return
-
-        if (!summaryError) {
-          const summary = Array.isArray(summaryData) ? summaryData[0] : summaryData
-          const average = Number(summary?.average_rating ?? summary?.average ?? 0)
-          const count = Number(summary?.rating_count ?? summary?.count ?? 0)
-
-          setSeriesRatingSummary({
-            average: count > 0 && Number.isFinite(average) ? average : null,
-            count: Number.isFinite(count) ? count : 0,
-          })
-          return
-        }
-
-        console.warn('Rating summary RPC unavailable')
-        setSeriesRatingSummary({ average: null, count: 0 })
-      } catch (err: any) {
-        if (!cancelled) {
-          console.warn('Failed to load series rating summary')
-          setSeriesRatingSummary({ average: null, count: 0 })
-        }
-      }
-    }
-
-    loadSeriesRatingSummary()
-
-    return () => {
-      cancelled = true
-    }
-  }, [seriesId, userLibraryEntry.rating, userLibrarySaving])
-
-  useEffect(() => {
-    if (!seriesId) return
-
-    let cancelled = false
-
-    async function loadSeriesLibrarySummary() {
-      try {
-        const { data, error } = await publicSupabase
-          .rpc('get_series_library_summary', { p_series_id: seriesId })
-
-        if (cancelled) return
-
-        if (error) {
-          setSeriesLibrarySummary(emptySeriesLibrarySummary())
-          return
-        }
-
-        setSeriesLibrarySummary(parseSeriesLibrarySummary(data))
-      } catch (err: any) {
-        if (!cancelled) setSeriesLibrarySummary(emptySeriesLibrarySummary())
-      }
-    }
-
-    loadSeriesLibrarySummary()
-
-    return () => {
-      cancelled = true
-    }
-  }, [seriesId, userLibraryEntry.rating, userLibraryEntry.status, userLibrarySaving])
-
-  // ── Manga/Novel-specific: fetch meta + latest volume cover ───────────────────
-  useEffect(() => {
-    if (!series || !['manga', 'novel'].includes(series.item_type)) return
-
-    async function loadMangaEnrichment() {
-      // 1. Metadata. Manga has manga_meta; novel can optionally use novel_meta when available.
-      if (series.item_type === 'manga') {
-        const { data: meta } = await publicSupabase
-          .from('manga_meta')
-          .select('series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at')
-          .eq('series_id', series.id)
-          .single()
-        if (meta) {
-          setMangaMeta(meta)
-
-          // 2. Resolve publisher name from vn_publisher_id
-          if (meta.vn_publisher_id) {
-            const { data: pub } = await publicSupabase
-              .from('publishers')
-              .select('name, name_vi')
-              .eq('id', meta.vn_publisher_id)
-              .single()
-            if (pub) setPublisherName(pub.name_vi || pub.name)
-          }
-        }
-      } else if (series.item_type === 'novel') {
-        const { data: meta } = await publicSupabase
-          .from('novel_meta')
-          .select('*')
-          .eq('series_id', series.id)
-          .maybeSingle()
-        if (meta) setNovelMeta(meta)
-      }
-
-      // 3. All non-special volumes ordered DESC by volume_number
-      const { data: vols } = await publicSupabase
-        .from('volumes')
-        .select('id, volume_number, release_date, cover_url, price, currency, page_count, is_special')
-        .eq('series_id', series.id)
-        .eq('is_special', false) 
-        .not('volume_number', 'is', null)
-        .order('volume_number', { ascending: false })
-
-      if (vols && vols.length > 0) {
-        setAllVolumes(vols) // <--- SAVE FULL LIST FOR STATS
-        setVolumeCount(vols.length)
-        // The latest volume is always vols[0] (highest number).
-        // For the displayed cover, walk from the latest downward until we find one with a cover_url.
-        const withCover = vols.find((v: any) => v.cover_url)
-        setLatestVolume(vols[0])
-        setCoverSrc(withCover?.cover_url || series.cover_url || null)
-      } else {
-        setAllVolumes([])
-        setCoverSrc(series.cover_url || null)
-      }
-
-      // 4. series_links — fetch links for the latest volume only
-      const latestVol = vols && vols.length > 0 ? vols[0] : null
-      if (latestVol) {
-          const { data: links } = await publicSupabase
-          .from('series_links')
-          .select('link_type, label, url')
-          .eq('series_id', series.id)
-          .eq('volume_id', latestVol.id)
-          .eq('is_active', true)
-          .order('sort_order', { ascending: true })
-        if (links) setSeriesLinks(links)
-      }
-    }
-
-    loadMangaEnrichment()
-  }, [series])
-
-  // ── Anime/other: set cover from series directly ──────────────────────────────
-  useEffect(() => {
-    if (!series || ['manga', 'novel'].includes(series.item_type)) return
-    setCoverSrc(series.cover_url || null)
-  }, [series])
-
-  // ── Anime: fetch series_links ─────────────────────────────────────────────────
-  useEffect(() => {
-    if (!series || series.item_type !== 'anime') return
-
-    async function loadAnimeLinks() {
-      const { data: links } = await publicSupabase
-        .from('series_links')
-        .select('link_type, label, url')
-        .eq('series_id', series.id)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true })
-      if (links) setSeriesLinks(links)
-    }
-
-    loadAnimeLinks()
-  }, [series])
-
-  // ── Novel: fetch LN Dead-or-Alive ranking data ───────────────────────────────
-  useEffect(() => {
-    if (!series || series.item_type !== 'novel') {
-      setLnRanking(null)
-      setLnMarketRows([])
-      setLnStatsError(null)
-      return
-    }
-
-    async function loadNovelRanking() {
+    async function loadEnrichment() {
       setLnStatsLoading(true)
-      setLnStatsError(null)
-
-      try {
-        const { data, error } = await publicSupabase
-          .from('ln_series_ranking')
-          .select('id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title, updated_at')
-          .order('ln_score', { ascending: false })
-
-        if (error) throw error
-
-        const rows = (data || []) as NovelRankingRow[]
-        const normalizedTitle = String(series.title || '').trim().toLowerCase()
-        const normalizedTitleVI = String(series.title_vi || '').trim().toLowerCase()
-        const normalizedNative = String(series.title_native || '').trim().toLowerCase()
-
-        const current = rows.find(row => Number(row.lidex_series_id) === Number(series.id))
-          || rows.find(row => {
-            const title = String(row.series_title || '').trim().toLowerCase()
-            return Boolean(title) && [normalizedTitle, normalizedTitleVI, normalizedNative].filter(Boolean).includes(title)
-          })
-          || null
-
-        setLnMarketRows(rows)
-        setLnRanking(current)
-      } catch (err: any) {
-        console.error('Failed to load LN ranking data')
-        setLnStatsError(isVI ? 'Không tải được dữ liệu LN.' : 'Unable to load LN data.')
-      } finally {
+      setScoreLoading(true)
+      
+      const data = await fetchSeriesEnrichmentData(seriesId!, series.item_type)
+      
+      if (cancelled || !data) {
         setLnStatsLoading(false)
-      }
-    }
-
-    loadNovelRanking()
-  }, [series])
-
-  useEffect(() => {
-    if (!series || series.item_type !== 'novel') {
-      setFanVoteHistory([])
-      return
-    }
-
-    async function loadFanVoteHistory() {
-      const { data, error } = await publicSupabase
-        .from('voting_results')
-        .select('votes, rank, voting_periods(month, year, label)')
-        .eq('series_id', series.id)
-
-      if (error) {
-        console.warn('Failed to load fan vote history')
-        setFanVoteHistory([])
+        setScoreLoading(false)
         return
       }
 
-      const history = (data || [])
-        .map((row: any) => {
-          const periodRaw = row.voting_periods
-          const period = Array.isArray(periodRaw) ? periodRaw[0] : periodRaw
-          const month = Number(period?.month || 0)
-          const year = Number(period?.year || 0)
-          return {
-            period: period?.label || (month && year ? `${String(month).padStart(2, '0')}/${year}` : '—'),
-            sort: year * 100 + month,
-            votes: Number(row.votes) || 0,
-            rank: row.rank == null ? null : Number(row.rank),
-          } as FanVotePoint
+      // 1. Rating summary
+      if (data.ratingSummary) {
+        const average = Number(data.ratingSummary.average_rating ?? data.ratingSummary.average ?? 0)
+        const count = Number(data.ratingSummary.rating_count ?? data.ratingSummary.count ?? 0)
+        setSeriesRatingSummary({
+          average: count > 0 && Number.isFinite(average) ? average : null,
+          count: Number.isFinite(count) ? count : 0,
         })
-        .filter(point => point.sort > 0)
-        .sort((a, b) => a.sort - b.sort)
-
-      setFanVoteHistory(history)
-    }
-
-    loadFanVoteHistory()
-  }, [series])
-
-  // ── Calculate LiDex Score (anime only) ──────────────────────────────────────
-  useEffect(() => {
-    if (!series || series.item_type !== 'anime' || !series.anime_meta) return
-
-    async function calcScore() {
-      setScoreLoading(true)
-      try {
-        const { data: popData } = await publicSupabase
-          .from('anime_meta')
-          .select('mean_score, popularity, favourites')
-          .limit(3000)
-
-        const { data: studioData } = await publicSupabase
-          .from('series')
-          .select('studio, anime_meta(mean_score)')
-          .eq('item_type', 'anime')
-          .not('studio', 'is', null)
-          .limit(3000)
-
-        const studioRows = (studioData || []).map((s: any) => ({
-          studio:     s.studio,
-          mean_score: s.anime_meta?.mean_score ?? null,
-          popularity: null,
-          favourites: null,
-        }))
-
-        const allRows = [
-          ...(popData || []).map((r: any) => ({ ...r, studio: null })),
-          ...studioRows,
-        ]
-
-        const stats = buildPopulationStats(allRows)
-        const breakdown = calculateLiDexScore(
-          {
-            mean_score:          series.anime_meta.mean_score,
-            popularity:          series.anime_meta.popularity,
-            favourites:          series.anime_meta.favourites,
-            status:              series.status,
-            score_distribution:  series.anime_meta.score_distribution,
-            status_distribution: series.anime_meta.status_distribution,
-          },
-          series.studio ?? null,
-          stats
-        )
-        setLidexScore(breakdown)
-      } catch (e) {
-        console.error('LiDex score calc failed:', e)
-      } finally {
-        setScoreLoading(false)
+      } else {
+        setSeriesRatingSummary({ average: null, count: 0 })
       }
+
+      // 2. Library summary
+      setSeriesLibrarySummary(parseSeriesLibrarySummary(data.librarySummary))
+
+      // 3. Manga/Novel enrichment
+      if (series.item_type === 'manga') {
+        setMangaMeta(data.mangaMeta)
+        setPublisherName(data.publisherName)
+      } else if (series.item_type === 'novel') {
+        setNovelMeta(data.novelMeta)
+      }
+
+      // Volumes & latest cover
+      if (data.vols && data.vols.length > 0) {
+        setAllVolumes(data.vols)
+        setVolumeCount(data.vols.length)
+        setLatestVolume(data.vols[0])
+        const withCover = data.vols.find((v: any) => v.cover_url)
+        setCoverSrc(withCover?.cover_url || series.cover_url || null)
+      } else {
+        setAllVolumes([])
+        setVolumeCount(0)
+        setLatestVolume(null)
+        setCoverSrc(series.cover_url || null)
+      }
+
+      // Links
+      setSeriesLinks(data.links)
+
+      // Novel ranking & market rows
+      if (series.item_type === 'novel') {
+        setLnMarketRows(data.lnMarketRows)
+        setLnRanking(data.lnRanking)
+        setFanVoteHistory(data.fanVoteHistory)
+      }
+
+      // LiDex score
+      setLidexScore(data.lidexScore)
+
+      setLnStatsLoading(false)
+      setScoreLoading(false)
     }
-    calcScore()
-  }, [series])
+
+    loadEnrichment()
+
+    return () => {
+      cancelled = true
+    }
+  }, [series, seriesId, userLibraryEntry.rating, userLibraryEntry.status, userLibrarySaving])
 
   const saveUserSeriesLibrary = async (patch: Partial<UserSeriesLibraryEntry>) => {
     if (!seriesId) return

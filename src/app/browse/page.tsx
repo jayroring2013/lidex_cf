@@ -8,7 +8,7 @@ import {
   Search, SlidersHorizontal, X, ChevronDown, Loader2,
   BookOpen, Tv, Book, TrendingUp, Clock, ArrowRight, ExternalLink, LayoutGrid
 } from 'lucide-react'
-import supabase from '@/lib/publicSupabaseClient'
+import { fetchBrowseDiscovery, fetchBrowseCards } from '@/lib/db'
 import { useLocale } from '@/contexts/LocaleContext'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -126,24 +126,7 @@ function gridCols(size: number): string {
 
 // ── Card mappers ──────────────────────────────────────────────────────────────
 
-async function fetchLatestVolCovers(ids: (string | number)[]): Promise<Record<string | number, string | null>> {
-  if (!ids.length) return {}
-  const { data } = await supabase
-    .from('volumes')
-    .select('series_id, cover_url, volume_number')
-    .in('series_id', ids)
-    .eq('is_special', false)
-    .not('cover_url', 'is', null)
-    .order('volume_number', { ascending: false })
-  if (!data) return {}
-  const map: Record<string | number, string | null> = {}
-  for (const row of data) {
-    if (map[row.series_id] === undefined) {
-      map[row.series_id] = proxyImg(row.cover_url)
-    }
-  }
-  return map
-}
+
 
 function toAnimeCards(rows: any[]): SeriesCard[] {
   return rows.map(s => {
@@ -482,57 +465,21 @@ export default function BrowsePage() {
     async function load() {
       setDiscLoading(true)
       try {
-        if (type === 'anime') {
-          // ✅ Use !inner so series without a 2026 anime_meta row are excluded entirely
-          const [{ data: pop }, { data: rec }] = await Promise.all([
-            supabase.from('series')
-              .select('id, title, cover_url, status, studio, anime_meta!inner(mean_score, popularity, season_year)')
-              .eq('item_type', 'anime')
-              .eq('anime_meta.season_year', 2026)
-              .not('cover_url', 'is', null)
-              .not('genres', 'cs', '{"Hentai"}')
-              .order('anime_meta(popularity)', { ascending: false })
-              .limit(14),
-            supabase.from('series')
-              .select('id, title, cover_url, status, studio, anime_meta!inner(mean_score, season_year)')
-              .eq('item_type', 'anime')
-              .eq('anime_meta.season_year', 2026)
-              .not('cover_url', 'is', null)
-              .not('genres', 'cs', '{"Hentai"}')
-              .order('updated_at', { ascending: false })
-              .limit(14),
-          ])
-          if (!cancelled) { setPopular(toAnimeCards(pop || [])); setRecent(toAnimeCards(rec || [])) }
-
-        } else if (type === 'manga') {
-          const [{ data: pop }, { data: rec }] = await Promise.all([
-            supabase.from('series').select('id, title, cover_url, status, genres').eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}')
-              .order('updated_at', { ascending: false }).limit(14),
-            supabase.from('series').select('id, title, cover_url, status, genres').eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}')
-              .order('created_at', { ascending: false }).limit(14),
-          ])
-          const allRows = [...(pop || []), ...(rec || [])]
-          const ids = allRows.map((m: any) => m.id)
-          const volCovers = await fetchLatestVolCovers(ids)
-          if (!cancelled) {
-            setPopular(toMangaCards(pop || [], volCovers)); setRecent(toMangaCards(rec || [], volCovers))
+        const { popularRows, recentRows, volCovers } = await fetchBrowseDiscovery({ type })
+        if (!cancelled) {
+          if (type === 'anime') {
+            setPopular(toAnimeCards(popularRows))
+            setRecent(toAnimeCards(recentRows))
+          } else if (type === 'manga') {
+            setPopular(toMangaCards(popularRows, volCovers))
+            setRecent(toMangaCards(recentRows, volCovers))
+            const allRows = [...popularRows, ...recentRows]
             const gs = new Set<string>()
             allRows.forEach((m: any) => { if (Array.isArray(m.genres)) m.genres.forEach((g: string) => gs.add(g)) })
             setGenreOpts(Array.from(gs).sort())
-          }
-
-        } else {
-          const [{ data: pop }, { data: rec }] = await Promise.all([
-            supabase.from('series').select('id, title, cover_url, status, genres').eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
-              .order('updated_at', { ascending: false }).limit(14),
-            supabase.from('series').select('id, title, cover_url, status, genres').eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
-              .order('created_at', { ascending: false }).limit(14),
-          ])
-          const allRows = [...(pop || []), ...(rec || [])]
-          const ids = allRows.map((n: any) => n.id)
-          const volCovers = await fetchLatestVolCovers(ids)
-          if (!cancelled) {
-            setPopular(toNovelCards(pop || [], volCovers)); setRecent(toNovelCards(rec || [], volCovers))
+          } else {
+            setPopular(toNovelCards(popularRows, volCovers))
+            setRecent(toNovelCards(recentRows, volCovers))
           }
         }
       } catch (e) { console.error('Discovery error:', e) }
@@ -547,59 +494,34 @@ export default function BrowsePage() {
     reset ? setLoading(true) : setLoadingMore(true)
     const offset = reset ? 0 : page * pageSize
     try {
+      const { rows, volCovers } = await fetchBrowseCards({
+        type,
+        search,
+        status,
+        genre,
+        sort,
+        offset,
+        limit: pageSize
+      })
+
       let results: SeriesCard[] = []
-      let more = false
-
       if (type === 'anime') {
-        // ✅ Use !inner so only series with a matching 2026 anime_meta row are returned
-        let q = supabase.from('series')
-          .select('id, title, cover_url, status, studio, anime_meta!inner(mean_score, popularity, format, season_year)')
-          .eq('item_type', 'anime')
-          .eq('anime_meta.season_year', 2026)
-          .not('genres', 'cs', '{"Hentai"}')
-        if (search)           q = q.ilike('title', `%${search}%`)
-        if (status !== 'all') q = q.ilike('status', status)
-        if (sort === 'score_desc')        q = q.order('anime_meta(mean_score)',    { ascending: false })
-        else if (sort === 'popular_desc') q = q.order('anime_meta(popularity)',    { ascending: false })
-        else if (sort === 'year_desc')    q = q.order('updated_at',                { ascending: false })
-        else                              q = q.order('title',                     { ascending: true  })
-        const { data } = await q.range(offset, offset + pageSize - 1)
-        results = toAnimeCards(data || [])
-        more = results.length === pageSize
-
+        results = toAnimeCards(rows)
       } else if (type === 'manga') {
-        let q = supabase.from('series')
-          .select('id, title, cover_url, status, genres').eq('item_type', 'manga').not('genres', 'cs', '{"Hentai"}')
-        if (search)           q = q.ilike('title', `%${search}%`)
-        if (status !== 'all') q = q.ilike('status', status)
-        if (genre  !== 'all') q = q.contains('genres', [genre])
-        if (sort === 'year_desc')         q = q.order('updated_at', { ascending: false })
-        else                              q = q.order('title',      { ascending: true })
-        const { data } = await q.range(offset, offset + pageSize - 1)
-        const volCovers = await fetchLatestVolCovers((data || []).map((m: any) => m.id))
-        results = toMangaCards(data || [], volCovers)
-        more = results.length === pageSize
-
+        results = toMangaCards(rows, volCovers)
       } else {
-        let q = supabase.from('series')
-          .select('id, title, cover_url, status, genres').eq('item_type', 'novel').not('genres', 'cs', '{"Hentai"}')
-        if (search) q = q.ilike('title', `%${search}%`)
-        if (status !== 'all') q = q.eq('status', status)
-        if (sort === 'year_desc')         q = q.order('updated_at', { ascending: false })
-        else                              q = q.order('title',      { ascending: true })
-        const { data } = await q.range(offset, offset + pageSize - 1)
-        const volCovers = await fetchLatestVolCovers((data || []).map((n: any) => n.id))
-        results = toNovelCards(data || [], volCovers)
-        more = results.length === pageSize
+        results = toNovelCards(rows, volCovers)
       }
 
       if (reset) { setCards(results); setPage(1) }
       else       { setCards(prev => [...prev, ...results]); setPage(p => p + 1) }
-      setHasMore(more)
+      setHasMore(results.length === pageSize)
+    } catch (err) {
+      console.error('Failed to fetch browse cards:', err)
     } finally {
       reset ? setLoading(false) : setLoadingMore(false)
     }
-  }, [type, search, status, format, genre, sort, page, pageSize])
+  }, [type, search, status, genre, sort, page, pageSize])
 
   useEffect(() => {
     if (!browseMode && !search) return
