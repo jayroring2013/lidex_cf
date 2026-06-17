@@ -15,6 +15,22 @@ function checkEnvVar(key: string): boolean {
 }
 
 export async function GET() {
+  let ctxKeys: string[] = []
+  let envKeys: string[] = []
+  let cfContextError: string | null = null
+
+  try {
+    const ctx = getCloudflareContext()
+    if (ctx) {
+      ctxKeys = Object.keys(ctx)
+      if (ctx.env) {
+        envKeys = Object.keys(ctx.env)
+      }
+    }
+  } catch (e) {
+    cfContextError = e instanceof Error ? e.message : String(e)
+  }
+
   const env = {
     DATABASE_URL: checkEnvVar('DATABASE_URL'),
     NEXT_PUBLIC_SUPABASE_URL: checkEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
@@ -23,14 +39,21 @@ export async function GET() {
 
   try {
     await sql('SELECT 1 as ok')
-    return NextResponse.json({ ok: true, env, database: 'ok' })
+    return NextResponse.json({
+      ok: true,
+      env,
+      database: 'ok',
+      debug: { ctxKeys, envKeys, cfContextError }
+    })
   } catch (error) {
     return NextResponse.json({
       ok: false,
       env,
       database: 'error',
       error: error instanceof Error ? error.message : String(error),
+      debug: { ctxKeys, envKeys, cfContextError }
     }, { status: 500 })
   }
 }
+
 
