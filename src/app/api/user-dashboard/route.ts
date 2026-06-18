@@ -4,8 +4,11 @@ import { sql } from '@/lib/neonClient'
 
 export const dynamic = 'force-dynamic'
 
+const MAX_USER_LIBRARY_ROWS = 1000
+const MAX_USER_VOLUME_IDS = 2000
+
 function jsonError(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status })
+  return NextResponse.json({ error: message }, { status, headers: { 'Cache-Control': 'no-store' } })
 }
 
 function getBearerToken(request: NextRequest) {
@@ -49,7 +52,7 @@ async function getAuthedUserId(request: NextRequest) {
 function normalizeVolumeIds(input: unknown) {
   if (!Array.isArray(input)) return null
   const ids = Array.from(new Set(input.map(id => Number(id)).filter(id => Number.isInteger(id) && id > 0)))
-  return ids.slice(0, 5000)
+  return ids.slice(0, MAX_USER_VOLUME_IDS)
 }
 
 export async function GET(request: NextRequest) {
@@ -57,15 +60,14 @@ export async function GET(request: NextRequest) {
     const { userId, error: authError } = await getAuthedUserId(request)
     if (authError || !userId) return authError || jsonError('Unauthorized', 401)
 
-    // 1. Fetch library rows
     const libraryRows = await sql(`
       SELECT series_id, rating, status, updated_at 
       FROM series_user_library 
       WHERE user_id = $1 
       ORDER BY updated_at DESC
-    `, [userId])
+      LIMIT $2
+    `, [userId, MAX_USER_LIBRARY_ROWS])
 
-    // 2. Fetch purchase rows
     let purchaseRows: any[] = []
     let bookshelfAvailable = true
     try {
@@ -74,7 +76,8 @@ export async function GET(request: NextRequest) {
         FROM series_user_volume_purchases 
         WHERE user_id = $1 
         ORDER BY created_at DESC
-      `, [userId])
+        LIMIT $2
+      `, [userId, MAX_USER_VOLUME_IDS])
     } catch (err) {
       console.error('[user-dashboard] bookshelf read skipped', err)
       bookshelfAvailable = false
@@ -83,7 +86,6 @@ export async function GET(request: NextRequest) {
     const volumeIds = purchaseRows.map(row => Number(row.volume_id)).filter(Boolean)
     const librarySeriesIds = libraryRows.map(row => Number(row.series_id)).filter(Boolean)
 
-    // 3. Fetch volumes
     let volumeRows: any[] = []
     if (volumeIds.length > 0) {
       try {
@@ -102,7 +104,6 @@ export async function GET(request: NextRequest) {
       ...volumeRows.map(row => Number(row.series_id)).filter(Boolean),
     ]))
 
-    // 4. Fetch series details
     let seriesRows: any[] = []
     if (seriesIds.length > 0) {
       try {
@@ -167,7 +168,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ purchases, ratedList, bookshelfAvailable })
+    return NextResponse.json({ purchases, ratedList, bookshelfAvailable }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('[user-dashboard] unexpected read failure:', error)
     return jsonError('Unable to load dashboard', 500)
@@ -183,21 +184,19 @@ export async function POST(request: NextRequest) {
     const volumeIds = normalizeVolumeIds(body.volumeIds)
     if (!volumeIds) return jsonError('Invalid volumes', 400)
 
-    // Delete existing purchases for this user
     await sql(`
       DELETE FROM series_user_volume_purchases 
       WHERE user_id = $1
     `, [userId])
 
     if (volumeIds.length > 0) {
-      // Perform batch insert using unnest
       await sql(`
         INSERT INTO series_user_volume_purchases (user_id, volume_id)
         SELECT $1, unnest($2::int[])
       `, [userId, volumeIds])
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('[user-dashboard] unexpected write failure:', error)
     return jsonError('Unable to save bookshelf', 500)
