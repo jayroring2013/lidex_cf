@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/neonClient'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 86400
 
 // GET /api/stats
 export async function GET(request: NextRequest) {
@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
       popularityStats,
     }, {
       headers: {
-        // Cache at CDN for 1 day; serve stale for 7 days while revalidating
         'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
     })
