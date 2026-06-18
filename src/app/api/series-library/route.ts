@@ -5,9 +5,10 @@ import { sql } from '@/lib/neonClient'
 export const dynamic = 'force-dynamic'
 
 const ALLOWED_STATUSES = new Set(['reading', 'dropped', 'planned', 'finished'])
+const PRIVATE_HEADERS = { 'Cache-Control': 'no-store' }
 
 function jsonError(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status })
+  return NextResponse.json({ error: message }, { status, headers: PRIVATE_HEADERS })
 }
 
 function getBearerToken(request: NextRequest) {
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       rating: data?.rating == null ? null : Number(data.rating),
       status: data?.status || null,
-    })
+    }, { headers: PRIVATE_HEADERS })
   } catch (error) {
     console.error('[series-library] unexpected read failure:', error)
     return jsonError('Unable to load rating', 500)
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
       SET rating = EXCLUDED.rating, status = EXCLUDED.status, updated_at = EXCLUDED.updated_at
     `, [userId, seriesId, rating, status])
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: PRIVATE_HEADERS })
   } catch (error) {
     console.error('[series-library] unexpected write failure:', error)
     return jsonError('Unable to save rating', 500)
