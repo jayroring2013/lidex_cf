@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Grid3X3 } from 'lucide-react'
-import { fetchGenreMatrix } from '@/lib/db'
+import { getCachedGenreMatrix } from '@/lib/cachedDb'
 import { useLocale } from '@/contexts/LocaleContext'
 
 const SCORE_BUCKETS = [
@@ -46,7 +46,7 @@ export default function GenreMatrixPage() {
       setError(null)
 
       try {
-        const data = await fetchGenreMatrix()
+        const data = await getCachedGenreMatrix()
         const grouped = new Map<string, { sum: number; count: number; buckets: Record<BucketKey, number> }>()
 
         ;(data || []).forEach((row: any) => {
