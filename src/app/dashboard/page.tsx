@@ -2712,17 +2712,15 @@ export default function Dashboard() {
         }
       })
 
-      // 4. Volume releases
+      // 4. Volume releases — publisher now comes directly from the DB (volumes JOIN series)
       const volumeReleases = volumeRows
         .filter(v => v.is_special === false || String(v.is_special).toLowerCase() !== 'true')
-        .map(v => {
-          const row = fanHydrated.find(r => r.lidex_series_id === v.series_id)
-          return {
-            series_id: v.series_id,
-            publisher: row?.publisher || 'Unknown',
-            release_date: String(v.release_date).slice(0, 10)
-          }
-        })
+        .map(v => ({
+          series_id: v.series_id,
+          publisher: (v as any).publisher || 'Unknown',
+          release_date: String(v.release_date).slice(0, 10)
+        }))
+
 
       // 5. Publisher logos
       const logos: PublisherLogoMap = {}

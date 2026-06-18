@@ -1319,9 +1319,10 @@ export async function fetchDashboardEnrichmentData() {
           WHERE vr.series_id = ANY($1)
         `, [ids]),
         sql(`
-          SELECT series_id, release_date, is_special
-          FROM volumes
-          WHERE series_id = ANY($1) AND release_date IS NOT NULL
+          SELECT v.series_id, v.release_date, v.is_special, s.publisher
+          FROM volumes v
+          LEFT JOIN series s ON v.series_id = s.id
+          WHERE v.series_id = ANY($1) AND v.release_date IS NOT NULL
         `, [ids])
       ])
       canonicalList = canonRes

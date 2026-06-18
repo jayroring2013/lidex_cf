@@ -58,17 +58,19 @@ function isUnsafeToCache(query: string) {
   return false
 }
 
-function makeCachedSelect(query: string, params: any[]) {
-  const keyParams = JSON.stringify(params)
-  return unstable_cache(
-    async () => getSqlClient()(query, params) as Promise<any[]>,
-    ['neon-select-v1', query, keyParams],
-    {
-      revalidate: SELECT_CACHE_SECONDS,
-      tags: ['neon-public-select'],
-    }
-  )
-}
+// Module-level cached function — Next.js automatically includes the serialized
+// (query, params) arguments in the cache key, so each unique query+params pair
+// gets its own cache slot. Do NOT move this inside a function or closure.
+const cachedSelect = unstable_cache(
+  async (query: string, params: any[] = []) => {
+    return getSqlClient()(query, params) as Promise<any[]>
+  },
+  ['neon-select-v2'],
+  {
+    revalidate: SELECT_CACHE_SECONDS,
+    tags: ['neon-public-select'],
+  }
+)
 
 // Neon HTTP client for edge and serverless environments.
 // Public read-only SELECT queries are cached for one hour by default to reduce
@@ -76,7 +78,7 @@ function makeCachedSelect(query: string, params: any[]) {
 // User/private tables and all writes bypass this cache automatically.
 export const sql: SqlQuery = (query, params = []) => {
   if (isReadQuery(query) && !isUnsafeToCache(query)) {
-    return makeCachedSelect(query, params)()
+    return cachedSelect(query, params)
   }
 
   return getSqlClient()(query, params) as Promise<any[]>

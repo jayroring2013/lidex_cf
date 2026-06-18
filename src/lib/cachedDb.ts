@@ -176,11 +176,14 @@ export async function getCachedCompareAllMeta() {
   return cachedCompareAllMeta()
 }
 
+// Module-level cached — Next.js auto-includes serialized args in the key,
+// so each seriesId gets its own cache slot. Key bumped to v2 to bust stale cache.
+const cachedSeriesVolumeDetails = unstable_cache(
+  async (seriesId: number) => fetchSeriesVolumeDetails(seriesId),
+  ['series-volume-details-v2'],
+  { revalidate: SIX_HOURS, tags: ['series'] }
+)
+
 export async function getCachedSeriesVolumeDetails(seriesId: number) {
-  // Key includes seriesId so each series gets its own cache slot
-  return unstable_cache(
-    async () => fetchSeriesVolumeDetails(seriesId),
-    ['series-volume-details-v1', String(seriesId)],
-    { revalidate: SIX_HOURS, tags: ['series'] }
-  )()
+  return cachedSeriesVolumeDetails(seriesId)
 }

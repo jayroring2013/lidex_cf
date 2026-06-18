@@ -530,13 +530,19 @@ export default function ContentDetail() {
       setLnStatsLoading(true)
       setScoreLoading(true)
       
-      const data = await fetchSeriesEnrichmentData(seriesId!, series.item_type)
+      let data: Awaited<ReturnType<typeof fetchSeriesEnrichmentData>> | null = null
+      try {
+        data = await fetchSeriesEnrichmentData(seriesId!, series.item_type)
+      } catch (err) {
+        console.error('loadEnrichment: fetchSeriesEnrichmentData threw', err)
+      }
       
       if (cancelled || !data) {
         setLnStatsLoading(false)
         setScoreLoading(false)
         return
       }
+
 
       // 1. Rating summary
       if (data.ratingSummary) {
