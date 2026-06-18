@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/neonClient'
 
+export const revalidate = 3600
+
+const PUBLIC_CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+}
+
 // GET /api/series/:id
 export async function GET(
   request: NextRequest,
@@ -23,7 +29,7 @@ export async function GET(
     if (!series) {
       return NextResponse.json(
         { error: `Series with ID ${seriesId} not found` },
-        { status: 404 }
+        { status: 404, headers: PUBLIC_CACHE_HEADERS }
       )
     }
 
@@ -39,7 +45,7 @@ export async function GET(
       if (metaRows.length > 0) manga_meta = metaRows[0]
     }
 
-    return NextResponse.json({ ...series, anime_meta, manga_meta })
+    return NextResponse.json({ ...series, anime_meta, manga_meta }, { headers: PUBLIC_CACHE_HEADERS })
   } catch (error: any) {
     console.error('API Error in /api/series/[id]:', error)
     return NextResponse.json(
