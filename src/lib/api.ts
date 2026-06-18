@@ -1,11 +1,15 @@
 const API_BASE = '/api'
 
+const PUBLIC_FETCH_OPTIONS: RequestInit = {
+  cache: 'force-cache',
+}
+
 export async function fetchSeries(id?: number, options?: any) {
   const url = id
     ? `${API_BASE}/series/${id}`
     : `${API_BASE}/series?${new URLSearchParams(options as any)}`
 
-  const res = await fetch(url)
+  const res = await fetch(url, PUBLIC_FETCH_OPTIONS)
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Failed to fetch' }))
@@ -42,7 +46,7 @@ export async function submitVote(seriesId: number) {
 }
 
 export async function fetchStats() {
-  const res = await fetch(`${API_BASE}/stats`)
+  const res = await fetch(`${API_BASE}/stats`, PUBLIC_FETCH_OPTIONS)
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Failed to fetch stats' }))
