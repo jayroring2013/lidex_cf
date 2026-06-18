@@ -1,13 +1,10 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useEffect, useState, useCallback } from 'react'
 import { BookOpen, Tv, Book, Loader2, RefreshCw } from 'lucide-react'
-import { getTopRatedSeries, fetchBoardStats, fetchBoardRecent } from '@/lib/db'
+import { getCachedTopRatedSeries, getCachedBoardStats, getCachedBoardRecent } from '@/lib/cachedDb'
 import StatsCard from '../../components/StatsCard'
 import Link from 'next/link'
-
 
 interface SiteStats {
   totalSeries: number
@@ -38,14 +35,13 @@ const SECTION_COLORS: Record<CarouselSection, string> = {
   novel: '#22c55e',
 }
 
-const ROTATE_INTERVAL = 6000 // 6s per section
+const ROTATE_INTERVAL = 6000
 
-// Proxy ALL external images to avoid CORS / hotlink issues
 function proxyImg(url: string | null): string | null {
   if (!url) return null
   try {
     const h = new URL(url).hostname
-    if (!h.includes('supabase') && !h.includes('localhost') && !url.startsWith('/')) {
+    if (!h.includes('supabase') && !h.includes('localhost') && !h.includes('r2.dev') && !h.includes('cloudflarestorage.com') && !url.startsWith('/')) {
       return `/api/image-proxy?url=${encodeURIComponent(url)}`
     }
   } catch {}
@@ -56,7 +52,6 @@ export default function Dashboard() {
   const [stats,    setStats]    = useState<SiteStats | null>(null)
   const [loading,  setLoading]  = useState(true)
 
-  // Carousel
   const [carouselData, setCarouselData] = useState<Record<CarouselSection, CarouselItem[]>>({
     anime: [], manga: [], novel: [],
   })
@@ -66,20 +61,14 @@ export default function Dashboard() {
 
   const sections: CarouselSection[] = ['anime', 'manga', 'novel']
 
-  // Fetch stats
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const [
-          topAnimeData,
-          boardStats,
-          mangaData,
-          novelData
-        ] = await Promise.all([
-          getTopRatedSeries({ limit: 10 }),
-          fetchBoardStats(),
-          fetchBoardRecent('manga'),
-          fetchBoardRecent('novel')
+        const [topAnimeData, boardStats, mangaData, novelData] = await Promise.all([
+          getCachedTopRatedSeries({ limit: 10 }),
+          getCachedBoardStats(),
+          getCachedBoardRecent('manga'),
+          getCachedBoardRecent('novel'),
         ])
 
         const anime = boardStats.anime
@@ -127,7 +116,6 @@ export default function Dashboard() {
     loadDashboard()
   }, [])
 
-  // Auto-rotate
   const goToSection = useCallback((section: CarouselSection) => {
     if (section === activeSection) return
     setTransitioning(true)
@@ -160,8 +148,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <div className="max-w-7xl mx-auto px-4 py-8">
-
-        {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-1" style={{ color: 'var(--foreground)' }}>Dashboard</h1>
@@ -170,16 +156,12 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex items-center gap-3">
-            <span className="text-sm" style={{ color: 'var(--foreground-secondary)' }}>
-              {new Date().toLocaleTimeString()}
-            </span>
             <button onClick={() => window.location.reload()} className="p-2 glass rounded-lg transition-colors" title="Refresh">
               <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
             </button>
           </div>
         </div>
 
-        {/* ── Stats ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
           <StatsCard icon={BookOpen} value={stats?.totalSeries?.toLocaleString() || '0'} label="Total Series"   color="primary" trend={null} />
           <StatsCard icon={Tv}       value={stats?.totalAnime?.toLocaleString()  || '0'} label="Anime"          color="purple"  trend={null} />
@@ -187,22 +169,16 @@ export default function Dashboard() {
           <StatsCard icon={BookOpen} value={(stats as any)?.totalNovel?.toLocaleString() || '0'} label="Tiểu thuyết" color="green" trend={null} />
         </div>
 
-        {/* ── Carousel section ── */}
         <div>
-          {/* Header row */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-black" style={{ color: 'var(--foreground)' }}>Top</span>
               <span className="text-3xl font-black" style={{ color }}>10</span>
-              <span
-                className="text-lg font-bold ml-1 transition-colors duration-300"
-                style={{ color }}
-              >
+              <span className="text-lg font-bold ml-1 transition-colors duration-300" style={{ color }}>
                 {SECTION_LABELS[activeSection]}
               </span>
             </div>
 
-            {/* Dot indicators + section pills */}
             <div className="flex items-center gap-3">
               {sections.map(s => (
                 <button
@@ -216,14 +192,10 @@ export default function Dashboard() {
                     transform:  activeSection === s ? 'scale(1.05)' : 'scale(1)',
                   }}
                 >
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: activeSection === s ? '#fff' : SECTION_COLORS[s] }}
-                  />
+                  <span className="w-2 h-2 rounded-full" style={{ background: activeSection === s ? '#fff' : SECTION_COLORS[s] }} />
                   {SECTION_LABELS[s]}
                 </button>
               ))}
-              {/* Auto-rotate indicator */}
               {autoRotate && (
                 <div className="flex gap-1 ml-1">
                   {sections.map(s => (
@@ -241,36 +213,22 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Cards grid */}
-          <div
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-10 transition-opacity duration-250"
-            style={{ opacity: transitioning ? 0 : 1 }}
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-10 transition-opacity duration-250" style={{ opacity: transitioning ? 0 : 1 }}>
             {items.length === 0 ? (
               <div className="col-span-5 flex items-center justify-center h-48">
                 <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--foreground-muted)' }} />
               </div>
             ) : items.map((item, i) => (
-              <TopCard
-                key={item.id}
-                item={item}
-                rank={i + 1}
-                accentColor={color}
-                scoreLabel={activeSection === 'novel' ? 'votes' : undefined}
-              />
+              <TopCard key={item.id} item={item} rank={i + 1} accentColor={color} scoreLabel={activeSection === 'novel' ? 'votes' : undefined} />
             ))}
           </div>
         </div>
-
       </div>
     </div>
   )
 }
 
-// ── Top Card ──────────────────────────────────────────────────────────────────
-function TopCard({
-  item, rank, accentColor, scoreLabel,
-}: {
+function TopCard({ item, rank, accentColor, scoreLabel }: {
   item: CarouselItem
   rank: number
   accentColor: string
@@ -280,10 +238,7 @@ function TopCard({
 
   const fmtScore = (s: number | null) => {
     if (s == null) return null
-    if (scoreLabel === 'votes') {
-      if (s >= 1000) return `${(s / 1000).toFixed(1)}K`
-      return String(s)
-    }
+    if (scoreLabel === 'votes') return s >= 1000 ? `${(s / 1000).toFixed(1)}K` : String(s)
     return String(s)
   }
 
@@ -291,7 +246,6 @@ function TopCard({
 
   const card = (
     <div className="relative group cursor-pointer">
-      {/* Rank number — hollow, sits behind */}
       <span
         className="absolute select-none pointer-events-none font-black z-0"
         style={{
@@ -309,44 +263,24 @@ function TopCard({
         {rank}
       </span>
 
-      {/* Cover */}
-      <div
-        className="relative z-10 ml-auto rounded-xl overflow-hidden shadow-xl transition-transform duration-200 group-hover:scale-[1.04]"
-        style={{ width: '78%', border: `2px solid ${accentColor}44` }}
-      >
+      <div className="relative z-10 ml-auto rounded-xl overflow-hidden shadow-xl transition-transform duration-200 group-hover:scale-[1.04]" style={{ width: '78%', border: `2px solid ${accentColor}44` }}>
         {item.cover_url && !imgErr ? (
-          <img
-            src={item.cover_url}
-            alt={item.title}
-            className="w-full aspect-[2/3] object-cover block"
-            onError={() => setImgErr(true)}
-          />
+          <img src={item.cover_url} alt={item.title} loading="lazy" decoding="async" className="w-full aspect-[2/3] object-cover block" onError={() => setImgErr(true)} />
         ) : (
-          <div
-            className="w-full aspect-[2/3] flex items-center justify-center p-3"
-            style={{ background: 'var(--background-secondary)' }}
-          >
+          <div className="w-full aspect-[2/3] flex items-center justify-center p-3" style={{ background: 'var(--background-secondary)' }}>
             <p className="text-xs font-semibold text-center line-clamp-4" style={{ color: 'var(--foreground-secondary)' }}>
               {item.title}
             </p>
           </div>
         )}
 
-        {/* Score badge */}
         {scoreText && (
-          <div
-            className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-xs font-bold flex items-center gap-0.5"
-            style={{ background: 'rgba(0,0,0,0.78)', color: '#fbbf24', backdropFilter: 'blur(4px)' }}
-          >
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-xs font-bold flex items-center gap-0.5" style={{ background: 'rgba(0,0,0,0.78)', color: '#fbbf24', backdropFilter: 'blur(4px)' }}>
             ★ {scoreText}
           </div>
         )}
 
-        {/* Hover title */}
-        <div
-          className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 45%, transparent)' }}
-        >
+        <div className="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 45%, transparent)' }}>
           <p className="text-white text-xs font-semibold px-2 pb-2 line-clamp-2 w-full">
             {item.title}
           </p>
@@ -355,9 +289,5 @@ function TopCard({
     </div>
   )
 
-  return item.href !== '#' ? (
-    <Link href={item.href}>{card}</Link>
-  ) : (
-    <div>{card}</div>
-  )
+  return item.href !== '#' ? <Link href={item.href}>{card}</Link> : <div>{card}</div>
 }
