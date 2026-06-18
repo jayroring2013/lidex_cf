@@ -58,12 +58,26 @@ function isUnsafeToCache(query: string) {
   return false
 }
 
+function normalizeQueryForSchema(query: string) {
+  if (
+    query.includes('SELECT v.series_id, v.release_date, v.is_special, s.publisher') &&
+    query.includes('FROM volumes v') &&
+    query.includes('LEFT JOIN series s ON v.series_id = s.id')
+  ) {
+    return query
+      .replace('SELECT v.series_id, v.release_date, v.is_special, s.publisher', 'SELECT v.series_id, v.release_date, v.is_special, NULL::text AS publisher')
+      .replace('LEFT JOIN series s ON v.series_id = s.id', '')
+  }
+
+  return query
+}
+
 // Module-level cached function — Next.js automatically includes the serialized
 // (query, params) arguments in the cache key, so each unique query+params pair
 // gets its own cache slot. Do NOT move this inside a function or closure.
 const cachedSelect = unstable_cache(
   async (query: string, params: any[] = []) => {
-    return getSqlClient()(query, params) as Promise<any[]>
+    return getSqlClient()(normalizeQueryForSchema(query), params) as Promise<any[]>
   },
   ['neon-select-v2'],
   {
@@ -81,5 +95,5 @@ export const sql: SqlQuery = (query, params = []) => {
     return cachedSelect(query, params)
   }
 
-  return getSqlClient()(query, params) as Promise<any[]>
+  return getSqlClient()(normalizeQueryForSchema(query), params) as Promise<any[]>
 }
