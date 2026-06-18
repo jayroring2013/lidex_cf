@@ -72,12 +72,18 @@ function normalizeQueryForSchema(query: string) {
   return query
 }
 
+function isOptionalSummaryQuery(query: string) {
+  const normalized = query.trim().toLowerCase()
+  return normalized.startsWith('select * from get_series_rating_summary(')
+    || normalized.startsWith('select * from get_series_library_summary(')
+}
+
 // Module-level cached function — Next.js automatically includes the serialized
 // (query, params) arguments in the cache key, so each unique query+params pair
 // gets its own cache slot. Do NOT move this inside a function or closure.
 const cachedSelect = unstable_cache(
   async (query: string, params: any[] = []) => {
-    return getSqlClient()(normalizeQueryForSchema(query), params) as Promise<any[]>
+    return getSqlClient()(query, params) as Promise<any[]>
   },
   ['neon-select-v2'],
   {
@@ -90,10 +96,20 @@ const cachedSelect = unstable_cache(
 // Public read-only SELECT queries are cached for one hour by default to reduce
 // Neon compute/query usage and Cloudflare Worker CPU on repeated traffic.
 // User/private tables and all writes bypass this cache automatically.
-export const sql: SqlQuery = (query, params = []) => {
-  if (isReadQuery(query) && !isUnsafeToCache(query)) {
-    return cachedSelect(query, params)
-  }
+export const sql: SqlQuery = async (query, params = []) => {
+  const normalizedQuery = normalizeQueryForSchema(query)
 
-  return getSqlClient()(normalizeQueryForSchema(query), params) as Promise<any[]>
+  try {
+    if (isReadQuery(normalizedQuery) && !isUnsafeToCache(normalizedQuery)) {
+      return await cachedSelect(normalizedQuery, params)
+    }
+
+    return await getSqlClient()(normalizedQuery, params) as any[]
+  } catch (error) {
+    if (isOptionalSummaryQuery(query) && String(error).includes('does not exist')) {
+      return []
+    }
+
+    throw error
+  }
 }
