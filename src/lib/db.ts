@@ -1112,11 +1112,20 @@ export async function fetchChartNovelsData() {
 // ============================================
 // SERIES ENRICHMENT / DETAIL DATA
 // ============================================
+async function optionalEnrichmentRows(label: string, query: string, params: any[] = []) {
+  try {
+    return await sql(query, params)
+  } catch (error) {
+    console.warn(`Optional enrichment query failed (${label}):`, error)
+    return []
+  }
+}
+
 export async function fetchSeriesEnrichmentData(seriesId: number, itemType: string) {
   try {
     const [ratingData, libraryData] = await Promise.all([
-      sql(`SELECT * FROM get_series_rating_summary($1)`, [seriesId]),
-      sql(`SELECT * FROM get_series_library_summary($1)`, [seriesId])
+      optionalEnrichmentRows('rating summary', `SELECT * FROM get_series_rating_summary($1)`, [seriesId]),
+      optionalEnrichmentRows('library summary', `SELECT * FROM get_series_library_summary($1)`, [seriesId])
     ])
 
     let mangaMeta = null
@@ -1130,7 +1139,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
     let lidexScore = null
 
     if (itemType === 'manga') {
-      const mangaMetaRows = await sql(`
+      const mangaMetaRows = await optionalEnrichmentRows('manga metadata', `
         SELECT series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at
         FROM manga_meta
         WHERE series_id = $1
@@ -1138,17 +1147,17 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
       if (mangaMetaRows.length) {
         mangaMeta = mangaMetaRows[0]
         if (mangaMeta.vn_publisher_id) {
-          const pub = await sql(`SELECT name, name_vi FROM publishers WHERE id = $1`, [mangaMeta.vn_publisher_id])
+          const pub = await optionalEnrichmentRows('manga publisher', `SELECT name, name_vi FROM publishers WHERE id = $1`, [mangaMeta.vn_publisher_id])
           if (pub.length) publisherName = pub[0].name_vi || pub[0].name
         }
       }
     } else if (itemType === 'novel') {
-      const novelMetaRows = await sql(`SELECT * FROM novel_meta WHERE series_id = $1`, [seriesId])
+      const novelMetaRows = await optionalEnrichmentRows('novel metadata', `SELECT * FROM novel_meta WHERE series_id = $1`, [seriesId])
       if (novelMetaRows.length) novelMeta = novelMetaRows[0]
     }
 
     if (itemType === 'manga' || itemType === 'novel') {
-      vols = await sql(`
+      vols = await optionalEnrichmentRows('volumes', `
         SELECT id, volume_number, release_date, cover_url, price, currency, page_count, is_special
         FROM volumes
         WHERE series_id = $1 AND is_special = false AND volume_number IS NOT NULL
@@ -1157,7 +1166,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
 
       if (vols.length > 0) {
         const latestVolId = vols[0].id
-        links = await sql(`
+        links = await optionalEnrichmentRows('volume links', `
           SELECT link_type, label, url
           FROM series_links
           WHERE series_id = $1 AND volume_id = $2 AND is_active = true
@@ -1165,7 +1174,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
         `, [seriesId, latestVolId])
       }
     } else if (itemType === 'anime') {
-      links = await sql(`
+      links = await optionalEnrichmentRows('anime links', `
         SELECT link_type, label, url
         FROM series_links
         WHERE series_id = $1 AND is_active = true
@@ -1175,14 +1184,14 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
 
     if (itemType === 'novel') {
       // 1. Fetch ranking rows
-      const rankingRows = await sql(`
+      const rankingRows = await optionalEnrichmentRows('LN ranking', `
         SELECT id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title
         FROM ln_series_ranking
         ORDER BY ln_score DESC
       `)
       
       // 2. Fetch vote history
-      const votesRows = await sql(`
+      const votesRows = await optionalEnrichmentRows('fan vote history', `
         SELECT vr.votes, vr.rank, vp.month, vp.year, vp.label
         FROM voting_results vr
         JOIN voting_periods vp ON vr.period_id = vp.id
@@ -1205,7 +1214,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
       }))
 
       // Find matching ranking row
-      const seriesDetails = await sql(`SELECT title, title_vi, title_native FROM series WHERE id = $1`, [seriesId])
+      const seriesDetails = await optionalEnrichmentRows('series titles for LN matching', `SELECT title, title_vi, title_native FROM series WHERE id = $1`, [seriesId])
       if (seriesDetails.length) {
         const s = seriesDetails[0]
         const normalizedTitle = String(s.title || '').trim().toLowerCase()
@@ -1233,15 +1242,15 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
     }
 
     if (itemType === 'anime') {
-      const animeDetails = await sql(`SELECT * FROM series WHERE id = $1`, [seriesId])
+      const animeDetails = await optionalEnrichmentRows('anime details', `SELECT * FROM series WHERE id = $1`, [seriesId])
       let anime_meta: any = null
       if (animeDetails.length) {
-        const metaRows = await sql(`SELECT * FROM anime_meta WHERE series_id = $1`, [seriesId])
+        const metaRows = await optionalEnrichmentRows('anime metadata', `SELECT * FROM anime_meta WHERE series_id = $1`, [seriesId])
         if (metaRows.length) anime_meta = metaRows[0]
       }
 
       if (animeDetails.length && anime_meta) {
-        const statsData = await sql(`
+        const statsData = await optionalEnrichmentRows('anime population stats', `
           SELECT 
             a.mean_score, a.popularity, a.favourites, s.studio
           FROM anime_meta a
@@ -1300,6 +1309,13 @@ export async function fetchDashboardEnrichmentData() {
     `)
 
     const ids = Array.from(new Set(rankingRows.map((r: any) => Number(r.lidex_series_id)).filter(Boolean)))
+    const publisherBySeriesId = new Map<number, string>()
+    for (const row of rankingRows) {
+      const seriesId = Number(row.lidex_series_id)
+      if (seriesId && row.publisher && !publisherBySeriesId.has(seriesId)) {
+        publisherBySeriesId.set(seriesId, row.publisher)
+      }
+    }
     
     let canonicalList: any[] = []
     let voteRows: any[] = []
@@ -1319,9 +1335,8 @@ export async function fetchDashboardEnrichmentData() {
           WHERE vr.series_id = ANY($1)
         `, [ids]),
         sql(`
-          SELECT v.series_id, v.release_date, v.is_special, s.publisher
+          SELECT v.series_id, v.release_date, v.is_special
           FROM volumes v
-          LEFT JOIN series s ON v.series_id = s.id
           WHERE v.series_id = ANY($1) AND v.release_date IS NOT NULL
         `, [ids])
       ])
@@ -1370,7 +1385,8 @@ export async function fetchDashboardEnrichmentData() {
       volumeRows: volumeRows.map((r: any) => ({
         series_id: Number(r.series_id),
         release_date: r.release_date,
-        is_special: r.is_special
+        is_special: r.is_special,
+        publisher: publisherBySeriesId.get(Number(r.series_id)) || null
       })),
       publisherRows: publisherRows.map((r: any) => ({
         name: r.name,
