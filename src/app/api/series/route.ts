@@ -1,13 +1,15 @@
-// Removed force-dynamic — allow CDN to cache these public responses
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/neonClient'
 
-// Helper to proxy/validate image URLs
+export const revalidate = 86400
+
+const MAX_LIMIT = 100
+
 function proxyImg(url: string | null): string | null {
   if (!url) return null
   try {
     const h = new URL(url).hostname
-    if (!h.includes('supabase') && !h.includes('localhost') && !url.startsWith('/')) {
+    if (!h.includes('supabase') && !h.includes('localhost') && !h.includes('r2.dev') && !h.includes('cloudflarestorage.com') && !url.startsWith('/')) {
       return `/api/image-proxy?url=${encodeURIComponent(url)}`
     }
   } catch {}
@@ -19,7 +21,8 @@ export async function GET(req: NextRequest) {
 
   const id       = searchParams.get('id')
   const type     = searchParams.get('type')
-  const limit    = parseInt(searchParams.get('limit') || '20')
+  const rawLimit = parseInt(searchParams.get('limit') || '20')
+  const limit    = Math.max(1, Math.min(Number.isFinite(rawLimit) ? rawLimit : 20, MAX_LIMIT))
   const orderBy  = searchParams.get('orderBy') || 'title'
   const asc      = searchParams.get('asc') !== 'false'
 
@@ -41,7 +44,6 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Map order by columns to avoid SQL injection
     const allowedOrderBy: Record<string, string> = {
       'title': 's.title',
       'id': 's.id',
@@ -86,7 +88,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data }, {
       headers: {
-        // Cache 1 day at CDN, serve stale for 7 days while revalidating
         'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
     })
