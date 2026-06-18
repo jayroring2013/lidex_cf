@@ -12,7 +12,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { Loader2, Building2 } from 'lucide-react'
-import { fetchStudioMatrix } from '@/lib/db'
+import { getCachedStudioMatrix } from '@/lib/cachedDb'
 import { useLocale } from '@/contexts/LocaleContext'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
@@ -37,31 +37,35 @@ export default function StudioLeaderboardPage() {
       setLoading(true)
       setError(null)
 
-      const data = await fetchStudioMatrix()
+      try {
+        const data = await getCachedStudioMatrix()
+        const grouped = new Map<string, { sum: number; count: number }>()
 
-      const grouped = new Map<string, { sum: number; count: number }>()
+        ;(data || []).forEach((row: any) => {
+          const studio = (row.studio || '').trim()
+          const meta = Array.isArray(row.anime_meta) ? row.anime_meta[0] : row.anime_meta
+          const meanScore = meta?.mean_score
 
-      ;(data || []).forEach((row: any) => {
-        const studio = (row.studio || '').trim()
-        const meta = Array.isArray(row.anime_meta) ? row.anime_meta[0] : row.anime_meta
-        const meanScore = meta?.mean_score
+          if (!studio || typeof meanScore !== 'number') return
 
-        if (!studio || typeof meanScore !== 'number') return
+          const curr = grouped.get(studio) || { sum: 0, count: 0 }
+          curr.sum += meanScore
+          curr.count += 1
+          grouped.set(studio, curr)
+        })
 
-        const curr = grouped.get(studio) || { sum: 0, count: 0 }
-        curr.sum += meanScore
-        curr.count += 1
-        grouped.set(studio, curr)
-      })
+        const aggregates: StudioAggregate[] = Array.from(grouped.entries()).map(([studio, v]) => ({
+          studio,
+          count: v.count,
+          avgScore: Number((v.sum / v.count).toFixed(2)),
+        }))
 
-      const aggregates: StudioAggregate[] = Array.from(grouped.entries()).map(([studio, v]) => ({
-        studio,
-        count: v.count,
-        avgScore: Number((v.sum / v.count).toFixed(2)),
-      }))
-
-      setRows(aggregates)
-      setLoading(false)
+        setRows(aggregates)
+      } catch (err: any) {
+        setError(err.message || String(err))
+      } finally {
+        setLoading(false)
+      }
     }
 
     load()
