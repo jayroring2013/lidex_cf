@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/neonClient'
 
+export const revalidate = 300
+
 // GET /api/votes?seriesId=123
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +19,11 @@ export async function GET(request: NextRequest) {
     )
     const count = rows[0]?.count ?? 0
 
-    return NextResponse.json({ seriesId, count })
+    return NextResponse.json({ seriesId, count }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    })
   } catch (error: any) {
     console.error('API Error in GET /api/votes:', error)
     return NextResponse.json({ error: 'Unable to load votes' }, { status: 500 })
@@ -39,7 +45,7 @@ export async function POST(request: NextRequest) {
     )
     const data = rows[0]
 
-    return NextResponse.json(data, { status: 201 })
+    return NextResponse.json(data, { status: 201, headers: { 'Cache-Control': 'no-store' } })
   } catch (error: any) {
     console.error('API Error in POST /api/votes:', error)
     return NextResponse.json({ error: 'Unable to save vote' }, { status: 500 })
