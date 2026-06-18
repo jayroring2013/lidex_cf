@@ -58,16 +58,17 @@ function isUnsafeToCache(query: string) {
   return false
 }
 
-const cachedSelect = unstable_cache(
-  async (query: string, params: any[] = []) => {
-    return getSqlClient()(query, params) as Promise<any[]>
-  },
-  ['neon-public-select-v1'],
-  {
-    revalidate: SELECT_CACHE_SECONDS,
-    tags: ['neon-public-select'],
-  }
-)
+function makeCachedSelect(query: string, params: any[]) {
+  const keyParams = JSON.stringify(params)
+  return unstable_cache(
+    async () => getSqlClient()(query, params) as Promise<any[]>,
+    ['neon-select-v1', query, keyParams],
+    {
+      revalidate: SELECT_CACHE_SECONDS,
+      tags: ['neon-public-select'],
+    }
+  )
+}
 
 // Neon HTTP client for edge and serverless environments.
 // Public read-only SELECT queries are cached for one hour by default to reduce
@@ -75,7 +76,7 @@ const cachedSelect = unstable_cache(
 // User/private tables and all writes bypass this cache automatically.
 export const sql: SqlQuery = (query, params = []) => {
   if (isReadQuery(query) && !isUnsafeToCache(query)) {
-    return cachedSelect(query, params)
+    return makeCachedSelect(query, params)()
   }
 
   return getSqlClient()(query, params) as Promise<any[]>

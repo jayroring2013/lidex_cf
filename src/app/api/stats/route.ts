@@ -6,30 +6,35 @@ export const revalidate = 86400
 // GET /api/stats
 export async function GET(request: NextRequest) {
   try {
-    const [totalSeriesRes, animeCountRes, mangaCountRes, novelCountRes, popularityRes] = await Promise.all([
-      sql(`SELECT COUNT(*)::int as count FROM series WHERE NOT ('Hentai' = ANY(genres))`),
+    // 2 queries instead of 5 — one combined COUNT FILTER + one popularity pull
+    const [countsRes, popularityRes] = await Promise.all([
       sql(`
-        SELECT COUNT(*)::int as count 
-        FROM series s 
-        JOIN anime_meta a ON s.id = a.series_id 
-        WHERE s.item_type = 'anime' AND a.season_year = 2026 AND NOT ('Hentai' = ANY(s.genres))
+        SELECT
+          COUNT(*)::int                                        AS total,
+          COUNT(*) FILTER (WHERE item_type = 'anime')::int   AS total_anime,
+          COUNT(*) FILTER (WHERE item_type = 'manga')::int   AS total_manga,
+          COUNT(*) FILTER (WHERE item_type = 'novel')::int   AS total_novels
+        FROM series
+        WHERE NOT ('Hentai' = ANY(genres))
       `),
-      sql(`SELECT COUNT(*)::int as count FROM series WHERE item_type = 'manga' AND NOT ('Hentai' = ANY(genres))`),
-      sql(`SELECT COUNT(*)::int as count FROM series WHERE item_type = 'novel' AND NOT ('Hentai' = ANY(genres))`),
       sql(`
-        SELECT popularity::int 
-        FROM anime_meta 
-        WHERE season_year = 2026 AND popularity IS NOT NULL 
-        ORDER BY popularity ASC 
+        SELECT popularity::int
+        FROM anime_meta
+        WHERE season_year = 2026 AND popularity IS NOT NULL
+        ORDER BY popularity ASC
         LIMIT 500
       `)
     ])
 
-    const totalSeries = totalSeriesRes[0]?.count ?? 0
-    const totalAnime = animeCountRes[0]?.count ?? 0
-    const totalManga = mangaCountRes[0]?.count ?? 0
-    const totalNovels = novelCountRes[0]?.count ?? 0
-    const popularities = popularityRes.map((p: any) => p.popularity).filter((p: number | null) => p !== null)
+    const counts     = countsRes[0] ?? {}
+    const totalSeries = counts.total        ?? 0
+    const totalAnime  = counts.total_anime  ?? 0
+    const totalManga  = counts.total_manga  ?? 0
+    const totalNovels = counts.total_novels ?? 0
+
+    const popularities = popularityRes
+      .map((p: any) => p.popularity)
+      .filter((p: number | null) => p !== null)
 
     let popularityStats = {
       min: 500000,

@@ -17,9 +17,11 @@ import {
   fetchChartVolumes,
   fetchChartVotes,
   fetchCompareAllMeta,
-  fetchUserCatalog,
   fetchSeriesVolumeDetails,
 } from './db'
+// NOTE: fetchUserCatalog is intentionally NOT imported here.
+// User-specific data must never be cached globally (no user ID in key = data leak).
+// Call fetchUserCatalog() directly from the page/action that has the userId.
 
 const ONE_HOUR = 3600
 const SIX_HOURS = 21600
@@ -174,22 +176,11 @@ export async function getCachedCompareAllMeta() {
   return cachedCompareAllMeta()
 }
 
-const cachedUserCatalog = unstable_cache(
-  async () => fetchUserCatalog(),
-  ['user-catalog-v1'],
-  { revalidate: SIX_HOURS, tags: ['catalog'] }
-)
-
-export async function getCachedUserCatalog() {
-  return cachedUserCatalog()
-}
-
-const cachedSeriesVolumeDetails = unstable_cache(
-  async (seriesId: number) => fetchSeriesVolumeDetails(seriesId),
-  ['series-volume-details-v1'],
-  { revalidate: SIX_HOURS, tags: ['series'] }
-)
-
 export async function getCachedSeriesVolumeDetails(seriesId: number) {
-  return cachedSeriesVolumeDetails(seriesId)
+  // Key includes seriesId so each series gets its own cache slot
+  return unstable_cache(
+    async () => fetchSeriesVolumeDetails(seriesId),
+    ['series-volume-details-v1', String(seriesId)],
+    { revalidate: SIX_HOURS, tags: ['series'] }
+  )()
 }

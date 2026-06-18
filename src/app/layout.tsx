@@ -11,8 +11,15 @@ const inter = Be_Vietnam_Pro({
   subsets:  ['latin', 'vietnamese'],
   weight:   ['400', '500', '600', '700', '800', '900'],
   variable: '--font-inter',
+  display:  'swap',
 })
-const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
+const jetbrains = JetBrains_Mono({
+  subsets:  ['latin'],
+  variable: '--font-mono',
+  display:  'swap',
+  preload:  false, // monospace font only used for code/data — skip preloading
+})
+
 
 export const metadata = {
   title: 'LiDex - Light Novel, Anime & Manga Analytics',
