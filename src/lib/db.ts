@@ -15,6 +15,32 @@ function proxyImg(url: string | null): string | null {
   return url
 }
 
+function normalizeDbDate(value: any): string | null {
+  if (!value) return null
+
+  let date: Date | null = null
+  if (value instanceof Date) {
+    date = value
+  } else {
+    const raw = String(value).trim()
+    if (!raw) return null
+
+    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+    if (iso) return iso[0]
+
+    const dmy = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/)
+    if (dmy) {
+      const [, day, month, year] = dmy
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    }
+
+    date = new Date(raw)
+  }
+
+  if (!date || Number.isNaN(date.getTime())) return null
+  return date.toISOString().slice(0, 10)
+}
+
 // ============================================
 // SITE STATS
 // ============================================
@@ -233,7 +259,7 @@ export async function getReleaseSchedule({ limit = 10 } = {}) {
       id: r.volume_id,
       volume_number: r.volume_number,
       title: r.volume_title,
-      release_date: r.release_date,
+      release_date: normalizeDbDate(r.release_date),
       price: r.price == null ? null : Number(r.price),
       currency: r.currency,
       cover_url: proxyImg(r.volume_cover_url),
@@ -666,7 +692,7 @@ export async function fetchChartVolumes() {
     return rows.map((r: any) => ({
       series_id: Number(r.series_id),
       cover_url: proxyImg(r.cover_url),
-      release_date: r.release_date,
+      release_date: normalizeDbDate(r.release_date),
     }))
   } catch (error) {
     console.error('Failed fetch chart volumes:', error)
@@ -1204,6 +1230,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
         lidex_series_id: r.lidex_series_id == null ? null : Number(r.lidex_series_id),
         number_of_volumes: r.number_of_volumes == null ? null : Number(r.number_of_volumes),
         average_price: r.average_price == null ? null : Number(r.average_price),
+        max_release_at: normalizeDbDate(r.max_release_at),
         original_volumes: r.original_volumes == null ? null : Number(r.original_volumes),
         ln_score: r.ln_score == null ? null : Number(r.ln_score),
         drop_percent: r.drop_percent == null ? null : Number(r.drop_percent),
@@ -1287,7 +1314,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
       mangaMeta,
       publisherName,
       novelMeta,
-      vols: vols.map((v: any) => ({ ...v, id: Number(v.id), volume_number: v.volume_number == null ? null : Number(v.volume_number), price: Number(v.price) || 0 })),
+      vols: vols.map((v: any) => ({ ...v, id: Number(v.id), volume_number: v.volume_number == null ? null : Number(v.volume_number), release_date: normalizeDbDate(v.release_date), price: Number(v.price) || 0 })),
       links: links.map((l: any) => ({ ...l })),
       lnRanking,
       lnMarketRows,
@@ -1358,6 +1385,7 @@ export async function fetchDashboardEnrichmentData() {
         lidex_series_id: r.lidex_series_id == null ? null : Number(r.lidex_series_id),
         number_of_volumes: r.number_of_volumes == null ? null : Number(r.number_of_volumes),
         average_price: r.average_price == null ? null : Number(r.average_price),
+        max_release_at: normalizeDbDate(r.max_release_at),
         original_volumes: r.original_volumes == null ? null : Number(r.original_volumes),
         ln_score: r.ln_score == null ? null : Number(r.ln_score),
         drop_percent: r.drop_percent == null ? null : Number(r.drop_percent),
@@ -1384,7 +1412,7 @@ export async function fetchDashboardEnrichmentData() {
       })),
       volumeRows: volumeRows.map((r: any) => ({
         series_id: Number(r.series_id),
-        release_date: r.release_date,
+        release_date: normalizeDbDate(r.release_date),
         is_special: r.is_special,
         publisher: publisherBySeriesId.get(Number(r.series_id)) || null
       })),
@@ -1527,7 +1555,7 @@ export async function fetchSeriesVolumeDetails(seriesId: number) {
       price: r.price !== null ? Number(r.price) : null,
       currency: r.currency || 'VND',
       coverUrl: proxyImg(r.cover_url),
-      releaseDate: r.release_date
+      releaseDate: normalizeDbDate(r.release_date)
     }))
   } catch (error) {
     console.error('Failed to fetch series volume details:', error)
