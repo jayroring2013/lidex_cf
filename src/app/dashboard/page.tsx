@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   TrendingUp,
 } from 'lucide-react'
-import { fetchDashboardEnrichmentData } from '@/lib/db'
+// Dashboard data is fetched via /api/dashboard (API Route) instead of a Server Action
+// because Cloudflare Workers do not reliably propagate request context inside Server Actions.
 import { useLocale } from '@/contexts/LocaleContext'
 
 type Mode = 'dashboard' | 'watchlist' | 'publisher'
@@ -2657,7 +2658,13 @@ export default function Dashboard() {
     setError(null)
 
     try {
-      const enrichment = await fetchDashboardEnrichmentData()
+      const res = await fetch('/api/dashboard')
+      if (!res.ok) {
+        setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
+        setLoading(false)
+        return
+      }
+      const enrichment = await res.json()
       if (!enrichment) {
         setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
         setLoading(false)
@@ -2670,9 +2677,9 @@ export default function Dashboard() {
       const mapped = mapRows(rankingRows as RawRankingRow[])
 
       // 2. Hydrate canonical series
-      const canonicalMap = new Map(canonicalList.map(c => [c.id, c]))
+      const canonicalMap = new Map(canonicalList.map((c: any) => [c.id, c]))
       const hydrated = mapped.map(row => {
-        const meta = row.lidex_series_id ? canonicalMap.get(row.lidex_series_id) : null
+        const meta: any = row.lidex_series_id ? canonicalMap.get(row.lidex_series_id) : null
         if (!meta) return row
         return {
           ...row,
@@ -2713,11 +2720,11 @@ export default function Dashboard() {
       })
 
       // 4. Volume releases — publisher now comes directly from the DB (volumes JOIN series)
-      const volumeReleases = volumeRows
-        .filter(v => v.is_special === false || String(v.is_special).toLowerCase() !== 'true')
-        .map(v => ({
+      const volumeReleases = (volumeRows as any[])
+        .filter((v: any) => v.is_special === false || String(v.is_special).toLowerCase() !== 'true')
+        .map((v: any) => ({
           series_id: v.series_id,
-          publisher: (v as any).publisher || 'Unknown',
+          publisher: v.publisher || 'Unknown',
           release_date: String(v.release_date).slice(0, 10)
         }))
 

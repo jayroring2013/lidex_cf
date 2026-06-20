@@ -14,7 +14,9 @@ import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
 import RadarChart from '@/components/RadarChart'
 import supabase from '@/lib/supabaseClient'
-import { fetchSeriesEnrichmentData } from '@/lib/db'
+// Series enrichment is fetched via /api/series-enrichment (API Route) instead of a
+// Server Action because Cloudflare Workers do not reliably propagate request context
+// inside Server Actions.
 import {
   calculateLiDexScore,
   buildPopulationStats,
@@ -530,11 +532,16 @@ export default function ContentDetail() {
       setLnStatsLoading(true)
       setScoreLoading(true)
       
-      let data: Awaited<ReturnType<typeof fetchSeriesEnrichmentData>> | null = null
+      let data: any = null
       try {
-        data = await fetchSeriesEnrichmentData(seriesId!, series.item_type)
+        const res = await fetch(`/api/series-enrichment?id=${seriesId}&type=${encodeURIComponent(series.item_type)}`)
+        if (res.ok) {
+          data = await res.json()
+        } else {
+          console.error('loadEnrichment: /api/series-enrichment returned', res.status)
+        }
       } catch (err) {
-        console.error('loadEnrichment: fetchSeriesEnrichmentData threw', err)
+        console.error('loadEnrichment: fetch threw', err)
       }
       
       if (cancelled || !data) {
