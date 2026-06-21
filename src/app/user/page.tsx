@@ -300,7 +300,7 @@ export default function UserDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [isVI])
+  }, [])
 
   useEffect(() => {
     const accessToken = session?.access_token
@@ -358,7 +358,7 @@ export default function UserDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [authReady, session?.access_token, isVI])
+  }, [authReady, session?.access_token])
 
   useEffect(() => {
     setSeriesPage(1)
