@@ -29,7 +29,7 @@ export function proxyImg(url: string | null | undefined): string | null {
   try {
     if (url.startsWith('/')) return url
     const h = new URL(url).hostname
-    if (!h.includes('supabase') && !h.includes('localhost') && !h.includes('r2.dev') && !h.includes('cloudflarestorage.com')) {
+    if (!h.includes('supabase') && !h.includes('localhost')) {
       return `/api/image-proxy?url=${encodeURIComponent(url)}`
     }
   } catch {}

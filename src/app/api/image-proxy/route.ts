@@ -53,7 +53,7 @@ function isAllowedContentType(contentType: string | null) {
 
 function isDirectCdnHost(hostname: string) {
   const h = hostname.toLowerCase()
-  return h.includes('supabase') || h.includes('r2.dev') || h.includes('cloudflarestorage.com')
+  return h.includes('supabase')
 }
 
 function proxiedFallbackUrl(url: string) {
