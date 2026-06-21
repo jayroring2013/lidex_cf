@@ -872,59 +872,57 @@ export default function UserDashboardPage() {
         )}
 
         {/* Statistics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
           {/* Card 1: Bookshelf Total */}
-          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
-                <ShoppingBag className="w-5 h-5" />
+          <div className="glass relative overflow-hidden rounded-2xl p-4 sm:p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="p-1.5 sm:p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
-              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded-full">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-indigo-400 bg-indigo-400/10 px-1.5 sm:px-2 py-0.5 rounded-full">
                 Bookshelf
               </span>
             </div>
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
-              {isVI ? 'Tập sách sở hữu' : 'Owned Volumes'}
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Sở hữu' : 'Owned'}
             </p>
-            <h3 className="text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
-              {selectedVolumes.length} <span className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'quyển' : 'vols'}</span>
+            <h3 className="text-xl sm:text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
+              {selectedVolumes.length} <span className="text-[11px] sm:text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'quyển' : 'vols'}</span>
             </h3>
-            <div className="mt-4 flex items-center justify-between">
-              <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Tổng đầu tư' : 'Total Investment'}</span>
-              <span className="text-sm font-black text-indigo-400">{formatVnd(totalPrice)}</span>
+            <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+              <span className="text-[10px] sm:text-xs" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Tổng tiền' : 'Total Price'}</span>
+              <span className="text-xs sm:text-sm font-black text-indigo-400">{formatVnd(totalPrice)}</span>
             </div>
           </div>
 
           {/* Card 2: Publisher Fanboy */}
-          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-                <Award className="w-5 h-5" />
+          <div className="glass relative overflow-hidden rounded-2xl p-4 sm:p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="p-1.5 sm:p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
               {publisherStats.badge && (
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-1.5 sm:px-2 py-0.5 rounded-full">
                   {publisherStats.badge}
                 </span>
               )}
             </div>
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
               {isVI ? 'Fan Cuồng NXB' : 'Publisher Fanboy'}
             </p>
-            <h3 className="text-xl font-black mt-1 truncate" style={{ color: 'var(--foreground)' }} title={publisherStats.name || 'N/A'}>
-              {publisherStats.name ? `${publisherStats.name} Fanboy` : (isVI ? 'Chưa rõ' : 'None Yet')}
+            <h3 className="text-lg sm:text-xl font-black mt-1 truncate" style={{ color: 'var(--foreground)' }} title={publisherStats.name || 'N/A'}>
+              {publisherStats.name ? `${publisherStats.name} Fan` : (isVI ? 'Chưa rõ' : 'None Yet')}
             </h3>
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span style={{ color: 'var(--foreground-muted)' }}>
+            <div className="mt-2.5">
+              <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1">
+                <span className="truncate max-w-[70%]" style={{ color: 'var(--foreground-muted)' }}>
                   {publisherStats.name 
-                    ? (isVI 
-                        ? `Sở hữu ${publisherStats.count}/${publisherStats.total} series` 
-                        : `Owns ${publisherStats.count}/${publisherStats.total} series`)
-                    : (isVI ? 'Hãy thêm sách để tính' : 'Add series to calculate')}
+                    ? `${publisherStats.count}/${publisherStats.total} series` 
+                    : (isVI ? 'Chưa có' : 'No data')}
                 </span>
                 <span className="font-bold" style={{ color: 'var(--foreground-secondary)' }}>{publisherStats.percent}%</span>
               </div>
-              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+              <div className="w-full h-1 sm:h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
                 <div 
                   className="bg-amber-500 h-full rounded-full transition-all duration-500" 
                   style={{ width: `${publisherStats.percent}%` }}
@@ -934,57 +932,57 @@ export default function UserDashboardPage() {
           </div>
 
           {/* Card 3: Spending Comparison */}
-          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <span className={`p-2 rounded-xl ${spendingStats.isAbove ? 'bg-emerald-500/10 text-emerald-400' : 'bg-sky-500/10 text-sky-400'}`}>
-                <Coins className="w-5 h-5" />
+          <div className="glass relative overflow-hidden rounded-2xl p-4 sm:p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className={`p-1.5 sm:p-2 rounded-xl ${spendingStats.isAbove ? 'bg-emerald-500/10 text-emerald-400' : 'bg-sky-500/10 text-sky-400'}`}>
+                <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
-              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${spendingStats.isAbove ? 'text-emerald-400 bg-emerald-400/10' : 'text-sky-400 bg-sky-400/10'}`}>
-                {spendingStats.badge}
+              <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full ${spendingStats.isAbove ? 'text-emerald-400 bg-emerald-400/10' : 'text-sky-400 bg-sky-400/10'}`}>
+                {spendingStats.badge.split(' ')[0]}
               </span>
             </div>
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
-              {isVI ? 'So Sánh Chi Tiêu' : 'Spending Comparison'}
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Chi Tiêu' : 'Spending'}
             </p>
-            <h3 className="text-2xl font-black mt-1 flex items-center gap-1.5" style={{ color: 'var(--foreground)' }}>
+            <h3 className="text-xl sm:text-2xl font-black mt-1 flex items-center gap-1" style={{ color: 'var(--foreground)' }}>
               {spendingStats.isAbove ? '+' : '-'} {spendingStats.diffPercent}%
-              <span className="text-xs font-normal" style={{ color: 'var(--foreground-muted)' }}>
-                {isVI ? 'so với TB' : 'vs avg'}
+              <span className="text-[10px] sm:text-xs font-normal" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? 'TB' : 'avg'}
               </span>
             </h3>
-            <div className="mt-4 flex items-center justify-between text-xs">
-              <span style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trung bình hệ thống' : 'System Average'}</span>
+            <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-[10px] sm:text-xs">
+              <span style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trung bình' : 'Average'}</span>
               <span className="font-bold text-emerald-400">{formatVnd(avgSpending)}</span>
             </div>
           </div>
 
-          {/* Card 4: Love New Stuff */}
-          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <span className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
-                <Sparkles className="w-5 h-5" />
+          {/* Card 4: Love New Novels */}
+          <div className="glass relative overflow-hidden rounded-2xl p-4 sm:p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="p-1.5 sm:p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full">
-                {loveNewNovelsStats.badge}
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-400/10 px-1.5 sm:px-2 py-0.5 rounded-full">
+                {loveNewNovelsStats.badge.split(' ')[0]}
               </span>
             </div>
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
-              {isVI ? 'Thích Đọc Novel Mới' : 'Love New Novels'}
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Novel Mới' : 'New Novels'}
             </p>
-            <h3 className="text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
+            <h3 className="text-xl sm:text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
               {loveNewNovelsStats.percent}%
-              <span className="text-xs font-normal ml-1.5" style={{ color: 'var(--foreground-muted)' }}>
-                {isVI ? 'phát hành từ 2025' : 'released ≥ 2025'}
+              <span className="text-[10px] sm:text-xs font-normal ml-1" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? '≥ 2025' : '≥ 2025'}
               </span>
             </h3>
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs mb-1">
+            <div className="mt-2.5">
+              <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1">
                 <span style={{ color: 'var(--foreground-muted)' }}>
-                  {isVI ? `${loveNewNovelsStats.count} quyển mới` : `${loveNewNovelsStats.count} new vols`}
+                  {isVI ? `${loveNewNovelsStats.count} quyển` : `${loveNewNovelsStats.count} vols`}
                 </span>
                 <span className="font-bold" style={{ color: 'var(--foreground-secondary)' }}>{loveNewNovelsStats.percent}%</span>
               </div>
-              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+              <div className="w-full h-1 sm:h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
                 <div 
                   className="bg-purple-500 h-full rounded-full transition-all duration-500" 
                   style={{ width: `${loveNewNovelsStats.percent}%` }}
@@ -995,7 +993,7 @@ export default function UserDashboardPage() {
         </div>
 
         <div className="relative z-0 grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)] gap-5 items-start">
-          <aside className="glass relative z-30 rounded-2xl p-4 sm:p-5">
+          <aside className="glass relative z-30 rounded-2xl p-4 sm:p-5 order-2 xl:order-1">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <h2 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>
@@ -1092,7 +1090,7 @@ export default function UserDashboardPage() {
 
           </aside>
 
-          <main className="glass relative z-0 rounded-2xl p-4 sm:p-5 min-w-0">
+          <main className="glass relative z-0 rounded-2xl p-4 sm:p-5 min-w-0 order-1 xl:order-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
               <div>
                 <h2 className="text-xl font-black" style={{ color: 'var(--foreground)' }}>
