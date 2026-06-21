@@ -56,6 +56,7 @@ type RawRankingRow = {
   drop_components: string | null
   cover_url: string | null
   cover_source_title: string | null
+  description?: string | null
   updated_at: string | null
 }
 
@@ -460,7 +461,7 @@ function mapRows(raw: RawRankingRow[]) {
       drop_components: r.drop_components,
       cover_url: r.cover_url,
       cover_source_title: r.cover_source_title,
-      description: null,
+      description: r.description || null,
       fan_vote_rank: null,
       fan_vote_votes: null,
       fan_vote_period: null,
