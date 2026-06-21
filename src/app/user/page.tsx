@@ -272,6 +272,7 @@ export default function UserDashboardPage() {
         title: row.title || 'Untitled',
         titleVi: row.title_vi || null,
         coverUrl: row.cover_url || null,
+        publisher: row.publisher || null,
       }))
 
       const validSeries = new Set(series.map(item => item.id))
