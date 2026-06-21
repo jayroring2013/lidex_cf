@@ -4,7 +4,16 @@ import { sql } from '@/lib/neonClient'
 export const revalidate = 86400
 
 // GET /api/stats
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
+  const url = req.url;
+  const cache = typeof caches !== 'undefined' ? (caches as any).default : null;
+  if (cache) {
+    try {
+      const cachedResponse = await cache.match(url);
+      if (cachedResponse) return cachedResponse;
+    } catch {}
+  }
+
   try {
     // 2 queries instead of 5 — one combined COUNT FILTER + one popularity pull
     const [countsRes, popularityRes] = await Promise.all([
@@ -59,7 +68,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       totalSeries,
       totalAnime,
       totalManga,
@@ -67,9 +76,13 @@ export async function GET(request: NextRequest) {
       popularityStats,
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
       },
     })
+    if (cache) {
+      try { await cache.put(url, response.clone()) } catch {}
+    }
+    return response
   } catch (error: any) {
     console.error('API Error in /api/stats:', error)
     return NextResponse.json({ error: 'Unable to load stats' }, { status: 500 })

@@ -17,6 +17,15 @@ function proxyImg(url: string | null): string | null {
 }
 
 export async function GET(req: NextRequest) {
+  const url = req.url;
+  const cache = typeof caches !== 'undefined' ? (caches as any).default : null;
+  if (cache) {
+    try {
+      const cachedResponse = await cache.match(url);
+      if (cachedResponse) return cachedResponse;
+    } catch {}
+  }
+
   const { searchParams } = req.nextUrl
 
   const id       = searchParams.get('id')
@@ -86,11 +95,15 @@ export async function GET(req: NextRequest) {
       } : null
     }))
 
-    return NextResponse.json({ data }, {
+    const response = NextResponse.json({ data }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
       },
     })
+    if (cache) {
+      try { await cache.put(url, response.clone()) } catch {}
+    }
+    return response
   } catch (err: any) {
     console.error('[api/series] unexpected failure:', err)
     return NextResponse.json({ error: 'Unable to load series' }, { status: 500 })

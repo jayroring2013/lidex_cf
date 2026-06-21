@@ -4,6 +4,15 @@ import { fetchSeriesEnrichmentData } from '@/lib/db'
 export const revalidate = 0
 
 export async function GET(req: NextRequest) {
+  const url = req.url;
+  const cache = typeof caches !== 'undefined' ? (caches as any).default : null;
+  if (cache) {
+    try {
+      const cachedResponse = await cache.match(url);
+      if (cachedResponse) return cachedResponse;
+    } catch {}
+  }
+
   const { searchParams } = req.nextUrl
   const id = Number(searchParams.get('id'))
   const itemType = searchParams.get('type') || ''
@@ -23,12 +32,15 @@ export async function GET(req: NextRequest) {
         { status: 500, headers: { 'Cache-Control': 'no-store' } }
       )
     }
-    return NextResponse.json(data, {
+    const response = NextResponse.json(data, {
       headers: {
-        // Cache enrichment data for 1 hour (it changes rarely)
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=7200',
       },
     })
+    if (cache) {
+      try { await cache.put(url, response.clone()) } catch {}
+    }
+    return response
   } catch (err: any) {
     console.error('[api/series-enrichment] error:', err)
     return NextResponse.json(

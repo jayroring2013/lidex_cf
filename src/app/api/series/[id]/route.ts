@@ -13,6 +13,15 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const url = request.url
+  const cache = typeof caches !== 'undefined' ? (caches as any).default : null
+  if (cache) {
+    try {
+      const cachedResponse = await cache.match(url)
+      if (cachedResponse) return cachedResponse
+    } catch {}
+  }
+
   try {
     const { id } = await params
     const seriesId = parseInt(id)
@@ -46,13 +55,18 @@ export async function GET(
       if (metaRows.length > 0) manga_meta = metaRows[0]
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       ...series,
       cover_url: proxyImg(series.cover_url),
       banner_url: proxyImg(series.banner_url),
       anime_meta,
       manga_meta
     }, { headers: PUBLIC_CACHE_HEADERS })
+
+    if (cache) {
+      try { await cache.put(url, response.clone()) } catch {}
+    }
+    return response
   } catch (error: any) {
     console.error('API Error in /api/series/[id]:', error)
     return NextResponse.json(
