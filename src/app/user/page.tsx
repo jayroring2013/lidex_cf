@@ -14,6 +14,13 @@ import {
   Upload,
   UserCircle,
   X,
+  Award,
+  Clock,
+  Coins,
+  TrendingDown,
+  TrendingUp,
+  Sparkles,
+  ShoppingBag,
 } from 'lucide-react'
 import supabase from '@/lib/supabaseClient'
 import {
@@ -36,6 +43,7 @@ type SeriesOption = {
   title: string
   titleVi: string | null
   coverUrl: string | null
+  publisher?: string | null
 }
 
 type VolumeOption = {
@@ -169,6 +177,7 @@ export default function UserDashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
+  const [avgSpending, setAvgSpending] = useState<number>(0)
 
   const displayName =
     userProfile?.displayName ||
@@ -320,6 +329,7 @@ export default function UserDashboardPage() {
         const nextPurchases = (data.purchases || []) as PurchaseEntry[]
         setRatedList((data.ratedList || []) as RatedEntry[])
         setSelectedVolumeIds(nextPurchases.map(item => item.volumeId))
+        setAvgSpending(data.avgSpending || 0)
 
         // Reuse the API's purchase payload for bookshelf display.
         // This avoids waiting for the full volume catalog with price/cover fields.
@@ -439,6 +449,92 @@ export default function UserDashboardPage() {
     return selectedVolumes.reduce((sum, volume) => sum + (volume.price || 0), 0)
   }, [selectedVolumes])
 
+  // Publisher Fanboy Calculation
+  const publisherStats = useMemo(() => {
+    const seriesIds = Array.from(new Set(selectedVolumes.map(v => v.seriesId)))
+    const counts: Record<string, number> = {}
+    seriesIds.forEach(id => {
+      const series = seriesById.get(id)
+      const pub = series?.publisher || null
+      if (pub) {
+        counts[pub] = (counts[pub] || 0) + 1
+      }
+    })
+
+    let topPubName = ''
+    let topPubCount = 0
+    Object.entries(counts).forEach(([pub, count]) => {
+      if (count > topPubCount) {
+        topPubName = pub
+        topPubCount = count
+      }
+    })
+
+    if (!topPubName) {
+      return { name: null, count: 0, total: 0, percent: 0, badge: null }
+    }
+
+    const totalInCatalog = seriesOptions.filter(s => s.publisher === topPubName).length
+    const percent = totalInCatalog > 0 ? Math.round((topPubCount / totalInCatalog) * 100) : 0
+
+    let badge = 'Top 50%'
+    if (topPubCount >= 8) badge = 'Top 1%'
+    else if (topPubCount >= 5) badge = 'Top 5%'
+    else if (topPubCount >= 3) badge = 'Top 10%'
+    else if (topPubCount >= 2) badge = 'Top 25%'
+
+    return {
+      name: topPubName,
+      count: topPubCount,
+      total: totalInCatalog,
+      percent,
+      badge
+    }
+  }, [selectedVolumes, seriesById, seriesOptions])
+
+  // Spending comparison Calculation
+  const spendingStats = useMemo(() => {
+    if (!avgSpending || avgSpending <= 0) {
+      return { diffPercent: 0, isAbove: false, badge: 'Standard' }
+    }
+    const diffPercent = Math.round(((totalPrice - avgSpending) / avgSpending) * 100)
+    const isAbove = totalPrice > avgSpending
+    let badge = 'Smart Saver'
+    if (totalPrice === 0) badge = 'Newbie'
+    else if (totalPrice > avgSpending * 2) badge = 'Whale Collector'
+    else if (totalPrice > avgSpending) badge = 'Dedicated Collector'
+    
+    return {
+      diffPercent: Math.abs(diffPercent),
+      isAbove,
+      badge
+    }
+  }, [totalPrice, avgSpending])
+
+  // Love New Novels Calculation
+  const loveNewNovelsStats = useMemo(() => {
+    if (selectedVolumes.length === 0) {
+      return { percent: 0, count: 0, badge: 'Newbie' }
+    }
+    const recent = selectedVolumes.filter(v => {
+      if (!v.releaseDate) return false
+      const year = new Date(v.releaseDate).getFullYear()
+      return year >= 2025
+    })
+    const percent = Math.round((recent.length / selectedVolumes.length) * 100)
+    
+    let badge = 'Traditionalist'
+    if (percent >= 85) badge = 'Vanguard Trendsetter'
+    else if (percent >= 60) badge = 'Modern Reader'
+    else if (percent >= 30) badge = 'Balanced Reader'
+
+    return {
+      percent,
+      count: recent.length,
+      badge
+    }
+  }, [selectedVolumes])
+
   const filteredSeries = useMemo(() => {
     const q = deferredSeriesQuery.trim().toLowerCase()
     const base = q
@@ -517,25 +613,50 @@ export default function UserDashboardPage() {
     setMessage(null)
 
     try {
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
-      const path = `${profileUserId}/avatar.${safeExt}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type,
+      let nextAvatarUrl = ''
+      
+      if (isPremiumUser) {
+        // Upload to Cloudflare R2 bucket via server-side API
+        const formData = new FormData()
+        formData.append('file', file)
+        
+        const response = await fetch('/api/upload-avatar', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: formData,
         })
+        
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}))
+          throw new Error(errData.error || 'Failed to upload premium avatar to R2.')
+        }
+        
+        const resData = await response.json()
+        nextAvatarUrl = resData.url
+      } else {
+        // Free user: Fallback to existing Supabase storage uploader
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+        const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
+        const path = `${profileUserId}/avatar.${safeExt}`
 
-      if (uploadError) throw uploadError
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(path, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: file.type,
+          })
 
-      const { data: publicUrlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(path)
+        if (uploadError) throw uploadError
 
-      const nextAvatarUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
+        const { data: publicUrlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(path)
+
+        nextAvatarUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
+      }
 
       const res = await upsertUserProfile(profileUserId, displayName, nextAvatarUrl)
       if (!res.success) throw new Error(res.error || 'Failed to save profile')
@@ -749,13 +870,126 @@ export default function UserDashboardPage() {
           </div>
         )}
 
-        <div className="glass rounded-2xl p-5 sm:p-6 mb-5">
-          <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,.16), rgba(34,197,94,.10))', border: '1px solid var(--card-border)' }}>
-            <p className="text-lg sm:text-2xl font-black leading-relaxed" style={{ color: 'var(--foreground)' }}>
-              {isVI
-                ? `Bạn đã mua ${selectedVolumes.length.toLocaleString('vi-VN')} quyển LN với tổng tiền là ${formatVnd(totalPrice)}.`
-                : `User ${displayName} has bought ${selectedVolumes.length.toLocaleString('en-US')} novels for ${formatVnd(totalPrice)}.`}
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {/* Card 1: Bookshelf Total */}
+          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                <ShoppingBag className="w-5 h-5" />
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded-full">
+                Bookshelf
+              </span>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Tập sách sở hữu' : 'Owned Volumes'}
             </p>
+            <h3 className="text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
+              {selectedVolumes.length} <span className="text-xs font-bold" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'quyển' : 'vols'}</span>
+            </h3>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Tổng đầu tư' : 'Total Investment'}</span>
+              <span className="text-sm font-black text-indigo-400">{formatVnd(totalPrice)}</span>
+            </div>
+          </div>
+
+          {/* Card 2: Publisher Fanboy */}
+          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                <Award className="w-5 h-5" />
+              </span>
+              {publisherStats.badge && (
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">
+                  {publisherStats.badge}
+                </span>
+              )}
+            </div>
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Fan Cuồng NXB' : 'Publisher Fanboy'}
+            </p>
+            <h3 className="text-xl font-black mt-1 truncate" style={{ color: 'var(--foreground)' }} title={publisherStats.name || 'N/A'}>
+              {publisherStats.name ? `${publisherStats.name} Fanboy` : (isVI ? 'Chưa rõ' : 'None Yet')}
+            </h3>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span style={{ color: 'var(--foreground-muted)' }}>
+                  {publisherStats.name 
+                    ? (isVI 
+                        ? `Sở hữu ${publisherStats.count}/${publisherStats.total} series` 
+                        : `Owns ${publisherStats.count}/${publisherStats.total} series`)
+                    : (isVI ? 'Hãy thêm sách để tính' : 'Add series to calculate')}
+                </span>
+                <span className="font-bold" style={{ color: 'var(--foreground-secondary)' }}>{publisherStats.percent}%</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+                <div 
+                  className="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${publisherStats.percent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Spending Comparison */}
+          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <span className={`p-2 rounded-xl ${spendingStats.isAbove ? 'bg-emerald-500/10 text-emerald-400' : 'bg-sky-500/10 text-sky-400'}`}>
+                <Coins className="w-5 h-5" />
+              </span>
+              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${spendingStats.isAbove ? 'text-emerald-400 bg-emerald-400/10' : 'text-sky-400 bg-sky-400/10'}`}>
+                {spendingStats.badge}
+              </span>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'So Sánh Chi Tiêu' : 'Spending Comparison'}
+            </p>
+            <h3 className="text-2xl font-black mt-1 flex items-center gap-1.5" style={{ color: 'var(--foreground)' }}>
+              {spendingStats.isAbove ? '+' : '-'} {spendingStats.diffPercent}%
+              <span className="text-xs font-normal" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? 'so với TB' : 'vs avg'}
+              </span>
+            </h3>
+            <div className="mt-4 flex items-center justify-between text-xs">
+              <span style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trung bình hệ thống' : 'System Average'}</span>
+              <span className="font-bold text-emerald-400">{formatVnd(avgSpending)}</span>
+            </div>
+          </div>
+
+          {/* Card 4: Love New Stuff */}
+          <div className="glass relative overflow-hidden rounded-2xl p-5 transition-all hover:scale-[1.02]" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                <Sparkles className="w-5 h-5" />
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full">
+                {loveNewNovelsStats.badge}
+              </span>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+              {isVI ? 'Thích Đọc Novel Mới' : 'Love New Novels'}
+            </p>
+            <h3 className="text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
+              {loveNewNovelsStats.percent}%
+              <span className="text-xs font-normal ml-1.5" style={{ color: 'var(--foreground-muted)' }}>
+                {isVI ? 'phát hành từ 2025' : 'released ≥ 2025'}
+              </span>
+            </h3>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? `${loveNewNovelsStats.count} quyển mới` : `${loveNewNovelsStats.count} new vols`}
+                </span>
+                <span className="font-bold" style={{ color: 'var(--foreground-secondary)' }}>{loveNewNovelsStats.percent}%</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+                <div 
+                  className="bg-purple-500 h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${loveNewNovelsStats.percent}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
 

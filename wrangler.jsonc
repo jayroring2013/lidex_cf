@@ -8,5 +8,11 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  "r2_buckets": [
+    {
+      "binding": "AVATARS_BUCKET",
+      "bucket_name": "lidex-covers"
+    }
+  ]
 }

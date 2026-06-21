@@ -7,6 +7,11 @@ export const dynamic = 'force-dynamic'
 const MAX_USER_LIBRARY_ROWS = 1000
 const MAX_USER_VOLUME_IDS = 2000
 
+// Cache global average bookshelf cost for 1 hour to save Neon DB compute hours
+let cachedAvgSpending: number | null = null
+let lastAvgCacheTime = 0
+const AVG_CACHE_DURATION = 3600 * 1000
+
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status, headers: { 'Cache-Control': 'no-store' } })
 }
@@ -108,9 +113,10 @@ export async function GET(request: NextRequest) {
     if (seriesIds.length > 0) {
       try {
         seriesRows = await sql(`
-          SELECT id, title, title_vi, title_native, cover_url, slug, item_type, status 
-          FROM series 
-          WHERE id = ANY($1::int[])
+          SELECT s.id, s.title, s.title_vi, s.title_native, s.cover_url, s.slug, s.item_type, s.status, p.name as publisher
+          FROM series s
+          LEFT JOIN publishers p ON s.publisher_id = p.id
+          WHERE s.id = ANY($1::int[])
         `, [seriesIds])
       } catch (err) {
         console.error('[user-dashboard] series read skipped', err)
@@ -143,6 +149,7 @@ export async function GET(request: NextRequest) {
             slug: series.slug,
             itemType: series.item_type,
             status: series.status,
+            publisher: series.publisher || null,
           } : null,
         }
       })
@@ -168,7 +175,35 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ purchases, ratedList, bookshelfAvailable }, { headers: { 'Cache-Control': 'no-store' } })
+    // Calculate global average spending with Edge caching
+    const now = Date.now()
+    if (cachedAvgSpending === null || now - lastAvgCacheTime > AVG_CACHE_DURATION) {
+      try {
+        const avgRows = await sql(`
+          SELECT COALESCE(AVG(total_price), 0) as avg_spending
+          FROM (
+            SELECT SUM(COALESCE(v.price, 0)) as total_price
+            FROM series_user_volume_purchases p
+            JOIN volumes v ON p.volume_id = v.id
+            GROUP BY p.user_id
+          ) t
+        `)
+        cachedAvgSpending = Number(avgRows[0]?.avg_spending || 0)
+        lastAvgCacheTime = now
+      } catch (err) {
+        console.error('[user-dashboard] failed to calculate average spending:', err)
+        cachedAvgSpending = cachedAvgSpending ?? 200000
+      }
+    }
+
+    return NextResponse.json({
+      purchases,
+      ratedList,
+      bookshelfAvailable,
+      avgSpending: cachedAvgSpending
+    }, {
+      headers: { 'Cache-Control': 'no-store' }
+    })
   } catch (error) {
     console.error('[user-dashboard] unexpected read failure:', error)
     return jsonError('Unable to load dashboard', 500)

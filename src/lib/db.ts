@@ -1491,9 +1491,10 @@ export async function fetchUserCatalog() {
   try {
     const [series, volumes] = await Promise.all([
       sql(`
-        SELECT id, title, title_vi, cover_url 
-        FROM series 
-        WHERE item_type = 'novel' 
+        SELECT s.id, s.title, s.title_vi, s.cover_url, p.name as publisher
+        FROM series s
+        LEFT JOIN publishers p ON s.publisher_id = p.id
+        WHERE s.item_type = 'novel' 
         ORDER BY title ASC 
         LIMIT 1500
       `),
@@ -1511,7 +1512,8 @@ export async function fetchUserCatalog() {
         id: Number(r.id),
         title: r.title,
         title_vi: r.title_vi,
-        cover_url: proxyImg(r.cover_url)
+        cover_url: proxyImg(r.cover_url),
+        publisher: r.publisher || null
       })),
       volumes: volumes.map((r: any) => ({
         id: Number(r.id),
