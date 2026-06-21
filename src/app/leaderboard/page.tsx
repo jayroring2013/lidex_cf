@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, ArrowUp, Loader2, Search } from 'lucide-react'
-import { fetchLeaderboardPeriods, fetchLeaderboardRows, fetchLeaderboardPublishers } from '@/lib/db'
+
 import { useLocale } from '@/contexts/LocaleContext'
 
 type Period = {
@@ -211,7 +211,9 @@ export default function LeaderboardPage() {
     async function loadPeriods() {
       setPeriodsLoading(true)
       try {
-        const periodData = await fetchLeaderboardPeriods()
+        const res = await fetch('/api/leaderboard?mode=periods')
+        if (!res.ok) throw new Error('Failed to fetch periods')
+        const periodData = await res.json()
 
         const normalizedPeriods: Period[] = (periodData || [])
           .map((period: any) => ({
@@ -221,7 +223,7 @@ export default function LeaderboardPage() {
             label: period.label || `${String(period.month || 1).padStart(2, '0')}/${period.year || 0}`,
             sort: Number(period.year || 0) * 100 + Number(period.month || 1),
           }))
-          .sort((a, b) => b.sort - a.sort)
+          .sort((a: Period, b: Period) => b.sort - a.sort)
 
         setPeriods(normalizedPeriods)
         setSelectedPeriodId(normalizedPeriods[0]?.id || null)
@@ -255,23 +257,19 @@ export default function LeaderboardPage() {
         .filter(p => p.sort < selectedPeriod.sort)
         .sort((a, b) => b.sort - a.sort)[0] || null
 
-      const periodIds = [selectedPeriodId!, ...(prevPeriod ? [prevPeriod.id] : [])]
+      const prevParam = prevPeriod ? `&prevPeriodId=${prevPeriod.id}` : ''
 
       try {
-        // Fetch only current + previous period rows
-        const voteData = await fetchLeaderboardRows(periodIds)
+        const res = await fetch(`/api/leaderboard?mode=rows&periodId=${selectedPeriodId}${prevParam}`)
+        if (!res.ok) throw new Error('Failed to fetch rows')
+        const data = await res.json()
 
         if (cancelled) return
 
-        const seriesIds = Array.from(new Set(voteData.map((r: any) => Number(r.series_id)).filter(Boolean)))
-        const publisherBySeriesMap = seriesIds.length > 0 
-          ? await fetchLeaderboardPublishers(seriesIds)
-          : {}
-
-        if (cancelled) return
+        const { voteData, publisherBySeriesMap } = data
 
         const periodById = new Map(periods.map(p => [p.id, p]))
-        const mapped: VoteRow[] = voteData.map((row: any) => {
+        const mapped: VoteRow[] = (voteData || []).map((row: any) => {
           const period: Period = periodById.get(Number(row.period_id)) || {
             id: Number(row.period_id),
             month: 1,

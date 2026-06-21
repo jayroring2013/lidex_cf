@@ -1,19 +1,10 @@
 'use server'
 
 import { sql } from './neonClient'
+import { proxyImg } from './imageProxy'
 import { calculateLiDexScore, buildPopulationStats } from './lidexScore'
 
-// Helper to proxy/validate image URLs
-function proxyImg(url: string | null): string | null {
-  if (!url) return null
-  try {
-    const h = new URL(url).hostname
-    if (!h.includes('supabase') && !h.includes('localhost') && !url.startsWith('/')) {
-      return `/api/image-proxy?url=${encodeURIComponent(url)}`
-    }
-  } catch {}
-  return url
-}
+
 
 function normalizeDbDate(value: any): string | null {
   if (!value) return null
@@ -1228,6 +1219,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
         ...r,
         id: Number(r.id),
         lidex_series_id: r.lidex_series_id == null ? null : Number(r.lidex_series_id),
+        cover_url: proxyImg(r.cover_url),
         number_of_volumes: r.number_of_volumes == null ? null : Number(r.number_of_volumes),
         average_price: r.average_price == null ? null : Number(r.average_price),
         max_release_at: normalizeDbDate(r.max_release_at),
@@ -1327,56 +1319,36 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
   }
 }
 
-export async function fetchDashboardEnrichmentData() {
+export async function fetchDashboardWatchlistData() {
   try {
     const rankingRows = await sql(`
-      SELECT id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title
-      FROM ln_series_ranking
-      ORDER BY ln_score DESC, max_release_at DESC
+      SELECT 
+        r.id, r.series_title, r.series_id, r.lidex_series_id, r.series_code, r.number_of_volumes, 
+        r.average_price, r.max_release_at, r.publisher, r.original_volumes, r.original_status, 
+        r.evalution, r.evaluation_basis, r.ln_score, r.trang_thai, r.drop_percent, r.drop_basis, 
+        r.average_gap_months, r.months_since_last_release, r.completion_ratio, r.publisher_activity, 
+        r.publisher_releases_last_24m, r.score_components, r.drop_components, 
+        COALESCE(r.cover_url, s.cover_url) as cover_url, r.cover_source_title,
+        s.title as canonical_title,
+        COALESCE(s.description_vi, s.description) as canonical_description
+      FROM ln_series_ranking r
+      LEFT JOIN series s ON r.lidex_series_id = s.id
+      ORDER BY r.ln_score DESC, r.max_release_at DESC
     `)
 
     const ids = Array.from(new Set(rankingRows.map((r: any) => Number(r.lidex_series_id)).filter(Boolean)))
-    const publisherBySeriesId = new Map<number, string>()
-    for (const row of rankingRows) {
-      const seriesId = Number(row.lidex_series_id)
-      if (seriesId && row.publisher && !publisherBySeriesId.has(seriesId)) {
-        publisherBySeriesId.set(seriesId, row.publisher)
-      }
-    }
-    
-    let canonicalList: any[] = []
+
     let voteRows: any[] = []
-    let volumeRows: any[] = []
-
     if (ids.length > 0) {
-      const [canonRes, voteRes, volRes] = await Promise.all([
-        sql(`
-          SELECT id, title, cover_url, description, description_vi
-          FROM series
-          WHERE id = ANY($1)
-        `, [ids]),
-        sql(`
-          SELECT vr.series_id, vr.votes, vr.rank, vp.month, vp.year, vp.label
-          FROM voting_results vr
-          JOIN voting_periods vp ON vr.period_id = vp.id
-          WHERE vr.series_id = ANY($1)
-        `, [ids]),
-        sql(`
-          SELECT v.series_id, v.release_date, v.is_special
-          FROM volumes v
-          WHERE v.series_id = ANY($1) AND v.release_date IS NOT NULL
-        `, [ids])
-      ])
-      canonicalList = canonRes
-      voteRows = voteRes
-      volumeRows = volRes
+      voteRows = await sql(`
+        SELECT DISTINCT ON (vr.series_id) 
+               vr.series_id, vr.votes, vr.rank, vp.month, vp.year, vp.label
+        FROM voting_results vr
+        JOIN voting_periods vp ON vr.period_id = vp.id
+        WHERE vr.series_id = ANY($1)
+        ORDER BY vr.series_id, vp.year DESC, vp.month DESC
+      `, [ids])
     }
-
-    const publisherRows = await sql(`
-      SELECT name, name_vi, logo_url
-      FROM publishers
-      WHERE logo_url IS NOT NULL
-    `)
 
     return {
       rankingRows: rankingRows.map((r: any) => ({
@@ -1393,13 +1365,11 @@ export async function fetchDashboardEnrichmentData() {
         months_since_last_release: r.months_since_last_release == null ? null : Number(r.months_since_last_release),
         completion_ratio: r.completion_ratio == null ? null : Number(r.completion_ratio),
         publisher_releases_last_24m: r.publisher_releases_last_24m == null ? null : Number(r.publisher_releases_last_24m),
-      })),
-      canonicalList: canonicalList.map((r: any) => ({
-        id: Number(r.id),
-        title: r.title,
+        series_title: r.series_title || r.canonical_title || r.series_title,
         cover_url: proxyImg(r.cover_url),
-        description: r.description_vi || r.description || null
+        description: r.canonical_description || null
       })),
+      canonicalList: [],
       voteRows: voteRows.map((r: any) => ({
         series_id: Number(r.series_id),
         votes: Number(r.votes) || 0,
@@ -1409,7 +1379,44 @@ export async function fetchDashboardEnrichmentData() {
           year: Number(r.year || 0),
           label: r.label
         }
-      })),
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to fetch dashboard watchlist data:', error)
+    return null
+  }
+}
+
+export async function fetchDashboardStatsData() {
+  try {
+    const rankingRows = await sql(`
+      SELECT lidex_series_id, publisher
+      FROM ln_series_ranking
+      WHERE lidex_series_id IS NOT NULL AND publisher IS NOT NULL
+    `)
+
+    const ids = Array.from(new Set(rankingRows.map((r: any) => Number(r.lidex_series_id))))
+    const publisherBySeriesId = new Map<number, string>()
+    for (const row of rankingRows) {
+      publisherBySeriesId.set(Number(row.lidex_series_id), row.publisher)
+    }
+
+    let volumeRows: any[] = []
+    if (ids.length > 0) {
+      volumeRows = await sql(`
+        SELECT v.series_id, v.release_date, v.is_special
+        FROM volumes v
+        WHERE v.series_id = ANY($1) AND v.release_date IS NOT NULL
+      `, [ids])
+    }
+
+    const publisherRows = await sql(`
+      SELECT name, name_vi, logo_url
+      FROM publishers
+      WHERE logo_url IS NOT NULL
+    `)
+
+    return {
       volumeRows: volumeRows.map((r: any) => ({
         series_id: Number(r.series_id),
         release_date: normalizeDbDate(r.release_date),
@@ -1423,8 +1430,18 @@ export async function fetchDashboardEnrichmentData() {
       }))
     }
   } catch (error) {
-    console.error('Failed to fetch dashboard enrichment data:', error)
+    console.error('Failed to fetch dashboard stats data:', error)
     return null
+  }
+}
+
+export async function fetchDashboardEnrichmentData() {
+  const watchlist = await fetchDashboardWatchlistData()
+  const stats = await fetchDashboardStatsData()
+  if (!watchlist || !stats) return null
+  return {
+    ...watchlist,
+    ...stats
   }
 }
 

@@ -2658,38 +2658,26 @@ export default function Dashboard() {
     setError(null)
 
     try {
-      const res = await fetch('/api/dashboard')
+      // Step 1: Fetch watchlist data first (fast, server-hydrated)
+      const res = await fetch('/api/dashboard?mode=watchlist')
       if (!res.ok) {
         setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
         setLoading(false)
         return
       }
-      const enrichment = await res.json()
-      if (!enrichment) {
+      const watchlistData = await res.json()
+      if (!watchlistData) {
         setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
         setLoading(false)
         return
       }
 
-      const { rankingRows, canonicalList, voteRows, volumeRows, publisherRows } = enrichment
+      const { rankingRows, voteRows } = watchlistData
 
-      // 1. map raw ranking rows
+      // map raw ranking rows
       const mapped = mapRows(rankingRows as RawRankingRow[])
 
-      // 2. Hydrate canonical series
-      const canonicalMap = new Map(canonicalList.map((c: any) => [c.id, c]))
-      const hydrated = mapped.map(row => {
-        const meta: any = row.lidex_series_id ? canonicalMap.get(row.lidex_series_id) : null
-        if (!meta) return row
-        return {
-          ...row,
-          series_title: row.series_title || meta.title || row.series_title,
-          cover_url: row.cover_url || meta.cover_url || row.cover_url,
-          description: row.description || meta.description || row.description,
-        }
-      })
-
-      // 3. Hydrate fan votes
+      // Hydrate fan votes
       const latestVotesMap = new Map<number, { votes: number; rank: number | null; period: string | null; year: number | null; sort: number }>()
       for (const vote of voteRows) {
         const seriesId = vote.series_id
@@ -2706,7 +2694,7 @@ export default function Dashboard() {
         }
       }
 
-      const fanHydrated = hydrated.map(row => {
+      const fanHydrated = mapped.map(row => {
         if (!row.lidex_series_id) return row
         const votes = latestVotesMap.get(row.lidex_series_id)
         if (!votes) return row
@@ -2719,33 +2707,49 @@ export default function Dashboard() {
         }
       })
 
-      // 4. Volume releases — publisher now comes directly from the DB (volumes JOIN series)
-      const volumeReleases = (volumeRows as any[])
-        .filter((v: any) => v.is_special === false || String(v.is_special).toLowerCase() !== 'true')
-        .map((v: any) => ({
-          series_id: v.series_id,
-          publisher: v.publisher || 'Unknown',
-          release_date: String(v.release_date).slice(0, 10)
-        }))
-
-
-      // 5. Publisher logos
-      const logos: PublisherLogoMap = {}
-      for (const row of publisherRows) {
-        if (!row.logo_url) continue
-        if (row.name) logos[publisherKey(row.name)] = row.logo_url
-        if (row.name_vi) logos[publisherKey(row.name_vi)] = row.logo_url
-      }
-
       setRows(fanHydrated)
-      setVolumeRows(volumeReleases)
-      setPublisherLogos(logos)
       setSelectedKey((fanHydrated.find(r => r.evalution === 'Good') || fanHydrated[0])?.series_key || null)
-      setSelectedPublisher(buildPublishers(fanHydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || fanHydrated[0]?.publisher || null)
+      
+      // Stop showing loader immediately so watchlist renders
+      setLoading(false)
+
+      // Step 2: Fetch heavier volume releases and publishers in the background
+      fetch('/api/dashboard?mode=stats')
+        .then(async (statsRes) => {
+          if (!statsRes.ok) return
+          const statsData = await statsRes.json()
+          if (!statsData) return
+
+          const { volumeRows, publisherRows } = statsData
+
+          // Volume releases
+          const volumeReleases = (volumeRows as any[])
+            .filter((v: any) => v.is_special === false || String(v.is_special).toLowerCase() !== 'true')
+            .map((v: any) => ({
+              series_id: v.series_id,
+              publisher: v.publisher || 'Unknown',
+              release_date: String(v.release_date).slice(0, 10)
+            }))
+
+          // Publisher logos
+          const logos: PublisherLogoMap = {}
+          for (const row of publisherRows) {
+            if (!row.logo_url) continue
+            if (row.name) logos[publisherKey(row.name)] = row.logo_url
+            if (row.name_vi) logos[publisherKey(row.name_vi)] = row.logo_url
+          }
+
+          setVolumeRows(volumeReleases)
+          setPublisherLogos(logos)
+          setSelectedPublisher(buildPublishers(fanHydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || fanHydrated[0]?.publisher || null)
+        })
+        .catch(err => {
+          console.warn('[Dashboard] background stats load failed:', err)
+        })
+
     } catch (e) {
       console.error('[Dashboard] load failed:', e)
       setError(vi ? 'Không tải được dữ liệu dashboard.' : 'Dashboard data failed to load.')
-    } finally {
       setLoading(false)
     }
   }

@@ -56,6 +56,12 @@ function isDirectCdnHost(hostname: string) {
   return h.includes('supabase') || h.includes('r2.dev') || h.includes('cloudflarestorage.com')
 }
 
+function proxiedFallbackUrl(url: string) {
+  const parsed = new URL(url)
+  const target = `${parsed.hostname}${parsed.pathname}${parsed.search}`
+  return `https://images.weserv.nl/?url=${encodeURIComponent(target)}`
+}
+
 function cacheHeaders(hostname: string) {
   return {
     'Cache-Control': 'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
@@ -63,6 +69,54 @@ function cacheHeaders(hostname: string) {
     'X-Content-Type-Options': 'nosniff',
     'X-Image-Proxy-Host': hostname,
   }
+}
+
+async function fetchImage(url: string, referer: string, origin: string, signal: AbortSignal): Promise<Response | null> {
+  const headerProfiles: HeadersInit[] = [
+    {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      Referer: referer,
+      Origin: origin,
+      Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
+      'Sec-Fetch-Dest': 'image',
+      'Sec-Fetch-Mode': 'no-cors',
+      'Sec-Fetch-Site': 'cross-site',
+    },
+    {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      Referer: referer,
+      Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
+    },
+    {
+      Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+    },
+  ]
+
+  let lastResponse: Response | null = null
+
+  for (const headers of headerProfiles) {
+    let res: Response
+    try {
+      res = await fetch(url, {
+        redirect: 'follow',
+        headers,
+        signal,
+      })
+    } catch {
+      continue
+    }
+
+    if (res.ok) return res
+    lastResponse = res
+
+    if (![401, 403, 429].includes(res.status)) break
+  }
+
+  return lastResponse
 }
 
 export async function GET(req: NextRequest) {
@@ -78,8 +132,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Invalid url', { status: 400 })
   }
 
-  // R2/Supabase/public CDN images should never burn Worker CPU. If an old URL
-  // still points here, redirect it back to the direct asset URL.
+  // R2/Supabase/public CDN images should never burn Worker CPU.
   if (isDirectCdnHost(parsed.hostname)) {
     return NextResponse.redirect(parsed.toString(), {
       status: 302,
@@ -89,33 +142,39 @@ export async function GET(req: NextRequest) {
 
   try {
     const referer = getReferer(parsed.hostname)
-    const signal = AbortSignal.timeout(8000)
-    const res = await fetch(parsed.toString(), {
-      redirect: 'follow',
-      signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; LiDexImageProxy/1.0)',
-        Referer: referer,
-        Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-      },
-    })
+    const signal = AbortSignal.timeout(15000)
 
-    if (!res.ok) {
-      return new NextResponse(`Upstream image error: ${res.status}`, {
-        status: 502,
+    let res = await fetchImage(parsed.toString(), referer, new URL(referer).origin, signal)
+
+    if (!res?.ok) {
+      const fallback = proxiedFallbackUrl(parsed.toString())
+      res = await fetch(fallback, {
+        redirect: 'follow',
         headers: {
-          'Cache-Control': 'public, max-age=300, s-maxage=300',
-          'Access-Control-Allow-Origin': '*',
-          'X-Image-Proxy-Host': parsed.hostname,
-          'X-Image-Proxy-Upstream-Status': String(res.status),
+          Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
         },
+        signal,
       })
+
+      if (!res.ok) {
+        return new NextResponse(`Upstream image error: ${res.status}`, {
+          status: 502,
+          headers: {
+            'Cache-Control': 'no-store',
+            'Access-Control-Allow-Origin': '*',
+            'X-Image-Proxy-Host': parsed.hostname,
+            'X-Image-Proxy-Upstream-Status': String(res.status),
+          },
+        })
+      }
     }
 
     const contentType = res.headers.get('content-type') || 'image/jpeg'
     if (!isAllowedContentType(contentType)) return new NextResponse('Upstream did not return an image', { status: 415 })
 
-    return new NextResponse(res.body, {
+    const buffer = await res.arrayBuffer()
+
+    return new NextResponse(buffer, {
       status: 200,
       headers: {
         ...cacheHeaders(parsed.hostname),
@@ -126,7 +185,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Proxy error', {
       status: 502,
       headers: {
-        'Cache-Control': 'public, max-age=300, s-maxage=300',
+        'Cache-Control': 'no-store',
         'Access-Control-Allow-Origin': '*',
         'X-Image-Proxy-Host': parsed.hostname,
         'X-Image-Proxy-Error': 'proxy_failed',
