@@ -956,7 +956,7 @@ export default function ContentDetail() {
                     </span>
                     <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
                     <span className="text-sm sm:text-base text-gray-300">
-                      ({seriesRatingSummary.count.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')} {isVI ? 'lượt đánh giá' : seriesRatingSummary.count === 1 ? 'rating' : 'ratings'})
+                      ({seriesRatingSummary.count.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')} {isVI ? 'lượt bình chọn' : seriesRatingSummary.count === 1 ? 'rating' : 'ratings'})
                     </span>
                   </>
                 ) : (
@@ -976,7 +976,7 @@ export default function ContentDetail() {
 
               {(series.author || series.studio || series.publisher) && (
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-300 mb-4">
-                  {series.author    && <span><span className="text-gray-500 mr-1">Author</span><span className="break-words">{series.author}</span></span>}
+                  {series.author    && <span><span className="text-gray-500 mr-1">{isVI ? 'Tác giả' : 'Author'}</span><span className="break-words">{series.author}</span></span>}
                   {series.studio    && <span><span className="text-gray-500 mr-1">Studio</span><span className="break-words">{series.studio}</span></span>}
                   {series.publisher && <span><span className="text-gray-500 mr-1">Publisher</span><span className="break-words">{series.publisher}</span></span>}
                 </div>
@@ -2290,7 +2290,7 @@ function NovelSideCards({
             <div className="flex items-center justify-between text-xs mb-2">
               <span style={{ color: 'var(--foreground-muted)' }}>JP</span>
               <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                {ranking?.original_volumes != null ? `${ranking.original_volumes} Vols` : '—'}
+                {ranking?.original_volumes != null ? `${ranking.original_volumes} ${isVI ? 'Tập' : 'Vols'}` : '—'}
               </span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
@@ -2302,7 +2302,7 @@ function NovelSideCards({
             <div className="flex items-center justify-between text-xs mb-2">
               <span style={{ color: 'var(--foreground-muted)' }}>VN</span>
               <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                {ranking ? `${ranking.number_of_volumes ?? volumes.length} Vols` : `${volumes.length} Vols`}
+                {ranking ? `${ranking.number_of_volumes ?? volumes.length} ${isVI ? 'Tập' : 'Vols'}` : `${volumes.length} ${isVI ? 'Tập' : 'Vols'}`}
               </span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
@@ -2455,6 +2455,8 @@ function StatusDistribution({ data }: { data: Record<string, number> | string })
 }
 
 function ScoreDistribution({ data }: { data: Record<string, number> | string }) {
+  const { locale } = useLocale()
+  const isVI = locale === 'vi'
   const parsed: Record<string, number> = typeof data === 'string'
     ? (() => { try { return JSON.parse(data) } catch { return {} } })()
     : (data ?? {})
@@ -2527,7 +2529,7 @@ function ScoreDistribution({ data }: { data: Record<string, number> | string }) 
 
       {totalVotes > 0 && (
         <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid var(--card-border)' }}>
-          <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{fmtBig(totalVotes)} lượt đánh giá</span>
+          <span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{isVI ? `${fmtBig(totalVotes)} lượt bình chọn` : `${fmtBig(totalVotes)} ratings`}</span>
           <span className="text-xs font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
             {hoveredIdx !== null
               ? `★ ${buckets[hoveredIdx]}/100 — ${fmtBig(counts[hoveredIdx])} votes (${((counts[hoveredIdx]/totalVotes)*100).toFixed(1)}%)`
@@ -3647,10 +3649,10 @@ function ReaderStatusChart({ summary, locale }: { summary: SeriesLibrarySummary;
         <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(34,197,94,.15)', color: '#22c55e' }}>4</span>
         <div>
           <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>
-            {isVI ? 'Trang thai nguoi doc' : 'Reader Status'}
+            {isVI ? 'Trạng thái người đọc' : 'Reader Status'}
           </h2>
           <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            {isVI ? 'So nguoi dang doc, hoan thanh, dinh doc hoac bo.' : 'Reading, finished, planned, and dropped counts.'}
+            {isVI ? 'Số người đang đọc, hoàn thành, định đọc hoặc bỏ' : 'Reading, finished, planned, and dropped counts.'}
           </p>
         </div>
       </div>
@@ -3658,10 +3660,10 @@ function ReaderStatusChart({ summary, locale }: { summary: SeriesLibrarySummary;
       <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
-            {isVI ? 'Trang thai' : 'Status'}
+            {isVI ? 'Trạng thái' : 'Status'}
           </p>
           <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
-            {statusTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'nguoi' : 'users'}
+            {statusTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'người' : 'users'}
           </span>
         </div>
 
@@ -3713,10 +3715,10 @@ function ReaderRatingChart({ summary, locale }: { summary: SeriesLibrarySummary;
         <span className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0" style={{ background: 'rgba(245,158,11,.15)', color: '#f59e0b' }}>5</span>
         <div>
           <h2 className="text-sm font-black leading-tight" style={{ color: 'var(--foreground)' }}>
-            {isVI ? 'Phan bo diem sao' : 'Star Distribution'}
+            {isVI ? 'Phân bổ điểm số' : 'Star Distribution'}
           </h2>
           <p className="text-[11px] mt-0.5" style={{ color: 'var(--foreground-muted)' }}>
-            {isVI ? 'Cach nguoi dung danh gia series nay tu 1 den 5 sao.' : 'How users rate this series from 1 to 5 stars.'}
+            {isVI ? 'Người dùng đánh giá series này từ 1 đến 5 sao' : 'How users rate this series from 1 to 5 stars.'}
           </p>
         </div>
       </div>
@@ -3724,10 +3726,10 @@ function ReaderRatingChart({ summary, locale }: { summary: SeriesLibrarySummary;
       <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
-            {isVI ? 'Diem sao' : 'Stars'}
+            {isVI ? 'Điểm sao' : 'Stars'}
           </p>
           <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
-            {ratingTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'danh gia' : 'ratings'}
+            {ratingTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'lượt bình chọn' : 'ratings'}
           </span>
         </div>
 
@@ -3840,10 +3842,10 @@ function SeriesCommunityCharts({ summary, locale }: { summary: SeriesLibrarySumm
         <div className="rounded-xl p-3" style={{ background: 'var(--content-detail-tile-bg)', border: '1px solid var(--content-detail-tile-border)' }}>
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
-              {isVI ? 'Phân bố điểm sao' : 'Star Distribution'}
+              {isVI ? 'Phân bổ điểm số' : 'Star Distribution'}
             </p>
             <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>
-              {ratingTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'đánh giá' : 'ratings'}
+              {ratingTotal.toLocaleString(isVI ? 'vi-VN' : 'en-US')} {isVI ? 'lượt bình chọn' : 'ratings'}
             </span>
           </div>
 
