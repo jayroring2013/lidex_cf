@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Github, Twitter, Mail, BarChart3 } from 'lucide-react'
+import { Github, Twitter, Mail, BarChart3, Facebook } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
 
 export default function Footer() {
@@ -30,9 +30,19 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4" style={{ color: 'var(--foreground)' }}>Pages</h4>
+            <h4 className="font-semibold mb-4" style={{ color: 'var(--foreground)' }}>Social</h4>
             <ul className="space-y-2 text-sm" style={{ color: 'var(--foreground-secondary)' }}>
-              <li><Link href="/leaderboard" className="hover:text-primary-500">LN Ranking</Link></li>
+              <li>
+                <a
+                  href="https://www.facebook.com/wibubros"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary-500 flex items-center gap-1.5"
+                >
+                  <Facebook className="w-4 h-4" />
+                  <span>Facebook</span>
+                </a>
+              </li>
             </ul>
           </div>
 
