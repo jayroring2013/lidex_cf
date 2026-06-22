@@ -8,7 +8,8 @@ import {
   ExternalLink, Share2, Copy, Loader2,
   ArrowLeft, Award, TrendingUp, Globe, ChevronDown, ChevronUp,
   BarChart2, FlaskConical, Users, Film, Layers, BookMarked,
-  Languages, BadgeCheck, Building2, AlertTriangle, Search, Image as ImageIcon
+  Languages, BadgeCheck, Building2, AlertTriangle, Search, Image as ImageIcon,
+  MessageSquare, ThumbsUp, Send, Trash2
 } from 'lucide-react'
 import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -417,7 +418,7 @@ export default function ContentDetail() {
   const [copied,       setCopied]       = useState(false)
   const [lidexScore,   setLidexScore]   = useState<LiDexScoreBreakdown | null>(null)
   const [scoreLoading, setScoreLoading] = useState(false)
-  const [activeTab,    setActiveTab]    = useState<'info' | 'stats' | 'analyze'>('info')
+  const [activeTab,    setActiveTab]    = useState<'info' | 'stats' | 'analyze' | 'review'>('info')
 
   // Manga-specific enrichment pulled directly from Supabase
   const [mangaMeta,    setMangaMeta]    = useState<any>(null)
@@ -442,6 +443,12 @@ export default function ContentDetail() {
     count: number
   }>({ average: null, count: 0 })
   const [seriesLibrarySummary, setSeriesLibrarySummary] = useState<SeriesLibrarySummary>(() => emptySeriesLibrarySummary())
+  const [reviews, setReviews] = useState<any[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [reviewsError, setReviewsError] = useState<string | null>(null)
+  const [submittingReview, setSubmittingReview] = useState(false)
+  const [newReviewContent, setNewReviewContent] = useState('')
+  const [userProfileData, setUserProfileData] = useState<any>(null)
 
   const { locale } = useLocale()
   const isVI       = locale === 'vi'
@@ -513,8 +520,26 @@ export default function ContentDetail() {
 
     loadUserSeriesLibrary()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       loadUserSeriesLibrary(session)
+      if (session?.user) {
+        try {
+          const { data } = await supabase
+            .from('user_profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', session.user.id)
+            .maybeSingle()
+          if (!cancelled) {
+            setUserProfileData(data || null)
+          }
+        } catch (err) {
+          console.error('Failed to load user profile for reviews', err)
+        }
+      } else {
+        if (!cancelled) {
+          setUserProfileData(null)
+        }
+      }
     })
 
     return () => {
@@ -651,6 +676,153 @@ export default function ContentDetail() {
       setUserLibraryError(isVI ? 'Không lưu được đánh giá.' : 'Could not save your rating.')
     } finally {
       setUserLibrarySaving(false)
+    }
+  }
+
+  // Load reviews when review tab is active
+  useEffect(() => {
+    if (activeTab !== 'review' || !seriesId) return
+    let cancelled = false
+
+    async function loadReviews() {
+      setReviewsLoading(true)
+      setReviewsError(null)
+      try {
+        const session = (await supabase.auth.getSession()).data.session
+        const headers: Record<string, string> = {}
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`
+        }
+        const res = await fetch(`/api/series-reviews?seriesId=${seriesId}`, { headers })
+        if (cancelled) return
+        if (!res.ok) throw new Error('Failed to load reviews')
+        const json = await res.json()
+        if (cancelled) return
+        setReviews(json.data || [])
+      } catch (err: any) {
+        if (!cancelled) {
+          console.error(err)
+          setReviewsError(isVI ? 'Không thể tải các đánh giá.' : 'Could not load reviews.')
+        }
+      } finally {
+        if (!cancelled) setReviewsLoading(false)
+      }
+    }
+
+    loadReviews()
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeTab, seriesId, authUserId, isVI])
+
+  const handleLikeReview = async (reviewId: number) => {
+    if (!authUserId) {
+      alert(isVI ? 'Vui lòng đăng nhập để thích bài viết.' : 'Please log in to like reviews.')
+      return
+    }
+
+    // Optimistically toggle like in local state to make the UI feel fast
+    setReviews(prev => prev.map(rev => {
+      if (rev.id === reviewId) {
+        const isLiked = !rev.is_liked
+        const diff = isLiked ? 1 : -1
+        return {
+          ...rev,
+          is_liked: isLiked,
+          likes_count: Math.max(0, rev.likes_count + diff)
+        }
+      }
+      return rev
+    }))
+
+    try {
+      const session = (await supabase.auth.getSession()).data.session
+      if (!session) return
+
+      const res = await fetch('/api/series-reviews/like', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reviewId })
+      })
+
+      if (!res.ok) throw new Error('Failed to toggle like')
+      const json = await res.json()
+
+      // Sync with server values
+      setReviews(prev => prev.map(rev => {
+        if (rev.id === reviewId) {
+          return {
+            ...rev,
+            is_liked: json.liked,
+            likes_count: json.likesCount
+          }
+        }
+        return rev
+      }))
+    } catch (err) {
+      console.error(err)
+      // Rollback optimistic update on error
+      setReviews(prev => prev.map(rev => {
+        if (rev.id === reviewId) {
+          const isLiked = !rev.is_liked
+          const diff = isLiked ? 1 : -1
+          return {
+            ...rev,
+            is_liked: isLiked,
+            likes_count: Math.max(0, rev.likes_count + diff)
+          }
+        }
+        return rev
+      }))
+    }
+  }
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const content = newReviewContent.trim()
+    if (!content || !seriesId) return
+    if (!authUserId) {
+      alert(isVI ? 'Vui lòng đăng nhập để gửi bình luận.' : 'Please log in to submit a review.')
+      return
+    }
+
+    setSubmittingReview(true)
+    try {
+      const session = (await supabase.auth.getSession()).data.session
+      if (!session) return
+
+      const res = await fetch('/api/series-reviews', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ seriesId, content })
+      })
+
+      if (!res.ok) throw new Error('Failed to save review')
+
+      // Fetch the updated reviews list to show the new review (with proper user profile and library rating join)
+      const reviewsRes = await fetch(`/api/series-reviews?seriesId=${seriesId}`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
+      if (reviewsRes.ok) {
+        const reviewsJson = await reviewsRes.json()
+        setReviews(reviewsJson.data || [])
+      }
+
+      setNewReviewContent('')
+    } catch (err) {
+      console.error(err)
+      alert(isVI ? 'Lỗi khi gửi bình luận.' : 'Error submitting review.')
+    } finally {
+      setSubmittingReview(false)
     }
   }
 
@@ -941,6 +1113,7 @@ export default function ContentDetail() {
                 { id: 'info',    labelVI: 'Thông tin chung', labelEN: 'General Info',  icon: Info         },
                 { id: 'stats',   labelVI: 'Thông số',        labelEN: 'Stats',         icon: BarChart2    },
                 { id: 'analyze', labelVI: 'Phân tích',       labelEN: 'Analysis',      icon: FlaskConical },
+                { id: 'review',  labelVI: 'Đánh giá',        labelEN: 'Review',        icon: MessageSquare },
               ] as const).map(tab => (
                 <button
                   key={tab.id}
@@ -1267,6 +1440,153 @@ export default function ContentDetail() {
                     <p className="text-sm" style={{ color: 'var(--foreground-muted)' }}>
                       {isAnime ? 'Không có dữ liệu phân tích' : 'Phân tích chỉ khả dụng cho Anime hoặc Light Novel'}
                     </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Tab: Review ── */}
+            {activeTab === 'review' && (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                {/* Review Form */}
+                <div className="glass rounded-2xl p-5">
+                  {authUserId ? (
+                    <form onSubmit={handleSubmitReview} className="flex gap-4 items-start">
+                      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-dark-805 border border-white/10">
+                        {userProfileData?.avatar_url ? (
+                          <img src={userProfileData.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                            {userProfileData?.display_name ? userProfileData.display_name.slice(0, 2).toUpperCase() : 'U'}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <textarea
+                          value={newReviewContent}
+                          onChange={(e) => setNewReviewContent(e.target.value)}
+                          placeholder={isVI ? `Bạn đang nghĩ gì về ${series.title}?` : `What are your thoughts on ${series.title}?`}
+                          rows={3}
+                          maxLength={2000}
+                          className="w-full bg-dark-900/50 text-white rounded-xl px-4 py-3 text-sm border border-white/10 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none transition-colors"
+                        />
+                        <div className="flex items-center justify-between mt-3">
+                          <span className="text-xs text-gray-500 font-medium">
+                            {newReviewContent.length}/2000 {isVI ? 'ký tự' : 'chars'}
+                          </span>
+                          <button
+                            type="submit"
+                            disabled={submittingReview || !newReviewContent.trim()}
+                            className="btn-primary inline-flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            style={{ background: '#6366f1', color: '#fff' }}
+                          >
+                            {submittingReview ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Send className="w-3.5 h-3.5" />
+                            )}
+                            <span>{isVI ? 'Đăng' : 'Post'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="text-center py-6">
+                      <MessageSquare className="w-10 h-10 opacity-20 text-indigo-500 mx-auto mb-2" />
+                      <p className="text-sm font-semibold mb-2" style={{ color: 'var(--foreground)' }}>
+                        {isVI ? 'Đăng nhập để tham gia thảo luận' : 'Log in to join the discussion'}
+                      </p>
+                      <p className="text-xs mb-4" style={{ color: 'var(--foreground-muted)' }}>
+                        {isVI ? 'Bạn cần đăng nhập tài khoản LiDex để gửi bình luận.' : 'You need a LiDex account to write comments.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Reviews List / Newsfeed */}
+                {reviewsLoading ? (
+                  <div className="flex flex-col items-center py-10 gap-2">
+                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                    <span className="text-xs text-gray-500 animate-pulse">{isVI ? 'Đang tải thảo luận…' : 'Loading discussion…'}</span>
+                  </div>
+                ) : reviewsError ? (
+                  <div className="glass rounded-2xl p-6 text-center text-red-400 font-semibold">
+                    {reviewsError}
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3 text-center">
+                    <MessageSquare className="w-12 h-12 opacity-10 text-indigo-500" />
+                    <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>
+                      {isVI ? 'Chưa có bình luận nào' : 'No comments yet'}
+                    </p>
+                    <p className="text-xs max-w-xs" style={{ color: 'var(--foreground-muted)' }}>
+                      {isVI ? `Hãy là người đầu tiên chia sẻ cảm nhận về ${series.title}!` : `Be the first to share your thoughts on ${series.title}!`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.map((rev) => (
+                      <div key={rev.id} className="glass rounded-2xl p-5 space-y-4 transition-all hover:border-white/20">
+                        {/* Feed Card Header */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-dark-800 border border-white/10">
+                            {rev.avatar_url ? (
+                              <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                                {rev.display_name ? rev.display_name.slice(0, 2).toUpperCase() : 'U'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                              <span className="font-bold text-sm sm:text-base truncate" style={{ color: 'var(--foreground)' }}>
+                                {rev.display_name || (isVI ? 'Thành viên LiDex' : 'LiDex User')}
+                              </span>
+                              {rev.user_rating != null && (
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-500 text-[10px] font-bold">
+                                  <Star className="w-2.5 h-2.5 fill-yellow-500" />
+                                  {Number(rev.user_rating).toFixed(1)}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] sm:text-xs" style={{ color: 'var(--foreground-muted)' }}>
+                              {new Date(rev.created_at).toLocaleDateString(isVI ? 'vi-VN' : 'en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Feed Card Content */}
+                        <p className="text-sm leading-relaxed whitespace-pre-line break-words" style={{ color: 'var(--foreground-secondary)' }}>
+                          {rev.content}
+                        </p>
+
+                        {/* Feed Card Footer (Reactions) */}
+                        <div className="flex items-center gap-3 pt-3" style={{ borderTop: '1px solid var(--card-border)' }}>
+                          <button
+                            onClick={() => handleLikeReview(rev.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:bg-white/5 active:scale-95"
+                            style={rev.is_liked
+                              ? { color: '#6366f1', background: 'rgba(99,102,241,0.1)' }
+                              : { color: 'var(--foreground-secondary)' }}
+                          >
+                            <ThumbsUp className={`w-3.5 h-3.5 ${rev.is_liked ? 'fill-indigo-500' : ''}`} />
+                            <span>{isVI ? 'Thích' : 'Like'}</span>
+                            {rev.likes_count > 0 && (
+                              <span className="ml-1 px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] tabular-nums">
+                                {rev.likes_count}
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
