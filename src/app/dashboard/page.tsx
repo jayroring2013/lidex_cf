@@ -196,6 +196,7 @@ const RELEASE_STATUS_ORDER: Record<string, number> = {
   Drop: 2,
   'Đã bắt kịp bản gốc JP': 3,
   'Hoàn thành': 4,
+  'Có bản quyền nhưng chưa phát hành': 5,
 }
 
 const EVAL_ORDER = ['Completed', 'Good', 'Limping', 'Dead', 'Dropped']
@@ -270,6 +271,7 @@ function releaseStatusLabel(status: string, vi = true) {
     Drop: 'Dropped',
     'Đã bắt kịp bản gốc JP': 'Caught up to JP',
     'Hoàn thành': 'Completed',
+    'Có bản quyền nhưng chưa phát hành': 'Licensed but unreleased',
   } as Record<string, string>)[status] || status
 }
 
@@ -300,6 +302,7 @@ function releaseStatusStyle(row: LNRow) {
   if (rs === 'Drop') return { color: '#fca5a5', bg: 'rgba(239,68,68,.12)', border: 'rgba(239,68,68,.22)' }
   if (rs === 'Lâu lắm rồi chưa có tập mới') return { color: '#fb923c', bg: 'rgba(249,115,22,.12)', border: 'rgba(249,115,22,.22)' }
   if (rs === 'Đã bắt kịp bản gốc JP') return { color: '#a78bfa', bg: 'rgba(124,106,245,.15)', border: 'rgba(124,106,245,.28)' }
+  if (rs === 'Có bản quyền nhưng chưa phát hành') return { color: '#4ade80', bg: 'rgba(34,197,94,.12)', border: 'rgba(34,197,94,.22)' }
   return { color: '#4ade80', bg: 'rgba(34,197,94,.12)', border: 'rgba(34,197,94,.22)' }
 }
 
@@ -2487,6 +2490,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
               <option value="Đã bắt kịp bản gốc JP">{releaseStatusLabel('Đã bắt kịp bản gốc JP', vi)}</option>
               <option value="Drop">{releaseStatusLabel('Drop', vi)}</option>
               <option value="Hoàn thành">{releaseStatusLabel('Hoàn thành', vi)}</option>
+              <option value="Có bản quyền nhưng chưa phát hành">{releaseStatusLabel('Có bản quyền nhưng chưa phát hành', vi)}</option>
             </select>
             <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="px-3 py-2 rounded-lg text-xs font-semibold outline-none min-w-[150px]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}>
               <option value="scoreRelease">{vi ? 'Điểm LN → Ngày ra' : 'LN Score → Release date'}</option>
