@@ -288,7 +288,9 @@ function releaseStatus(row: LNRow) {
 }
 
 function isStalledSeries(row: LNRow) {
-  const label = releaseStatusLabel(releaseStatus(row), false)
+  const rs = releaseStatus(row)
+  if (rs === 'Có bản quyền nhưng chưa phát hành') return false
+  const label = releaseStatusLabel(rs, false)
   return row.evalution !== 'Completed' && label !== 'Completed' && label !== 'Caught up to JP'
 }
 
@@ -569,6 +571,7 @@ function ScatterPlot({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selec
     const q = query.trim().toLowerCase()
     return rows.filter(row => {
       const rs = releaseStatus(row)
+      if (rs === 'Có bản quyền nhưng chưa phát hành') return false
       const searchable = `${row.series_title} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
 
       return !q || searchable.includes(q)
@@ -1443,6 +1446,8 @@ function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRo
   const plotRows = useMemo(() => {
     const q = query.trim().toLowerCase()
     return rows.filter(row => {
+      const rs = releaseStatus(row)
+      if (rs === 'Có bản quyền nhưng chưa phát hành') return false
       const searchable = `${row.series_title} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
       return !q || searchable.includes(q)
     })
@@ -2504,6 +2509,38 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
           </div>
         </div>
       </div>
+
+
+      {filtered.length > pageSize && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl px-3 py-2 mb-3" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
+          <p className="text-[11px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+            {vi ? 'Hiển thị' : 'Showing'} {pageStart + 1}-{Math.min(pageStart + pageSize, filtered.length)} / {filtered.length.toLocaleString('vi-VN')}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={safePage === 0}
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+            >
+              {vi ? 'Trước' : 'Prev'}
+            </button>
+            <span className="px-2 text-xs font-black tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
+              {safePage + 1} / {pageCount}
+            </span>
+            <button
+              type="button"
+              disabled={safePage >= pageCount - 1}
+              onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+              className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+            >
+              {vi ? 'Sau' : 'Next'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="rounded-xl overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
         <div className="hidden md:block overflow-x-auto">

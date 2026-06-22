@@ -452,41 +452,67 @@ export default function UserDashboardPage() {
 
   // Publisher Fanboy Calculation
   const publisherStats = useMemo(() => {
-    const seriesIds = Array.from(new Set(selectedVolumes.map(v => v.seriesId)))
-    const counts: Record<string, number> = {}
-    seriesIds.forEach(id => {
-      const series = seriesById.get(id)
+    // 1. Group by publisher to get volume count and unique series IDs
+    const publisherStatsMap = new Map<string, { volumeCount: number; seriesIds: Set<number> }>()
+    selectedVolumes.forEach(volume => {
+      const series = seriesById.get(volume.seriesId)
       const pub = series?.publisher || null
       if (pub) {
-        counts[pub] = (counts[pub] || 0) + 1
+        let stat = publisherStatsMap.get(pub)
+        if (!stat) {
+          stat = { volumeCount: 0, seriesIds: new Set<number>() }
+          publisherStatsMap.set(pub, stat)
+        }
+        stat.volumeCount += 1
+        stat.seriesIds.add(volume.seriesId)
       }
     })
 
-    let topPubName = ''
-    let topPubCount = 0
-    Object.entries(counts).forEach(([pub, count]) => {
-      if (count > topPubCount) {
-        topPubName = pub
-        topPubCount = count
-      }
-    })
+    const pubList = Array.from(publisherStatsMap.entries()).map(([name, stat]) => ({
+      name,
+      volumeCount: stat.volumeCount,
+      seriesCount: stat.seriesIds.size
+    }))
 
-    if (!topPubName) {
+    if (pubList.length === 0) {
       return { name: null, count: 0, total: 0, percent: 0, badge: null }
     }
 
-    const totalInCatalog = seriesOptions.filter(s => s.publisher === topPubName).length
-    const percent = totalInCatalog > 0 ? Math.round((topPubCount / totalInCatalog) * 100) : 0
+    // 2. Sort: primary by volumeCount desc, secondary by seriesCount desc
+    pubList.sort((a, b) => {
+      if (b.volumeCount !== a.volumeCount) {
+        return b.volumeCount - a.volumeCount
+      }
+      return b.seriesCount - a.seriesCount
+    })
+
+    // 3. Find ties
+    const topPub = pubList[0]
+    const tiedPubs = pubList.filter(
+      p => p.volumeCount === topPub.volumeCount && p.seriesCount === topPub.seriesCount
+    )
+
+    const sortedTiedNames = tiedPubs.map(p => p.name).sort((a, b) => a.localeCompare(b))
+    const topPubName = sortedTiedNames.join(' + ')
+
+    const seriesIds = Array.from(new Set(selectedVolumes.map(v => v.seriesId)))
+    const ownedSeriesCount = seriesIds.filter(id => {
+      const s = seriesById.get(id)
+      return s?.publisher && sortedTiedNames.includes(s.publisher)
+    }).length
+
+    const totalInCatalog = seriesOptions.filter(s => s.publisher && sortedTiedNames.includes(s.publisher)).length
+    const percent = totalInCatalog > 0 ? Math.round((ownedSeriesCount / totalInCatalog) * 100) : 0
 
     let badge = 'Top 50%'
-    if (topPubCount >= 8) badge = 'Top 1%'
-    else if (topPubCount >= 5) badge = 'Top 5%'
-    else if (topPubCount >= 3) badge = 'Top 10%'
-    else if (topPubCount >= 2) badge = 'Top 25%'
+    if (ownedSeriesCount >= 8) badge = 'Top 1%'
+    else if (ownedSeriesCount >= 5) badge = 'Top 5%'
+    else if (ownedSeriesCount >= 3) badge = 'Top 10%'
+    else if (ownedSeriesCount >= 2) badge = 'Top 25%'
 
     return {
       name: topPubName,
-      count: topPubCount,
+      count: ownedSeriesCount,
       total: totalInCatalog,
       percent,
       badge
@@ -520,7 +546,7 @@ export default function UserDashboardPage() {
     const recent = selectedVolumes.filter(v => {
       if (!v.releaseDate) return false
       const year = new Date(v.releaseDate).getFullYear()
-      return year >= 2025
+      return year >= 2026
     })
     const percent = Math.round((recent.length / selectedVolumes.length) * 100)
     
@@ -908,10 +934,10 @@ export default function UserDashboardPage() {
               )}
             </div>
             <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
-              {isVI ? 'Fan Cuồng NXB' : 'Publisher Fanboy'}
+              {isVI ? 'Fanboy NPH' : 'Publisher Fanboy'}
             </p>
             <h3 className="text-lg sm:text-xl font-black mt-1 truncate" style={{ color: 'var(--foreground)' }} title={publisherStats.name || 'N/A'}>
-              {publisherStats.name ? `${publisherStats.name} Fan` : (isVI ? 'Chưa rõ' : 'None Yet')}
+              {publisherStats.name ? publisherStats.name : (isVI ? 'Chưa rõ' : 'None Yet')}
             </h3>
             <div className="mt-2.5">
               <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1">
@@ -972,7 +998,7 @@ export default function UserDashboardPage() {
             <h3 className="text-xl sm:text-2xl font-black mt-1" style={{ color: 'var(--foreground)' }}>
               {loveNewNovelsStats.percent}%
               <span className="text-[10px] sm:text-xs font-normal ml-1" style={{ color: 'var(--foreground-muted)' }}>
-                {isVI ? '≥ 2025' : '≥ 2025'}
+                {isVI ? '≥ 2026' : '≥ 2026'}
               </span>
             </h3>
             <div className="mt-2.5">

@@ -445,6 +445,37 @@ export default function LeaderboardPage() {
             </div>
           ) : (
             <>
+              {leaderboard.length > pageSize && (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 mb-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
+                  <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+                    {vi ? 'Hiển thị' : 'Showing'} {pageStart + 1}-{Math.min(pageStart + pageSize, leaderboard.length)} / {leaderboard.length.toLocaleString('vi-VN')}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={safePage === 0}
+                      onClick={() => setPage(p => Math.max(0, p - 1))}
+                      className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+                      style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+                    >
+                      {vi ? 'Trước' : 'Prev'}
+                    </button>
+                    <span className="px-2 text-xs font-black tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>
+                      {safePage + 1} / {pageCount}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={safePage >= pageCount - 1}
+                      onClick={() => setPage(p => Math.min(pageCount - 1, p + 1))}
+                      className="px-3 py-1.5 rounded-lg text-xs font-black disabled:opacity-40"
+                      style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+                    >
+                      {vi ? 'Sau' : 'Next'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="lg:hidden p-3 space-y-3">
                 {pagedLeaderboard.map(row => (
                   <MobileLeaderboardCard key={`${row.period_id}-${row.series_id}`} row={row} vi={vi} />
