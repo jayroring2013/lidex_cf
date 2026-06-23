@@ -43,6 +43,13 @@ async function getAuthedUserId(request: NextRequest) {
     const client = createUserClient(token)
     const { data, error } = await client.auth.getUser(token)
     if (error || !data.user) return { userId: null, error: jsonError('Unauthorized', 401) }
+        // Ensure user exists in Neon auth.users (fallback for broken replication)
+    await sql(`
+      INSERT INTO auth.users (id, email)
+      VALUES ($1, $2)
+      ON CONFLICT (id) DO NOTHING
+    `, [data.user.id, data.user.email || null])
+
     return { userId: data.user.id, error: null }
   } catch (err) {
     return { userId: null, error: jsonError('Unauthorized', 401) }

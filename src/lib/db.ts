@@ -1544,6 +1544,13 @@ export async function getUserProfile(userId: string) {
 
 export async function upsertUserProfile(userId: string, displayName: string | null, avatarUrl: string | null) {
   try {
+    // Ensure user exists in Neon auth.users (fallback for broken replication)
+    await sql(`
+      INSERT INTO auth.users (id)
+      VALUES ($1)
+      ON CONFLICT (id) DO NOTHING
+    `, [userId])
+
     await sql(`
       INSERT INTO user_profiles (user_id, display_name, avatar_url, updated_at)
       VALUES ($1, $2, $3, NOW())

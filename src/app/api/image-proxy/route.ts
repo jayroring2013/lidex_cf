@@ -123,6 +123,26 @@ export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url')
   if (!url) return new NextResponse('Missing url', { status: 400 })
 
+  // Read from Cloudflare Edge Cache programmatically
+  const cache = typeof caches !== 'undefined' ? (caches as any).default : null
+  const cacheKey = req.url
+  if (cache) {
+    try {
+      const cachedResponse = await cache.match(cacheKey)
+      if (cachedResponse) {
+        const headers = new Headers(cachedResponse.headers)
+        headers.set('X-Image-Proxy-Cache', 'HIT')
+        return new NextResponse(cachedResponse.body, {
+          status: cachedResponse.status,
+          statusText: cachedResponse.statusText,
+          headers,
+        })
+      }
+    } catch (e) {
+      console.error('Cache read error:', e)
+    }
+  }
+
   let parsed: URL
   try {
     parsed = new URL(url)
@@ -174,13 +194,27 @@ export async function GET(req: NextRequest) {
 
     const buffer = await res.arrayBuffer()
 
-    return new NextResponse(buffer, {
+    const headers = {
+      ...cacheHeaders(parsed.hostname),
+      'Content-Type': contentType,
+      'X-Image-Proxy-Cache': 'MISS',
+    }
+
+    const response = new NextResponse(buffer, {
       status: 200,
-      headers: {
-        ...cacheHeaders(parsed.hostname),
-        'Content-Type': contentType,
-      },
+      headers,
     })
+
+    if (cache) {
+      try {
+        const responseToCache = response.clone()
+        await cache.put(cacheKey, responseToCache)
+      } catch (e) {
+        console.error('Cache write error:', e)
+      }
+    }
+
+    return response
   } catch {
     return new NextResponse('Proxy error', {
       status: 502,
