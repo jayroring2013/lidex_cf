@@ -635,7 +635,7 @@ export default function ContentDetail() {
     return () => {
       cancelled = true
     }
-  }, [series, seriesId, userLibraryEntry.rating, userLibraryEntry.status, userLibrarySaving])
+  }, [series, seriesId])
 
   const saveUserSeriesLibrary = async (patch: Partial<UserSeriesLibraryEntry>) => {
     if (!seriesId) return
@@ -886,7 +886,13 @@ export default function ContentDetail() {
         <div className="absolute inset-0">
           {bannerImage ? (
             <>
-              <img src={bannerImage} alt="" className="w-full h-full object-cover object-center" />
+              <img
+                src={bannerImage}
+                alt=""
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover object-center"
+              />
               <div className="absolute inset-0 backdrop-blur-md bg-dark-900/55" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent" />
             </>
@@ -908,6 +914,8 @@ export default function ContentDetail() {
                   <img
                     src={coverSrc}
                     alt={series.title}
+                    loading="eager"
+                    decoding="async"
                     className="w-full h-auto block"
                     onError={() => setImageError(true)}
                   />
