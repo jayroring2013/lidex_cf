@@ -72,62 +72,83 @@ export async function GET(request: NextRequest) {
     const { userId, error: authError } = await getAuthedUserId(request)
     if (authError || !userId) return authError || jsonError('Unauthorized', 401)
 
-    const libraryRows = await sql(`
-      SELECT series_id, rating, status, updated_at 
-      FROM series_user_library 
-      WHERE user_id = $1 
-      ORDER BY updated_at DESC
-      LIMIT $2
-    `, [userId, MAX_USER_LIBRARY_ROWS])
-
-    let purchaseRows: any[] = []
-    let bookshelfAvailable = true
-    try {
-      purchaseRows = await sql(`
+    // Stage 1: Fetch library rows, purchase rows, and purchased series IDs in parallel
+    const [libraryRowsResult, purchaseRowsResult, purchasedSeriesIdsResult] = await Promise.allSettled([
+      sql(`
+        SELECT series_id, rating, status, updated_at 
+        FROM series_user_library 
+        WHERE user_id = $1 
+        ORDER BY updated_at DESC
+        LIMIT $2
+      `, [userId, MAX_USER_LIBRARY_ROWS]),
+      sql(`
         SELECT volume_id, created_at 
         FROM series_user_volume_purchases 
         WHERE user_id = $1 
         ORDER BY created_at DESC
         LIMIT $2
-      `, [userId, MAX_USER_VOLUME_IDS])
-    } catch (err) {
-      console.error('[user-dashboard] bookshelf read skipped', err)
+      `, [userId, MAX_USER_VOLUME_IDS]),
+      sql(`
+        SELECT DISTINCT v.series_id 
+        FROM series_user_volume_purchases p
+        JOIN volumes v ON p.volume_id = v.id
+        WHERE p.user_id = $1
+      `, [userId])
+    ])
+
+    const libraryRows = libraryRowsResult.status === 'fulfilled' ? libraryRowsResult.value : []
+    let purchaseRows: any[] = []
+    let bookshelfAvailable = true
+    if (purchaseRowsResult.status === 'fulfilled') {
+      purchaseRows = purchaseRowsResult.value
+    } else {
+      console.error('[user-dashboard] bookshelf read skipped', purchaseRowsResult.reason)
       bookshelfAvailable = false
     }
+
+    const purchasedSeriesIds = purchasedSeriesIdsResult.status === 'fulfilled'
+      ? purchasedSeriesIdsResult.value.map(row => Number(row.series_id)).filter(Boolean)
+      : []
 
     const volumeIds = purchaseRows.map(row => Number(row.volume_id)).filter(Boolean)
     const librarySeriesIds = libraryRows.map(row => Number(row.series_id)).filter(Boolean)
 
-    let volumeRows: any[] = []
-    if (volumeIds.length > 0) {
-      try {
-        volumeRows = await sql(`
-          SELECT id, series_id, volume_number, title, price, currency, cover_url, release_date 
-          FROM volumes 
-          WHERE id = ANY($1::int[])
-        `, [volumeIds])
-      } catch (err) {
-        console.error('[user-dashboard] volume read skipped', err)
-      }
-    }
-
     const seriesIds = Array.from(new Set([
       ...librarySeriesIds,
-      ...volumeRows.map(row => Number(row.series_id)).filter(Boolean),
+      ...purchasedSeriesIds,
     ]))
 
+    // Stage 2: Fetch volumes details and series details in parallel
+    const [volumeRowsResult, seriesRowsResult] = await Promise.allSettled([
+      volumeIds.length > 0
+        ? sql(`
+            SELECT id, series_id, volume_number, title, price, currency, cover_url, release_date 
+            FROM volumes 
+            WHERE id = ANY($1::int[])
+          `, [volumeIds])
+        : Promise.resolve([]),
+      seriesIds.length > 0
+        ? sql(`
+            SELECT s.id, s.title, s.title_vi, s.title_native, s.cover_url, s.slug, s.item_type, s.status, p.name as publisher
+            FROM series s
+            LEFT JOIN publishers p ON s.publisher_id = p.id
+            WHERE s.id = ANY($1::int[])
+          `, [seriesIds])
+        : Promise.resolve([])
+    ])
+
+    let volumeRows: any[] = []
+    if (volumeRowsResult.status === 'fulfilled') {
+      volumeRows = volumeRowsResult.value
+    } else {
+      console.error('[user-dashboard] volume read skipped', volumeRowsResult.reason)
+    }
+
     let seriesRows: any[] = []
-    if (seriesIds.length > 0) {
-      try {
-        seriesRows = await sql(`
-          SELECT s.id, s.title, s.title_vi, s.title_native, s.cover_url, s.slug, s.item_type, s.status, p.name as publisher
-          FROM series s
-          LEFT JOIN publishers p ON s.publisher_id = p.id
-          WHERE s.id = ANY($1::int[])
-        `, [seriesIds])
-      } catch (err) {
-        console.error('[user-dashboard] series read skipped', err)
-      }
+    if (seriesRowsResult.status === 'fulfilled') {
+      seriesRows = seriesRowsResult.value
+    } else {
+      console.error('[user-dashboard] series read skipped', seriesRowsResult.reason)
     }
 
     const seriesById = new Map(seriesRows.map((series: any) => [Number(series.id), series]))
@@ -227,16 +248,14 @@ export async function POST(request: NextRequest) {
     if (!volumeIds) return jsonError('Invalid volumes', 400)
 
     await sql(`
-      DELETE FROM series_user_volume_purchases 
-      WHERE user_id = $1
-    `, [userId])
-
-    if (volumeIds.length > 0) {
-      await sql(`
-        INSERT INTO series_user_volume_purchases (user_id, volume_id)
-        SELECT $1, unnest($2::int[])
-      `, [userId, volumeIds])
-    }
+      WITH deleted AS (
+        DELETE FROM series_user_volume_purchases 
+        WHERE user_id = $1
+        RETURNING 1
+      )
+      INSERT INTO series_user_volume_purchases (user_id, volume_id)
+      SELECT $1, unnest($2::int[])
+    `, [userId, volumeIds])
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
