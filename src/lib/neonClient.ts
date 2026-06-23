@@ -50,7 +50,12 @@ function isUnsafeToCache(query: string) {
 
   // Never cache private/user-specific data or writes hidden inside CTEs.
   if (/\b(insert|update|delete|upsert|alter|drop|create|truncate)\b/.test(normalized)) return true
-  if (/\b(series_user_|user_profiles|novel_votes|auth\.)\b/.test(normalized)) return true
+  if (/\b(user_profiles|novel_votes|auth\.)\b/.test(normalized)) return true
+
+  // For series_user_ library & volume_purchases, only prevent caching if we are querying/filtering for a specific user.
+  if (/\b(series_user_library|series_user_volume_purchases)\b/.test(normalized)) {
+    if (/\buser_id\s*(?:=|<|>|!=|in\b|is\b)/.test(normalized)) return true
+  }
 
   // Avoid caching time/random-sensitive SQL unless the caller wraps it explicitly.
   if (/\b(now\(\)|current_timestamp|current_date|random\(\))\b/.test(normalized)) return true
