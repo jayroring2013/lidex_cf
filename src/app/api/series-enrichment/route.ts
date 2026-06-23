@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchSeriesEnrichmentData } from '@/lib/db'
+import { getCachedSeriesEnrichmentData } from '@/lib/cachedSeriesEnrichment'
 
 export const revalidate = 0
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const data = await fetchSeriesEnrichmentData(id, itemType)
+    const data = await getCachedSeriesEnrichmentData(id, itemType)
     if (!data) {
       return NextResponse.json(
         { error: 'Failed to load enrichment data' },
