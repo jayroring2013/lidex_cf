@@ -248,14 +248,16 @@ export async function POST(request: NextRequest) {
     if (!volumeIds) return jsonError('Invalid volumes', 400)
 
     await sql(`
-      WITH deleted AS (
-        DELETE FROM series_user_volume_purchases 
-        WHERE user_id = $1
-        RETURNING 1
-      )
-      INSERT INTO series_user_volume_purchases (user_id, volume_id)
-      SELECT $1, unnest($2::int[])
-    `, [userId, volumeIds])
+      DELETE FROM series_user_volume_purchases 
+      WHERE user_id = $1
+    `, [userId])
+
+    if (volumeIds.length > 0) {
+      await sql(`
+        INSERT INTO series_user_volume_purchases (user_id, volume_id)
+        SELECT $1, unnest($2::int[])
+      `, [userId, volumeIds])
+    }
 
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
