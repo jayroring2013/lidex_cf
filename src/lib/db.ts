@@ -1141,8 +1141,37 @@ async function optionalEnrichmentRows(label: string, query: string, params: any[
 export async function fetchSeriesEnrichmentData(seriesId: number, itemType: string) {
   try {
     const [ratingData, libraryData] = await Promise.all([
-      optionalEnrichmentRows('rating summary', `SELECT * FROM get_series_rating_summary($1)`, [seriesId]),
-      optionalEnrichmentRows('library summary', `SELECT * FROM get_series_library_summary($1)`, [seriesId])
+      optionalEnrichmentRows('rating summary', `
+        SELECT 
+          COALESCE(AVG(rating), 0)::numeric(3,2) as average_rating,
+          COUNT(rating)::int as rating_count
+        FROM series_user_library
+        WHERE series_id = $1 AND rating IS NOT NULL
+      `, [seriesId]),
+      optionalEnrichmentRows('library summary', `
+        SELECT 
+          COUNT(rating)::int as rating_count,
+          COUNT(status)::int as status_count,
+          jsonb_build_object(
+            '1', COUNT(*) FILTER (WHERE rating = 1),
+            '1.5', COUNT(*) FILTER (WHERE rating = 1.5),
+            '2', COUNT(*) FILTER (WHERE rating = 2),
+            '2.5', COUNT(*) FILTER (WHERE rating = 2.5),
+            '3', COUNT(*) FILTER (WHERE rating = 3),
+            '3.5', COUNT(*) FILTER (WHERE rating = 3.5),
+            '4', COUNT(*) FILTER (WHERE rating = 4),
+            '4.5', COUNT(*) FILTER (WHERE rating = 4.5),
+            '5', COUNT(*) FILTER (WHERE rating = 5)
+          ) as rating_distribution,
+          jsonb_build_object(
+            'reading', COUNT(*) FILTER (WHERE status = 'reading'),
+            'finished', COUNT(*) FILTER (WHERE status = 'finished'),
+            'planned', COUNT(*) FILTER (WHERE status = 'planned'),
+            'dropped', COUNT(*) FILTER (WHERE status = 'dropped')
+          ) as status_counts
+        FROM series_user_library
+        WHERE series_id = $1
+      `, [seriesId])
     ])
 
     let mangaMeta = null
