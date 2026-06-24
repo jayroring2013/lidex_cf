@@ -9,7 +9,7 @@ import {
   ArrowLeft, Award, TrendingUp, Globe, ChevronDown, ChevronUp,
   BarChart2, FlaskConical, Users, Film, Layers, BookMarked,
   Languages, BadgeCheck, Building2, AlertTriangle, Search, Image as ImageIcon,
-  MessageSquare, ThumbsUp, Send, Trash2
+  MessageSquare, ThumbsUp, Send, Trash2, ShoppingBag, Music
 } from 'lucide-react'
 import { fetchSeries } from '@/lib/api'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -1641,64 +1641,53 @@ export default function ContentDetail() {
                 <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Liên kết ngoài' : 'External Links'}</h3>
               </div>
               <div className="space-y-2">
-                {(isManga || isNovel) ? (
-                  <>
-                    {seriesLinks.length > 0 ? (
-                      seriesLinks.map((link: any, i: number) => {
-                        const dotColor =
-                          link.link_type === 'purchase' ? '#22c55e' :
-                          link.link_type === 'official' ? '#6366f1' :
-                          link.link_type === 'stream'   ? '#f59e0b' : '#94a3b8'
-                        return (
-                          <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
-                            style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                              <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
-                                {link.label}
-                              </span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
-                        {isVI ? 'Không có liên kết' : 'No links'}
-                      </p>
-                    )}
-                  </>
-                ) : isAnime ? (
-                  <>
-                    {seriesLinks.length > 0 ? (
-                      seriesLinks.map((link: any, i: number) => {
-                        const dotColor =
-                          link.link_type === 'anilist'   ? '#02a9ff' :
-                          link.link_type === 'stream'   ? '#f59e0b' :
-                          link.link_type === 'official' ? '#6366f1' :
-                          link.link_type === 'trailer'  ? '#ef4444' :
-                          link.link_type === 'purchase' ? '#22c55e' : '#94a3b8'
-                        return (
-                          <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
-                            style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
-                              <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
-                                {link.label}
-                              </span>
-                            </div>
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
-                        {isVI ? 'Không có liên kết' : 'No links'}
-                      </p>
-                    )}
-                  </>
+                {seriesLinks.length > 0 ? (
+                  seriesLinks.map((link: any, i: number) => {
+                    const renderLinkIcon = () => {
+                      const label = (link.label || '').toLowerCase()
+                      const url = (link.url || '').toLowerCase()
+                      const type = link.link_type
+
+                      if (label.includes('shopee') || url.includes('shopee.vn')) {
+                        return <ShoppingBag className="w-3.5 h-3.5 text-[#ee4d2d] flex-shrink-0" />
+                      }
+                      if (label.includes('tiktok') || url.includes('tiktok.com')) {
+                        return <Music className="w-3.5 h-3.5 text-[#ff0050] flex-shrink-0" />
+                      }
+                      if (label.includes('fahasa') || url.includes('fahasa.com')) {
+                        return <ShoppingBag className="w-3.5 h-3.5 text-[#c92127] flex-shrink-0" />
+                      }
+                      if (type === 'anilist' || label.includes('anilist') || url.includes('anilist.co')) {
+                        return <Globe className="w-3.5 h-3.5 text-[#02a9ff] flex-shrink-0" />
+                      }
+                      if (label.includes('myanimelist') || url.includes('myanimelist.net')) {
+                        return <Globe className="w-3.5 h-3.5 text-[#2e51a2] flex-shrink-0" />
+                      }
+
+                      // Default colored dot fallbacks
+                      const dotColor =
+                        type === 'purchase' ? '#22c55e' :
+                        type === 'official' ? '#6366f1' :
+                        type === 'stream'   ? '#f59e0b' :
+                        type === 'trailer'  ? '#ef4444' : '#94a3b8'
+
+                      return <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dotColor }} />
+                    }
+
+                    return (
+                      <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
+                        style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          {renderLinkIcon()}
+                          <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                            {link.label}
+                          </span>
+                        </div>
+                        <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
+                      </a>
+                    )
+                  })
                 ) : (
                   <p className="text-xs text-center py-2" style={{ color: 'var(--foreground-muted)' }}>
                     {isVI ? 'Không có liên kết' : 'No links'}
