@@ -1209,24 +1209,14 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
         WHERE series_id = $1 AND is_special = false AND volume_number IS NOT NULL
         ORDER BY volume_number DESC
       `, [seriesId])
-
-      if (vols.length > 0) {
-        const latestVolId = vols[0].id
-        links = await optionalEnrichmentRows('volume links', `
-          SELECT link_type, label, url
-          FROM series_links
-          WHERE series_id = $1 AND volume_id = $2 AND is_active = true
-          ORDER BY sort_order ASC
-        `, [seriesId, latestVolId])
-      }
-    } else if (itemType === 'anime') {
-      links = await optionalEnrichmentRows('anime links', `
-        SELECT link_type, label, url
-        FROM series_links
-        WHERE series_id = $1 AND is_active = true
-        ORDER BY sort_order ASC
-      `, [seriesId])
     }
+
+    links = await optionalEnrichmentRows('series links', `
+      SELECT link_type, label, url
+      FROM series_links
+      WHERE series_id = $1 AND is_active = true
+      ORDER BY sort_order ASC
+    `, [seriesId])
 
     if (itemType === 'novel') {
       // 1. Fetch ranking rows
