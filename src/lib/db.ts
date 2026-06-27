@@ -1549,7 +1549,7 @@ export async function fetchUserCatalog() {
 export async function getUserProfile(userId: string) {
   try {
     const rows = await sql(`
-      SELECT user_id, display_name, avatar_url, is_premium, premium_tier 
+      SELECT user_id, display_name, avatar_url, is_premium, premium_tier, age, gender
       FROM user_profiles 
       WHERE user_id = $1 
       LIMIT 1
@@ -1579,6 +1579,28 @@ export async function upsertUserProfile(userId: string, displayName: string | nu
     return { success: true }
   } catch (error) {
     console.error('Failed to upsert user profile:', error)
+    return { success: false, error: String(error) }
+  }
+}
+
+export async function updateUserProfileInfo(userId: string, age: string | null, gender: string | null) {
+  try {
+    // Ensure user exists in Neon auth.users
+    await sql(`
+      INSERT INTO auth.users (id)
+      VALUES ($1)
+      ON CONFLICT (id) DO NOTHING
+    `, [userId])
+
+    await sql(`
+      INSERT INTO user_profiles (user_id, age, gender, updated_at)
+      VALUES ($1, $2, $3, NOW())
+      ON CONFLICT (user_id) DO UPDATE
+      SET age = EXCLUDED.age, gender = EXCLUDED.gender, updated_at = EXCLUDED.updated_at
+    `, [userId, age, gender])
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to update user profile info:', error)
     return { success: false, error: String(error) }
   }
 }

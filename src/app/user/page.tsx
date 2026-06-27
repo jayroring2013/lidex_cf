@@ -27,6 +27,7 @@ import {
   fetchUserCatalog,
   getUserProfile,
   upsertUserProfile,
+  updateUserProfileInfo,
   fetchSeriesVolumeDetails
 } from '@/lib/db'
 import { proxyImageUrl } from '@/lib/imageProxy'
@@ -93,6 +94,8 @@ type UserProfile = {
   avatarUrl: string | null
   isPremium: boolean
   premiumTier: string | null
+  age?: string | null
+  gender?: string | null
 }
 
 const STATUS_LABELS: Record<UserSeriesStatus, { vi: string; en: string; color: string }> = {
@@ -179,6 +182,12 @@ export default function UserDashboardPage() {
   const [avatarError, setAvatarError] = useState<string | null>(null)
   const [avgSpending, setAvgSpending] = useState<number>(0)
 
+  const [showInfoModal, setShowInfoModal] = useState(false)
+  const [modalAge, setModalAge] = useState<string>('')
+  const [modalGender, setModalGender] = useState<string>('')
+  const [savingInfo, setSavingInfo] = useState(false)
+  const [infoError, setInfoError] = useState<string | null>(null)
+
   const displayName =
     userProfile?.displayName ||
     session?.user.user_metadata?.full_name ||
@@ -241,6 +250,8 @@ export default function UserDashboardPage() {
         avatarUrl: data.avatar_url || null,
         isPremium: Boolean(data.is_premium),
         premiumTier: data.premium_tier || null,
+        age: data.age || null,
+        gender: data.gender || null,
       })
     }
 
@@ -707,6 +718,32 @@ export default function UserDashboardPage() {
     }
   }
 
+  const handleSaveInfo = async () => {
+    if (!session?.user.id) return
+    setSavingInfo(true)
+    setInfoError(null)
+    try {
+      const res = await updateUserProfileInfo(session.user.id, modalAge || null, modalGender || null)
+      if (res.success) {
+        setUserProfile(prev => prev ? { ...prev, age: modalAge || null, gender: modalGender || null } : null)
+        setShowInfoModal(false)
+      } else {
+        setInfoError(isVI ? 'Không lưu được thông tin.' : 'Failed to save information.')
+      }
+    } catch (err: any) {
+      setInfoError(err?.message || (isVI ? 'Lỗi hệ thống.' : 'System error.'))
+    } finally {
+      setSavingInfo(false)
+    }
+  }
+
+  const openInfoModal = () => {
+    setModalAge(userProfile?.age || '')
+    setModalGender(userProfile?.gender || '')
+    setInfoError(null)
+    setShowInfoModal(true)
+  }
+
   const saveBookshelf = async () => {
     const accessToken = session?.access_token
     if (!accessToken) return
@@ -845,34 +882,46 @@ export default function UserDashboardPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-primary-500">LiDex User</p>
-            <h1 className="text-3xl sm:text-4xl font-black mt-2" style={{ color: 'var(--foreground)' }}>
+            <h1 className="text-3xl sm:text-4xl font-black" style={{ color: 'var(--foreground)' }}>
               {isVI ? 'Dashboard cá nhân' : 'User Dashboard'}
             </h1>
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">
             <div className="flex items-center gap-3 text-sm font-bold" style={{ color: 'var(--foreground-secondary)' }}>
-              <UserAvatar src={avatarUrl} name={displayName} size="sm" />
+              {/* Hoverable avatar to upload like Facebook */}
+              <label 
+                className="relative cursor-pointer group rounded-full overflow-hidden block shrink-0" 
+                title={isVI ? 'Đổi avatar' : 'Change avatar'}
+              >
+                <UserAvatar src={avatarUrl} name={displayName} size="sm" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Upload className="w-4 h-4 text-white" />
+                </div>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="sr-only"
+                  disabled={avatarUploading}
+                  onChange={event => {
+                    const file = event.target.files?.[0]
+                    event.target.value = ''
+                    if (file) uploadAvatar(file)
+                  }}
+                />
+              </label>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="truncate max-w-[220px]">{displayName}</span>
                   {isPremiumUser && <PremiumBadge tier={userProfile?.premiumTier} />}
                 </div>
-                <label className="mt-1 inline-flex cursor-pointer items-center gap-1.5 text-[11px] font-black text-primary-500 hover:text-primary-400">
-                  <Upload className="w-3 h-3" />
-                  {avatarUploading ? (isVI ? 'Đang upload...' : 'Uploading...') : (isVI ? 'Đổi avatar' : 'Change avatar')}
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif"
-                    className="sr-only"
-                    disabled={avatarUploading}
-                    onChange={event => {
-                      const file = event.target.files?.[0]
-                      event.target.value = ''
-                      if (file) uploadAvatar(file)
-                    }}
-                  />
-                </label>
+                {/* Updated Info button in place of upload avatar link */}
+                <button
+                  type="button"
+                  onClick={openInfoModal}
+                  className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-primary-500 hover:text-primary-400 outline-none"
+                >
+                  {isVI ? 'Cập nhật thông tin' : 'Update Info'}
+                </button>
               </div>
             </div>
             {avatarError && (
@@ -1199,6 +1248,76 @@ export default function UserDashboardPage() {
           onClose={closeSeriesModal}
           onSave={saveModalEntry}
         />
+      )}
+
+      {showInfoModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div 
+            className="glass max-w-md w-full rounded-2xl p-6 relative shadow-2xl animate-fade-in" 
+            style={{ border: '1px solid var(--card-border)', background: 'var(--card-bg)' }}
+          >
+            <button
+              onClick={() => setShowInfoModal(false)}
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-black mb-6 text-primary-500">
+              {isVI ? 'Cập nhật thông tin' : 'Update Info'}
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-foreground-secondary">
+                  {isVI ? 'Độ tuổi' : 'Age'}
+                </label>
+                <select
+                  value={modalAge}
+                  onChange={e => setModalAge(e.target.value)}
+                  className="w-full mt-1.5 rounded-xl px-3 py-2 text-sm outline-none font-bold"
+                  style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+                >
+                  <option value="">{isVI ? '-- Chọn độ tuổi --' : '-- Select age --'}</option>
+                  <option value="<10">&lt;10</option>
+                  <option value="10-19">10-19</option>
+                  <option value="20-29">20-29</option>
+                  <option value="30-39">30-39</option>
+                  <option value=">40">&gt;40</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-foreground-secondary">
+                  {isVI ? 'Giới tính' : 'Gender'}
+                </label>
+                <select
+                  value={modalGender}
+                  onChange={e => setModalGender(e.target.value)}
+                  className="w-full mt-1.5 rounded-xl px-3 py-2 text-sm outline-none font-bold"
+                  style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+                >
+                  <option value="">{isVI ? '-- Chọn giới tính --' : '-- Select gender --'}</option>
+                  <option value="Male">{isVI ? 'Nam' : 'Male'}</option>
+                  <option value="Female">{isVI ? 'Nữ' : 'Female'}</option>
+                </select>
+              </div>
+            </div>
+
+            {infoError && (
+              <p className="mt-3 text-xs font-bold text-red-500">{infoError}</p>
+            )}
+
+            <button
+              type="button"
+              disabled={savingInfo}
+              onClick={handleSaveInfo}
+              className="w-full mt-6 py-2.5 rounded-xl text-sm font-black transition-opacity disabled:opacity-40"
+              style={{ background: 'linear-gradient(135deg, var(--primary-500), #8b5cf6)', color: '#fff' }}
+            >
+              {savingInfo ? (isVI ? 'Đang lưu...' : 'Saving...') : (isVI ? 'Lưu' : 'Save')}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
