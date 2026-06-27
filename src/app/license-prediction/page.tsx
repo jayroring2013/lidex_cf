@@ -47,7 +47,7 @@ function CoverThumb({ coverUrl }: { coverUrl: string }) {
   )
 }
 
-function MobilePredictionCard({ row, vi }: { row: PredictionRow; vi: boolean }) {
+function MobilePredictionCard({ row, vi, index }: { row: PredictionRow; vi: boolean; index: number }) {
   return (
     <article className="rounded-2xl p-4 shadow-sm" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
       <div className="flex items-start gap-4">
@@ -56,12 +56,12 @@ function MobilePredictionCard({ row, vi }: { row: PredictionRow; vi: boolean }) 
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black tabular-nums"
             style={{
-              color: row.rank <= 3 ? '#0f172a' : 'var(--foreground)',
-              background: rankBadgeBg(row.rank),
+              color: index <= 3 ? '#0f172a' : 'var(--foreground)',
+              background: rankBadgeBg(index),
               border: '1px solid var(--card-border)',
             }}
           >
-            #{row.rank}
+            #{index}
           </div>
           <CoverThumb coverUrl={row.cover_url} />
         </div>
@@ -123,8 +123,14 @@ export default function LicensePredictionPage() {
 
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(0)
-  const [sortBy, setSortBy] = useState<SortField>('rank')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+  const [sortBy, setSortBy] = useState<SortField>('success')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
+  const [selectedPublisher, setSelectedPublisher] = useState<string>('')
+
+  const uniquePublishers = useMemo(() => {
+    const pubs = predictions.map((p) => p.publisher)
+    return Array.from(new Set(pubs)).sort()
+  }, [])
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) {
@@ -139,8 +145,9 @@ export default function LicensePredictionPage() {
   const sortedPredictions = useMemo(() => {
     const q = query.trim().toLowerCase()
     const filtered = predictions.filter((row) => {
-      if (!q) return true
-      return `${row.title} ${row.publisher}`.toLowerCase().includes(q)
+      const matchesQuery = !q || `${row.title} ${row.publisher}`.toLowerCase().includes(q)
+      const matchesPublisher = !selectedPublisher || row.publisher === selectedPublisher
+      return matchesQuery && matchesPublisher
     })
 
     return filtered.sort((a, b) => {
@@ -195,22 +202,38 @@ export default function LicensePredictionPage() {
 
         {/* Search & Stats Card */}
         <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
-            <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
-              {vi ? 'Hiển thị kết quả tìm kiếm:' : 'Filtered results:'} <span className="font-black text-primary-500">{sortedPredictions.length}</span> / {predictions.length}
-            </p>
-            <div className="relative w-full sm:w-[360px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--foreground-muted)' }} />
-              <input
-                value={query}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+              {/* Publisher Filter */}
+              <select
+                value={selectedPublisher}
                 onChange={(e) => {
-                  setQuery(e.target.value)
+                  setSelectedPublisher(e.target.value)
                   setPage(0)
                 }}
-                placeholder={vi ? 'Tìm tác phẩm hoặc nhà phát hành...' : 'Search title or publisher...'}
-                className="w-full pl-10 pr-3 py-2 rounded-xl text-sm outline-none"
+                className="px-3 py-2 rounded-xl text-sm outline-none font-bold cursor-pointer"
                 style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
-              />
+              >
+                <option value="">{vi ? 'Tất cả NPH' : 'All Publishers'}</option>
+                {uniquePublishers.map(pub => (
+                  <option key={pub} value={pub}>{pub}</option>
+                ))}
+              </select>
+
+              {/* Search input */}
+              <div className="relative w-full sm:w-[320px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--foreground-muted)' }} />
+                <input
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value)
+                    setPage(0)
+                  }}
+                  placeholder={vi ? 'Tìm kiếm...' : 'Search...'}
+                  className="w-full pl-10 pr-3 py-2 rounded-xl text-sm outline-none"
+                  style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+                />
+              </div>
             </div>
           </div>
 
@@ -248,8 +271,8 @@ export default function LicensePredictionPage() {
 
           {/* Mobile Layout */}
           <div className="lg:hidden p-3 space-y-3">
-            {pagedPredictions.map((row) => (
-              <MobilePredictionCard key={row.rank} row={row} vi={vi} />
+            {pagedPredictions.map((row, i) => (
+              <MobilePredictionCard key={row.rank} row={row} vi={vi} index={pageStart + i + 1} />
             ))}
 
             {sortedPredictions.length === 0 && (
@@ -266,40 +289,42 @@ export default function LicensePredictionPage() {
                 <tr style={{ background: 'var(--background-secondary)', color: '#e2695f' }}>
                   <th className="px-6 py-3 text-center w-28">
                     <div className="flex justify-center">
-                      <SortHeader field="rank">{vi ? 'Hạng' : 'Rank'}</SortHeader>
+                      <SortHeader field="rank">{vi ? 'Index' : 'Index'}</SortHeader>
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-base font-black">{vi ? 'Tác phẩm' : 'Title'}</th>
-                  <th className="px-6 py-3 text-left text-base font-black w-[280px]">{vi ? 'Nhà phát hành' : 'Publisher'}</th>
+                  <th className="px-6 py-3 text-left text-base font-black w-[280px]">{vi ? 'NPH có thể thầu' : 'Likely Publisher'}</th>
                   <th className="px-6 py-3 w-[200px]">
                     <div className="flex justify-center">
                       <SortHeader field="coming">{vi ? 'Khả năng mua' : '% Coming'}</SortHeader>
                     </div>
                   </th>
-                  <th className="px-6 py-3 w-[200px]">
+                  <th className="px-6 py-3 w-[300px]">
                     <div className="flex justify-center">
-                      <SortHeader field="success">{vi ? 'Tỉ lệ thành công' : '% Success'}</SortHeader>
+                      <SortHeader field="success">{vi ? 'Tỷ lệ thành công nếu xuất bản' : '% Success if publish'}</SortHeader>
                     </div>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {pagedPredictions.map((row) => (
-                  <tr key={row.rank} className="transition-colors" style={{ borderTop: '1px solid var(--card-border)' }}>
-                    {/* Rank */}
-                    <td className="px-6 py-4 text-center font-black text-base" style={{ color: rankColor(row.rank) }}>
-                      #{row.rank}
-                    </td>
+                {pagedPredictions.map((row, i) => {
+                  const displayIndex = pageStart + i + 1
+                  return (
+                    <tr key={row.rank} className="transition-colors" style={{ borderTop: '1px solid var(--card-border)' }}>
+                      {/* Rank */}
+                      <td className="px-6 py-4 text-center font-black text-base" style={{ color: rankColor(displayIndex) }}>
+                        #{displayIndex}
+                      </td>
 
-                    {/* Title & Cover Thumbnail */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-4">
-                        <CoverThumb coverUrl={row.cover_url} />
-                        <div className="font-bold text-sm sm:text-base leading-snug line-clamp-2" style={{ color: row.rank <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
-                          {row.title}
+                      {/* Title & Cover Thumbnail */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-4">
+                          <CoverThumb coverUrl={row.cover_url} />
+                          <div className="font-bold text-sm sm:text-base leading-snug line-clamp-2" style={{ color: displayIndex <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
+                            {row.title}
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
                     {/* Publisher Name + Logo (Transfermarkt style) */}
                     <td className="px-6 py-4">
@@ -333,8 +358,9 @@ export default function LicensePredictionPage() {
                     <td className="px-6 py-4 text-center font-black tabular-nums text-green-500 text-sm">
                       {(row.success * 100).toFixed(1)}%
                     </td>
-                  </tr>
-                ))}
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
 
