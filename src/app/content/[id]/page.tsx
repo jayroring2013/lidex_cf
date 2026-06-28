@@ -1150,6 +1150,15 @@ export default function ContentDetail() {
                   publisherName={publisherName}
                   locale={locale}
                 />
+              ) : isManga ? (
+                <MangaGeneralInfo
+                  series={series}
+                  mangaMeta={mangaMeta}
+                  volumes={allVolumes}
+                  latestVolume={latestVolume}
+                  publisherName={publisherName}
+                  locale={locale}
+                />
               ) : (
               <div className="space-y-6 animate-in fade-in duration-200">
 
@@ -1176,112 +1185,6 @@ export default function ContentDetail() {
                     {series.anime_meta?.duration_min && <InfoItem icon={TrendingUp} label={isVI ? 'Thời lượng' : 'Duration'} value={`${series.anime_meta.duration_min} ${isVI ? 'phút' : 'min'}`} />}
                   </div>
                 </div>
-
-                {/* ── Manga-specific enrichment ── */}
-                {isManga && (
-                  <div className="glass rounded-2xl p-5 sm:p-6">
-                    <div className="flex items-center gap-2 mb-5">
-                      <BookMarked className="w-5 h-5 text-primary-500 flex-shrink-0" />
-                      <h2 className="text-base font-bold" style={{ color: 'var(--foreground)' }}>
-                        {isVI ? 'Chi tiết Manga' : 'Manga Details'}
-                      </h2>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <InfoItem
-                        icon={Users}
-                        label={isVI ? 'Đối tượng' : 'Demographic'}
-                        value={
-                          mangaMeta?.demographic && mangaMeta.demographic !== 'none'
-                            ? (DEMO_LABELS[mangaMeta.demographic] || mangaMeta.demographic)
-                            : '--'
-                        }
-                      />
-                      <InfoItem
-                        icon={Languages}
-                        label={isVI ? 'Ngôn ngữ gốc' : 'Origin Language'}
-                        value={
-                          mangaMeta?.original_language
-                            ? (LANG_LABELS[mangaMeta.original_language] || mangaMeta.original_language.toUpperCase())
-                            : '--'
-                        }
-                      />
-                      <InfoItem
-                        icon={BadgeCheck}
-                        label={isVI ? 'Bản quyền VN' : 'VN Licensed'}
-                        value={
-                          mangaMeta?.vn_licensed != null
-                            ? (mangaMeta.vn_licensed ? (isVI ? 'Có' : 'Yes') : (isVI ? 'Không' : 'No'))
-                            : '--'
-                        }
-                      />
-                      <InfoItem
-                        icon={Layers}
-                        label={isVI ? 'Số tập (VN)' : 'Volumes (VN)'}
-                        value={volumeCount != null ? String(volumeCount) : '--'}
-                      />
-                      <InfoItem
-                        icon={Building2}
-                        label={isVI ? 'NXB Việt Nam' : 'VN Publisher'}
-                        value={publisherName || '--'}
-                      />
-                      <InfoItem
-                        icon={BookMarked}
-                        label={isVI ? 'Tập mới nhất' : 'Latest Vol.'}
-                        value={latestVolume?.volume_number != null ? `Vol. ${latestVolume.volume_number}` : '--'}
-                      />
-                    </div>
-
-                    {/* ── Latest volume detail row ── */}
-                    {latestVolume && (
-                      <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
-                        <div className="flex items-center gap-2 mb-3">
-                          <ImageIcon className="w-4 h-4 text-primary-400 flex-shrink-0" />
-                          <span className="text-xs font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                            {isVI ? 'Thông tin tập mới nhất (VN)' : 'Latest VN Volume'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 p-3 rounded-xl" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
-                          {latestVolume.cover_url && (
-                            <img
-                              src={latestVolume.cover_url}
-                              alt={`Vol. ${latestVolume.volume_number}`}
-                              className="w-10 h-auto rounded-md flex-shrink-0 shadow"
-                            />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>
-                              {isVI ? 'Tập' : 'Volume'} {latestVolume.volume_number}
-                            </p>
-                            <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-0.5">
-                              {latestVolume.release_date && (
-                                <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>
-                                  {isVI ? 'Phát hành' : 'Released'}:{' '}
-                                  {new Date(latestVolume.release_date).toLocaleDateString(
-                                    isVI ? 'vi-VN' : 'en-US',
-                                    { year: 'numeric', month: 'short', day: 'numeric' }
-                                  )}
-                                </p>
-                              )}
-                              {latestVolume.price && (
-                                <p className="text-xs font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
-                                  {Number(latestVolume.price).toLocaleString('vi-VN')}{' '}
-                                  {latestVolume.currency || 'VND'}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold text-primary-300"
-                              style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }}>
-                              {isVI ? 'Bìa đang hiển thị' : 'Cover shown'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
 
                 {/* Tags */}
                 {series.tags && series.tags.length > 0 && (
@@ -1352,7 +1255,7 @@ export default function ContentDetail() {
                   />
                 ) : isManga ? (
                   /* --- Manga Stats Section --- */
-                  <MangaStats volumes={allVolumes} locale={locale} />
+                  <MangaStats volumes={allVolumes} librarySummary={seriesLibrarySummary} locale={locale} />
                 ) : (
                   <div className="glass rounded-2xl p-10 flex flex-col items-center gap-3">
                     <BarChart2 className="w-10 h-10 opacity-20 text-primary-500" />
@@ -1608,6 +1511,16 @@ export default function ContentDetail() {
               <NovelSideCards
                 series={series}
                 ranking={lnRanking}
+                volumes={allVolumes}
+                latestVolume={latestVolume}
+                locale={locale}
+              />
+            )}
+
+            {isManga && (
+              <MangaSideCards
+                series={series}
+                mangaMeta={mangaMeta}
                 volumes={allVolumes}
                 latestVolume={latestVolume}
                 locale={locale}
@@ -2602,7 +2515,7 @@ function NovelDoAStats({
               : 'Check the lidex_series_id column in public.ln_series_ranking to link this series to the Dead-or-Alive table.'}
           </p>
         </div>
-        <MangaStats volumes={volumes} locale={locale} />
+        <MangaStats volumes={volumes} librarySummary={librarySummary} locale={locale} />
       </div>
     )
   }
@@ -4046,9 +3959,150 @@ function NovelLNRadar({ ranking, marketRows, locale, compact = false }: { rankin
   )
 }
 
-// ── NEW: Manga Stats Component ───────────────────────────────────────────────
+// ── NEW: Manga Detail Components ──────────────────────────────────────────────
 
-function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
+function MangaGeneralInfo({
+  series,
+  mangaMeta,
+  volumes,
+  latestVolume,
+  publisherName,
+  locale,
+}: {
+  series: any
+  mangaMeta: any
+  volumes: any[]
+  latestVolume: any
+  publisherName: string | null
+  locale: string
+}) {
+  const isVI = locale === 'vi'
+  const sortedVolumes = [...volumes].sort((a, b) => Number(b.volume_number || 0) - Number(a.volume_number || 0))
+  const prices = volumes.map(v => Number(v.price || 0)).filter(p => p > 0)
+  const avgPrice = prices.length ? prices.reduce((sum, price) => sum + price, 0) / prices.length : 0
+  const releaseStatus = series.status || '—'
+  const vnPublisher = publisherName || series.publisher || '—'
+  const vnVolumes = volumes.length || null
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200">
+      <NovelSection icon={Info} title={isVI ? 'Thông Tin Chung' : 'General Information'}>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <NovelField icon={Film} label={isVI ? 'Loại' : 'Type'} value="Manga" />
+          <NovelField icon={Calendar} label={isVI ? 'Trạng thái' : 'Status'} value={normalizeNovelStatus(releaseStatus, isVI)} />
+          <NovelField icon={Users} label={isVI ? 'Đối tượng' : 'Demographic'} value={mangaMeta?.demographic && mangaMeta.demographic !== 'none' ? (DEMO_LABELS[mangaMeta.demographic] || mangaMeta.demographic) : '—'} />
+          <NovelField icon={Languages} label={isVI ? 'Ngôn ngữ gốc' : 'Origin Language'} value={mangaMeta?.original_language ? (LANG_LABELS[mangaMeta.original_language] || mangaMeta.original_language.toUpperCase()) : '—'} />
+          <NovelField icon={Building2} label={isVI ? 'Nhà phát hành' : 'Publisher'} value={vnPublisher} />
+          <NovelField icon={Layers} label={isVI ? 'Số tập (VN)' : 'Volumes (VN)'} value={vnVolumes != null ? String(vnVolumes) : '—'} />
+          <NovelField icon={Award} label={isVI ? 'Giá TB' : 'Average Price'} value={formatVnd(avgPrice)} />
+          <NovelField icon={BookOpen} label={isVI ? 'Tác giả' : 'Author'} value={series.author || '—'} />
+          <NovelField icon={ImageIcon} label={isVI ? 'Họa sĩ' : 'Artist'} value={series.artist || '—'} />
+        </div>
+      </NovelSection>
+
+      <NovelVolumeCarousel volumes={sortedVolumes} latestVolume={latestVolume} locale={locale} />
+
+      {series.tags && series.tags.length > 0 && (
+        <NovelSection icon={Tags} title="Tags">
+          <div className="flex flex-wrap gap-2">
+            {series.tags.map((tag: string, i: number) => (
+              <span
+                key={`tag-${i}`}
+                className="px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer"
+                style={{ background: 'var(--background-secondary)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </NovelSection>
+      )}
+    </div>
+  )
+}
+
+function MangaSideCards({
+  series,
+  mangaMeta,
+  volumes,
+  latestVolume,
+  locale,
+}: {
+  series: any
+  mangaMeta: any
+  volumes: any[]
+  latestVolume: any
+  locale: string
+}) {
+  const isVI = locale === 'vi'
+  const originalVols = mangaMeta?.md_volumes || null
+  const progress = originalVols ? Math.max(0, Math.min(100, (volumes.length / originalVols) * 100)) : 0
+  const latestDate = latestVolume?.release_date || null
+
+  return (
+    <>
+      <div className="glass rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <BookMarked className="w-4 h-4 text-primary-500 flex-shrink-0" />
+            <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Tình Trạng Phát Hành' : 'Release Status'}</h3>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Số tập gốc' : 'Original Vols'}</span>
+              <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
+                {originalVols != null ? `${originalVols} ${isVI ? 'Tập' : 'Vols'}` : '—'}
+              </span>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+              <div className="h-full rounded-full" style={{ width: '100%', background: 'rgba(124,106,245,.48)' }} />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span style={{ color: 'var(--foreground-muted)' }}>VN</span>
+              <span className="font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
+                {`${volumes.length} ${isVI ? 'Tập' : 'Vols'}`}
+              </span>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--background-secondary)' }}>
+              <div className="h-full rounded-full" style={{ width: `${progress || 8}%`, background: 'linear-gradient(90deg,#7c3aed,#38bdf8)' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="w-4 h-4 text-primary-500 flex-shrink-0" />
+          <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Thông Tin Thị Trường' : 'Market Info'}</h3>
+        </div>
+        <div className="space-y-3">
+          <NovelSidebarMetric icon={Star} label={isVI ? 'Điểm MangaDex' : 'MangaDex Score'} value={mangaMeta?.md_rating != null ? `${Number(mangaMeta.md_rating).toFixed(1)} / 10` : '—'} color="#22c55e" />
+          <NovelSidebarMetric icon={Users} label={isVI ? 'Theo dõi' : 'Followers'} value={mangaMeta?.md_follows != null ? fmtBig(mangaMeta.md_follows) : '—'} color="#38bdf8" />
+          <NovelSidebarMetric icon={Calendar} label={isVI ? 'Năm ra mắt gốc' : 'Start Year'} value={mangaMeta?.md_year != null ? String(mangaMeta.md_year) : '—'} color="#fbbf24" />
+          <NovelSidebarMetric icon={Calendar} label={isVI ? 'Tập mới nhất (VN)' : 'Latest Release'} value={lnFormatDate(latestDate, locale)} color="#a78bfa" />
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ── Manga Stats Component ───────────────────────────────────────────────────
+
+function MangaStats({
+  volumes,
+  librarySummary,
+  locale,
+}: {
+  volumes: any[]
+  librarySummary: SeriesLibrarySummary
+  locale: string
+}) {
   const isVI = locale === 'vi'
   
   // Calculate basic stats
@@ -4077,6 +4131,12 @@ function MangaStats({ volumes, locale }: { volumes: any[]; locale: string }) {
         <StatBig label={isVI ? 'Giá TB' : 'Avg Price'} value={avgPrice ? avgPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#fbbf24" />
         <StatBig label={isVI ? 'Giá cao nhất' : 'Max Price'} value={maxPrice ? maxPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#f87171" />
         <StatBig label={isVI ? 'Giá thấp nhất' : 'Min Price'} value={minPrice ? minPrice.toLocaleString('vi-VN') : '—'} sub="VND" color="#4ade80" />
+      </div>
+
+      {/* Community Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ReaderStatusChart summary={librarySummary} locale={locale} />
+        <ReaderRatingChart summary={librarySummary} locale={locale} />
       </div>
 
       {/* Pricing Chart */}
