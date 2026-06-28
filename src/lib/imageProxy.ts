@@ -16,8 +16,9 @@ export function proxyImageUrl(url: string | null | undefined): string | null {
     const isSupabase = host.includes('supabase')
     const isLocal = host === 'localhost' || host === '127.0.0.1'
     const isR2 = host.includes('r2.dev') || host.includes('cloudflarestorage.com')
+    const isTana = host.includes('tana.moe')
 
-    if (isSupabase || isLocal || isR2) return url
+    if (isSupabase || isLocal || isR2 || isTana) return url
     return `/api/image-proxy?url=${encodeURIComponent(url)}`
   } catch {
     return url
@@ -33,7 +34,8 @@ export function proxyImg(url: string | null | undefined): string | null {
       !h.includes('supabase') &&
       !h.includes('localhost') &&
       !h.includes('r2.dev') &&
-      !h.includes('cloudflarestorage.com')
+      !h.includes('cloudflarestorage.com') &&
+      !h.includes('tana.moe')
     ) {
       return `/api/image-proxy?url=${encodeURIComponent(url)}`
     }
