@@ -64,6 +64,15 @@ export default function Navbar() {
     }
   }, [])
 
+  useEffect(() => {
+    const handleTriggerAuth = (e: Event) => {
+      const customEvent = e as CustomEvent
+      openAuth(customEvent.detail?.mode || 'signin')
+    }
+    window.addEventListener('trigger-auth-modal', handleTriggerAuth)
+    return () => window.removeEventListener('trigger-auth-modal', handleTriggerAuth)
+  }, [])
+
   const displayName =
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||

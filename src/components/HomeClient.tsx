@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen } from 'lucide-react'
+import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen, UserPlus, LayoutDashboard } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
+import supabase from '@/lib/supabaseClient'
 
 interface Cover { id: number; title: string; cover_url: string | null }
 interface TypeCounts { anime: number; manga: number; novel: number }
@@ -234,9 +235,12 @@ function HomeMissionBanner({ vi, covers }: { vi: boolean; covers: Cover[] }) {
 }
 
 export default function HomeClient({ initialData }: { initialData: HomeData }) {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const vi = locale === 'vi'
   const data = initialData || EMPTY_HOME_DATA
+
+  const [user,        setUser]        = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
 
   const initialCarouselData = useMemo<Record<CarouselSection, CarouselItem[]>>(() => ({
     anime: data.topAnime.map((s: any) => ({ id: s.id, title: s.title, cover_url: s.cover_url, score: s.anime_mean_score, href: `/content/${s.id}` })),
@@ -284,6 +288,21 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     }, ROTATE_INTERVAL)
     return () => clearInterval(t)
   }, [autoRotate, activeSection, goToSection])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null)
+      setAuthLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
 
   const items = carouselData[activeSection]
   const color = SECTION_CONFIG[activeSection].color
@@ -334,10 +353,24 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
                 {vi ? 'Bắt đầu ngay' : 'Start Exploring'}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
-              <Link href="/charts" className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5" style={{ color: 'var(--hero-secondary-button-text)', border: '1px solid var(--hero-secondary-button-border)', background: 'var(--hero-secondary-button-bg)', backdropFilter: 'blur(8px)' }}>
-                <BarChart2 className="w-4 h-4" />
-                {vi ? 'Biểu đồ' : 'Charts'}
-              </Link>
+              {authLoading ? (
+                <div className="px-6 py-3.5 rounded-xl text-sm font-semibold animate-pulse" 
+                  style={{ width: '120px', height: '48px', border: '1px solid var(--hero-secondary-button-border)', background: 'var(--hero-secondary-button-bg)' }} />
+              ) : user ? (
+                <Link href="/dashboard"
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                  style={{ color: 'var(--hero-secondary-button-text)', border: '1px solid var(--hero-secondary-button-border)', background: 'var(--hero-secondary-button-bg)', backdropFilter: 'blur(8px)' }}>
+                  <LayoutDashboard className="w-4 h-4" />
+                  {t('nav_dashboard')}
+                </Link>
+              ) : (
+                <button onClick={() => window.dispatchEvent(new CustomEvent('trigger-auth-modal', { detail: { mode: 'signup' } }))}
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                  style={{ color: 'var(--hero-secondary-button-text)', border: '1px solid var(--hero-secondary-button-border)', background: 'var(--hero-secondary-button-bg)', backdropFilter: 'blur(8px)' }}>
+                  <UserPlus className="w-4 h-4" />
+                  {vi ? 'Đăng ký' : 'Sign up'}
+                </button>
+              )}
             </div>
             {typeCounts && (
               <p className="mt-8 text-xs" style={{ color: 'var(--hero-muted-text)' }}>

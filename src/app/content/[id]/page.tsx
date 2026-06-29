@@ -2829,20 +2829,7 @@ function NovelAnalysisTab({
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <BreakdownCard
-          title={isVI ? 'Ghi chú Điểm LN' : 'LN Score Notes'}
-          accent={lnScoreColor(ranking.ln_score)}
-          body={ranking.score_components || ranking.evaluation_basis || ''}
-          empty={isVI ? 'Không có ghi chú điểm.' : 'No score notes available.'}
-        />
-        <BreakdownCard
-          title={isVI ? 'Ghi chú Rủi ro Drop' : 'Drop Risk Notes'}
-          accent={lnDropColor(ranking.drop_percent)}
-          body={ranking.drop_components || ranking.drop_basis || ''}
-          empty={isVI ? 'Không có ghi chú rủi ro.' : 'No risk notes available.'}
-        />
-      </div>
+
 
       <div className="rounded-2xl p-4 sm:p-5" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
         <p className="text-xs leading-relaxed" style={{ color: 'var(--foreground-muted)' }}>
