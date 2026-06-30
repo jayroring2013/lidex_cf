@@ -6,7 +6,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/yFy8EdTUtLsE00WL.jpg",
     "coming": 0.09897849943652881,
-    "success": 0.5313970885101414
+    "success": 0.5313970885101414,
+    "volume_count": 4,
+    "status": "completed",
+    "jp_publisher": "Kyoto Animation",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Kyoto Animation"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 2,
@@ -15,7 +28,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/T7A3Q7l1mEZEp0El.jpg",
     "coming": 0.07137731600197907,
-    "success": 0.446451810142734
+    "success": 0.446451810142734,
+    "volume_count": 10,
+    "status": "ongoing",
+    "jp_publisher": "Shogakukan",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shogakukan"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
+    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
   },
   {
     "rank": 3,
@@ -24,7 +50,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/g4jZAVna0q9fUPb1.jpg",
     "coming": 0.07056576893399322,
-    "success": 0.38217991253671396
+    "success": 0.38217991253671396,
+    "volume_count": 13,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 4,
@@ -33,7 +72,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/zh4a9JtZnwaoDW9a.jpg",
     "coming": 0.009108179283943025,
-    "success": 0.4596895636840188
+    "success": 0.4596895636840188,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 5,
@@ -41,8 +93,21 @@
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/CMP5m3szZ5BA54KZ.jpg",
-    "coming": 0.0539525028404816,
-    "success": 0.3757496906206611
+    "coming": 0.05395250284048159,
+    "success": 0.37574969062066105,
+    "volume_count": 22,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 6,
@@ -51,7 +116,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/UxtT7PXjqkaQwhGJ.jpg",
     "coming": 0.06228687059832305,
-    "success": 0.35040358579559433
+    "success": 0.35040358579559433,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 7,
@@ -60,7 +138,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/NNRP2yoeohQ9rR0R.jpg",
     "coming": 0.007717416984504256,
-    "success": 0.4244924371675554
+    "success": 0.4244924371675554,
+    "volume_count": 14,
+    "status": "completed",
+    "jp_publisher": "Shogakukan",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Shogakukan"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
+    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
   },
   {
     "rank": 8,
@@ -69,7 +160,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/Wlntodmhd1gGW5UM.jpg",
     "coming": 0.051912370356397314,
-    "success": 0.35158110125837305
+    "success": 0.35158110125837305,
+    "volume_count": 26,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed very long (>25 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 9,
@@ -78,7 +182,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/fVqFW5R7siEhF3n7.jpg",
     "coming": 0.043677480281764935,
-    "success": 0.3575058258725404
+    "success": 0.3575058258725404,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 10,
@@ -87,7 +204,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/6gZThsFlJjBJexVd.jpg",
     "coming": 0.044248233380647636,
-    "success": 0.33727113866142244
+    "success": 0.33727113866142244,
+    "volume_count": 6,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 11,
@@ -96,7 +226,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/91b9Ct3LRJ9BwUl7.jpg",
     "coming": 0.04252278326291395,
-    "success": 0.33475832050192195
+    "success": 0.33475832050192195,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 12,
@@ -105,7 +248,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/1w2NuL2fNsGjCcdU.jpg",
     "coming": 0.06102642102007079,
-    "success": 0.3041148286537364
+    "success": 0.3041148286537364,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "Square Enix",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Square Enix"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 13,
@@ -114,7 +269,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/iPnPtRTneDsVHKSx.jpg",
     "coming": 0.04858007286395033,
-    "success": 0.3171543712933261
+    "success": 0.3171543712933261,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 14,
@@ -123,7 +291,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/ZrIstGPhaHiFl5DY.jpg",
     "coming": 0.04989055811352652,
-    "success": 0.3143963607716621
+    "success": 0.3143963607716621,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "ポプラ社",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: ポプラ社"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 15,
@@ -132,7 +313,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/uQqB7r5BzlnjR7G9.jpg",
     "coming": 0.02863929818535939,
-    "success": 0.3457805140048563
+    "success": 0.3457805140048563,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 16,
@@ -141,7 +335,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/ZnMyb4DgeyqyD0nt.jpg",
     "coming": 0.04532364228830104,
-    "success": 0.31421008563685954
+    "success": 0.31421008563685954,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "Tokuma Shoten",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Tokuma Shoten"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 17,
@@ -150,7 +356,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/aTxi3Vw8OlOppIjW.jpg",
     "coming": 0.058600657849805324,
-    "success": 0.28967093936604565
+    "success": 0.28967093936604565,
+    "volume_count": 9,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
   },
   {
     "rank": 18,
@@ -159,7 +378,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/hH2Ltrq40xpGSxNS.jpg",
     "coming": 0.0410430924186693,
-    "success": 0.31482539474178967
+    "success": 0.31482539474178967,
+    "volume_count": 11,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 19,
@@ -168,7 +400,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/w9KA92wkeMTGnsnA.jpg",
     "coming": 0.03839596305276924,
-    "success": 0.3159075029911089
+    "success": 0.3159075029911089,
+    "volume_count": 5,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 20,
@@ -177,7 +422,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/3dZXaEPDYEc4exMu.jpg",
     "coming": 0.04741263996368532,
-    "success": 0.2952954283327881
+    "success": 0.2952954283327881,
+    "volume_count": 22,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 21,
@@ -186,7 +444,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/EtSJqViQm54NhDjM.jpg",
     "coming": 0.04034138309517234,
-    "success": 0.29448735245295715
+    "success": 0.29448735245295715,
+    "volume_count": 16,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 22,
@@ -195,7 +466,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/cFduS1WxGdx5K1C6.jpg",
     "coming": 0.03924464148239266,
-    "success": 0.2811850411681148
+    "success": 0.2811850411681148,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 23,
@@ -204,7 +488,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/3dKRGHnT1IzlYMHG.jpg",
     "coming": 0.024419492240251587,
-    "success": 0.30172370466365495
+    "success": 0.30172370466365495,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "Square Enix",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Square Enix"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 24,
@@ -213,7 +510,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/CxzeqpOazfOybw7P.jpg",
     "coming": 0.051717407791522285,
-    "success": 0.26001352684947887
+    "success": 0.26001352684947887,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 25,
@@ -222,7 +532,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/75VA6UPaR8iVxRo3.jpg",
     "coming": 0.04141949017228983,
-    "success": 0.27394381971229603
+    "success": 0.27394381971229603,
+    "volume_count": 12,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
   },
   {
     "rank": 26,
@@ -231,7 +553,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/aanldz1GECCc0AmQ.jpg",
     "coming": 0.03243401991949592,
-    "success": 0.2860041746764806
+    "success": 0.2860041746764806,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 27,
@@ -240,7 +575,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/DCC1mzqKFATBmCGh.jpg",
     "coming": 0.043944626346932886,
-    "success": 0.26773157295549377
+    "success": 0.26773157295549377,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 28,
@@ -249,7 +597,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/ivb161GoPSsbrPe9.jpg",
     "coming": 0.03817623370032787,
-    "success": 0.2718657559120877
+    "success": 0.2718657559120877,
+    "volume_count": 16,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed but long (>15 vols)",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 29,
@@ -258,7 +618,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/YCCB0Tu0CFCPmCBi.jpg",
     "coming": 0.0044689376293333945,
-    "success": 0.3223038689669253
+    "success": 0.3223038689669253,
+    "volume_count": 25,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed but long (>15 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 30,
@@ -267,7 +640,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/y8y4q4uOvHdrCWd8.jpg",
     "coming": 0.04959698773732391,
-    "success": 0.2529330220523965
+    "success": 0.2529330220523965,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 31,
@@ -276,7 +661,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/XMjmwqVHiZbKJMZv.jpg",
     "coming": 0.024674340679817892,
-    "success": 0.2864764194146395
+    "success": 0.2864764194146395,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 32,
@@ -285,7 +683,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/yemOT3VDGNyHTfwY.jpg",
     "coming": 0.02557587700701964,
-    "success": 0.2838739056848151
+    "success": 0.2838739056848151,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 33,
@@ -294,7 +704,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/KWBLvqbIjOiyl0XK.jpg",
     "coming": 0.013216735181044012,
-    "success": 0.29602001270633815
+    "success": 0.29602001270633815,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Fills IPM's Drama target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kịch tính mục tiêu của IPM."
   },
   {
     "rank": 34,
@@ -303,7 +725,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/VwtAZp2rcef05j29.jpg",
     "coming": 0.026526343497602967,
-    "success": 0.27225555261475387
+    "success": 0.27225555261475387,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 35,
@@ -312,7 +747,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/kha62l0ZamwyQIsF.jpg",
     "coming": 0.03573798380243461,
-    "success": 0.2557538078842697
+    "success": 0.2557538078842697,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 36,
@@ -321,7 +769,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/zSucT2VN4byHDJt2.jpg",
     "coming": 0.008761126174358183,
-    "success": 0.2934998452172086
+    "success": 0.2934998452172086,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 37,
@@ -330,7 +791,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/twoDOdoAUjQesOqI.jpg",
     "coming": 0.03917819511393133,
-    "success": 0.24577112492748496
+    "success": 0.24577112492748496,
+    "volume_count": 3,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 38,
@@ -339,7 +812,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Bidm9LZ4XyDdRAaI.jpg",
     "coming": 0.043979510422814484,
-    "success": 0.23449019241775265
+    "success": 0.23449019241775265,
+    "volume_count": 3,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 39,
@@ -348,7 +833,20 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/8eNuVnSnptU4FV4B.jpg",
     "coming": 0.02067141890557455,
-    "success": 0.2681728600562762
+    "success": 0.2681728600562762,
+    "volume_count": 18,
+    "status": "ongoing",
+    "jp_publisher": "TO Books",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: TO Books"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 40,
@@ -357,7 +855,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/2zCVsE1WkSjqVkPc.jpg",
     "coming": 0.03377660406748126,
-    "success": 0.24844515758626545
+    "success": 0.24844515758626545,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
   },
   {
     "rank": 41,
@@ -366,7 +876,19 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/loGDWHNyTe0GdXPG.jpg",
     "coming": 0.020057591179469272,
-    "success": 0.26118110634434055
+    "success": 0.26118110634434055,
+    "volume_count": 11,
+    "status": "completed",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 42,
@@ -375,7 +897,19 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/BFFe9QUJI7rAsMYr.jpg",
     "coming": 0.016714659316224394,
-    "success": 0.2649487095668984
+    "success": 0.2649487095668984,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 43,
@@ -384,7 +918,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/uPyLkSpaTtzi8RuB.jpg",
     "coming": 0.02535627845126853,
-    "success": 0.23747473344463724
+    "success": 0.23747473344463724,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 44,
@@ -393,7 +940,19 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/sDkZV0VKGyrfLqDe.jpg",
     "coming": 0.021990402313720223,
-    "success": 0.24236413754219172
+    "success": 0.24236413754219172,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 45,
@@ -402,7 +961,20 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/3PU1k4UT82BLMTwO.jpg",
     "coming": 0.022007708638828605,
-    "success": 0.24086348517232795
+    "success": 0.24086348517232795,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "TO Books",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: TO Books"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Fantasy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 46,
@@ -411,7 +983,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/NQyQJZxTaFagoU8l.jpg",
     "coming": 0.03315951692965074,
-    "success": 0.22070456120612222
+    "success": 0.22070456120612222,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 47,
@@ -420,7 +1004,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/UDxDLLFGMgzmIizr.jpg",
     "coming": 0.032529006727006905,
-    "success": 0.22138025831642286
+    "success": 0.22138025831642286,
+    "volume_count": 6,
+    "status": "completed",
+    "jp_publisher": "Square Enix",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Square Enix"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 48,
@@ -429,7 +1026,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Lgem6mN3jVqWMkvB.jpg",
     "coming": 0.03242500399904927,
-    "success": 0.22024370108071717
+    "success": 0.22024370108071717,
+    "volume_count": 16,
+    "status": "ongoing",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 49,
@@ -438,7 +1048,20 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/Xb4UW59ADtgwDykn.jpg",
     "coming": 0.022007708638828605,
-    "success": 0.23484064626875295
+    "success": 0.23484064626875295,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "TO Books",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: TO Books"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Fantasy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 50,
@@ -447,7 +1070,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/1LBvIY2YNhat3Df4.jpg",
     "coming": 0.010668229727563388,
-    "success": 0.25082527205171967
+    "success": 0.25082527205171967,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "Gentosha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Gentosha"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Fills IPM's Action target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại hành động mục tiêu của IPM."
   },
   {
     "rank": 51,
@@ -456,7 +1091,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/gjv6niLSxjbSJ3iB.jpg",
     "coming": 0.02645499763565793,
-    "success": 0.22589747061520574
+    "success": 0.22589747061520574,
+    "volume_count": 12,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 52,
@@ -465,7 +1113,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/yKC9nZnDPguoxBEc.jpg",
     "coming": 0.023824481444574542,
-    "success": 0.22952932159369355
+    "success": 0.22952932159369355,
+    "volume_count": 4,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 53,
@@ -474,7 +1135,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/zvoKBBtVTHkYAQ8A.jpg",
     "coming": 0.019726286146448405,
-    "success": 0.2353984705998934
+    "success": 0.2353984705998934,
+    "volume_count": 16,
+    "status": "ongoing",
+    "jp_publisher": "Hifumi Shobo",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Hifumi Shobo"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 54,
@@ -483,7 +1157,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/ud9yjFeqBWXKbl26.jpg",
     "coming": 0.03480235729458339,
-    "success": 0.21115183241076796
+    "success": 0.21115183241076796,
+    "volume_count": 11,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 55,
@@ -492,7 +1179,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/MXVDkCZfSTpxEAZf.jpg",
     "coming": 0.031066609345225375,
-    "success": 0.21531846027292764
+    "success": 0.21531846027292764,
+    "volume_count": 15,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 56,
@@ -501,7 +1200,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/6eGritGNktDOWzRB.jpg",
     "coming": 0.02081091442479858,
-    "success": 0.2306261568334808
+    "success": 0.2306261568334808,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 57,
@@ -510,7 +1222,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/XPl3PIEIG8YwVJnF.jpg",
     "coming": 0.03269669310890553,
-    "success": 0.2094053973871493
+    "success": 0.2094053973871493,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 58,
@@ -519,7 +1243,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/55aujK512WMaaAod.jpg",
     "coming": 0.024124244291600174,
-    "success": 0.22147811134032516
+    "success": 0.22147811134032516,
+    "volume_count": 10,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Comedy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hài hước của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 59,
@@ -528,7 +1265,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/36UuBMGp7IkJvjsP.jpg",
     "coming": 0.026942380277699927,
-    "success": 0.21583404894134373
+    "success": 0.21583404894134373,
+    "volume_count": 11,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 60,
@@ -537,7 +1286,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/X7bPZNg4KdSEkCHx.jpg",
     "coming": 0.0159000529757199,
-    "success": 0.23210648774580986
+    "success": 0.23210648774580986,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "Arian Rose",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Arian Rose"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
   },
   {
     "rank": 61,
@@ -546,7 +1307,19 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/pW5aXT4tWXG9aEm3.jpg",
     "coming": 0.029459720951919573,
-    "success": 0.20986153280005695
+    "success": 0.20986153280005695,
+    "volume_count": 3,
+    "status": "completed",
+    "jp_publisher": "Kodansha",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Kodansha"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Action catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 62,
@@ -555,7 +1328,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/FBUg77GCS8EsGM1h.jpg",
     "coming": 0.0346518186056997,
-    "success": 0.2018970505868679
+    "success": 0.2018970505868679,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 63,
@@ -564,7 +1350,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/HqNvOQhzSo8YCdDB.jpg",
     "coming": 0.03069105240842357,
-    "success": 0.20661101276537477
+    "success": 0.20661101276537477,
+    "volume_count": 9,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 64,
@@ -573,7 +1371,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/bkxlJNcCwBF96Men.jpg",
     "coming": 0.024249892775918283,
-    "success": 0.2159435052932496
+    "success": 0.2159435052932496,
+    "volume_count": 14,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 65,
@@ -582,7 +1393,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/zzUHMLQC4DCvVZEU.jpg",
     "coming": 0.02513551766020421,
-    "success": 0.2145501560810848
+    "success": 0.2145501560810848,
+    "volume_count": 6,
+    "status": "completed",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 66,
@@ -591,7 +1414,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/erLtuP4HmqgR3ZcY.jpg",
     "coming": 0.013875990543781764,
-    "success": 0.2261988717683998
+    "success": 0.2261988717683998,
+    "volume_count": 16,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 67,
@@ -600,7 +1436,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/nczfhEIgUtsOxFmY.jpg",
     "coming": 0.02534130029311074,
-    "success": 0.20698841033745066
+    "success": 0.20698841033745066,
+    "volume_count": 6,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 68,
@@ -609,7 +1458,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/Bi2V29NBxaFonXl3.jpg",
     "coming": 0.01873065669276611,
-    "success": 0.21537036484471406
+    "success": 0.21537036484471406,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "AlphaPolis",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: AlphaPolis"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 69,
@@ -618,7 +1479,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/8j6CVkf01mWh0fVX.jpg",
     "coming": 0.009664399595045095,
-    "success": 0.22807044699510476
+    "success": 0.22807044699510476,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 70,
@@ -627,7 +1500,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/eGBrJl2KiN4R73iQ.jpg",
     "coming": 0.019446373085372802,
-    "success": 0.2131270714786516
+    "success": 0.2131270714786516,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 71,
@@ -636,7 +1521,17 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/ed2laR4TANvaXXzQ.jpg",
     "coming": 0.0317386259801069,
-    "success": 0.19452334846255007
+    "success": 0.19452334846255007,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "Shinchosha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Shinchosha"
+    ],
+    "success_factors": [],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 72,
@@ -645,7 +1540,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/4PJfOOyeeS7cHNLn.jpg",
     "coming": 0.024092318885067698,
-    "success": 0.20561829227636272
+    "success": 0.20561829227636272,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 73,
@@ -654,7 +1561,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/o2foa64TpplfBugC.jpg",
     "coming": 0.014719545747292447,
-    "success": 0.2187390444929693
+    "success": 0.2187390444929693,
+    "volume_count": 20,
+    "status": "ongoing",
+    "jp_publisher": "Micro Magazine",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Micro Magazine"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Fantasy LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết kỳ ảo ăn khách của Tsuki."
   },
   {
     "rank": 74,
@@ -663,7 +1583,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
     "cover_url": "https://images.ranobedb.org/NMck5I6RyDL5u2VC.jpg",
     "coming": 0.015276015362117392,
-    "success": 0.21713732553980566
+    "success": 0.21713732553980566,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Usagi Light Novel's localized Girls love catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện girls love bản địa hóa của Usagi Light Novel."
   },
   {
     "rank": 75,
@@ -672,7 +1605,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/4vpr7u4DL7aWdWbL.jpg",
     "coming": 0.0159000529757199,
-    "success": 0.21573611803281895
+    "success": 0.21573611803281895,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "Arian Rose",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Arian Rose"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
   },
   {
     "rank": 76,
@@ -681,7 +1627,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/NW6c4EeQzunbbBq4.jpg",
     "coming": 0.0013941574389955084,
-    "success": 0.23520839796666326
+    "success": 0.23520839796666326,
+    "volume_count": 17,
+    "status": "completed",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Completed but long (>15 vols)",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 77,
@@ -690,7 +1648,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/kQKnPHTGvJy9UAAt.jpg",
     "coming": 0.02736346430675531,
-    "success": 0.19609486644363588
+    "success": 0.19609486644363588,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 78,
@@ -699,7 +1669,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/ZSfOoROiMxVCgInc.jpg",
     "coming": 0.03586714533315018,
-    "success": 0.18203352781126453
+    "success": 0.18203352781126453,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 79,
@@ -708,7 +1690,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/LwxAyBSRMyei1cz7.jpg",
     "coming": 0.01941579118675285,
-    "success": 0.20629702925612323
+    "success": 0.20629702925612323,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 80,
@@ -717,7 +1711,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/IvzIFg0NIrMEorEC.jpg",
     "coming": 0.03649956064822044,
-    "success": 0.18004405372799717
+    "success": 0.18004405372799717,
+    "volume_count": 3,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 81,
@@ -726,7 +1732,20 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/w6wKfj5b8MTxGVfS.jpg",
     "coming": 0.016147049720056664,
-    "success": 0.2077697959368141
+    "success": 0.2077697959368141,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Shogakukan",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shogakukan"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Adventure catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện phiêu lưu bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 82,
@@ -735,7 +1754,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/EDfs1jewrNeO0K5z.jpg",
     "coming": 0.01719786947930421,
-    "success": 0.20579735870117963
+    "success": 0.20579735870117963,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 83,
@@ -744,7 +1775,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/y788VgrbzyuZI482.jpg",
     "coming": 0.013032329393106308,
-    "success": 0.21189931381153881
+    "success": 0.21189931381153881,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 84,
@@ -753,7 +1796,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/sE1SzOa7Ef8OtV9A.jpg",
     "coming": 0.028789678041053132,
-    "success": 0.18225520797106884
+    "success": 0.18225520797106884,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 85,
@@ -762,7 +1817,19 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/1RPIQRNIQ5OcDaYZ.jpg",
     "coming": 0.02475008049040429,
-    "success": 0.1877591734629953
+    "success": 0.1877591734629953,
+    "volume_count": 6,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 86,
@@ -770,8 +1837,21 @@
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/8vqC0HCSCOz729zY.jpg",
-    "coming": 0.028365709079685445,
-    "success": 0.18206200567198763
+    "coming": 0.02836570907968544,
+    "success": 0.18206200567198763,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Horror reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kinh dị năng động của Kim Đồng."
   },
   {
     "rank": 87,
@@ -780,7 +1860,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/qfUea8PXkR1rhJNZ.jpg",
     "coming": 0.016906204731515738,
-    "success": 0.19785500356915434
+    "success": 0.19785500356915434,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Slice of life reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện đời thường năng động của Kim Đồng."
   },
   {
     "rank": 88,
@@ -789,7 +1882,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/qB8ZmEIxd9yzu0uq.jpg",
     "coming": 0.02125340972952909,
-    "success": 0.1903563368654095
+    "success": 0.1903563368654095,
+    "volume_count": 5,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 89,
@@ -798,7 +1904,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/qkpGUFiLonCuni9U.jpg",
     "coming": 0.031231976714618127,
-    "success": 0.17416614812381184
+    "success": 0.17416614812381184,
+    "volume_count": 13,
+    "status": "completed",
+    "jp_publisher": "Takarajimasha",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Takarajimasha"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
   },
   {
     "rank": 90,
@@ -807,7 +1925,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/aAk0kDrwO7VCTDOl.jpg",
     "coming": 0.029372997561245253,
-    "success": 0.17666053504499082
+    "success": 0.17666053504499082,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 91,
@@ -816,7 +1946,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/FWuvyjtftuLfm2jT.jpg",
     "coming": 0.030803995167742352,
-    "success": 0.17383656943915482
+    "success": 0.17383656943915482,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
   },
   {
     "rank": 92,
@@ -825,7 +1968,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/C52tkJGPyczyRzhW.jpg",
     "coming": 0.017121663627415927,
-    "success": 0.19385405424961893
+    "success": 0.19385405424961893,
+    "volume_count": 20,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 93,
@@ -834,7 +1989,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/xPp3L3QIbQVoOxZ6.jpg",
     "coming": 0.02493606817813416,
-    "success": 0.18195910354719044
+    "success": 0.18195910354719044,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "Hayakawa Shobo",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Hayakawa Shobo"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 94,
@@ -843,7 +2010,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/mJAglCBILyXqGPjB.jpg",
     "coming": 0.016724363274946207,
-    "success": 0.19345606086509096
+    "success": 0.19345606086509096,
+    "volume_count": 16,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed but long (>15 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 95,
@@ -852,7 +2031,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/zo2Mes6TCMNFvR6E.jpg",
     "coming": 0.017288784890044116,
-    "success": 0.1918396149859943
+    "success": 0.1918396149859943,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Matches Amak's Hobby Japan licensing affinity.",
+    "strategic_fit_vi": "Phù hợp với thế mạnh khai thác bản quyền Hobby Japan của Amak."
   },
   {
     "rank": 96,
@@ -861,7 +2052,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Nh5BdtbereG5TQeG.jpg",
     "coming": 0.023741663802762738,
-    "success": 0.17843189454488784
+    "success": 0.17843189454488784,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 97,
@@ -870,7 +2073,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/8IpQM8x8Ljk1Qpst.jpg",
     "coming": 0.012527376389848782,
-    "success": 0.194875505876698
+    "success": 0.194875505876698,
+    "volume_count": 18,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Adventure line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện phiêu lưu của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 98,
@@ -878,8 +2094,20 @@
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/dPWdiwEp930BoUOR.jpg",
-    "coming": 0.021110359684536763,
-    "success": 0.18164190289295276
+    "coming": 0.02111035968453676,
+    "success": 0.1816419028929527,
+    "volume_count": 12,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Romance LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết lãng mạn ăn khách của Tsuki."
   },
   {
     "rank": 99,
@@ -888,7 +2116,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/ji2lsVQx4UXVu6nh.jpg",
     "coming": 0.024167144876311546,
-    "success": 0.1767030427411795
+    "success": 0.1767030427411795,
+    "volume_count": 35,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 100,
@@ -897,7 +2137,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/gtXSpiC3MzwKfbFX.jpg",
     "coming": 0.03562293181480767,
-    "success": 0.15938358549281684
+    "success": 0.15938358549281684,
+    "volume_count": 38,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 101,
@@ -906,7 +2159,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/4JrFoEl19VJaV3zC.jpg",
     "coming": 0.03007864791664981,
-    "success": 0.16732838124824095
+    "success": 0.16732838124824095,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "Kodansha",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Kodansha"
+    ],
+    "success_factors": [
+      "Top-tier MAL score"
+    ],
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 102,
@@ -915,7 +2180,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/OqFPk1pOuvzOGLp8.jpg",
     "coming": 0.031162649939421583,
-    "success": 0.1644275091522593
+    "success": 0.1644275091522593,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "Micro Magazine",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Micro Magazine"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 103,
@@ -924,7 +2201,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
     "cover_url": "https://images.ranobedb.org/FFyXJh9f37iXZRBy.jpg",
     "coming": 0.017343873261682026,
-    "success": 0.18513951120621486
+    "success": 0.18513951120621486,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Usagi Light Novel's localized Fantasy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Usagi Light Novel."
   },
   {
     "rank": 104,
@@ -933,7 +2222,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/hJZyGPifSga42Yym.jpg",
     "coming": 0.00927820753113316,
-    "success": 0.19699968886084712
+    "success": 0.19699968886084712,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 105,
@@ -942,7 +2244,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/F8uDYYddz2r5Ks4X.jpg",
     "coming": 0.016756226992903547,
-    "success": 0.1854260813179802
+    "success": 0.1854260813179802,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 106,
@@ -951,7 +2265,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/GtgS33bARzKaiuU1.jpg",
     "coming": 0.017228593508879876,
-    "success": 0.18277040707298717
+    "success": 0.18277040707298717,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 107,
@@ -960,7 +2286,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/1dPHGBPhuI20tpXE.jpg",
     "coming": 0.018512230183859727,
-    "success": 0.1805656155309808
+    "success": 0.1805656155309808,
+    "volume_count": 17,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 108,
@@ -969,7 +2307,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/QVBqgBq8VBMOxthE.jpg",
     "coming": 0.023468829415368434,
-    "success": 0.17204105475417653
+    "success": 0.17204105475417653,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 109,
@@ -978,7 +2329,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/rtQkFzuaGCVVZnCn.jpg",
     "coming": 0.02291676642777884,
-    "success": 0.1716438315997476
+    "success": 0.1716438315997476,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 110,
@@ -987,7 +2350,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/f0r7au3YKrtiB2Iv.jpg",
     "coming": 0.012032843934675167,
-    "success": 0.18636120938897477
+    "success": 0.18636120938897477,
+    "volume_count": 15,
+    "status": "ongoing",
+    "jp_publisher": "Ichijinsha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Ichijinsha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 111,
@@ -996,7 +2372,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/EM4MZJtq0LWdxHrG.jpg",
     "coming": 0.017427157123842126,
-    "success": 0.17775692200505253
+    "success": 0.17775692200505253,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Shufu to Seikatsusha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shufu to Seikatsusha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 112,
@@ -1005,7 +2394,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Hum9fFOciNQUkXZr.jpg",
     "coming": 0.025147293528152852,
-    "success": 0.16568017966291376
+    "success": 0.16568017966291376,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 113,
@@ -1014,7 +2416,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/qdtOjv83qpA40EFY.jpg",
     "coming": 0.022528024503938964,
-    "success": 0.16893293885190747
+    "success": 0.16893293885190747,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Comedy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hài hước của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 114,
@@ -1023,7 +2438,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/5ZKEV9rJzxEmvsaQ.jpg",
     "coming": 0.014137080914497072,
-    "success": 0.1814940385591398
+    "success": 0.1814940385591398,
+    "volume_count": 10,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 115,
@@ -1032,7 +2459,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/byO4hNV5dRn9wdGZ.jpg",
     "coming": 0.020590811896329286,
-    "success": 0.17121706427059982
+    "success": 0.17121706427059982,
+    "volume_count": 20,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 116,
@@ -1041,7 +2480,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/cqjAtkd0A2HbIXfE.jpg",
     "coming": 0.021095052912448356,
-    "success": 0.17008959455258982
+    "success": 0.17008959455258982,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 117,
@@ -1050,7 +2501,19 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/RN9K6sH0OzYCUqTE.jpg",
     "coming": 0.013898649064800457,
-    "success": 0.18085114243910402
+    "success": 0.18085114243910402,
+    "volume_count": 5,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 118,
@@ -1059,7 +2522,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/zV6NPc7s01zZclL9.jpg",
     "coming": 0.005148157003353633,
-    "success": 0.1926631905282886
+    "success": 0.1926631905282886,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "AlphaPolis",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: AlphaPolis"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
   },
   {
     "rank": 119,
@@ -1068,7 +2544,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Ka7bJ42yFfzCAZD4.jpg",
     "coming": 0.029936814838725873,
-    "success": 0.15535009162584912
+    "success": 0.15535009162584912,
+    "volume_count": 5,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện phiêu lưu năng động của Kim Đồng."
   },
   {
     "rank": 120,
@@ -1077,7 +2565,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/IhmXffv8sL40o4bz.jpg",
     "coming": 0.01908006357086388,
-    "success": 0.17071799503048476
+    "success": 0.17071799503048476,
+    "volume_count": 5,
+    "status": "completed",
+    "jp_publisher": "Gentosha Comics",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Gentosha Comics"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
   },
   {
     "rank": 121,
@@ -1086,7 +2587,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/LB4CEieON3EaF9f8.jpg",
     "coming": 0.009218593011418382,
-    "success": 0.1850786866891695
+    "success": 0.1850786866891695,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "Kodansha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Kodansha"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Complements Kim Đồng's Kodansha licensing line.",
+    "strategic_fit_vi": "Bổ sung cho dòng sản phẩm bản quyền Kodansha của Kim Đồng."
   },
   {
     "rank": 122,
@@ -1095,7 +2608,19 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/3SORKPQuSdmMgsxe.jpg",
     "coming": 0.012874820393088219,
-    "success": 0.17950834579303965
+    "success": 0.17950834579303965,
+    "volume_count": 18,
+    "status": "ongoing",
+    "jp_publisher": "TO Books",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: TO Books"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Action catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 123,
@@ -1104,7 +2629,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/JOD9MyQXMJS0rTVK.jpg",
     "coming": 0.022949662690533067,
-    "success": 0.16388386384567405
+    "success": 0.16388386384567405,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
   },
   {
     "rank": 124,
@@ -1113,7 +2651,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/kcJmaWcLv1hOia0d.jpg",
     "coming": 0.012394505237524962,
-    "success": 0.17647101379507768
+    "success": 0.17647101379507768,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 125,
@@ -1122,7 +2673,19 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/WzXRPvC6IV0yLp1x.jpg",
     "coming": 0.016285110055451,
-    "success": 0.17020130494460056
+    "success": 0.17020130494460056,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Action catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 126,
@@ -1131,7 +2694,17 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/A3rqnjQJn2pc5qRt.jpg",
     "coming": 0.014710833594451677,
-    "success": 0.17163632214360364
+    "success": 0.17163632214360364,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 127,
@@ -1140,7 +2713,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/KdEEc61g9LHH6u8n.jpg",
     "coming": 0.02126485146536681,
-    "success": 0.1617111345159287
+    "success": 0.1617111345159287,
+    "volume_count": 15,
+    "status": "completed",
+    "jp_publisher": "Earth Star Entertainment",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Earth Star Entertainment"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
   },
   {
     "rank": 128,
@@ -1149,7 +2734,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/GbaTTOwSLCcUuzlQ.jpg",
     "coming": 0.01566993207999931,
-    "success": 0.16942341143038975
+    "success": 0.16942341143038975,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "Micro Magazine",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Micro Magazine"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 129,
@@ -1158,7 +2756,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/uJFT7JRrGq63x7Fs.jpg",
     "coming": 0.012496137487730746,
-    "success": 0.17376019451189206
+    "success": 0.17376019451189206,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 130,
@@ -1167,7 +2777,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/a9D0cwDiqZcsbnZK.jpg",
     "coming": 0.009169967626733192,
-    "success": 0.17804713797496916
+    "success": 0.17804713797496916,
+    "volume_count": 5,
+    "status": "ongoing",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 131,
@@ -1176,7 +2799,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/sLrRf6yUT870UQAj.jpg",
     "coming": 0.010211680892432998,
-    "success": 0.1759409225103438
+    "success": 0.1759409225103438,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "Ichijinsha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Ichijinsha"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 132,
@@ -1185,7 +2820,20 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/qnVaZhcMbmWUC4ga.jpg",
     "coming": 0.006465934872576444,
-    "success": 0.18092669760412627
+    "success": 0.18092669760412627,
+    "volume_count": 15,
+    "status": "ongoing",
+    "jp_publisher": "Shinkigensha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shinkigensha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
   },
   {
     "rank": 133,
@@ -1194,7 +2842,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/nkuL5u9xKVWNSIqm.jpg",
     "coming": 0.027284375574155598,
-    "success": 0.14940527220896974
+    "success": 0.14940527220896974,
+    "volume_count": 11,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 134,
@@ -1203,7 +2864,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/ylz7DxZz9mXvNEDh.jpg",
     "coming": 0.01508264273016467,
-    "success": 0.16759138452705147
+    "success": 0.16759138452705147,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Futabasha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Futabasha"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 135,
@@ -1212,7 +2885,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/N4g70CX3nd0BFrQ7.jpg",
     "coming": 0.0165803847007694,
-    "success": 0.1648449355447103
+    "success": 0.1648449355447103,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
   },
   {
     "rank": 136,
@@ -1221,7 +2907,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/H5NuHw2fUCNwmKD5.jpg",
     "coming": 0.020431353507215085,
-    "success": 0.158322721475744
+    "success": 0.158322721475744,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "Shogakukan",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Shogakukan"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
+    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
   },
   {
     "rank": 137,
@@ -1230,7 +2929,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/tVMQibXdKlBM1g8i.jpg",
     "coming": 0.018742120843082223,
-    "success": 0.16071956382673125
+    "success": 0.16071956382673125,
+    "volume_count": 6,
+    "status": "ongoing",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 138,
@@ -1239,7 +2951,19 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/3xXMYPveBnvFCzb9.jpg",
     "coming": 0.008823896718353926,
-    "success": 0.1752948923454483
+    "success": 0.1752948923454483,
+    "volume_count": 12,
+    "status": "ongoing",
+    "jp_publisher": "Kodansha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Kodansha"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 139,
@@ -1248,7 +2972,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/WqwinwWwpHBihb0U.jpg",
     "coming": 0.011898209265871346,
-    "success": 0.1692368663421666
+    "success": 0.1692368663421666,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 140,
@@ -1257,7 +2994,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/TvLgrtG5H8ezHGdc.jpg",
     "coming": 0.00519815196956045,
-    "success": 0.17888046820675485
+    "success": 0.17888046820675485,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "Shogakukan",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Shogakukan"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
+    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
   },
   {
     "rank": 141,
@@ -1266,7 +3015,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/KLbDnAPwkZXlAJ7p.jpg",
     "coming": 0.012538346708743799,
-    "success": 0.167604806245978
+    "success": 0.167604806245978,
+    "volume_count": 5,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 142,
@@ -1275,7 +3037,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/r3r1ISY2L7M4XJCV.jpg",
     "coming": 0.018266074572155212,
-    "success": 0.15878376518794263
+    "success": 0.15878376518794263,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 143,
@@ -1284,7 +3059,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/lfFdTUcZwr3Cb4t0.jpg",
     "coming": 0.015419289497852708,
-    "success": 0.16212227181571565
+    "success": 0.16212227181571565,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "Earth Star Entertainment",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Earth Star Entertainment"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
   },
   {
     "rank": 144,
@@ -1293,7 +3080,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/AmaQVJBgKWIzcwc9.jpg",
     "coming": 0.015035969775553139,
-    "success": 0.16246181059542053
+    "success": 0.16246181059542053,
+    "volume_count": 10,
+    "status": "ongoing",
+    "jp_publisher": "Futabasha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Futabasha"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện phiêu lưu năng động của Kim Đồng."
   },
   {
     "rank": 145,
@@ -1302,7 +3101,17 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/iVTv1j6d3SviuElZ.jpg",
     "coming": 0.032987636154644985,
-    "success": 0.13527257022048064
+    "success": 0.13527257022048064,
+    "volume_count": 1,
+    "status": "completed",
+    "jp_publisher": "Futabasha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Futabasha"
+    ],
+    "success_factors": [],
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 146,
@@ -1311,7 +3120,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/NFq6vI8K98gBXPz3.jpg",
     "coming": 0.019921410590550977,
-    "success": 0.15397979142133475
+    "success": 0.15397979142133475,
+    "volume_count": 8,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 147,
@@ -1320,7 +3142,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/2XYiiaMGcCBTS62a.jpg",
     "coming": 0.01305456960346809,
-    "success": 0.16295994673842557
+    "success": 0.16295994673842557,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 148,
@@ -1329,7 +3163,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/p9aBbF8AslQUAEkt.jpg",
     "coming": 0.017001039927745473,
-    "success": 0.15703035447215674
+    "success": 0.15703035447215674,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "Futabasha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Futabasha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 149,
@@ -1338,7 +3185,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/vixf99XB7g98J4RB.jpg",
     "coming": 0.016568080611579192,
-    "success": 0.15736101173324932
+    "success": 0.15736101173324932,
+    "volume_count": 10,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
   },
   {
     "rank": 150,
@@ -1347,7 +3206,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Mgohzx0RuqM0h9iE.jpg",
     "coming": 0.0226142887370358,
-    "success": 0.1476854710267612
+    "success": 0.1476854710267612,
+    "volume_count": 3,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 151,
@@ -1356,7 +3227,20 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/r6Jd943WwmepH07q.jpg",
     "coming": 0.01657880342308388,
-    "success": 0.15590823280365573
+    "success": 0.15590823280365573,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Comedy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 152,
@@ -1365,7 +3249,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/5vovnDX7SxTvoxfW.jpg",
     "coming": 0.019997997035141074,
-    "success": 0.15059614223159745
+    "success": 0.15059614223159745,
+    "volume_count": 7,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 153,
@@ -1374,7 +3271,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/mhv4JrdNv3qAbH3F.jpg",
     "coming": 0.014583285950426381,
-    "success": 0.1564598922919409
+    "success": 0.1564598922919409,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "Ichijinsha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Ichijinsha"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 154,
@@ -1383,7 +3292,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/T2bycvEyes2I9kXt.jpg",
     "coming": 0.010665598418741908,
-    "success": 0.1616012829289791
+    "success": 0.1616012829289791,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 155,
@@ -1392,7 +3313,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/WtgdAmTDocjwXZ0L.jpg",
     "coming": 0.009484799031767523,
-    "success": 0.16280548781958354
+    "success": 0.16280548781958354,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Mag Garden",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Mag Garden"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
   },
   {
     "rank": 156,
@@ -1401,7 +3334,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/9xD3H3dN1Ff8ucyD.jpg",
     "coming": 0.019831243300396775,
-    "success": 0.14722704465084777
+    "success": 0.14722704465084777,
+    "volume_count": 6,
+    "status": "completed",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
   },
   {
     "rank": 157,
@@ -1410,7 +3356,20 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/eXn0vNBHSbT2KgUE.jpg",
     "coming": 0.012927046062567178,
-    "success": 0.15754172080165785
+    "success": 0.15754172080165785,
+    "volume_count": 17,
+    "status": "ongoing",
+    "jp_publisher": "TO Books",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: TO Books"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Adventure catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện phiêu lưu bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 158,
@@ -1419,7 +3378,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/6MvFyKz2zmMZvV7M.jpg",
     "coming": 0.016251487793472335,
-    "success": 0.15232947028283142
+    "success": 0.15232947028283142,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 159,
@@ -1428,7 +3400,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/ZkLPmLxOQsbeVeDN.jpg",
     "coming": 0.008326532457605165,
-    "success": 0.16405172238303659
+    "success": 0.16405172238303659,
+    "volume_count": 18,
+    "status": "ongoing",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Matches Amak's Hobby Japan licensing affinity.",
+    "strategic_fit_vi": "Phù hợp với thế mạnh khai thác bản quyền Hobby Japan của Amak."
   },
   {
     "rank": 160,
@@ -1437,7 +3421,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/ds38zhxfUCsvtChT.jpg",
     "coming": 0.009072627187282757,
-    "success": 0.16263637336099562
+    "success": 0.16263637336099562,
+    "volume_count": 17,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 161,
@@ -1446,7 +3443,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/t9BzKFkLToJHTK8f.jpg",
     "coming": 0.017835803040929785,
-    "success": 0.14937724506156155
+    "success": 0.14937724506156155,
+    "volume_count": 6,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 162,
@@ -1455,7 +3464,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Y7TTxVUv5R4Um6Fh.jpg",
     "coming": 0.015059395837137612,
-    "success": 0.15334478673026308
+    "success": 0.15334478673026308,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Boys love reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện boys love năng động của Kim Đồng."
   },
   {
     "rank": 163,
@@ -1464,7 +3486,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/LininGKxZnAkinmf.jpg",
     "coming": 0.015059395837137612,
-    "success": 0.15229152942915533
+    "success": 0.15229152942915533,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Boys love reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện boys love năng động của Kim Đồng."
   },
   {
     "rank": 164,
@@ -1473,7 +3508,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/sBglcIaqv6ISPS1f.jpg",
     "coming": 0.013816987250641167,
-    "success": 0.153769169457097
+    "success": 0.153769169457097,
+    "volume_count": 5,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
   },
   {
     "rank": 165,
@@ -1482,7 +3529,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/gTPQWEi7AXSa6bLI.jpg",
     "coming": 0.013839187712473108,
-    "success": 0.15294568091754446
+    "success": 0.15294568091754446,
+    "volume_count": 6,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 166,
@@ -1491,7 +3551,19 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/VYabvszc2GEhgh3p.jpg",
     "coming": 0.007569930942807089,
-    "success": 0.16230901206574178
+    "success": 0.16230901206574178,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "Kodansha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Kodansha"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Action catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 167,
@@ -1500,7 +3572,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/69vAs8u11w1L7vO5.jpg",
     "coming": 0.013644135907692223,
-    "success": 0.15201734653510154
+    "success": 0.15201734653510154,
+    "volume_count": 18,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
   },
   {
     "rank": 168,
@@ -1509,7 +3593,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/igYe1lYFPaopR4Fg.jpg",
     "coming": 0.00453996123811744,
-    "success": 0.1654937975835562
+    "success": 0.1654937975835562,
+    "volume_count": 2,
+    "status": "completed",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Completed but short (<= 2 vols)",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 169,
@@ -1518,7 +3614,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/YWOimEaoPoCWHGmd.jpg",
     "coming": 0.015280643205651855,
-    "success": 0.14832636222053208
+    "success": 0.14832636222053208,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 170,
@@ -1527,7 +3636,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/3vcYRowmDQ26DkNh.jpg",
     "coming": 0.02386336103471208,
-    "success": 0.13487153466354207
+    "success": 0.13487153466354207,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 171,
@@ -1536,7 +3657,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/kG47rGV7hfkp7BKX.jpg",
     "coming": 0.010111124891799668,
-    "success": 0.15501233584195806
+    "success": 0.15501233584195806,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 172,
@@ -1545,7 +3678,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/C6uIEq6xoyBsZgd9.jpg",
     "coming": 0.014020752488472782,
-    "success": 0.1489074028030892
+    "success": 0.1489074028030892,
+    "volume_count": 16,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed but long (>15 vols)",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 173,
@@ -1554,7 +3700,20 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/dxKMKmEdqMG70iHm.jpg",
     "coming": 0.019068622712038647,
-    "success": 0.14094164163927594
+    "success": 0.14094164163927594,
+    "volume_count": 4,
+    "status": "completed",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Fantasy catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 174,
@@ -1563,7 +3722,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/jiMU2ciCs2EzoLEp.jpg",
     "coming": 0.001197703817876464,
-    "success": 0.16757660169178665
+    "success": 0.16757660169178665,
+    "volume_count": 2,
+    "status": "cancelled",
+    "jp_publisher": "Futabasha",
+    "coming_factors": [
+      "JP Publisher: Futabasha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 175,
@@ -1572,7 +3743,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/ygkKUE0KvjePbU4P.jpg",
     "coming": 0.016166141345444553,
-    "success": 0.145097735752763
+    "success": 0.145097735752763,
+    "volume_count": 10,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 176,
@@ -1581,7 +3765,19 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/BCyR2TN7SLjsYevK.jpg",
     "coming": 0.015167570636578632,
-    "success": 0.1461922326222582
+    "success": 0.1461922326222582,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
   },
   {
     "rank": 177,
@@ -1590,7 +3786,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/xblE31LGPz0ck8r9.jpg",
     "coming": 0.01618239751493854,
-    "success": 0.14396906422964523
+    "success": 0.14396906422964523,
+    "volume_count": 1,
+    "status": "ongoing",
+    "jp_publisher": "Shueisha",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Shueisha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 178,
@@ -1599,7 +3808,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/rXZKUCuXF1SUqil3.jpg",
     "coming": 0.02410672221467262,
-    "success": 0.13176239330214518
+    "success": 0.13176239330214518,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 179,
@@ -1608,7 +3830,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/X8NcUY9Tarbwqxjn.jpg",
     "coming": 0.008568198798398747,
-    "success": 0.15393414708897868
+    "success": 0.15393414708897868,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "Micro Magazine",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Micro Magazine"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Adventure LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết phiêu lưu ăn khách của Tsuki."
   },
   {
     "rank": 180,
@@ -1617,7 +3851,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/znvcmO78XhRi88zo.jpg",
     "coming": 0.01708550135599225,
-    "success": 0.14090760561773263
+    "success": 0.14090760561773263,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 181,
@@ -1626,7 +3872,19 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/eCBgRbCx6VO7PMk5.jpg",
     "coming": 0.0222368642499528,
-    "success": 0.13203034759446042
+    "success": 0.13203034759446042,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Romance/Comedy)"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Action catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 182,
@@ -1635,7 +3893,19 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/nevFiffO1R6n0Dpm.jpg",
     "coming": 0.01694619121760553,
-    "success": 0.1389253810510473
+    "success": 0.1389253810510473,
+    "volume_count": 13,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Slice of life reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện đời thường năng động của Kim Đồng."
   },
   {
     "rank": 183,
@@ -1644,7 +3914,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/0pjglUzKvMt0Uzlt.jpg",
     "coming": 0.012605080000145893,
-    "success": 0.14526518401988464
+    "success": 0.14526518401988464,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 184,
@@ -1653,7 +3936,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/iCi4rgwD11C9L9tM.jpg",
     "coming": 0.015559764723788571,
-    "success": 0.14018277255588185
+    "success": 0.14018277255588185,
+    "volume_count": 9,
+    "status": "completed",
+    "jp_publisher": "Earth Star Entertainment",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Earth Star Entertainment"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 185,
@@ -1662,7 +3957,17 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/mJvY1KMIuTce2MDS.jpg",
     "coming": 0.01256363371927127,
-    "success": 0.14403637389864335
+    "success": 0.14403637389864335,
+    "volume_count": 9,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện phiêu lưu năng động của Kim Đồng."
   },
   {
     "rank": 186,
@@ -1671,7 +3976,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/Ld5YurjtWjpbnUN4.jpg",
     "coming": 0.015984243128117546,
-    "success": 0.1375713923706245
+    "success": 0.1375713923706245,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "Kodansha",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Kodansha"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Complements Kim Đồng's Kodansha licensing line.",
+    "strategic_fit_vi": "Bổ sung cho dòng sản phẩm bản quyền Kodansha của Kim Đồng."
   },
   {
     "rank": 187,
@@ -1680,7 +3998,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/ybLr7KpQl64c64Se.jpg",
     "coming": 0.015054341567807073,
-    "success": 0.13840790992949478
+    "success": 0.13840790992949478,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
   },
   {
     "rank": 188,
@@ -1689,7 +4020,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/VIMGl7orqCY8y3Vn.jpg",
     "coming": 0.01555705832100911,
-    "success": 0.13764685928468118
+    "success": 0.13764685928468118,
+    "volume_count": 8,
+    "status": "ongoing",
+    "jp_publisher": "Micro Magazine",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Micro Magazine"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 189,
@@ -1698,7 +4041,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/gRYkLgK81Gp8nA1R.jpg",
     "coming": 0.013464671245887223,
-    "success": 0.14051088587515623
+    "success": 0.14051088587515623,
+    "volume_count": 2,
+    "status": "ongoing",
+    "jp_publisher": "Mag Garden",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Mag Garden"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Comedy LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hài hước ăn khách của Tsuki."
   },
   {
     "rank": 190,
@@ -1707,7 +4063,20 @@
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
     "cover_url": "https://images.ranobedb.org/V1zRLSBB8qj2HdwP.jpg",
     "coming": 0.012927046062567178,
-    "success": 0.14119020448583364
+    "success": 0.14119020448583364,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "Hobby Japan",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Hobby Japan"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Sky Light Novel's localized Adventure catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện phiêu lưu bản địa hóa của Sky Light Novel."
   },
   {
     "rank": 191,
@@ -1716,7 +4085,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/pqJoQPrnbVOmD99z.jpg",
     "coming": 0.007172499136002288,
-    "success": 0.14778221236632885
+    "success": 0.14778221236632885,
+    "volume_count": 5,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 192,
@@ -1725,7 +4106,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/V49aCEmV5PiSMeQk.jpg",
     "coming": 0.018554106485677044,
-    "success": 0.1300582706377494
+    "success": 0.1300582706377494,
+    "volume_count": 27,
+    "status": "ongoing",
+    "jp_publisher": "AlphaPolis",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: AlphaPolis"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
   },
   {
     "rank": 193,
@@ -1734,7 +4128,20 @@
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/q5geO0EMcen8p5OU.jpg",
     "coming": 0.013228504062567828,
-    "success": 0.13798848006366263
+    "success": 0.13798848006366263,
+    "volume_count": 11,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
   },
   {
     "rank": 194,
@@ -1742,8 +4149,21 @@
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/bS463krjp4t3wLtM.jpg",
-    "coming": 0.01920385526978817,
-    "success": 0.12726333293686426
+    "coming": 0.019203855269788166,
+    "success": 0.12726333293686423,
+    "volume_count": 7,
+    "status": "completed",
+    "jp_publisher": "Micro Magazine",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: Micro Magazine"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Fits Tsuki's focus on popular Romance LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết lãng mạn ăn khách của Tsuki."
   },
   {
     "rank": 195,
@@ -1752,7 +4172,19 @@
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/wW89z1anSGsPdMHd.jpg",
     "coming": 0.01507177425782382,
-    "success": 0.1334169249940856
+    "success": 0.1334169249940856,
+    "volume_count": 6,
+    "status": "completed",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
+    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
   },
   {
     "rank": 196,
@@ -1761,7 +4193,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/RMo9U6diZUQaLO4t.jpg",
     "coming": 0.019886134195593402,
-    "success": 0.12592331686394495
+    "success": 0.12592331686394495,
+    "volume_count": 3,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 197,
@@ -1770,7 +4215,20 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/7NPTgYDBo2KUpWOD.jpg",
     "coming": 0.018161482229241244,
-    "success": 0.128006935379282
+    "success": 0.128006935379282,
+    "volume_count": 15,
+    "status": "completed",
+    "jp_publisher": "SB Creative",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Publisher: SB Creative"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
   },
   {
     "rank": 198,
@@ -1779,7 +4237,20 @@
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/POoIVJflwFaxRqew.jpg",
     "coming": 0.008824939548519633,
-    "success": 0.1419401129752409
+    "success": 0.1419401129752409,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
   },
   {
     "rank": 199,
@@ -1788,7 +4259,19 @@
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
     "cover_url": "https://images.ranobedb.org/Zu36TVL7kokrTlKa.jpg",
     "coming": 0.012412171625829402,
-    "success": 0.1358529848122629
+    "success": 0.1358529848122629,
+    "volume_count": 14,
+    "status": "ongoing",
+    "jp_publisher": "KADOKAWA",
+    "coming_factors": [
+      "Ongoing sweet-spot start year",
+      "JP Publisher: KADOKAWA"
+    ],
+    "success_factors": [
+      "Good MAL score"
+    ],
+    "strategic_fit_en": "Expands Thái Hà Books's localized Action catalog.",
+    "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Thái Hà Books."
   },
   {
     "rank": 200,
@@ -1797,6 +4280,19 @@
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/K0MPy3p2WSUd7Vnm.jpg",
     "coming": 0.012986083842919003,
-    "success": 0.1348603463288507
+    "success": 0.1348603463288507,
+    "volume_count": 21,
+    "status": "ongoing",
+    "jp_publisher": "Overlap",
+    "coming_factors": [
+      "Ongoing older series",
+      "JP Publisher: Overlap"
+    ],
+    "success_factors": [
+      "Below-average MAL score",
+      "High-demand genres (Isekai/Fantasy)"
+    ],
+    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Comedy line.",
+    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hài hước của SB Creative / Overlap tại Tsuki."
   }
 ]

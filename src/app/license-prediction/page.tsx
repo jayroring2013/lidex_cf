@@ -13,6 +13,13 @@ type PredictionRow = {
   cover_url: string
   coming: number
   success: number
+  volume_count?: number | null
+  status?: string | null
+  jp_publisher?: string | null
+  coming_factors?: string[]
+  success_factors?: string[]
+  strategic_fit_en?: string
+  strategic_fit_vi?: string
 }
 
 type SortField = 'rank' | 'coming' | 'success'
@@ -47,7 +54,27 @@ function CoverThumb({ coverUrl }: { coverUrl: string }) {
   )
 }
 
-function MobilePredictionCard({ row, vi, index }: { row: PredictionRow; vi: boolean; index: number }) {
+function MobilePredictionCard({ 
+  row, 
+  vi, 
+  index,
+  showOriginal,
+  showFactors,
+  showStrategicFit
+}: { 
+  row: PredictionRow
+  vi: boolean
+  index: number
+  showOriginal: boolean
+  showFactors: boolean
+  showStrategicFit: boolean
+}) {
+  const statusLabel = row.status
+    ? (vi
+        ? (row.status === 'completed' ? 'Hoàn thành' : 'Đang ra')
+        : (row.status.charAt(0).toUpperCase() + row.status.slice(1)))
+    : ''
+
   return (
     <article className="rounded-2xl p-4 shadow-sm" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
       <div className="flex items-start gap-4">
@@ -72,6 +99,14 @@ function MobilePredictionCard({ row, vi, index }: { row: PredictionRow; vi: bool
             {row.title}
           </h2>
 
+          {/* Original JP publisher, volumes & status */}
+          {showOriginal && (row.jp_publisher || row.volume_count) && (
+            <p className="text-xs font-semibold mt-1" style={{ color: 'var(--foreground-muted)' }}>
+              {row.jp_publisher && <span>JP: {row.jp_publisher}</span>}
+              {row.volume_count && <span> · {row.volume_count} {vi ? 'tập' : 'vols'} ({statusLabel})</span>}
+            </p>
+          )}
+
           <div className="mt-3 flex items-center gap-2">
             {row.logo_url ? (
               <img
@@ -88,9 +123,16 @@ function MobilePredictionCard({ row, vi, index }: { row: PredictionRow; vi: bool
               </div>
             )}
             <span className="text-xs font-bold" style={{ color: 'var(--foreground-secondary)' }}>
-              {row.publisher}
+              {vi ? 'NPH Việt:' : 'VN Publisher:'} {row.publisher}
             </span>
           </div>
+
+          {/* Strategic Fit */}
+          {showStrategicFit && (row.strategic_fit_vi || row.strategic_fit_en) && (
+            <p className="text-xs mt-2.5 font-medium italic border-l-2 pl-2" style={{ color: 'var(--foreground-secondary)', borderColor: '#818cf8' }}>
+              {vi ? row.strategic_fit_vi : row.strategic_fit_en}
+            </p>
+          )}
 
           <div className="mt-4 grid grid-cols-2 gap-2">
             <div className="rounded-xl px-2.5 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
@@ -110,6 +152,27 @@ function MobilePredictionCard({ row, vi, index }: { row: PredictionRow; vi: bool
               </p>
             </div>
           </div>
+
+          {/* Mobile Drivers list */}
+          {showFactors && ((row.coming_factors && row.coming_factors.length > 0) || (row.success_factors && row.success_factors.length > 0)) && (
+            <div className="mt-3.5 pt-3.5" style={{ borderTop: '1px dashed var(--card-border)' }}>
+              <p className="text-[10px] font-black uppercase tracking-wider mb-2" style={{ color: 'var(--foreground-muted)' }}>
+                {vi ? 'Yếu tố đánh giá' : 'Evaluation Factors'}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {row.coming_factors?.map((f, idx) => (
+                  <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>
+                    {f}
+                  </span>
+                ))}
+                {row.success_factors?.map((f, idx) => (
+                  <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#34d399' }}>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </article>
@@ -126,6 +189,11 @@ export default function LicensePredictionPage() {
   const [sortBy, setSortBy] = useState<SortField>('success')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [selectedPublisher, setSelectedPublisher] = useState<string>('')
+
+  // Column Visibility States
+  const [showOriginal, setShowOriginal] = useState(true)
+  const [showFactors, setShowFactors] = useState(true)
+  const [showStrategicFit, setShowStrategicFit] = useState(true)
 
   const uniquePublishers = useMemo(() => {
     const pubs = predictions.map((p) => p.publisher)
@@ -144,7 +212,7 @@ export default function LicensePredictionPage() {
 
   const sortedPredictions = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const filtered = predictions.filter((row) => {
+    const filtered = (predictions as PredictionRow[]).filter((row) => {
       const matchesQuery = !q || `${row.title} ${row.publisher}`.toLowerCase().includes(q)
       const matchesPublisher = !selectedPublisher || row.publisher === selectedPublisher
       return matchesQuery && matchesPublisher
@@ -159,7 +227,7 @@ export default function LicensePredictionPage() {
       if (valA > valB) return 1 * multiplier
       return 0
     })
-  }, [query, sortBy, sortOrder])
+  }, [query, sortBy, sortOrder, selectedPublisher])
 
   const pageCount = Math.max(1, Math.ceil(sortedPredictions.length / pageSize))
   const safePage = Math.min(page, pageCount - 1)
@@ -186,7 +254,7 @@ export default function LicensePredictionPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <div className="max-w-[1500px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10">
+      <div className="max-w-[1550px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10">
         
         {/* Header Hero Card */}
         <div className="rounded-2xl p-5 sm:p-8 text-center mb-6 sm:mb-8 shadow-md" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
@@ -202,8 +270,50 @@ export default function LicensePredictionPage() {
 
         {/* Search & Stats Card */}
         <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 p-3 sm:p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+            
+            {/* Column Toggles */}
+            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              <span className="text-xs font-black uppercase tracking-wider mr-1" style={{ color: 'var(--foreground-muted)' }}>
+                {vi ? 'Hiển thị cột:' : 'Show Columns:'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowOriginal(!showOriginal)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-card-border"
+                style={{
+                  background: showOriginal ? 'var(--primary-color, #6366f1)' : 'var(--background-secondary)',
+                  color: showOriginal ? '#ffffff' : 'var(--foreground-secondary)'
+                }}
+              >
+                {vi ? 'Bản gốc (JP)' : 'Original (JP)'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowStrategicFit(!showStrategicFit)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-card-border"
+                style={{
+                  background: showStrategicFit ? 'var(--primary-color, #6366f1)' : 'var(--background-secondary)',
+                  color: showStrategicFit ? '#ffffff' : 'var(--foreground-secondary)'
+                }}
+              >
+                {vi ? 'Đề xuất chiến lược' : 'Strategic Fit'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowFactors(!showFactors)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-card-border"
+                style={{
+                  background: showFactors ? 'var(--primary-color, #6366f1)' : 'var(--background-secondary)',
+                  color: showFactors ? '#ffffff' : 'var(--foreground-secondary)'
+                }}
+              >
+                {vi ? 'Yếu tố đánh giá' : 'Evaluation Factors'}
+              </button>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full md:w-auto">
               {/* Publisher Filter */}
               <select
                 value={selectedPublisher}
@@ -211,7 +321,7 @@ export default function LicensePredictionPage() {
                   setSelectedPublisher(e.target.value)
                   setPage(0)
                 }}
-                className="px-3 py-2 rounded-xl text-sm outline-none font-bold cursor-pointer"
+                className="px-3 py-2 rounded-xl text-sm outline-none font-bold cursor-pointer w-full sm:w-auto"
                 style={{ background: 'var(--background-secondary)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
               >
                 <option value="">{vi ? 'Tất cả NPH' : 'All Publishers'}</option>
@@ -221,7 +331,7 @@ export default function LicensePredictionPage() {
               </select>
 
               {/* Search input */}
-              <div className="relative w-full sm:w-[320px]">
+              <div className="relative w-full sm:w-[280px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--foreground-muted)' }} />
                 <input
                   value={query}
@@ -272,7 +382,15 @@ export default function LicensePredictionPage() {
           {/* Mobile Layout */}
           <div className="lg:hidden p-3 space-y-3">
             {pagedPredictions.map((row, i) => (
-              <MobilePredictionCard key={row.rank} row={row} vi={vi} index={pageStart + i + 1} />
+              <MobilePredictionCard 
+                key={row.rank} 
+                row={row} 
+                vi={vi} 
+                index={pageStart + i + 1}
+                showOriginal={showOriginal}
+                showFactors={showFactors}
+                showStrategicFit={showStrategicFit}
+              />
             ))}
 
             {sortedPredictions.length === 0 && (
@@ -284,7 +402,7 @@ export default function LicensePredictionPage() {
 
           {/* Desktop Layout */}
           <div className="hidden lg:block overflow-x-auto">
-            <table className="w-full min-w-[1000px] text-sm">
+            <table className="w-full min-w-[1200px] text-sm">
               <thead>
                 <tr style={{ background: 'var(--background-secondary)', color: '#e2695f' }}>
                   <th className="px-6 py-3 text-center w-28">
@@ -293,22 +411,42 @@ export default function LicensePredictionPage() {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-base font-black">{vi ? 'Tác phẩm' : 'Title'}</th>
-                  <th className="px-6 py-3 text-left text-base font-black w-[280px]">{vi ? 'NPH có thể thầu' : 'Likely Publisher'}</th>
-                  <th className="px-6 py-3 w-[200px]">
+                  
+                  {showOriginal && (
+                    <th className="px-6 py-3 text-left text-base font-black w-[220px]">{vi ? 'Bản gốc (JP)' : 'Original (JP)'}</th>
+                  )}
+                  
+                  <th className="px-6 py-3 text-left text-base font-black w-[250px]">{vi ? 'NPH có thể thầu' : 'Likely Publisher'}</th>
+                  
+                  <th className="px-6 py-3 w-[150px]">
                     <div className="flex justify-center">
                       <SortHeader field="coming">{vi ? 'Khả năng mua' : '% Coming'}</SortHeader>
                     </div>
                   </th>
-                  <th className="px-6 py-3 w-[300px]">
+                  
+                  <th className="px-6 py-3 w-[180px]">
                     <div className="flex justify-center">
-                      <SortHeader field="success">{vi ? 'Tỷ lệ thành công nếu xuất bản' : '% Success if publish'}</SortHeader>
+                      <SortHeader field="success">{vi ? 'Tỷ lệ thành công' : '% Success'}</SortHeader>
                     </div>
                   </th>
+
+                  {showStrategicFit && (
+                    <th className="px-6 py-3 text-left text-base font-black w-[300px]">{vi ? 'Đề xuất chiến lược' : 'Strategic Fit'}</th>
+                  )}
+
+                  {showFactors && (
+                    <th className="px-6 py-3 text-left text-base font-black w-[350px]">{vi ? 'Yếu tố đánh giá' : 'Evaluation Factors'}</th>
+                  )}
                 </tr>
               </thead>
               <tbody>
                 {pagedPredictions.map((row, i) => {
                   const displayIndex = pageStart + i + 1
+                  const statusLabel = row.status
+                    ? (vi
+                        ? (row.status === 'completed' ? 'Hoàn thành' : 'Đang ra')
+                        : (row.status.charAt(0).toUpperCase() + row.status.slice(1)))
+                    : ''
                   return (
                     <tr key={row.rank} className="transition-colors" style={{ borderTop: '1px solid var(--card-border)' }}>
                       {/* Rank */}
@@ -326,38 +464,90 @@ export default function LicensePredictionPage() {
                         </div>
                       </td>
 
-                    {/* Publisher Name + Logo (Transfermarkt style) */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2.5">
-                        {row.logo_url ? (
-                          <img
-                            src={row.logo_url}
-                            alt=""
-                            className="w-7 h-7 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = 'none'
-                            }}
-                          />
-                        ) : (
-                          <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-black">
-                            LN
+                      {/* Original JP details */}
+                      {showOriginal && (
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-0.5">
+                            {row.jp_publisher ? (
+                              <span className="font-bold text-sm" style={{ color: 'var(--foreground)' }}>
+                                {row.jp_publisher}
+                              </span>
+                            ) : (
+                              <span className="text-xs italic" style={{ color: 'var(--foreground-muted)' }}>
+                                {vi ? 'Chưa rõ NXB JP' : 'Unknown JP Pub'}
+                              </span>
+                            )}
+                            {row.volume_count && (
+                              <span className="text-xs font-semibold" style={{ color: 'var(--foreground-secondary)' }}>
+                                {row.volume_count} {vi ? 'tập' : 'vols'} ({statusLabel})
+                              </span>
+                            )}
                           </div>
-                        )}
-                        <span className="font-semibold text-sm" style={{ color: 'var(--foreground-secondary)' }}>
-                          {row.publisher}
-                        </span>
-                      </div>
-                    </td>
+                        </td>
+                      )}
 
-                    {/* % Coming */}
-                    <td className="px-6 py-4 text-center font-black tabular-nums text-primary-500 text-sm">
-                      {(row.coming * 100).toFixed(1)}%
-                    </td>
+                      {/* Publisher Name + Logo (Transfermarkt style) */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2.5">
+                          {row.logo_url ? (
+                            <img
+                              src={row.logo_url}
+                              alt=""
+                              className="w-7 h-7 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none'
+                              }}
+                            />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-black">
+                              LN
+                            </div>
+                          )}
+                          <span className="font-semibold text-sm" style={{ color: 'var(--foreground-secondary)' }}>
+                            {row.publisher}
+                          </span>
+                        </div>
+                      </td>
 
-                    {/* % Success */}
-                    <td className="px-6 py-4 text-center font-black tabular-nums text-green-500 text-sm">
-                      {(row.success * 100).toFixed(1)}%
-                    </td>
+                      {/* % Coming */}
+                      <td className="px-6 py-4 text-center font-black tabular-nums text-primary-500 text-sm">
+                        {(row.coming * 100).toFixed(1)}%
+                      </td>
+
+                      {/* % Success */}
+                      <td className="px-6 py-4 text-center font-black tabular-nums text-green-500 text-sm">
+                        {(row.success * 100).toFixed(1)}%
+                      </td>
+
+                      {/* Strategic Fit */}
+                      {showStrategicFit && (
+                        <td className="px-6 py-4">
+                          <div className="text-xs font-semibold leading-relaxed border-l-2 pl-2" style={{ color: 'var(--foreground-secondary)', borderColor: 'var(--primary-color, #6366f1)' }}>
+                            {vi ? (row.strategic_fit_vi || '—') : (row.strategic_fit_en || '—')}
+                          </div>
+                        </td>
+                      )}
+
+                      {/* Evaluation Factors / Key Drivers */}
+                      {showFactors && (
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap gap-1 max-w-[320px]">
+                            {row.coming_factors?.map((f, idx) => (
+                              <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                                {f}
+                              </span>
+                            ))}
+                            {row.success_factors?.map((f, idx) => (
+                              <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                {f}
+                              </span>
+                            ))}
+                            {!row.coming_factors?.length && !row.success_factors?.length && (
+                              <span className="text-xs italic" style={{ color: 'var(--foreground-muted)' }}>—</span>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   )
                 })}
