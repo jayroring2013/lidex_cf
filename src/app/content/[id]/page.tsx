@@ -1019,17 +1019,22 @@ export default function ContentDetail() {
                 </div>
               )}
 
-              {isNovel && (
-                <HeroUserSeriesActions
-                  entry={userLibraryEntry}
-                  isLoggedIn={Boolean(authUserId)}
-                  loading={userLibraryLoading}
-                  saving={userLibrarySaving}
-                  error={userLibraryError}
-                  locale={locale}
-                  onChange={saveUserSeriesLibrary}
-                />
-              )}
+              {(() => {
+                const showActions = isNovel || isManga || isAnime
+                if (!showActions) return null
+                return (
+                  <HeroUserSeriesActions
+                    entry={userLibraryEntry}
+                    isLoggedIn={Boolean(authUserId)}
+                    loading={userLibraryLoading}
+                    saving={userLibrarySaving}
+                    error={userLibraryError}
+                    locale={locale}
+                    onChange={saveUserSeriesLibrary}
+                    itemType={series.item_type}
+                  />
+                )
+              })()}
             </div>
 
             {/* ── LiDex Score Box (anime only) ── */}
@@ -1733,6 +1738,7 @@ function HeroUserSeriesActions({
   error,
   locale,
   onChange,
+  itemType,
 }: {
   entry: UserSeriesLibraryEntry
   isLoggedIn: boolean
@@ -1741,11 +1747,26 @@ function HeroUserSeriesActions({
   error: string | null
   locale: string
   onChange: (patch: Partial<UserSeriesLibraryEntry>) => void
+  itemType?: string
 }) {
   const isVI = locale === 'vi'
+  const isAnime = itemType === 'anime'
   const [openPanel, setOpenPanel] = useState<'rating' | 'status' | null>(null)
   const disabled = !isLoggedIn || loading || saving
-  const selectedStatus = USER_SERIES_STATUS_OPTIONS.find(option => option.value === entry.status)
+
+  const statusOptions = isAnime
+    ? USER_SERIES_STATUS_OPTIONS.map(opt => {
+        if (opt.value === 'reading') {
+          return { ...opt, labelVI: 'Đang xem', labelEN: 'Watching' }
+        }
+        if (opt.value === 'planned') {
+          return { ...opt, labelVI: 'Định xem', labelEN: 'Planned' }
+        }
+        return opt
+      })
+    : USER_SERIES_STATUS_OPTIONS
+
+  const selectedStatus = statusOptions.find(option => option.value === entry.status)
 
   const buttonStyle = {
     background: 'rgba(15,23,42,.58)',
@@ -1753,6 +1774,8 @@ function HeroUserSeriesActions({
     border: '1px solid rgba(255,255,255,.16)',
     backdropFilter: 'blur(10px)',
   }
+
+  const StatusIcon = isAnime ? Film : BookOpen
 
   return (
     <div className="mt-4 max-w-2xl text-left">
@@ -1774,7 +1797,7 @@ function HeroUserSeriesActions({
           className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition-all"
           style={buttonStyle}
         >
-          <BookOpen className="h-4 w-4 text-cyan-300" />
+          <StatusIcon className="h-4 w-4 text-cyan-300" />
           <span style={{ color: selectedStatus?.color || '#fff' }}>
             {selectedStatus ? (isVI ? selectedStatus.labelVI : selectedStatus.labelEN) : (isVI ? 'Trạng thái' : 'Status')}
           </span>
@@ -1811,7 +1834,7 @@ function HeroUserSeriesActions({
 
       {openPanel === 'status' && (
         <div className="mt-3 grid grid-cols-1 gap-2 rounded-2xl p-3 shadow-2xl min-[420px]:grid-cols-2" style={{ background: 'rgba(15,23,42,.86)', border: '1px solid rgba(255,255,255,.16)', backdropFilter: 'blur(14px)' }}>
-          {USER_SERIES_STATUS_OPTIONS.map(option => {
+          {statusOptions.map(option => {
             const selected = option.value === entry.status
             return (
               <button
