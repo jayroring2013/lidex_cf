@@ -255,7 +255,7 @@ function MobilePredictionCard({
 export default function LicensePredictionPage() {
   const { locale } = useLocale()
   const vi = locale === 'vi'
-  const pageSize = 500
+  const pageSize = 25
 
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(0)
