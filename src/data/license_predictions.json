@@ -9,14 +9,14 @@
     "success": 0.5313970885101414,
     "volume_count": 4,
     "status": "completed",
-    "jp_publisher": "Kyoto Animation",
+    "jp_publisher": "KA Esuma Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Kyoto Animation"
+      "JP Imprint: KA Esuma Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -31,17 +31,17 @@
     "success": 0.446451810142734,
     "volume_count": 10,
     "status": "ongoing",
-    "jp_publisher": "Shogakukan",
+    "jp_publisher": "Gagaga Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shogakukan"
+      "JP Imprint: Gagaga Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
-    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 3,
@@ -53,14 +53,14 @@
     "success": 0.38217991253671396,
     "volume_count": 13,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -75,14 +75,14 @@
     "success": 0.4596895636840188,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -97,17 +97,18 @@
     "success": 0.37574969062066105,
     "volume_count": 22,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 6,
@@ -122,11 +123,12 @@
     "jp_publisher": "KADOKAWA",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KADOKAWA"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -141,17 +143,17 @@
     "success": 0.4244924371675554,
     "volume_count": 14,
     "status": "completed",
-    "jp_publisher": "Shogakukan",
+    "jp_publisher": "Gagaga Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Shogakukan"
+      "JP Imprint: Gagaga Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
-    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
+    "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
+    "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
   },
   {
     "rank": 8,
@@ -163,17 +165,17 @@
     "success": 0.35158110125837305,
     "volume_count": 26,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Completed very long (>25 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 9,
@@ -185,14 +187,14 @@
     "success": 0.3575058258725404,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Dash X Bunko Digital",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Dash X Bunko Digital"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -207,17 +209,18 @@
     "success": 0.33727113866142244,
     "volume_count": 6,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 11,
@@ -229,17 +232,18 @@
     "success": 0.33475832050192195,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "KCG Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KCG Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 12,
@@ -251,10 +255,10 @@
     "success": 0.3041148286537364,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "Square Enix",
+    "jp_publisher": "GAME NOVELS",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Square Enix"
+      "JP Imprint: GAME NOVELS"
     ],
     "success_factors": [
       "Top-tier MAL score"
@@ -272,17 +276,17 @@
     "success": 0.3171543712933261,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 14,
@@ -294,14 +298,14 @@
     "success": 0.3143963607716621,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "ポプラ社",
+    "jp_publisher": "ポプラ文庫 日本文学",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: ポプラ社"
+      "JP Imprint: ポプラ文庫 日本文学"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
     "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
@@ -316,14 +320,15 @@
     "success": 0.3457805140048563,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels f",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels f"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
     "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
@@ -338,10 +343,10 @@
     "success": 0.31421008563685954,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "Tokuma Shoten",
+    "jp_publisher": "Tokuma Dual Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Tokuma Shoten"
+      "JP Imprint: Tokuma Dual Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score"
@@ -359,14 +364,14 @@
     "success": 0.28967093936604565,
     "volume_count": 9,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
@@ -381,17 +386,17 @@
     "success": 0.31482539474178967,
     "volume_count": 11,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Famitsu Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Famitsu Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 19,
@@ -403,17 +408,17 @@
     "success": 0.3159075029911089,
     "volume_count": 5,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Romance target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại lãng mạn mục tiêu của IPM."
   },
   {
     "rank": 20,
@@ -425,17 +430,18 @@
     "success": 0.2952954283327881,
     "volume_count": 22,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 21,
@@ -447,14 +453,14 @@
     "success": 0.29448735245295715,
     "volume_count": 16,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -469,14 +475,14 @@
     "success": 0.2811850411681148,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -491,14 +497,15 @@
     "success": 0.30172370466365495,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "Square Enix",
+    "jp_publisher": "G Fantasy Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Square Enix"
+      "JP Imprint: G Fantasy Novels"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
     "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
@@ -513,14 +520,14 @@
     "success": 0.26001352684947887,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -535,13 +542,13 @@
     "success": 0.27394381971229603,
     "volume_count": 12,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
@@ -556,14 +563,15 @@
     "success": 0.2860041746764806,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -578,14 +586,14 @@
     "success": 0.26773157295549377,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -600,10 +608,10 @@
     "success": 0.2718657559120877,
     "volume_count": 16,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Shueisha Orange Bunko",
     "coming_factors": [
       "Completed but long (>15 vols)",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Shueisha Orange Bunko"
     ],
     "success_factors": [
       "Good MAL score"
@@ -621,17 +629,18 @@
     "success": 0.3223038689669253,
     "volume_count": 25,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed but long (>15 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 30,
@@ -646,10 +655,10 @@
     "jp_publisher": "KADOKAWA",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KADOKAWA"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -664,17 +673,17 @@
     "success": 0.2864764194146395,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 32,
@@ -686,13 +695,13 @@
     "success": 0.2838739056848151,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -707,10 +716,10 @@
     "success": 0.29602001270633815,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score"
@@ -728,17 +737,17 @@
     "success": 0.27225555261475387,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 35,
@@ -750,14 +759,14 @@
     "success": 0.2557538078842697,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -772,14 +781,14 @@
     "success": 0.2934998452172086,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -794,10 +803,10 @@
     "success": 0.24577112492748496,
     "volume_count": 3,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score"
@@ -815,10 +824,10 @@
     "success": 0.23449019241775265,
     "volume_count": 3,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Top-tier MAL score"
@@ -836,14 +845,14 @@
     "success": 0.2681728600562762,
     "volume_count": 18,
     "status": "ongoing",
-    "jp_publisher": "TO Books",
+    "jp_publisher": "TO Books Novel",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: TO Books"
+      "JP Imprint: TO Books Novel"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
@@ -858,13 +867,13 @@
     "success": 0.24844515758626545,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
@@ -879,13 +888,13 @@
     "success": 0.26118110634434055,
     "volume_count": 11,
     "status": "completed",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
@@ -900,13 +909,13 @@
     "success": 0.2649487095668984,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
@@ -921,14 +930,14 @@
     "success": 0.23747473344463724,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -943,13 +952,13 @@
     "success": 0.24236413754219172,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
@@ -964,14 +973,14 @@
     "success": 0.24086348517232795,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "TO Books",
+    "jp_publisher": "TO Books Novel",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: TO Books"
+      "JP Imprint: TO Books Novel"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Fantasy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Sky Light Novel."
@@ -986,13 +995,13 @@
     "success": 0.22070456120612222,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1007,14 +1016,14 @@
     "success": 0.22138025831642286,
     "volume_count": 6,
     "status": "completed",
-    "jp_publisher": "Square Enix",
+    "jp_publisher": "COMIC NOVELS",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Square Enix"
+      "JP Imprint: COMIC NOVELS"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -1029,14 +1038,14 @@
     "success": 0.22024370108071717,
     "volume_count": 16,
     "status": "ongoing",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -1051,14 +1060,14 @@
     "success": 0.23484064626875295,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "TO Books",
+    "jp_publisher": "TO Books Novel",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: TO Books"
+      "JP Imprint: TO Books Novel"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Fantasy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Sky Light Novel."
@@ -1073,10 +1082,10 @@
     "success": 0.25082527205171967,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "Gentosha",
+    "jp_publisher": "Gentosha Bunko",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Gentosha"
+      "JP Imprint: Gentosha Bunko"
     ],
     "success_factors": [
       "Good MAL score"
@@ -1094,17 +1103,17 @@
     "success": 0.22589747061520574,
     "volume_count": 12,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 52,
@@ -1116,14 +1125,15 @@
     "success": 0.22952932159369355,
     "volume_count": 4,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1138,14 +1148,15 @@
     "success": 0.2353984705998934,
     "volume_count": 16,
     "status": "ongoing",
-    "jp_publisher": "Hifumi Shobo",
+    "jp_publisher": "Saga Forest",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Hifumi Shobo"
+      "JP Imprint: Saga Forest"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
@@ -1160,14 +1171,15 @@
     "success": 0.21115183241076796,
     "volume_count": 11,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
     "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
@@ -1182,13 +1194,13 @@
     "success": 0.21531846027292764,
     "volume_count": 15,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1203,14 +1215,14 @@
     "success": 0.2306261568334808,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1225,13 +1237,14 @@
     "success": 0.2094053973871493,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -1246,14 +1259,15 @@
     "success": 0.22147811134032516,
     "volume_count": 10,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Comedy line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hài hước của SB Creative / Overlap tại Tsuki."
@@ -1268,13 +1282,14 @@
     "success": 0.21583404894134373,
     "volume_count": 11,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Beans Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Beans Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1292,10 +1307,11 @@
     "jp_publisher": "Arian Rose",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Arian Rose"
+      "JP Imprint: Arian Rose"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
     "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
@@ -1310,10 +1326,10 @@
     "success": 0.20986153280005695,
     "volume_count": 3,
     "status": "completed",
-    "jp_publisher": "Kodansha",
+    "jp_publisher": "Kodansha Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Kodansha"
+      "JP Imprint: Kodansha Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score"
@@ -1331,14 +1347,14 @@
     "success": 0.2018970505868679,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -1353,13 +1369,13 @@
     "success": 0.20661101276537477,
     "volume_count": 9,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1374,14 +1390,15 @@
     "success": 0.2159435052932496,
     "volume_count": 14,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -1396,13 +1413,13 @@
     "success": 0.2145501560810848,
     "volume_count": 6,
     "status": "completed",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1417,14 +1434,15 @@
     "success": 0.2261988717683998,
     "volume_count": 16,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -1439,14 +1457,14 @@
     "success": 0.20698841033745066,
     "volume_count": 6,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -1464,10 +1482,11 @@
     "jp_publisher": "AlphaPolis",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: AlphaPolis"
+      "JP Imprint: AlphaPolis"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -1482,16 +1501,16 @@
     "success": 0.22807044699510476,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Drama target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kịch tính mục tiêu của IPM."
   },
   {
     "rank": 70,
@@ -1503,13 +1522,14 @@
     "success": 0.2131270714786516,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -1524,10 +1544,10 @@
     "success": 0.19452334846255007,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "Shinchosha",
+    "jp_publisher": "Shincho Bunko",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Shinchosha"
+      "JP Imprint: Shincho Bunko"
     ],
     "success_factors": [],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
@@ -1546,10 +1566,11 @@
     "jp_publisher": "KADOKAWA",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KADOKAWA"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1564,14 +1585,14 @@
     "success": 0.2187390444929693,
     "volume_count": 20,
     "status": "ongoing",
-    "jp_publisher": "Micro Magazine",
+    "jp_publisher": "GC Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Micro Magazine"
+      "JP Imprint: GC Novels"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Fantasy LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết kỳ ảo ăn khách của Tsuki."
@@ -1586,14 +1607,14 @@
     "success": 0.21713732553980566,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Usagi Light Novel's localized Girls love catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện girls love bản địa hóa của Usagi Light Novel."
@@ -1611,11 +1632,12 @@
     "jp_publisher": "Arian Rose",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Arian Rose"
+      "JP Imprint: Arian Rose"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
     "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
@@ -1630,13 +1652,14 @@
     "success": 0.23520839796666326,
     "volume_count": 17,
     "status": "completed",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Completed but long (>15 vols)",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1651,10 +1674,10 @@
     "success": 0.19609486644363588,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score"
@@ -1672,13 +1695,13 @@
     "success": 0.18203352781126453,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
     "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
@@ -1693,13 +1716,14 @@
     "success": 0.20629702925612323,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1717,10 +1741,10 @@
     "jp_publisher": "KADOKAWA",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KADOKAWA"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
     "strategic_fit_vi": "Tác phẩm bom tấn phù hợp với năng lực phát hành lớn của Kim Đồng."
@@ -1735,14 +1759,14 @@
     "success": 0.2077697959368141,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Shogakukan",
+    "jp_publisher": "Shonen Sunday Comics Special Shousetsu Ban",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shogakukan"
+      "JP Imprint: Shonen Sunday Comics Special Shousetsu Ban"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Thái Hà Books's localized Adventure catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện phiêu lưu bản địa hóa của Thái Hà Books."
@@ -1757,16 +1781,17 @@
     "success": 0.20579735870117963,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
   },
   {
     "rank": 83,
@@ -1778,13 +1803,14 @@
     "success": 0.21189931381153881,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -1799,13 +1825,14 @@
     "success": 0.18225520797106884,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
@@ -1820,13 +1847,14 @@
     "success": 0.1877591734629953,
     "volume_count": 6,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Famitsu Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Famitsu Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Thái Hà Books's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Thái Hà Books."
@@ -1837,18 +1865,18 @@
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/8vqC0HCSCOz729zY.jpg",
-    "coming": 0.02836570907968544,
+    "coming": 0.028365709079685445,
     "success": 0.18206200567198763,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Horror reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kinh dị năng động của Kim Đồng."
@@ -1863,17 +1891,17 @@
     "success": 0.19785500356915434,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Dash X Bunko Digital",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Dash X Bunko Digital"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Aligns with Kim Đồng's active Slice of life reader base.",
-    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện đời thường năng động của Kim Đồng."
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 88,
@@ -1885,14 +1913,14 @@
     "success": 0.1903563368654095,
     "volume_count": 5,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1907,10 +1935,10 @@
     "success": 0.17416614812381184,
     "volume_count": 13,
     "status": "completed",
-    "jp_publisher": "Takarajimasha",
+    "jp_publisher": "Takarajimasha Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Takarajimasha"
+      "JP Imprint: Takarajimasha Bunko"
     ],
     "success_factors": [
       "Good MAL score"
@@ -1928,13 +1956,13 @@
     "success": 0.17666053504499082,
     "volume_count": 11,
     "status": "ongoing",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -1949,14 +1977,14 @@
     "success": 0.17383656943915482,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
@@ -1971,13 +1999,13 @@
     "success": 0.19385405424961893,
     "volume_count": 20,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -1992,13 +2020,13 @@
     "success": 0.18195910354719044,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "Hayakawa Shobo",
+    "jp_publisher": "Hayakawa Bunko JA",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Hayakawa Shobo"
+      "JP Imprint: Hayakawa Bunko JA"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
     "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
@@ -2013,13 +2041,14 @@
     "success": 0.19345606086509096,
     "volume_count": 16,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed but long (>15 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -2034,16 +2063,17 @@
     "success": 0.1918396149859943,
     "volume_count": 11,
     "status": "ongoing",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Matches Amak's Hobby Japan licensing affinity.",
-    "strategic_fit_vi": "Phù hợp với thế mạnh khai thác bản quyền Hobby Japan của Amak."
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
   },
   {
     "rank": 96,
@@ -2055,13 +2085,14 @@
     "success": 0.17843189454488784,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -2076,14 +2107,15 @@
     "success": 0.194875505876698,
     "volume_count": 18,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Adventure line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện phiêu lưu của SB Creative / Overlap tại Tsuki."
@@ -2098,13 +2130,14 @@
     "success": 0.1816419028929527,
     "volume_count": 12,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Romance LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết lãng mạn ăn khách của Tsuki."
@@ -2119,16 +2152,16 @@
     "success": 0.1767030427411795,
     "volume_count": 35,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Top-tier MAL score"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Strategic blockbuster target for IPM's premium format footprint.",
+    "strategic_fit_vi": "Mục tiêu bom tấn chiến lược cho dòng sách chất lượng cao của IPM."
   },
   {
     "rank": 100,
@@ -2140,14 +2173,15 @@
     "success": 0.15938358549281684,
     "volume_count": 38,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
     "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
@@ -2162,10 +2196,10 @@
     "success": 0.16732838124824095,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "Kodansha",
+    "jp_publisher": "Seikaisha e-Fictions",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Kodansha"
+      "JP Imprint: Seikaisha e-Fictions"
     ],
     "success_factors": [
       "Top-tier MAL score"
@@ -2183,13 +2217,13 @@
     "success": 0.1644275091522593,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "Micro Magazine",
+    "jp_publisher": "GC Novels",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Micro Magazine"
+      "JP Imprint: GC Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
@@ -2204,13 +2238,14 @@
     "success": 0.18513951120621486,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dragon Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dragon Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Usagi Light Novel's localized Fantasy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Usagi Light Novel."
@@ -2225,14 +2260,15 @@
     "success": 0.19699968886084712,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -2247,16 +2283,17 @@
     "success": 0.1854260813179802,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "B's-LOG Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: B's-LOG Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Comedy target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại hài hước mục tiêu của IPM."
   },
   {
     "rank": 106,
@@ -2268,13 +2305,14 @@
     "success": 0.18277040707298717,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -2289,13 +2327,13 @@
     "success": 0.1805656155309808,
     "volume_count": 17,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -2310,14 +2348,14 @@
     "success": 0.17204105475417653,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
@@ -2332,16 +2370,17 @@
     "success": 0.1716438315997476,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Action target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại hành động mục tiêu của IPM."
   },
   {
     "rank": 110,
@@ -2353,14 +2392,15 @@
     "success": 0.18636120938897477,
     "volume_count": 15,
     "status": "ongoing",
-    "jp_publisher": "Ichijinsha",
+    "jp_publisher": "Ichijinsha Bunko Iris",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Ichijinsha"
+      "JP Imprint: Ichijinsha Bunko Iris"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -2375,14 +2415,14 @@
     "success": 0.17775692200505253,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Shufu to Seikatsusha",
+    "jp_publisher": "PASH! Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shufu to Seikatsusha"
+      "JP Imprint: PASH! Books"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -2397,14 +2437,14 @@
     "success": 0.16568017966291376,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Shueisha Orange Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Shueisha Orange Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -2419,17 +2459,17 @@
     "success": 0.16893293885190747,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Comedy line.",
-    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hài hước của SB Creative / Overlap tại Tsuki."
+    "strategic_fit_en": "Fits Tsuki's focus on popular Comedy LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hài hước ăn khách của Tsuki."
   },
   {
     "rank": 114,
@@ -2441,10 +2481,10 @@
     "success": 0.1814940385591398,
     "volume_count": 10,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Good MAL score"
@@ -2462,13 +2502,14 @@
     "success": 0.17121706427059982,
     "volume_count": 20,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -2486,10 +2527,10 @@
     "jp_publisher": "KADOKAWA",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KADOKAWA"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -2504,13 +2545,13 @@
     "success": 0.18085114243910402,
     "volume_count": 5,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Thái Hà Books's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Thái Hà Books."
@@ -2525,14 +2566,15 @@
     "success": 0.1926631905282886,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "AlphaPolis",
+    "jp_publisher": "Regina Books",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: AlphaPolis"
+      "JP Imprint: Regina Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
@@ -2547,13 +2589,14 @@
     "success": 0.15535009162584912,
     "volume_count": 5,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện phiêu lưu năng động của Kim Đồng."
@@ -2571,11 +2614,12 @@
     "jp_publisher": "Gentosha Comics",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Gentosha Comics"
+      "JP Imprint: Gentosha Comics"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
     "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
@@ -2590,16 +2634,16 @@
     "success": 0.1850786866891695,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "Kodansha",
+    "jp_publisher": "KC Deluxe",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Kodansha"
+      "JP Imprint: KC Deluxe"
     ],
     "success_factors": [
       "Good MAL score"
     ],
-    "strategic_fit_en": "Complements Kim Đồng's Kodansha licensing line.",
-    "strategic_fit_vi": "Bổ sung cho dòng sản phẩm bản quyền Kodansha của Kim Đồng."
+    "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng."
   },
   {
     "rank": 122,
@@ -2611,13 +2655,13 @@
     "success": 0.17950834579303965,
     "volume_count": 18,
     "status": "ongoing",
-    "jp_publisher": "TO Books",
+    "jp_publisher": "TO Books Novel",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: TO Books"
+      "JP Imprint: TO Books Novel"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Action catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Sky Light Novel."
@@ -2632,14 +2676,15 @@
     "success": 0.16388386384567405,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
@@ -2654,14 +2699,15 @@
     "success": 0.17647101379507768,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -2676,13 +2722,13 @@
     "success": 0.17020130494460056,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki no Shin Bungei",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki no Shin Bungei"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Thái Hà Books's localized Action catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Thái Hà Books."
@@ -2697,10 +2743,10 @@
     "success": 0.17163632214360364,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
@@ -2716,13 +2762,14 @@
     "success": 0.1617111345159287,
     "volume_count": 15,
     "status": "completed",
-    "jp_publisher": "Earth Star Entertainment",
+    "jp_publisher": "Earth Star Novel",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Earth Star Entertainment"
+      "JP Imprint: Earth Star Novel"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
@@ -2737,14 +2784,15 @@
     "success": 0.16942341143038975,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "Micro Magazine",
+    "jp_publisher": "GC Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Micro Magazine"
+      "JP Imprint: GC Novels"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
@@ -2759,13 +2807,14 @@
     "success": 0.17376019451189206,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -2780,17 +2829,18 @@
     "success": 0.17804713797496916,
     "volume_count": 5,
     "status": "ongoing",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
-    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 131,
@@ -2802,13 +2852,14 @@
     "success": 0.1759409225103438,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "Ichijinsha",
+    "jp_publisher": "Iris NEO",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Ichijinsha"
+      "JP Imprint: Iris NEO"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -2823,14 +2874,14 @@
     "success": 0.18092669760412627,
     "volume_count": 15,
     "status": "ongoing",
-    "jp_publisher": "Shinkigensha",
+    "jp_publisher": "Morning Star Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shinkigensha"
+      "JP Imprint: Morning Star Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
     "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
@@ -2845,14 +2896,15 @@
     "success": 0.14940527220896974,
     "volume_count": 11,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -2867,13 +2919,14 @@
     "success": 0.16759138452705147,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Futabasha",
+    "jp_publisher": "M Novels f",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Futabasha"
+      "JP Imprint: M Novels f"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -2888,14 +2941,14 @@
     "success": 0.1648449355447103,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
@@ -2910,17 +2963,17 @@
     "success": 0.158322721475744,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "Shogakukan",
+    "jp_publisher": "Gagaga Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Shogakukan"
+      "JP Imprint: Gagaga Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
-    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
+    "strategic_fit_en": "Aligns with Kim Đồng's active Romance reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện lãng mạn năng động của Kim Đồng."
   },
   {
     "rank": 137,
@@ -2932,14 +2985,14 @@
     "success": 0.16071956382673125,
     "volume_count": 6,
     "status": "ongoing",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -2954,13 +3007,14 @@
     "success": 0.1752948923454483,
     "volume_count": 12,
     "status": "ongoing",
-    "jp_publisher": "Kodansha",
+    "jp_publisher": "K Lanove Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Kodansha"
+      "JP Imprint: K Lanove Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Sky Light Novel."
@@ -2975,14 +3029,15 @@
     "success": 0.1692368663421666,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -2997,16 +3052,16 @@
     "success": 0.17888046820675485,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "Shogakukan",
+    "jp_publisher": "Gagaga Bunko",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Shogakukan"
+      "JP Imprint: Gagaga Bunko"
     ],
     "success_factors": [
       "Good MAL score"
     ],
-    "strategic_fit_en": "Strengthens Shogakukan partnership catalog.",
-    "strategic_fit_vi": "Củng cố danh mục hợp tác chiến lược với Shogakukan."
+    "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện phiêu lưu năng động của Kim Đồng."
   },
   {
     "rank": 141,
@@ -3018,14 +3073,15 @@
     "success": 0.167604806245978,
     "volume_count": 5,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -3040,14 +3096,15 @@
     "success": 0.15878376518794263,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3062,13 +3119,13 @@
     "success": 0.16212227181571565,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "Earth Star Entertainment",
+    "jp_publisher": "Earth Star Novel",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Earth Star Entertainment"
+      "JP Imprint: Earth Star Novel"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
@@ -3083,13 +3140,14 @@
     "success": 0.16246181059542053,
     "volume_count": 10,
     "status": "ongoing",
-    "jp_publisher": "Futabasha",
+    "jp_publisher": "M Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Futabasha"
+      "JP Imprint: M Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện phiêu lưu năng động của Kim Đồng."
@@ -3104,10 +3162,10 @@
     "success": 0.13527257022048064,
     "volume_count": 1,
     "status": "completed",
-    "jp_publisher": "Futabasha",
+    "jp_publisher": "Futaba Bunko",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Futabasha"
+      "JP Imprint: Futaba Bunko"
     ],
     "success_factors": [],
     "strategic_fit_en": "High-impact blockbuster fit for Kim Đồng's massive distribution.",
@@ -3123,14 +3181,15 @@
     "success": 0.15397979142133475,
     "volume_count": 8,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -3145,13 +3204,13 @@
     "success": 0.16295994673842557,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
@@ -3166,14 +3225,14 @@
     "success": 0.15703035447215674,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "Futabasha",
+    "jp_publisher": "Monster Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Futabasha"
+      "JP Imprint: Monster Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3188,13 +3247,13 @@
     "success": 0.15736101173324932,
     "volume_count": 10,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước."
@@ -3209,13 +3268,13 @@
     "success": 0.1476854710267612,
     "volume_count": 3,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3230,14 +3289,15 @@
     "success": 0.15590823280365573,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Thái Hà Books's localized Comedy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hài hước bản địa hóa của Thái Hà Books."
@@ -3252,14 +3312,15 @@
     "success": 0.15059614223159745,
     "volume_count": 7,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3274,13 +3335,13 @@
     "success": 0.1564598922919409,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "Ichijinsha",
+    "jp_publisher": "Iris NEO",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Ichijinsha"
+      "JP Imprint: Iris NEO"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -3295,13 +3356,14 @@
     "success": 0.1616012829289791,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3316,13 +3378,14 @@
     "success": 0.16280548781958354,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Mag Garden",
+    "jp_publisher": "Mag Garden Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Mag Garden"
+      "JP Imprint: Mag Garden Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Fills IPM's Fantasy target portfolio.",
     "strategic_fit_vi": "Lấp đầy danh mục thể loại kỳ ảo mục tiêu của IPM."
@@ -3337,14 +3400,14 @@
     "success": 0.14722704465084777,
     "volume_count": 6,
     "status": "completed",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động."
@@ -3359,14 +3422,14 @@
     "success": 0.15754172080165785,
     "volume_count": 17,
     "status": "ongoing",
-    "jp_publisher": "TO Books",
+    "jp_publisher": "TO Books Novel",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: TO Books"
+      "JP Imprint: TO Books Novel"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Adventure catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện phiêu lưu bản địa hóa của Sky Light Novel."
@@ -3381,14 +3444,14 @@
     "success": 0.15232947028283142,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3403,16 +3466,16 @@
     "success": 0.16405172238303659,
     "volume_count": 18,
     "status": "ongoing",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Matches Amak's Hobby Japan licensing affinity.",
-    "strategic_fit_vi": "Phù hợp với thế mạnh khai thác bản quyền Hobby Japan của Amak."
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
   },
   {
     "rank": 160,
@@ -3424,14 +3487,14 @@
     "success": 0.16263637336099562,
     "volume_count": 17,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3446,13 +3509,13 @@
     "success": 0.14937724506156155,
     "volume_count": 6,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -3467,14 +3530,14 @@
     "success": 0.15334478673026308,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MFC Gene Pixiv Series",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MFC Gene Pixiv Series"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Boys love reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện boys love năng động của Kim Đồng."
@@ -3489,14 +3552,14 @@
     "success": 0.15229152942915533,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MFC Gene Pixiv Series",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MFC Gene Pixiv Series"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Boys love reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện boys love năng động của Kim Đồng."
@@ -3511,13 +3574,13 @@
     "success": 0.153769169457097,
     "volume_count": 5,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
@@ -3532,14 +3595,14 @@
     "success": 0.15294568091754446,
     "volume_count": 6,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Dash X Bunko Digital",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Dash X Bunko Digital"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -3554,13 +3617,13 @@
     "success": 0.16230901206574178,
     "volume_count": 11,
     "status": "ongoing",
-    "jp_publisher": "Kodansha",
+    "jp_publisher": "K Lanove Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Kodansha"
+      "JP Imprint: K Lanove Books"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Action catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Sky Light Novel."
@@ -3575,13 +3638,14 @@
     "success": 0.15201734653510154,
     "volume_count": 18,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
@@ -3596,13 +3660,14 @@
     "success": 0.1654937975835562,
     "volume_count": 2,
     "status": "completed",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Jump J Books Digital",
     "coming_factors": [
       "Completed but short (<= 2 vols)",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Jump J Books Digital"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3617,14 +3682,14 @@
     "success": 0.14832636222053208,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3639,13 +3704,13 @@
     "success": 0.13487153466354207,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
@@ -3663,10 +3728,11 @@
     "jp_publisher": "KADOKAWA",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: KADOKAWA"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -3681,14 +3747,15 @@
     "success": 0.1489074028030892,
     "volume_count": 16,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Bunko J",
     "coming_factors": [
       "Completed but long (>15 vols)",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Bunko J"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3703,14 +3770,15 @@
     "success": 0.14094164163927594,
     "volume_count": 4,
     "status": "completed",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Fantasy catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện kỳ ảo bản địa hóa của Sky Light Novel."
@@ -3725,13 +3793,13 @@
     "success": 0.16757660169178665,
     "volume_count": 2,
     "status": "cancelled",
-    "jp_publisher": "Futabasha",
+    "jp_publisher": "Monster Bunko",
     "coming_factors": [
-      "JP Publisher: Futabasha"
+      "JP Imprint: Monster Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -3746,14 +3814,14 @@
     "success": 0.145097735752763,
     "volume_count": 10,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -3768,13 +3836,13 @@
     "success": 0.1461922326222582,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu."
@@ -3789,14 +3857,15 @@
     "success": 0.14396906422964523,
     "volume_count": 1,
     "status": "ongoing",
-    "jp_publisher": "Shueisha",
+    "jp_publisher": "Dash X Bunko Digital",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Shueisha"
+      "JP Imprint: Dash X Bunko Digital"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -3811,14 +3880,15 @@
     "success": 0.13176239330214518,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
@@ -3833,13 +3903,14 @@
     "success": 0.15393414708897868,
     "volume_count": 11,
     "status": "ongoing",
-    "jp_publisher": "Micro Magazine",
+    "jp_publisher": "GC Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Micro Magazine"
+      "JP Imprint: GC Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Adventure LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết phiêu lưu ăn khách của Tsuki."
@@ -3854,13 +3925,14 @@
     "success": 0.14090760561773263,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Sneaker Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Sneaker Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -3875,13 +3947,13 @@
     "success": 0.13203034759446042,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Famitsu Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Famitsu Bunko"
     ],
     "success_factors": [
-      "High-demand genres (Romance/Comedy)"
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Expands Thái Hà Books's localized Action catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện hành động bản địa hóa của Thái Hà Books."
@@ -3896,10 +3968,10 @@
     "success": 0.1389253810510473,
     "volume_count": 13,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [
       "Below-average MAL score"
@@ -3917,17 +3989,18 @@
     "success": 0.14526518401988464,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
-    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 184,
@@ -3939,13 +4012,13 @@
     "success": 0.14018277255588185,
     "volume_count": 9,
     "status": "completed",
-    "jp_publisher": "Earth Star Entertainment",
+    "jp_publisher": "Earth Star Novel",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Earth Star Entertainment"
+      "JP Imprint: Earth Star Novel"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
@@ -3960,10 +4033,10 @@
     "success": 0.14403637389864335,
     "volume_count": 9,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Kadokawa Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Kadokawa Books"
     ],
     "success_factors": [],
     "strategic_fit_en": "Aligns with Kim Đồng's active Adventure reader base.",
@@ -3979,17 +4052,18 @@
     "success": 0.1375713923706245,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "Kodansha",
+    "jp_publisher": "K Lanove Books",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Kodansha"
+      "JP Imprint: K Lanove Books"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Complements Kim Đồng's Kodansha licensing line.",
-    "strategic_fit_vi": "Bổ sung cho dòng sản phẩm bản quyền Kodansha của Kim Đồng."
+    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng."
   },
   {
     "rank": 187,
@@ -4001,14 +4075,14 @@
     "success": 0.13840790992949478,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Action reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hành động năng động của Kim Đồng."
@@ -4023,13 +4097,13 @@
     "success": 0.13764685928468118,
     "volume_count": 8,
     "status": "ongoing",
-    "jp_publisher": "Micro Magazine",
+    "jp_publisher": "GC Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Micro Magazine"
+      "JP Imprint: GC Novels"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
@@ -4044,14 +4118,15 @@
     "success": 0.14051088587515623,
     "volume_count": 2,
     "status": "ongoing",
-    "jp_publisher": "Mag Garden",
+    "jp_publisher": "Mag Garden Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Mag Garden"
+      "JP Imprint: Mag Garden Novels"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
     "strategic_fit_en": "Fits Tsuki's focus on popular Comedy LN series.",
     "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hài hước ăn khách của Tsuki."
@@ -4066,14 +4141,14 @@
     "success": 0.14119020448583364,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "Hobby Japan",
+    "jp_publisher": "HJ Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Hobby Japan"
+      "JP Imprint: HJ Novels"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Sky Light Novel's localized Adventure catalog.",
     "strategic_fit_vi": "Mở rộng danh mục truyện phiêu lưu bản địa hóa của Sky Light Novel."
@@ -4088,16 +4163,16 @@
     "success": 0.14778221236632885,
     "volume_count": 5,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Action target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại hành động mục tiêu của IPM."
   },
   {
     "rank": 192,
@@ -4112,11 +4187,11 @@
     "jp_publisher": "AlphaPolis",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: AlphaPolis"
+      "JP Imprint: AlphaPolis"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
@@ -4131,14 +4206,14 @@
     "success": 0.13798848006366263,
     "volume_count": 11,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki Bunko",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki Bunko"
     ],
     "success_factors": [
       "Good MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
     "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng."
@@ -4153,17 +4228,18 @@
     "success": 0.12726333293686423,
     "volume_count": 7,
     "status": "completed",
-    "jp_publisher": "Micro Magazine",
+    "jp_publisher": "GC Novels",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: Micro Magazine"
+      "JP Imprint: GC Novels"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Fits Tsuki's focus on popular Romance LN series.",
-    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết lãng mạn ăn khách của Tsuki."
+    "strategic_fit_en": "Fits Tsuki's focus on popular Supernatural LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết siêu nhiên ăn khách của Tsuki."
   },
   {
     "rank": 195,
@@ -4175,16 +4251,17 @@
     "success": 0.1334169249940856,
     "volume_count": 6,
     "status": "completed",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "MF Books",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: MF Books"
     ],
     "success_factors": [
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Direct feed into IPM's strong Kadokawa partnership pipeline.",
-    "strategic_fit_vi": "Đi thẳng vào kênh hợp tác Kadokawa vững chắc của IPM."
+    "strategic_fit_en": "Fills IPM's Action target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại hành động mục tiêu của IPM."
   },
   {
     "rank": 196,
@@ -4196,14 +4273,14 @@
     "success": 0.12592331686394495,
     "volume_count": 3,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Fantasy line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện kỳ ảo của SB Creative / Overlap tại Tsuki."
@@ -4218,17 +4295,18 @@
     "success": 0.128006935379282,
     "volume_count": 15,
     "status": "completed",
-    "jp_publisher": "SB Creative",
+    "jp_publisher": "GA Bunko",
     "coming_factors": [
       "Completed sweet-spot length",
-      "JP Publisher: SB Creative"
+      "JP Imprint: GA Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Action line.",
-    "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hành động của SB Creative / Overlap tại Tsuki."
+    "strategic_fit_en": "Fits Tsuki's focus on popular Action LN series.",
+    "strategic_fit_vi": "Phù hợp định hướng tập trung tiểu thuyết hành động ăn khách của Tsuki."
   },
   {
     "rank": 198,
@@ -4240,14 +4318,14 @@
     "success": 0.1419401129752409,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Fujimi Fantasia Bunko",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Fujimi Fantasia Bunko"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)"
     ],
     "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Fantasy focus.",
     "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kỳ ảo."
@@ -4262,10 +4340,10 @@
     "success": 0.1358529848122629,
     "volume_count": 14,
     "status": "ongoing",
-    "jp_publisher": "KADOKAWA",
+    "jp_publisher": "Dengeki no Shin Bungei",
     "coming_factors": [
       "Ongoing sweet-spot start year",
-      "JP Publisher: KADOKAWA"
+      "JP Imprint: Dengeki no Shin Bungei"
     ],
     "success_factors": [
       "Good MAL score"
@@ -4283,14 +4361,15 @@
     "success": 0.1348603463288507,
     "volume_count": 21,
     "status": "ongoing",
-    "jp_publisher": "Overlap",
+    "jp_publisher": "Overlap Novels",
     "coming_factors": [
       "Ongoing older series",
-      "JP Publisher: Overlap"
+      "JP Imprint: Overlap Novels"
     ],
     "success_factors": [
       "Below-average MAL score",
-      "High-demand genres (Isekai/Fantasy)"
+      "High-demand genre (Fantasy)",
+      "High-demand genre (Romance)"
     ],
     "strategic_fit_en": "Key addition to Tsuki's SB Creative / Overlap Comedy line.",
     "strategic_fit_vi": "Bổ sung quan trọng cho dòng truyện hài hước của SB Creative / Overlap tại Tsuki."

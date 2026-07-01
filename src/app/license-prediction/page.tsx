@@ -5,6 +5,37 @@ import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
 import predictions from '@/data/license_predictions.json'
 
+const FACTOR_TRANSLATIONS: Record<string, string> = {
+  "Completed but short (<= 2 vols)": "Hoàn thành nhưng ngắn (<= 2 tập)",
+  "Completed sweet-spot length": "Độ dài hoàn thành lý tưởng (3-15 tập)",
+  "Completed but long (>15 vols)": "Hoàn thành nhưng dài (>15 tập)",
+  "Completed very long (>25 vols)": "Hoàn thành rất dài (>25 tập)",
+  "Ongoing but too recent": "Đang tiến hành nhưng quá mới",
+  "Ongoing sweet-spot start year": "Năm bắt đầu lý tưởng",
+  "Ongoing older series": "Truyện cũ đang tiến hành",
+  "Top-tier MAL score": "Điểm MAL hàng đầu",
+  "Good MAL score": "Điểm MAL khá",
+  "Below-average MAL score": "Điểm MAL dưới trung bình",
+  "High-demand genre (Isekai)": "Thể loại ăn khách (Isekai)",
+  "High-demand genre (Fantasy)": "Thể loại ăn khách (Kỳ ảo)",
+  "High-demand genre (Romance)": "Thể loại ăn khách (Lãng mạn)",
+  "High-demand genre (Comedy)": "Thể loại ăn khách (Hài hước)"
+}
+
+function translateFactor(factor: string, vi: boolean): string {
+  if (!vi) return factor
+  if (FACTOR_TRANSLATIONS[factor]) {
+    return FACTOR_TRANSLATIONS[factor]
+  }
+  if (factor.startsWith("JP Publisher: ")) {
+    return factor.replace("JP Publisher: ", "NXB gốc: ")
+  }
+  if (factor.startsWith("JP Imprint: ")) {
+    return factor.replace("JP Imprint: ", "Nhãn sách JP: ")
+  }
+  return factor
+}
+
 type PredictionRow = {
   rank: number
   title: string
@@ -162,12 +193,12 @@ function MobilePredictionCard({
               <div className="flex flex-wrap gap-1.5">
                 {row.coming_factors?.map((f, idx) => (
                   <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>
-                    {f}
+                    {translateFactor(f, vi)}
                   </span>
                 ))}
                 {row.success_factors?.map((f, idx) => (
                   <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#34d399' }}>
-                    {f}
+                    {translateFactor(f, vi)}
                   </span>
                 ))}
               </div>
@@ -534,12 +565,12 @@ export default function LicensePredictionPage() {
                           <div className="flex flex-wrap gap-1 max-w-[320px]">
                             {row.coming_factors?.map((f, idx) => (
                               <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                                {f}
+                                {translateFactor(f, vi)}
                               </span>
                             ))}
                             {row.success_factors?.map((f, idx) => (
                               <span key={idx} className="px-2 py-0.5 rounded text-[10px] font-bold" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                                {f}
+                                {translateFactor(f, vi)}
                               </span>
                             ))}
                             {!row.coming_factors?.length && !row.success_factors?.length && (
