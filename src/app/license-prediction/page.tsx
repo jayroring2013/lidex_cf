@@ -433,11 +433,11 @@ export default function LicensePredictionPage() {
           </div>
 
           {/* Pagination Top */}
-          {sortedPredictions.length > pageSize && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
-              <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
-                {vi ? 'Hiển thị' : 'Showing'} {pageStart + 1}-{Math.min(pageStart + pageSize, sortedPredictions.length)} / {sortedPredictions.length.toLocaleString('vi-VN')}
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
+            <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+              {vi ? 'Hiển thị' : 'Showing'} {sortedPredictions.length > 0 ? pageStart + 1 : 0}-{Math.min(pageStart + pageSize, sortedPredictions.length)} / {sortedPredictions.length.toLocaleString('vi-VN')}
+            </p>
+            {pageCount > 1 && (
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -461,8 +461,8 @@ export default function LicensePredictionPage() {
                   {vi ? 'Sau' : 'Next'}
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Mobile Layout */}
           <div className="lg:hidden p-3 space-y-3">
@@ -609,14 +609,14 @@ export default function LicensePredictionPage() {
                                   <img
                                     src={alt.logo_url}
                                     alt=""
-                                    className="w-5.5 h-5.5 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
+                                    className="w-7 h-7 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
                                     onError={(e) => {
                                       (e.target as HTMLElement).style.display = 'none'
                                     }}
                                     title={alt.name}
                                   />
                                 ) : (
-                                  <div className="w-5.5 h-5.5 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black" title={alt.name}>
+                                  <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-black" title={alt.name}>
                                     LN
                                   </div>
                                 )}
@@ -685,11 +685,11 @@ export default function LicensePredictionPage() {
           </div>
 
           {/* Pagination Bottom */}
-          {sortedPredictions.length > pageSize && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3" style={{ borderTop: '1px solid var(--card-border)' }}>
-              <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
-                {vi ? 'Hiển thị' : 'Showing'} {pageStart + 1}-{Math.min(pageStart + pageSize, sortedPredictions.length)} / {sortedPredictions.length.toLocaleString('vi-VN')}
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3" style={{ borderTop: '1px solid var(--card-border)' }}>
+            <p className="text-xs font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+              {vi ? 'Hiển thị' : 'Showing'} {sortedPredictions.length > 0 ? pageStart + 1 : 0}-{Math.min(pageStart + pageSize, sortedPredictions.length)} / {sortedPredictions.length.toLocaleString('vi-VN')}
+            </p>
+            {pageCount > 1 && (
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -713,8 +713,8 @@ export default function LicensePredictionPage() {
                   {vi ? 'Sau' : 'Next'}
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
