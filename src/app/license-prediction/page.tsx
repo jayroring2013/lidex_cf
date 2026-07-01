@@ -231,14 +231,15 @@ function MobilePredictionCard({
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none'
                         }}
+                        title={alt.name}
                       />
                     ) : (
-                      <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black">
+                      <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black" title={alt.name}>
                         LN
                       </div>
                     )}
-                    <span className="text-xs font-bold" style={{ color: 'var(--foreground-secondary)' }}>
-                      {alt.name} <span className="text-[10px] text-cyan-400">({alt.score}%)</span>
+                    <span className="text-xs font-black text-cyan-400">
+                      {alt.score}%
                     </span>
                   </div>
                 ))}
@@ -504,7 +505,7 @@ export default function LicensePredictionPage() {
                   <th className="px-6 py-3 text-left text-base font-black w-[250px]">{vi ? 'NPH có thể thầu' : 'Likely Publisher'}</th>
                   
                   {showAlternatives && (
-                    <th className="px-6 py-3 text-left text-base font-black w-[280px]">{vi ? 'NPH phù hợp khác' : 'Alternative Publisher'}</th>
+                    <th className="px-6 py-3 text-left text-base font-black w-[165px]">{vi ? 'NPH phù hợp khác' : 'Alternative Publisher'}</th>
                   )}
                   
                   <th className="px-6 py-3 w-[150px]">
@@ -608,18 +609,19 @@ export default function LicensePredictionPage() {
                                   <img
                                     src={alt.logo_url}
                                     alt=""
-                                    className="w-5 h-5 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
+                                    className="w-5.5 h-5.5 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
                                     onError={(e) => {
                                       (e.target as HTMLElement).style.display = 'none'
                                     }}
+                                    title={alt.name}
                                   />
                                 ) : (
-                                  <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black">
+                                  <div className="w-5.5 h-5.5 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black" title={alt.name}>
                                     LN
                                   </div>
                                 )}
-                                <span className="font-semibold text-xs" style={{ color: 'var(--foreground-secondary)' }}>
-                                  {alt.name} <span className="text-[10px] text-cyan-400 font-bold">({alt.score}%)</span>
+                                <span className="font-bold text-xs text-cyan-400">
+                                  {alt.score}%
                                 </span>
                               </div>
                             ))}

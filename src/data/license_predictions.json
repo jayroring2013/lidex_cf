@@ -141,8 +141,8 @@
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
     "cover_url": "https://images.ranobedb.org/CMP5m3szZ5BA54KZ.jpg",
-    "coming": 0.05395250284048159,
-    "success": 0.37574969062066105,
+    "coming": 0.0539525028404816,
+    "success": 0.3757496906206611,
     "volume_count": 22,
     "status": "ongoing",
     "jp_publisher": "MF Books",
@@ -1343,8 +1343,8 @@
     "success_factors": [
       "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
-    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước.",
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Romance focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là lãng mạn.",
     "alternative_publishers": [
       {
         "name": "IPM",
@@ -1850,8 +1850,8 @@
     "success_factors": [
       "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
-    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng.",
+    "strategic_fit_en": "Aligns with Kim Đồng's active Romance reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện lãng mạn năng động của Kim Đồng.",
     "alternative_publishers": [
       {
         "name": "IPM",
@@ -2138,41 +2138,6 @@
   },
   {
     "rank": 64,
-    "title": "The Magical Revolution of the Reincarnated Princess and the Genius Young Lady",
-    "publisher": "Amak",
-    "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
-    "cover_url": "https://images.ranobedb.org/bkxlJNcCwBF96Men.jpg",
-    "coming": 0.024249892775918283,
-    "success": 0.2159435052932496,
-    "volume_count": 14,
-    "status": "completed",
-    "jp_publisher": "Fujimi Fantasia Bunko",
-    "coming_factors": [
-      "Completed sweet-spot length",
-      "JP Imprint: Fujimi Fantasia Bunko"
-    ],
-    "success_factors": [
-      "Good MAL score",
-      "High-demand genre (Fantasy)",
-      "High-demand genre (Romance)"
-    ],
-    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Action focus.",
-    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hành động.",
-    "alternative_publishers": [
-      {
-        "name": "IPM",
-        "score": 37,
-        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg"
-      },
-      {
-        "name": "Kim Đồng",
-        "score": 33,
-        "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg"
-      }
-    ]
-  },
-  {
-    "rank": 65,
     "title": "From Toxic Classmate to Girlfriend Goals",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2205,7 +2170,7 @@
     ]
   },
   {
-    "rank": 66,
+    "rank": 65,
     "title": "Our Last Crusade or the Rise of a New World",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -2240,7 +2205,7 @@
     ]
   },
   {
-    "rank": 67,
+    "rank": 66,
     "title": "My Hero Academia",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2274,7 +2239,7 @@
     ]
   },
   {
-    "rank": 68,
+    "rank": 67,
     "title": "Isekai Tensei Soudouki",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -2308,7 +2273,7 @@
     ]
   },
   {
-    "rank": 69,
+    "rank": 68,
     "title": "Hello,Hello and Hello",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -2341,7 +2306,7 @@
     ]
   },
   {
-    "rank": 70,
+    "rank": 69,
     "title": "King's Proposal",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -2375,7 +2340,7 @@
     ]
   },
   {
-    "rank": 71,
+    "rank": 70,
     "title": "I Have a Secret",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2406,7 +2371,7 @@
     ]
   },
   {
-    "rank": 72,
+    "rank": 71,
     "title": "In the Land of Leadale",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2440,7 +2405,7 @@
     ]
   },
   {
-    "rank": 73,
+    "rank": 72,
     "title": "Reincarnated as a Sword",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -2474,7 +2439,7 @@
     ]
   },
   {
-    "rank": 74,
+    "rank": 73,
     "title": "Buying a Classmate Once a Week",
     "publisher": "Usagi Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
@@ -2508,7 +2473,7 @@
     ]
   },
   {
-    "rank": 75,
+    "rank": 74,
     "title": "The White Cat's Revenge as Plotted from the Dragon King's Lap",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -2543,7 +2508,7 @@
     ]
   },
   {
-    "rank": 76,
+    "rank": 75,
     "title": "Lazy Dungeon Master",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2577,7 +2542,7 @@
     ]
   },
   {
-    "rank": 77,
+    "rank": 76,
     "title": "Chainsaw Man",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2610,7 +2575,7 @@
     ]
   },
   {
-    "rank": 78,
+    "rank": 77,
     "title": "Mirai",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -2643,7 +2608,7 @@
     ]
   },
   {
-    "rank": 79,
+    "rank": 78,
     "title": "Sasaki and Peeps",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2677,7 +2642,7 @@
     ]
   },
   {
-    "rank": 80,
+    "rank": 79,
     "title": "The NPCs in this Village Sim Game Must Be Real!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2710,7 +2675,7 @@
     ]
   },
   {
-    "rank": 81,
+    "rank": 80,
     "title": "Frieren: Beyond Journey's End -Prelude-",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -2744,7 +2709,7 @@
     ]
   },
   {
-    "rank": 82,
+    "rank": 81,
     "title": "Dahlia in Bloom: Crafting a Fresh Start with Magical Tools",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -2778,7 +2743,7 @@
     ]
   },
   {
-    "rank": 83,
+    "rank": 82,
     "title": "The Saint's Magic Power is Omnipotent",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2812,7 +2777,7 @@
     ]
   },
   {
-    "rank": 84,
+    "rank": 83,
     "title": "Fushi no Kami: Rebuilding Civilization Starts With a Village",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -2846,7 +2811,7 @@
     ]
   },
   {
-    "rank": 85,
+    "rank": 84,
     "title": "The Dirty Way to Destroy the Goddess's Heroes",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -2880,12 +2845,12 @@
     ]
   },
   {
-    "rank": 86,
+    "rank": 85,
     "title": "Torture Princess: Fremd Torturchen",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/8vqC0HCSCOz729zY.jpg",
-    "coming": 0.02836570907968544,
+    "coming": 0.028365709079685445,
     "success": 0.18206200567198763,
     "volume_count": 10,
     "status": "completed",
@@ -2898,8 +2863,8 @@
       "Good MAL score",
       "High-demand genre (Fantasy)"
     ],
-    "strategic_fit_en": "Aligns with Kim Đồng's active Fantasy reader base.",
-    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kỳ ảo năng động của Kim Đồng.",
+    "strategic_fit_en": "Aligns with Kim Đồng's active Drama reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện kịch tính năng động của Kim Đồng.",
     "alternative_publishers": [
       {
         "name": "IPM",
@@ -2914,13 +2879,13 @@
     ]
   },
   {
-    "rank": 87,
+    "rank": 86,
     "title": "There's No Freaking Way I'll be Your Lover! Unless…",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
     "cover_url": "https://images.ranobedb.org/qfUea8PXkR1rhJNZ.jpg",
     "coming": 0.016906204731515738,
-    "success": 0.19785500356915434,
+    "success": 0.19785500356915436,
     "volume_count": 8,
     "status": "ongoing",
     "jp_publisher": "Dash X Bunko Digital",
@@ -2932,8 +2897,8 @@
       "Good MAL score",
       "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
-    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng.",
+    "strategic_fit_en": "Aligns with Kim Đồng's active Slice of life reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện đời thường năng động của Kim Đồng.",
     "alternative_publishers": [
       {
         "name": "Usagi Light Novel",
@@ -2948,7 +2913,7 @@
     ]
   },
   {
-    "rank": 88,
+    "rank": 87,
     "title": "There's No Way a Side Character Like Me Could Be Popular, Right?",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -2982,7 +2947,7 @@
     ]
   },
   {
-    "rank": 89,
+    "rank": 88,
     "title": "Sound! Euphonium",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3015,7 +2980,7 @@
     ]
   },
   {
-    "rank": 90,
+    "rank": 89,
     "title": "My Friend's Little Sister Has It In for Me!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3048,7 +3013,7 @@
     ]
   },
   {
-    "rank": 91,
+    "rank": 90,
     "title": "The Girl I Saved on the Train Turned Out to Be My Childhood Friend",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3082,7 +3047,7 @@
     ]
   },
   {
-    "rank": 92,
+    "rank": 91,
     "title": "Legend",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3115,7 +3080,7 @@
     ]
   },
   {
-    "rank": 93,
+    "rank": 92,
     "title": "JK Haru Is a Sex Worker in Another World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -3148,7 +3113,7 @@
     ]
   },
   {
-    "rank": 94,
+    "rank": 93,
     "title": "Banished from the Hero's Party, I Decided to Live a Quiet Life in the Countryside",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3182,7 +3147,7 @@
     ]
   },
   {
-    "rank": 95,
+    "rank": 94,
     "title": "Welcome to Japan, Ms. Elf!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -3216,7 +3181,7 @@
     ]
   },
   {
-    "rank": 96,
+    "rank": 95,
     "title": "Sabikui Bisco",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3250,7 +3215,7 @@
     ]
   },
   {
-    "rank": 97,
+    "rank": 96,
     "title": "Campfire Cooking in Another World with My Absurd Skill",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -3285,7 +3250,7 @@
     ]
   },
   {
-    "rank": 98,
+    "rank": 97,
     "title": "The Wrong Way to Use Healing Magic",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -3319,7 +3284,7 @@
     ]
   },
   {
-    "rank": 99,
+    "rank": 98,
     "title": "Boogiepop",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -3352,7 +3317,7 @@
     ]
   },
   {
-    "rank": 100,
+    "rank": 99,
     "title": "Death March to the Parallel World Rhapsody",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -3387,7 +3352,7 @@
     ]
   },
   {
-    "rank": 101,
+    "rank": 100,
     "title": "Danganronpa Kirigiri",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -3420,7 +3385,7 @@
     ]
   },
   {
-    "rank": 102,
+    "rank": 101,
     "title": "Berserk of Gluttony",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -3453,7 +3418,7 @@
     ]
   },
   {
-    "rank": 103,
+    "rank": 102,
     "title": "Akuyaku Reijou no Shitsujisama Hametsu Flag wa Ore ga Tsubusasete Itadakimasu",
     "publisher": "Usagi Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
@@ -3487,7 +3452,7 @@
     ]
   },
   {
-    "rank": 104,
+    "rank": 103,
     "title": "One Piece: Ace's Story",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3522,7 +3487,7 @@
     ]
   },
   {
-    "rank": 105,
+    "rank": 104,
     "title": "I'll Become a Villainess Who Goes Down in History: It Seems Turning Into a High-Born Baddie Makes the Prince All the More Lovestruck",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -3556,7 +3521,7 @@
     ]
   },
   {
-    "rank": 106,
+    "rank": 105,
     "title": "Orc Eroica",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -3590,7 +3555,7 @@
     ]
   },
   {
-    "rank": 107,
+    "rank": 106,
     "title": "Reborn as a Space Mercenary: I Woke Up Piloting the Strongest Starship!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3623,7 +3588,7 @@
     ]
   },
   {
-    "rank": 108,
+    "rank": 107,
     "title": "The Conqueror from a Dying Kingdom",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -3657,7 +3622,7 @@
     ]
   },
   {
-    "rank": 109,
+    "rank": 108,
     "title": "The Hero Laughs While Walking the Path of Vengeance a Second Time",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -3691,7 +3656,7 @@
     ]
   },
   {
-    "rank": 110,
+    "rank": 109,
     "title": "My Next Life as a Villainess: All Routes Lead to Doom!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3710,8 +3675,8 @@
       "High-demand genre (Fantasy)",
       "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Aligns with Kim Đồng's active Comedy reader base.",
-    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện hài hước năng động của Kim Đồng.",
+    "strategic_fit_en": "Aligns with Kim Đồng's active Romance reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện lãng mạn năng động của Kim Đồng.",
     "alternative_publishers": [
       {
         "name": "IPM",
@@ -3726,7 +3691,7 @@
     ]
   },
   {
-    "rank": 111,
+    "rank": 110,
     "title": "The Sidekick Never Gets the Girl, Let Alone the Protag's Sister!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3760,7 +3725,7 @@
     ]
   },
   {
-    "rank": 112,
+    "rank": 111,
     "title": "Raven of the Inner Palace",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3794,7 +3759,7 @@
     ]
   },
   {
-    "rank": 113,
+    "rank": 112,
     "title": "She's the Cutest... But We're Just Friends!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -3828,7 +3793,7 @@
     ]
   },
   {
-    "rank": 114,
+    "rank": 113,
     "title": "Playing Death Games to Put Food on the Table",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3861,7 +3826,7 @@
     ]
   },
   {
-    "rank": 115,
+    "rank": 114,
     "title": "I Got a Cheat Skill in Another World and Became Unrivaled in the Real World, Too",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -3895,7 +3860,7 @@
     ]
   },
   {
-    "rank": 116,
+    "rank": 115,
     "title": "Lv 999 no Murabito",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -3928,7 +3893,7 @@
     ]
   },
   {
-    "rank": 117,
+    "rank": 116,
     "title": "Yuri Tama: From Third Wheel to Trifecta",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -3961,7 +3926,7 @@
     ]
   },
   {
-    "rank": 118,
+    "rank": 117,
     "title": "Observation Records of My Fiancée: The Misadventures of a Self-Proclaimed Villainess",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -3996,7 +3961,7 @@
     ]
   },
   {
-    "rank": 119,
+    "rank": 118,
     "title": "Reborn as a Vending Machine, I Now Wander the Dungeon",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4030,7 +3995,7 @@
     ]
   },
   {
-    "rank": 120,
+    "rank": 119,
     "title": "I Swear I Won't Bother You Again!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -4065,7 +4030,7 @@
     ]
   },
   {
-    "rank": 121,
+    "rank": 120,
     "title": "Attack on Titan: Lost Girls",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4098,7 +4063,7 @@
     ]
   },
   {
-    "rank": 122,
+    "rank": 121,
     "title": "The Water Magician",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -4131,7 +4096,7 @@
     ]
   },
   {
-    "rank": 123,
+    "rank": 122,
     "title": "Reincarnated as the Piggy Duke: This Time I'm Gonna Tell Her How I Feel!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -4166,7 +4131,7 @@
     ]
   },
   {
-    "rank": 124,
+    "rank": 123,
     "title": "Combatants Will Be Dispatched!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4201,7 +4166,7 @@
     ]
   },
   {
-    "rank": 125,
+    "rank": 124,
     "title": "Sentenced to Be a Hero",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -4234,7 +4199,7 @@
     ]
   },
   {
-    "rank": 126,
+    "rank": 125,
     "title": "Your Forma",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4265,7 +4230,7 @@
     ]
   },
   {
-    "rank": 127,
+    "rank": 126,
     "title": "My Instant Death Ability Is So Overpowered, No One in This Other World Stands a Chance Against Me!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -4299,7 +4264,7 @@
     ]
   },
   {
-    "rank": 128,
+    "rank": 127,
     "title": "Let This Grieving Soul Retire: Woe is the Weakling that Leads the Strongest Party",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -4334,7 +4299,7 @@
     ]
   },
   {
-    "rank": 129,
+    "rank": 128,
     "title": "The Hero Is Overpowered but Overly Cautious",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4368,7 +4333,7 @@
     ]
   },
   {
-    "rank": 130,
+    "rank": 129,
     "title": "Is It Wrong to Try to Pick Up Girls in a Dungeon? Familia Chronicle",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -4403,7 +4368,7 @@
     ]
   },
   {
-    "rank": 131,
+    "rank": 130,
     "title": "Bibliophile Princess",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4437,7 +4402,7 @@
     ]
   },
   {
-    "rank": 132,
+    "rank": 131,
     "title": "Yuusha Shoukan ni Makikomareta kedo, Isekai wa Heiwa deshita",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -4471,7 +4436,7 @@
     ]
   },
   {
-    "rank": 133,
+    "rank": 132,
     "title": "Do You Love Your Mom and Her Two-Hit Multi-Target Attacks?",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -4506,7 +4471,7 @@
     ]
   },
   {
-    "rank": 134,
+    "rank": 133,
     "title": "Hello, I am a Witch and my Crush Wants me to Make a Love Potion!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4540,7 +4505,7 @@
     ]
   },
   {
-    "rank": 135,
+    "rank": 134,
     "title": "Death's Daughter and the Ebony Blade",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -4574,7 +4539,7 @@
     ]
   },
   {
-    "rank": 136,
+    "rank": 135,
     "title": "Irina: The Vampire Cosmonaut",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4608,7 +4573,7 @@
     ]
   },
   {
-    "rank": 137,
+    "rank": 136,
     "title": "Are You Okay With a Slightly Older Girlfriend?",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4642,7 +4607,7 @@
     ]
   },
   {
-    "rank": 138,
+    "rank": 137,
     "title": "I Shall Survive Using Potions!",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -4676,7 +4641,7 @@
     ]
   },
   {
-    "rank": 139,
+    "rank": 138,
     "title": "Botsuraku Yotei nanode, Kaji Shokunin o Mezasu",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4711,7 +4676,7 @@
     ]
   },
   {
-    "rank": 140,
+    "rank": 139,
     "title": "An Autumn in Amber, a Zero-Second Journey",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4744,7 +4709,7 @@
     ]
   },
   {
-    "rank": 141,
+    "rank": 140,
     "title": "My Status as an Assassin Obviously Exceeds the Hero's",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4779,7 +4744,7 @@
     ]
   },
   {
-    "rank": 142,
+    "rank": 141,
     "title": "One Piece: Law's Story",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4814,7 +4779,7 @@
     ]
   },
   {
-    "rank": 143,
+    "rank": 142,
     "title": "Enough with This Slow Life! I Was Reincarnated as a High Elf and Now I'm Bored",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -4847,7 +4812,7 @@
     ]
   },
   {
-    "rank": 144,
+    "rank": 143,
     "title": "Demon Lord, Retry!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4881,7 +4846,7 @@
     ]
   },
   {
-    "rank": 145,
+    "rank": 144,
     "title": "The Dark Maidens",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4912,7 +4877,7 @@
     ]
   },
   {
-    "rank": 146,
+    "rank": 145,
     "title": "Accomplishments of the Duke's Daughter",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -4947,7 +4912,7 @@
     ]
   },
   {
-    "rank": 147,
+    "rank": 146,
     "title": "The Unwanted Undead Adventurer",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -4980,7 +4945,7 @@
     ]
   },
   {
-    "rank": 148,
+    "rank": 147,
     "title": "The Reincarnation of the Strongest Exorcist in Another World",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5014,7 +4979,7 @@
     ]
   },
   {
-    "rank": 149,
+    "rank": 148,
     "title": "VTuber Legend: How I Went Viral after Forgetting to Turn Off My Stream",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -5047,7 +5012,7 @@
     ]
   },
   {
-    "rank": 150,
+    "rank": 149,
     "title": "Sword Art Online Alternative Clover's Regret",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5080,7 +5045,7 @@
     ]
   },
   {
-    "rank": 151,
+    "rank": 150,
     "title": "Reborn to Master the Blade: From Hero-King to Extraordinary Squire ♀",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -5115,7 +5080,7 @@
     ]
   },
   {
-    "rank": 152,
+    "rank": 151,
     "title": "Hazure Skill: The Guild Member with a Worthless Skill Is Actually a Legendary Assassin",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5150,7 +5115,7 @@
     ]
   },
   {
-    "rank": 153,
+    "rank": 152,
     "title": "The Most Heretical Last Boss Queen: From Villainess to Savior",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5183,7 +5148,7 @@
     ]
   },
   {
-    "rank": 154,
+    "rank": 153,
     "title": "The World's Strongest Rearguard: Labyrinth Country's Novice Seeker",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5217,7 +5182,7 @@
     ]
   },
   {
-    "rank": 155,
+    "rank": 154,
     "title": "The Ancient Magus' Bride",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -5251,7 +5216,7 @@
     ]
   },
   {
-    "rank": 156,
+    "rank": 155,
     "title": "Arifureta Zero",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -5285,7 +5250,7 @@
     ]
   },
   {
-    "rank": 157,
+    "rank": 156,
     "title": "The Weakest Tamer Began a Journey to Pick Up Trash",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -5319,7 +5284,7 @@
     ]
   },
   {
-    "rank": 158,
+    "rank": 157,
     "title": "The World's Fastest Level Up",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5353,7 +5318,7 @@
     ]
   },
   {
-    "rank": 159,
+    "rank": 158,
     "title": "By the Grace of the Gods",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -5386,7 +5351,7 @@
     ]
   },
   {
-    "rank": 160,
+    "rank": 159,
     "title": "Now I'm a Demon Lord! Happily Ever After with Monster Girls in My Dungeon",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5420,7 +5385,7 @@
     ]
   },
   {
-    "rank": 161,
+    "rank": 160,
     "title": "Villainess Level 99: I May Be the Hidden Boss but I'm Not the Demon Lord",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5453,7 +5418,7 @@
     ]
   },
   {
-    "rank": 162,
+    "rank": 161,
     "title": "Sasaki and Miyano: First-Years",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5487,7 +5452,7 @@
     ]
   },
   {
-    "rank": 163,
+    "rank": 162,
     "title": "Hirano and Kagiura",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5521,7 +5486,7 @@
     ]
   },
   {
-    "rank": 164,
+    "rank": 163,
     "title": "The Most Notorious “Talker” Runs the World's Greatest Clan",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -5554,7 +5519,7 @@
     ]
   },
   {
-    "rank": 165,
+    "rank": 164,
     "title": "Ore no Ie ga Maryoku Spot datta Ken ~Sunde Iru dake de Sekai Saikyou~",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5588,7 +5553,7 @@
     ]
   },
   {
-    "rank": 166,
+    "rank": 165,
     "title": "Saving 80,000 Gold in Another World for My Retirement",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -5621,7 +5586,7 @@
     ]
   },
   {
-    "rank": 167,
+    "rank": 166,
     "title": "Loner Life in Another World",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -5655,7 +5620,7 @@
     ]
   },
   {
-    "rank": 168,
+    "rank": 167,
     "title": "One Piece: Heroines",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5689,7 +5654,7 @@
     ]
   },
   {
-    "rank": 169,
+    "rank": 168,
     "title": "Gods' Games We Play",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5723,7 +5688,7 @@
     ]
   },
   {
-    "rank": 170,
+    "rank": 169,
     "title": "Disciple of the Lich: Or How I Was Cursed by the Gods and Dropped Into the Abyss!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -5756,7 +5721,7 @@
     ]
   },
   {
-    "rank": 171,
+    "rank": 170,
     "title": "The Alchemist Who Survived Now Dreams of a Quiet City Life",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5790,7 +5755,7 @@
     ]
   },
   {
-    "rank": 172,
+    "rank": 171,
     "title": "The Demon Sword Master of Excalibur Academy",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5825,7 +5790,7 @@
     ]
   },
   {
-    "rank": 173,
+    "rank": 172,
     "title": "Why Shouldn't a Detestable Demon Lord Fall in Love?!",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -5860,7 +5825,7 @@
     ]
   },
   {
-    "rank": 174,
+    "rank": 173,
     "title": "How to Melt the Ice Queen's Heart",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5893,7 +5858,7 @@
     ]
   },
   {
-    "rank": 175,
+    "rank": 174,
     "title": "Kaifuku Jutsushi no Yarinaoshi",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5927,7 +5892,7 @@
     ]
   },
   {
-    "rank": 176,
+    "rank": 175,
     "title": "Failure Frame: I Became the Strongest and Annihilated Everything With Low-Level Spells",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -5960,7 +5925,7 @@
     ]
   },
   {
-    "rank": 177,
+    "rank": 176,
     "title": "The Hero and His Elf Bride Open a Pizza Parlor in Another World",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -5995,7 +5960,7 @@
     ]
   },
   {
-    "rank": 178,
+    "rank": 177,
     "title": "Woof Woof Story: I Told You to Turn Me Into a Pampered Pooch, Not Fenrir!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6030,7 +5995,7 @@
     ]
   },
   {
-    "rank": 179,
+    "rank": 178,
     "title": "The Great Cleric",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6064,7 +6029,7 @@
     ]
   },
   {
-    "rank": 180,
+    "rank": 179,
     "title": "Magical Explorer: Reborn as a Side Character in a Fantasy Dating Sim",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6098,7 +6063,7 @@
     ]
   },
   {
-    "rank": 181,
+    "rank": 180,
     "title": "Psycome",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -6131,7 +6096,7 @@
     ]
   },
   {
-    "rank": 182,
+    "rank": 181,
     "title": "My Quiet Blacksmith Life in Another World",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6164,7 +6129,7 @@
     ]
   },
   {
-    "rank": 183,
+    "rank": 182,
     "title": "The Vexations of a Shut-In Vampire Princess",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6199,7 +6164,7 @@
     ]
   },
   {
-    "rank": 184,
+    "rank": 183,
     "title": "A Wild Last Boss Appeared!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6232,7 +6197,7 @@
     ]
   },
   {
-    "rank": 185,
+    "rank": 184,
     "title": "EXP Is Golden",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6263,7 +6228,7 @@
     ]
   },
   {
-    "rank": 186,
+    "rank": 185,
     "title": "Am I Actually the Strongest?",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6298,7 +6263,7 @@
     ]
   },
   {
-    "rank": 187,
+    "rank": 186,
     "title": "I May Be a Guild Receptionist, but I'll Solo Any Boss to Clock Out on Time",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6332,7 +6297,7 @@
     ]
   },
   {
-    "rank": 188,
+    "rank": 187,
     "title": "Apocalypse Bringer Mynoghra",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6365,7 +6330,7 @@
     ]
   },
   {
-    "rank": 189,
+    "rank": 188,
     "title": "Did I Seriously Just Get Reincarnated as My Gag Character?!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6400,7 +6365,7 @@
     ]
   },
   {
-    "rank": 190,
+    "rank": 189,
     "title": "Backstabbed in a Backwater Dungeon: My Trusted Companions Tried to Kill Me, But Thanks to the Gift of an Unlimited Gacha I Got LVL 9999 Friends and Am Out For Revenge on My Former Party Members and the World",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -6434,7 +6399,7 @@
     ]
   },
   {
-    "rank": 191,
+    "rank": 190,
     "title": "The Reprise of the Spear Hero",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -6467,7 +6432,7 @@
     ]
   },
   {
-    "rank": 192,
+    "rank": 191,
     "title": "Sayounara Ryuusei, Konnichiwa Jinsei",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -6501,7 +6466,7 @@
     ]
   },
   {
-    "rank": 193,
+    "rank": 192,
     "title": "Zoku Mahouka Koukou no Rettousei Magian Company",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6535,12 +6500,12 @@
     ]
   },
   {
-    "rank": 194,
+    "rank": 193,
     "title": "I'm Just a Villager, so what?",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
     "cover_url": "https://images.ranobedb.org/bS463krjp4t3wLtM.jpg",
-    "coming": 0.019203855269788163,
+    "coming": 0.019203855269788166,
     "success": 0.1272633329368642,
     "volume_count": 7,
     "status": "completed",
@@ -6570,7 +6535,7 @@
     ]
   },
   {
-    "rank": 195,
+    "rank": 194,
     "title": "Apparently, Disillusioned Adventurers Will Save the World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -6604,7 +6569,7 @@
     ]
   },
   {
-    "rank": 196,
+    "rank": 195,
     "title": "Welcome to the Outcast’s Restaurant!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6638,7 +6603,7 @@
     ]
   },
   {
-    "rank": 197,
+    "rank": 196,
     "title": "Suppose a Kid from the Last Dungeon Boonies Moved to a Starter Town",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6673,7 +6638,7 @@
     ]
   },
   {
-    "rank": 198,
+    "rank": 197,
     "title": "Assassins Pride",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -6707,7 +6672,7 @@
     ]
   },
   {
-    "rank": 199,
+    "rank": 198,
     "title": "Rebuild World",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -6740,7 +6705,7 @@
     ]
   },
   {
-    "rank": 200,
+    "rank": 199,
     "title": "Chillin' in Another World with Level 2 Super Cheat Powers",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6775,7 +6740,7 @@
     ]
   },
   {
-    "rank": 201,
+    "rank": 200,
     "title": "Survival in Another World with My Mistress!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6810,7 +6775,7 @@
     ]
   },
   {
-    "rank": 202,
+    "rank": 201,
     "title": "29-sai Dokushin wa Isekai de Jiyuu ni Ikita...... Katta.",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6844,7 +6809,7 @@
     ]
   },
   {
-    "rank": 203,
+    "rank": 202,
     "title": "Chronicles of an Aristocrat Reborn in Another World",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -6877,7 +6842,7 @@
     ]
   },
   {
-    "rank": 204,
+    "rank": 203,
     "title": "Defeating the Demon Lord's a Cinch (If You've Got a Ringer)",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6911,7 +6876,7 @@
     ]
   },
   {
-    "rank": 205,
+    "rank": 204,
     "title": "My Unique Skill Makes Me OP even at Level 1",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -6945,7 +6910,7 @@
     ]
   },
   {
-    "rank": 206,
+    "rank": 205,
     "title": "Altina the Sword Princess",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -6980,7 +6945,7 @@
     ]
   },
   {
-    "rank": 207,
+    "rank": 206,
     "title": "Making Magic: The Sweet Life of a Witch Who Knows an Infinite MP Loophole",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -7013,7 +6978,7 @@
     ]
   },
   {
-    "rank": 208,
+    "rank": 207,
     "title": "Is It Wrong to Try to Pick Up Girls in a Dungeon? On the Side: Sword Oratoria",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7048,7 +7013,7 @@
     ]
   },
   {
-    "rank": 209,
+    "rank": 208,
     "title": "A Tale of the Secret Saint",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7081,7 +7046,7 @@
     ]
   },
   {
-    "rank": 210,
+    "rank": 209,
     "title": "The Asterisk War",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7116,7 +7081,7 @@
     ]
   },
   {
-    "rank": 211,
+    "rank": 210,
     "title": "Villainess: Reloaded! Blowing Away Bad Ends with Modern Weapons",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7151,7 +7116,7 @@
     ]
   },
   {
-    "rank": 212,
+    "rank": 211,
     "title": "A Mysterious Job Called Oda Nobunaga",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -7186,7 +7151,7 @@
     ]
   },
   {
-    "rank": 213,
+    "rank": 212,
     "title": "The Magician Who Rose From Failure",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -7220,7 +7185,7 @@
     ]
   },
   {
-    "rank": 214,
+    "rank": 213,
     "title": "Shijousaikyou Orc-san no Tanoshii Tanetsuke Harem-zukuri",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7254,7 +7219,7 @@
     ]
   },
   {
-    "rank": 215,
+    "rank": 214,
     "title": "Reincarnated Mage with Inferior Eyes: Breezing through the Future as an Oppressed Ex-Hero",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -7288,7 +7253,7 @@
     ]
   },
   {
-    "rank": 216,
+    "rank": 215,
     "title": "The Ideal Sponger Life",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7322,7 +7287,7 @@
     ]
   },
   {
-    "rank": 217,
+    "rank": 216,
     "title": "Young Lady Albert Is Courting Disaster",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7355,7 +7320,7 @@
     ]
   },
   {
-    "rank": 218,
+    "rank": 217,
     "title": "Mushoku no Eiyuu: Betsu ni Skill nanka Iranakatta n daga",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7390,7 +7355,7 @@
     ]
   },
   {
-    "rank": 219,
+    "rank": 218,
     "title": "Tensei Shitara Dainana Ouji datta node, Kimama ni Majutsu o Kiwamemasu",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7423,7 +7388,7 @@
     ]
   },
   {
-    "rank": 220,
+    "rank": 219,
     "title": "The Greatest Magicmaster's Retirement Plan",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -7456,7 +7421,7 @@
     ]
   },
   {
-    "rank": 221,
+    "rank": 220,
     "title": "Mapping: The Trash-Tier Skill That Got Me Into a Top-Tier Party",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7489,7 +7454,7 @@
     ]
   },
   {
-    "rank": 222,
+    "rank": 221,
     "title": "Last Round Arthurs",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -7524,7 +7489,7 @@
     ]
   },
   {
-    "rank": 223,
+    "rank": 222,
     "title": "Sword Art Online Alternative Gun Gale Online",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7558,7 +7523,7 @@
     ]
   },
   {
-    "rank": 224,
+    "rank": 223,
     "title": "The World's Least Interesting Master Swordsman",
     "publisher": "Usagi Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
@@ -7592,7 +7557,7 @@
     ]
   },
   {
-    "rank": 225,
+    "rank": 224,
     "title": "I Kept Pressing the 100-Million-Year Button and Came Out on Top",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7627,7 +7592,7 @@
     ]
   },
   {
-    "rank": 226,
+    "rank": 225,
     "title": "Ore no Genjitsu wa Ren'ai Game?? ~ka to Omottara Inochigake no Game datta~",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7660,7 +7625,7 @@
     ]
   },
   {
-    "rank": 227,
+    "rank": 226,
     "title": "Gacha o Mawashite Nakama o Fuyasu Saikyou no Bishoujo Gundan o Tsukuriagero",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -7694,7 +7659,7 @@
     ]
   },
   {
-    "rank": 228,
+    "rank": 227,
     "title": "Bofuri: I Don't Want to Get Hurt, so I'll Max Out My Defense.",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7729,7 +7694,7 @@
     ]
   },
   {
-    "rank": 229,
+    "rank": 228,
     "title": "Private Tutor to the Duke's Daughter",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7764,7 +7729,7 @@
     ]
   },
   {
-    "rank": 230,
+    "rank": 229,
     "title": "High School DxD DX",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7799,7 +7764,7 @@
     ]
   },
   {
-    "rank": 231,
+    "rank": 230,
     "title": "Drugstore in Another World: The Slow Life of a Cheat Pharmacist",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -7833,7 +7798,7 @@
     ]
   },
   {
-    "rank": 232,
+    "rank": 231,
     "title": "The Hidden Dungeon Only I Can Enter",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7867,7 +7832,7 @@
     ]
   },
   {
-    "rank": 233,
+    "rank": 232,
     "title": "Kaiju No. 8",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -7901,7 +7866,7 @@
     ]
   },
   {
-    "rank": 234,
+    "rank": 233,
     "title": "Black Summoner",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -7935,7 +7900,7 @@
     ]
   },
   {
-    "rank": 235,
+    "rank": 234,
     "title": "I Parry Everything: What Do You Mean I'm the Strongest? I'm Not Even an Adventurer Yet!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -7969,7 +7934,7 @@
     ]
   },
   {
-    "rank": 236,
+    "rank": 235,
     "title": "Yoku Wakaranai Keredo Isekai ni Tensei Shite Ita You desu",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8002,13 +7967,13 @@
     ]
   },
   {
-    "rank": 237,
+    "rank": 236,
     "title": "The Greatest Demon Lord Is Reborn as a Typical Nobody",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
     "cover_url": "https://images.ranobedb.org/vNhb0gvxmLLzPyWj.jpg",
     "coming": 0.016383427349354347,
-    "success": 0.10775215696585422,
+    "success": 0.10775215696585423,
     "volume_count": 10,
     "status": "ongoing",
     "jp_publisher": "Fujimi Fantasia Bunko",
@@ -8021,8 +7986,8 @@
       "High-demand genre (Fantasy)",
       "High-demand genre (Comedy)"
     ],
-    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
-    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước.",
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Adventure focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là phiêu lưu.",
     "alternative_publishers": [
       {
         "name": "IPM",
@@ -8037,7 +8002,7 @@
     ]
   },
   {
-    "rank": 238,
+    "rank": 237,
     "title": "Seventh",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -8072,7 +8037,7 @@
     ]
   },
   {
-    "rank": 239,
+    "rank": 238,
     "title": "Oversummoned, Overpowered, and Over It!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8107,7 +8072,7 @@
     ]
   },
   {
-    "rank": 240,
+    "rank": 239,
     "title": "Forget Being the Villainess, I Want to Be an Adventurer!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8141,7 +8106,7 @@
     ]
   },
   {
-    "rank": 241,
+    "rank": 240,
     "title": "Infinite Stratos",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8172,7 +8137,7 @@
     ]
   },
   {
-    "rank": 242,
+    "rank": 241,
     "title": "Netoge no Yome wa Onnanoko ja Nai to Omotta?",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8205,7 +8170,7 @@
     ]
   },
   {
-    "rank": 243,
+    "rank": 242,
     "title": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8239,7 +8204,7 @@
     ]
   },
   {
-    "rank": 244,
+    "rank": 243,
     "title": "The Other World's Books Depend on the Bean Counter",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -8272,7 +8237,7 @@
     ]
   },
   {
-    "rank": 245,
+    "rank": 244,
     "title": "Outbreak Company",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8305,7 +8270,7 @@
     ]
   },
   {
-    "rank": 246,
+    "rank": 245,
     "title": "Zero kara Hajimeru Mahou no Sho",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8339,7 +8304,7 @@
     ]
   },
   {
-    "rank": 247,
+    "rank": 246,
     "title": "Rokudenashi Majutsu Koushi to Akashic Records",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -8374,7 +8339,7 @@
     ]
   },
   {
-    "rank": 248,
+    "rank": 247,
     "title": "Lodoss-tou Senki",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8407,7 +8372,7 @@
     ]
   },
   {
-    "rank": 249,
+    "rank": 248,
     "title": "The Fruit of Evolution: Before I Knew It My Life Had It Made",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8441,7 +8406,7 @@
     ]
   },
   {
-    "rank": 250,
+    "rank": 249,
     "title": "Vivy Prototype",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -8474,7 +8439,7 @@
     ]
   },
   {
-    "rank": 251,
+    "rank": 250,
     "title": "I'm a Behemoth, an S-Ranked Monster, but Mistaken for a Cat, I Live as an Elf Girl's Pet",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -8509,7 +8474,7 @@
     ]
   },
   {
-    "rank": 252,
+    "rank": 251,
     "title": "Kuma Kuma Kuma Bear",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -8544,7 +8509,7 @@
     ]
   },
   {
-    "rank": 253,
+    "rank": 252,
     "title": "Reincarnated as a Dragon Hatchling",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -8577,7 +8542,7 @@
     ]
   },
   {
-    "rank": 254,
+    "rank": 253,
     "title": "Restaurant to Another World",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8611,7 +8576,7 @@
     ]
   },
   {
-    "rank": 255,
+    "rank": 254,
     "title": "I Surrendered My Sword for a New Life as a Mage",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -8645,7 +8610,7 @@
     ]
   },
   {
-    "rank": 256,
+    "rank": 255,
     "title": "Shikkaku Mon no Saikyou Kenja",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -8678,7 +8643,7 @@
     ]
   },
   {
-    "rank": 257,
+    "rank": 256,
     "title": "Ano Natsu de Matteru",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8711,7 +8676,7 @@
     ]
   },
   {
-    "rank": 258,
+    "rank": 257,
     "title": "Isekai de Kojiin o Hiraita kedo, Nazeka Dare Hitori Sudatou to Shinai Ken",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -8745,7 +8710,7 @@
     ]
   },
   {
-    "rank": 259,
+    "rank": 258,
     "title": "High School Prodigies Have It Easy Even in Another World!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -8780,7 +8745,7 @@
     ]
   },
   {
-    "rank": 260,
+    "rank": 259,
     "title": "Her Majesty's Swarm",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -8813,7 +8778,7 @@
     ]
   },
   {
-    "rank": 261,
+    "rank": 260,
     "title": "Sexiled: My Sexist Party Leader Kicked Me Out, So I Teamed Up With a Mythical Sorceress!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -8848,7 +8813,7 @@
     ]
   },
   {
-    "rank": 262,
+    "rank": 261,
     "title": "Ore, Twin Tail ni Narimasu.",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8881,7 +8846,7 @@
     ]
   },
   {
-    "rank": 263,
+    "rank": 262,
     "title": "Another World Survival",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8915,7 +8880,7 @@
     ]
   },
   {
-    "rank": 264,
+    "rank": 263,
     "title": "Strike the Blood",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8950,7 +8915,7 @@
     ]
   },
   {
-    "rank": 265,
+    "rank": 264,
     "title": "Sekai no Owari no Sekairoku <Encore>",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -8984,7 +8949,7 @@
     ]
   },
   {
-    "rank": 266,
+    "rank": 265,
     "title": "How NOT to Summon a Demon Lord",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9017,7 +8982,7 @@
     ]
   },
   {
-    "rank": 267,
+    "rank": 266,
     "title": "Yuusha, Aruiwa Bakemono to Yobareta Shoujo",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9050,7 +9015,7 @@
     ]
   },
   {
-    "rank": 268,
+    "rank": 267,
     "title": "Schwarzesmarken",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9081,7 +9046,7 @@
     ]
   },
   {
-    "rank": 269,
+    "rank": 268,
     "title": "Ore no Shibou Flag ga Tomaru Tokoro o Shiranai",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -9114,7 +9079,7 @@
     ]
   },
   {
-    "rank": 270,
+    "rank": 269,
     "title": "Takarakuji de 40 Oku Atatta n dakedo Isekai ni Ijuu Suru",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9147,7 +9112,7 @@
     ]
   },
   {
-    "rank": 271,
+    "rank": 270,
     "title": "The Diary of a Middle-Aged Sage's Carefree Life in Another World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9182,7 +9147,7 @@
     ]
   },
   {
-    "rank": 272,
+    "rank": 271,
     "title": "Boku wa Tomodachi ga Sukunai",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9215,7 +9180,7 @@
     ]
   },
   {
-    "rank": 273,
+    "rank": 272,
     "title": "Isekai Nonbiri Nouka",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9248,7 +9213,7 @@
     ]
   },
   {
-    "rank": 274,
+    "rank": 273,
     "title": "The Magic in this Other World is Too Far Behind!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -9281,7 +9246,7 @@
     ]
   },
   {
-    "rank": 275,
+    "rank": 274,
     "title": "Tada, Sore dake de Yokatta n desu",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9312,7 +9277,7 @@
     ]
   },
   {
-    "rank": 276,
+    "rank": 275,
     "title": "Black Bullet",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9346,7 +9311,7 @@
     ]
   },
   {
-    "rank": 277,
+    "rank": 276,
     "title": "Magi Craft Meister",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -9379,7 +9344,7 @@
     ]
   },
   {
-    "rank": 278,
+    "rank": 277,
     "title": "Clockwork Planet",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9413,7 +9378,7 @@
     ]
   },
   {
-    "rank": 279,
+    "rank": 278,
     "title": "The Isolator",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9444,7 +9409,7 @@
     ]
   },
   {
-    "rank": 280,
+    "rank": 279,
     "title": "My Big Sister Lives in a Fantasy World",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -9479,7 +9444,7 @@
     ]
   },
   {
-    "rank": 281,
+    "rank": 280,
     "title": "PENGUINDRUM",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9512,7 +9477,7 @@
     ]
   },
   {
-    "rank": 282,
+    "rank": 281,
     "title": "DUNGEON DIVE: Aim for the Deepest Level",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -9545,7 +9510,7 @@
     ]
   },
   {
-    "rank": 283,
+    "rank": 282,
     "title": "Neon Genesis Evangelion: ANIMA",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9576,7 +9541,7 @@
     ]
   },
   {
-    "rank": 284,
+    "rank": 283,
     "title": "Classroom for Heroes",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9610,7 +9575,7 @@
     ]
   },
   {
-    "rank": 285,
+    "rank": 284,
     "title": "Guild no Cheat na Uketsuke-jou",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9644,7 +9609,7 @@
     ]
   },
   {
-    "rank": 286,
+    "rank": 285,
     "title": "She Professed Herself Pupil of the Wise Man",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -9678,7 +9643,7 @@
     ]
   },
   {
-    "rank": 287,
+    "rank": 286,
     "title": "The New Gate",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -9712,7 +9677,7 @@
     ]
   },
   {
-    "rank": 288,
+    "rank": 287,
     "title": "[New Life+] Young Again in Another World",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -9744,7 +9709,7 @@
     ]
   },
   {
-    "rank": 289,
+    "rank": 288,
     "title": "Mixed Bathing in Another Dimension",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -9778,7 +9743,7 @@
     ]
   },
   {
-    "rank": 290,
+    "rank": 289,
     "title": "The Boy and the Beast",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -9812,7 +9777,7 @@
     ]
   },
   {
-    "rank": 291,
+    "rank": 290,
     "title": "Isekai Tensei: Recruited to Another World",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -9845,7 +9810,7 @@
     ]
   },
   {
-    "rank": 292,
+    "rank": 291,
     "title": "The Mythical Hero's Otherworld Chronicles",
     "publisher": "Thái Hà Books",
     "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg",
@@ -9878,7 +9843,7 @@
     ]
   },
   {
-    "rank": 293,
+    "rank": 292,
     "title": "Harem in the Labyrinth of Another World",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9911,7 +9876,7 @@
     ]
   },
   {
-    "rank": 294,
+    "rank": 293,
     "title": "Me, a Genius? I Was Reborn into Another World and I Think They've Got the Wrong Idea!",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -9944,7 +9909,7 @@
     ]
   },
   {
-    "rank": 295,
+    "rank": 294,
     "title": "Kyoukai Meikyuu to Ikai no Majutsushi",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -9978,7 +9943,7 @@
     ]
   },
   {
-    "rank": 296,
+    "rank": 295,
     "title": "Maou no Hajimekata",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -10012,7 +9977,7 @@
     ]
   },
   {
-    "rank": 297,
+    "rank": 296,
     "title": "Seirei-tsukai no Blade Dance",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10047,7 +10012,7 @@
     ]
   },
   {
-    "rank": 298,
+    "rank": 297,
     "title": "Goth",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -10078,7 +10043,7 @@
     ]
   },
   {
-    "rank": 299,
+    "rank": 298,
     "title": "The Invincible Little Lady",
     "publisher": "Usagi Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
@@ -10112,7 +10077,7 @@
     ]
   },
   {
-    "rank": 300,
+    "rank": 299,
     "title": "The Disappearance of Hatsune Miku",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10145,7 +10110,7 @@
     ]
   },
   {
-    "rank": 301,
+    "rank": 300,
     "title": "Monster Tamer",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10178,7 +10143,7 @@
     ]
   },
   {
-    "rank": 302,
+    "rank": 301,
     "title": "Cooking with Wild Game",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -10211,7 +10176,7 @@
     ]
   },
   {
-    "rank": 303,
+    "rank": 302,
     "title": "Min-Maxing My TRPG Build in Another World",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -10244,7 +10209,7 @@
     ]
   },
   {
-    "rank": 304,
+    "rank": 303,
     "title": "I Saved Too Many Girls and Caused the Apocalypse",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -10278,7 +10243,7 @@
     ]
   },
   {
-    "rank": 305,
+    "rank": 304,
     "title": "Yuukoku no Moriarty",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -10309,7 +10274,7 @@
     ]
   },
   {
-    "rank": 306,
+    "rank": 305,
     "title": "Sugar Apple Fairy Tale",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10344,7 +10309,7 @@
     ]
   },
   {
-    "rank": 307,
+    "rank": 306,
     "title": "Re:ZERO -Starting Life in Another World- Short Story Collection",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -10379,7 +10344,7 @@
     ]
   },
   {
-    "rank": 308,
+    "rank": 307,
     "title": "Hime Kishi ga Classmate!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -10413,7 +10378,7 @@
     ]
   },
   {
-    "rank": 309,
+    "rank": 308,
     "title": "Makikomarete Isekai Ten'i Suru Yatsu wa, Taitei Cheat",
     "publisher": "Usagi Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/442507224_823565526496884_6339289578292825009_n.jpg",
@@ -10447,7 +10412,7 @@
     ]
   },
   {
-    "rank": 310,
+    "rank": 309,
     "title": "Bluesteel Blasphemer",
     "publisher": "Sky Light Novel",
     "logo_url": "https://highthresholdlogic.wordpress.com/wp-content/uploads/2018/08/00517.png?w=600",
@@ -10481,7 +10446,7 @@
     ]
   },
   {
-    "rank": 311,
+    "rank": 310,
     "title": "Itsuka Tenma no Kuro Usagi",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -10498,8 +10463,8 @@
     "success_factors": [
       "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Comedy focus.",
-    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là hài hước.",
+    "strategic_fit_en": "Expands Amak's fantasy/adventure portfolio with Drama focus.",
+    "strategic_fit_vi": "Mở rộng danh mục phiêu lưu/kỳ ảo của Amak với trọng tâm là kịch tính.",
     "alternative_publishers": [
       {
         "name": "IPM",
@@ -10514,7 +10479,7 @@
     ]
   },
   {
-    "rank": 312,
+    "rank": 311,
     "title": "Hikuushi Series",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10548,7 +10513,7 @@
     ]
   },
   {
-    "rank": 313,
+    "rank": 312,
     "title": "Goblin Slayer Side Story: Year One",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -10582,7 +10547,7 @@
     ]
   },
   {
-    "rank": 314,
+    "rank": 313,
     "title": "Kitchen Princess: Search for the Angel Cake",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10615,7 +10580,7 @@
     ]
   },
   {
-    "rank": 315,
+    "rank": 314,
     "title": "Occultic;Nine",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -10646,7 +10611,7 @@
     ]
   },
   {
-    "rank": 316,
+    "rank": 315,
     "title": "L change the WorLd",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -10679,7 +10644,7 @@
     ]
   },
   {
-    "rank": 317,
+    "rank": 316,
     "title": "Saiunkoku Monogatari",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10713,7 +10678,7 @@
     ]
   },
   {
-    "rank": 318,
+    "rank": 317,
     "title": "Record of Wortenia War",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -10746,7 +10711,7 @@
     ]
   },
   {
-    "rank": 319,
+    "rank": 318,
     "title": "STEINS;GATE",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10779,7 +10744,7 @@
     ]
   },
   {
-    "rank": 320,
+    "rank": 319,
     "title": "Mondaiji-tachi ga Isekai kara Kuru Sou Desu yo?",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10812,7 +10777,7 @@
     ]
   },
   {
-    "rank": 321,
+    "rank": 320,
     "title": "Ao Haru Ride",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10845,7 +10810,7 @@
     ]
   },
   {
-    "rank": 322,
+    "rank": 321,
     "title": "Kieli",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10880,7 +10845,7 @@
     ]
   },
   {
-    "rank": 323,
+    "rank": 322,
     "title": "Gintama 3-nen Z-gumi Ginpachi-sensei",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10914,7 +10879,7 @@
     ]
   },
   {
-    "rank": 324,
+    "rank": 323,
     "title": "Dakara Boku wa, H ga Dekinai.",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -10947,7 +10912,7 @@
     ]
   },
   {
-    "rank": 325,
+    "rank": 324,
     "title": "Tokyo Ghoul",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -10980,7 +10945,7 @@
     ]
   },
   {
-    "rank": 326,
+    "rank": 325,
     "title": "Souyaku Toaru Majutsu no Index",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11013,7 +10978,7 @@
     ]
   },
   {
-    "rank": 327,
+    "rank": 326,
     "title": "Fata Morgana no Yakata - The House In Fata Morgana - Anata no Genten ni Itaru Monogatari",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -11046,7 +11011,7 @@
     ]
   },
   {
-    "rank": 328,
+    "rank": 327,
     "title": "Goblin Slayer Side Story II: Dai Katana",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -11079,7 +11044,7 @@
     ]
   },
   {
-    "rank": 329,
+    "rank": 328,
     "title": "Tsuki no Sango",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11112,7 +11077,7 @@
     ]
   },
   {
-    "rank": 330,
+    "rank": 329,
     "title": "Sakurasou no Pet na Kanojo",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -11145,7 +11110,7 @@
     ]
   },
   {
-    "rank": 331,
+    "rank": 330,
     "title": "Slayers",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -11179,7 +11144,7 @@
     ]
   },
   {
-    "rank": 332,
+    "rank": 331,
     "title": "The Fearsome Witch Teaches in Another World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11212,7 +11177,7 @@
     ]
   },
   {
-    "rank": 333,
+    "rank": 332,
     "title": "The Devil Princess",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -11246,7 +11211,7 @@
     ]
   },
   {
-    "rank": 334,
+    "rank": 333,
     "title": "The Hero and the Sage, Reincarnated and Engaged",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -11280,7 +11245,7 @@
     ]
   },
   {
-    "rank": 335,
+    "rank": 334,
     "title": "The Tiny Witch from the Deep Woods",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11311,7 +11276,7 @@
     ]
   },
   {
-    "rank": 336,
+    "rank": 335,
     "title": "Witches Can't Be Collared",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11344,7 +11309,7 @@
     ]
   },
   {
-    "rank": 337,
+    "rank": 336,
     "title": "Nia Liston: The Merciless Maiden",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -11377,7 +11342,7 @@
     ]
   },
   {
-    "rank": 338,
+    "rank": 337,
     "title": "The Brilliant Healer's New Life in the Shadows",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -11411,7 +11376,7 @@
     ]
   },
   {
-    "rank": 339,
+    "rank": 338,
     "title": "The Hero-Killing Bride",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -11442,7 +11407,7 @@
     ]
   },
   {
-    "rank": 340,
+    "rank": 339,
     "title": "Isekai Walking",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11475,7 +11440,7 @@
     ]
   },
   {
-    "rank": 341,
+    "rank": 340,
     "title": "Taking My Reincarnation One Step at a Time: No One Told Me There Would Be Monsters!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11506,7 +11471,7 @@
     ]
   },
   {
-    "rank": 342,
+    "rank": 341,
     "title": "I'm a Noble on the Brink of Ruin, So I Might as Well Try Mastering Magic",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11539,7 +11504,7 @@
     ]
   },
   {
-    "rank": 343,
+    "rank": 342,
     "title": "Heavenly Swords of the Twin Stars",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11570,7 +11535,7 @@
     ]
   },
   {
-    "rank": 344,
+    "rank": 343,
     "title": "Reincarnated Into a Game as the Hero's Friend: Running the Kingdom Behind the Scenes",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -11603,7 +11568,7 @@
     ]
   },
   {
-    "rank": 345,
+    "rank": 344,
     "title": "Secrets of the Silent Witch -another-",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11636,7 +11601,7 @@
     ]
   },
   {
-    "rank": 346,
+    "rank": 345,
     "title": "My Magical Career at Court: Living the Dream After My Nightmare Boss Fired Me from the Mages' Guild!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11670,7 +11635,7 @@
     ]
   },
   {
-    "rank": 347,
+    "rank": 346,
     "title": "A Late-Start Tamer's Laid-Back Life",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11704,7 +11669,7 @@
     ]
   },
   {
-    "rank": 348,
+    "rank": 347,
     "title": "Amamori Junna is Humid",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11735,7 +11700,7 @@
     ]
   },
   {
-    "rank": 349,
+    "rank": 348,
     "title": "Demon Lord 2099",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11769,7 +11734,7 @@
     ]
   },
   {
-    "rank": 350,
+    "rank": 349,
     "title": "Dragon and Ceremony",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -11802,7 +11767,7 @@
     ]
   },
   {
-    "rank": 351,
+    "rank": 350,
     "title": "Did You Think My Yuri Was Just for Show?",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11835,7 +11800,7 @@
     ]
   },
   {
-    "rank": 352,
+    "rank": 351,
     "title": "The World Bows Down Before My Flames",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11868,7 +11833,7 @@
     ]
   },
   {
-    "rank": 353,
+    "rank": 352,
     "title": "Demons' Crest",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11899,7 +11864,7 @@
     ]
   },
   {
-    "rank": 354,
+    "rank": 353,
     "title": "The Only Thing I'd Do in a No-Boys-Allowed Game World: Reincarnated as a Yuri Ship-Sinker",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -11933,7 +11898,7 @@
     ]
   },
   {
-    "rank": 355,
+    "rank": 354,
     "title": "Zilbagias the Demon Prince: How the Seventh Prince Brought Down the Kingdom",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -11966,7 +11931,7 @@
     ]
   },
   {
-    "rank": 356,
+    "rank": 355,
     "title": "Heroine? Saint? No, I'm an All-Works Maid (And Proud of It)!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12000,7 +11965,7 @@
     ]
   },
   {
-    "rank": 357,
+    "rank": 356,
     "title": "Management of a Novice Alchemist",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12033,7 +11998,7 @@
     ]
   },
   {
-    "rank": 358,
+    "rank": 357,
     "title": "Hollow Regalia",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12066,7 +12031,7 @@
     ]
   },
   {
-    "rank": 359,
+    "rank": 358,
     "title": "The Legendary Witch Is Reborn as an Oppressed Princess",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12100,7 +12065,7 @@
     ]
   },
   {
-    "rank": 360,
+    "rank": 359,
     "title": "So I'm a Spider, So What? Ex",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12134,7 +12099,7 @@
     ]
   },
   {
-    "rank": 361,
+    "rank": 360,
     "title": "The Too-Perfect Saint: Tossed Aside by My Fiancé and Sold to Another Kingdom",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12168,7 +12133,7 @@
     ]
   },
   {
-    "rank": 362,
+    "rank": 361,
     "title": "How to Eat Life",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12201,7 +12166,7 @@
     ]
   },
   {
-    "rank": 363,
+    "rank": 362,
     "title": "Love Unseen Beneath the Clear Night Sky",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12234,7 +12199,7 @@
     ]
   },
   {
-    "rank": 364,
+    "rank": 363,
     "title": "Miss Medic's Diary at War",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12267,7 +12232,7 @@
     ]
   },
   {
-    "rank": 365,
+    "rank": 364,
     "title": "Notorious No More: The Villainess Enjoys Feigning Incompetence",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12301,7 +12266,7 @@
     ]
   },
   {
-    "rank": 366,
+    "rank": 365,
     "title": "After-School Dungeon Diver: Level Grinding in Another World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12334,7 +12299,7 @@
     ]
   },
   {
-    "rank": 367,
+    "rank": 366,
     "title": "I'm the Heroic Knight of an Intergalactic Empire!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12367,7 +12332,7 @@
     ]
   },
   {
-    "rank": 368,
+    "rank": 367,
     "title": "Babel",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12401,7 +12366,7 @@
     ]
   },
   {
-    "rank": 369,
+    "rank": 368,
     "title": "From Old Country Bumpkin to Master Swordsman: My Hotshot Disciples Are All Grown Up Now, and They Won't Leave Me Alone",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12434,7 +12399,7 @@
     ]
   },
   {
-    "rank": 370,
+    "rank": 369,
     "title": "Heir to a Monstermancer",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12468,7 +12433,7 @@
     ]
   },
   {
-    "rank": 371,
+    "rank": 370,
     "title": "Sword of the Demon Hunter: Kijin Gentōshō",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12501,7 +12466,7 @@
     ]
   },
   {
-    "rank": 372,
+    "rank": 371,
     "title": "The Former Assassin Who Got Reincarnated as a Noble Girl",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12534,7 +12499,7 @@
     ]
   },
   {
-    "rank": 373,
+    "rank": 372,
     "title": "A Livid Lady's Guide to Getting Even: How I Crushed My Homeland with My Mighty Grimoires",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -12567,7 +12532,7 @@
     ]
   },
   {
-    "rank": 374,
+    "rank": 373,
     "title": "Zero Damage Sword Saint: I Enrolled in a Magic School and Wound Up in a Contract with the Demon Queen",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12601,7 +12566,7 @@
     ]
   },
   {
-    "rank": 375,
+    "rank": 374,
     "title": "Playful Relationships",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12634,7 +12599,7 @@
     ]
   },
   {
-    "rank": 376,
+    "rank": 375,
     "title": "Repeated Vice: I Refuse to Be Important Enough to Die",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -12667,7 +12632,7 @@
     ]
   },
   {
-    "rank": 377,
+    "rank": 376,
     "title": "Peddler in Another World: I Can Go Back to My World Whenever I Want!",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -12700,7 +12665,7 @@
     ]
   },
   {
-    "rank": 378,
+    "rank": 377,
     "title": "A Cozy Life in the Woods with the White Witch",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12733,7 +12698,7 @@
     ]
   },
   {
-    "rank": 379,
+    "rank": 378,
     "title": "Hero Syndrome",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12764,7 +12729,7 @@
     ]
   },
   {
-    "rank": 380,
+    "rank": 379,
     "title": "Lacey Longs for Freedom: The Dawn Witch's Low-Key Life after Defeating the Demon King",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12797,7 +12762,7 @@
     ]
   },
   {
-    "rank": 381,
+    "rank": 380,
     "title": "If the Villainess and Villain Met and Fell in Love",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -12831,7 +12796,7 @@
     ]
   },
   {
-    "rank": 382,
+    "rank": 381,
     "title": "Love Is Dark",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12863,7 +12828,7 @@
     ]
   },
   {
-    "rank": 383,
+    "rank": 382,
     "title": "Once Upon a Witch's Death",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12896,7 +12861,7 @@
     ]
   },
   {
-    "rank": 384,
+    "rank": 383,
     "title": "The Condemned Villainess Goes Back in Time and Aims to Become the Ultimate Villain",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12929,7 +12894,7 @@
     ]
   },
   {
-    "rank": 385,
+    "rank": 384,
     "title": "Imperial Reincarnation: I Came, I Saw, I Survived",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12962,7 +12927,7 @@
     ]
   },
   {
-    "rank": 386,
+    "rank": 385,
     "title": "Knock Yourself Out! The Goddess Beat the Final Boss in the Tutorial, So Now I'm Free to Do Whatever",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -12996,7 +12961,7 @@
     ]
   },
   {
-    "rank": 387,
+    "rank": 386,
     "title": "I Guess This Dragon Who Lost Her Egg to Disaster Is My Mom Now",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13029,7 +12994,7 @@
     ]
   },
   {
-    "rank": 388,
+    "rank": 387,
     "title": "My First Love's Kiss",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13062,7 +13027,7 @@
     ]
   },
   {
-    "rank": 389,
+    "rank": 388,
     "title": "The Misdeeds of an Extremely Arrogant Villain Aristocrat",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13095,7 +13060,7 @@
     ]
   },
   {
-    "rank": 390,
+    "rank": 389,
     "title": "Henjin no Salad Bowl",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -13128,7 +13093,7 @@
     ]
   },
   {
-    "rank": 391,
+    "rank": 390,
     "title": "Disowned but Not Disheartened! Life Is Good with Overpowered Magic",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13161,7 +13126,7 @@
     ]
   },
   {
-    "rank": 392,
+    "rank": 391,
     "title": "Hitozuma Kyoushi ga Oshiego no Joshikousei ni Do-hamari Suru Hanashi",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13194,7 +13159,7 @@
     ]
   },
   {
-    "rank": 393,
+    "rank": 392,
     "title": "I Could Never Be a Succubus!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13228,7 +13193,7 @@
     ]
   },
   {
-    "rank": 394,
+    "rank": 393,
     "title": "Magic Stone Gourmet: Eating Magical Power Made Me The Strongest",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13262,7 +13227,7 @@
     ]
   },
   {
-    "rank": 395,
+    "rank": 394,
     "title": "Love & Magic Academy",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13295,7 +13260,7 @@
     ]
   },
   {
-    "rank": 396,
+    "rank": 395,
     "title": "Miss Savage Fang",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13328,7 +13293,7 @@
     ]
   },
   {
-    "rank": 397,
+    "rank": 396,
     "title": "The Bride of Demise",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13361,7 +13326,7 @@
     ]
   },
   {
-    "rank": 398,
+    "rank": 397,
     "title": "A Pale Moon Reverie",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13395,7 +13360,7 @@
     ]
   },
   {
-    "rank": 399,
+    "rank": 398,
     "title": "Her Royal Highness Seems to Be Angry",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -13426,7 +13391,7 @@
     ]
   },
   {
-    "rank": 400,
+    "rank": 399,
     "title": "Dimension Wave",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13459,7 +13424,7 @@
     ]
   },
   {
-    "rank": 401,
+    "rank": 400,
     "title": "You Are My Regret",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13492,7 +13457,7 @@
     ]
   },
   {
-    "rank": 402,
+    "rank": 401,
     "title": "Is It Wrong to Try to Pick Up Girls in a Dungeon? Minor Myths and Legends",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -13526,7 +13491,7 @@
     ]
   },
   {
-    "rank": 403,
+    "rank": 402,
     "title": "Modern Dungeon Capture Starting with Broken Skills",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -13560,7 +13525,7 @@
     ]
   },
   {
-    "rank": 404,
+    "rank": 403,
     "title": "Mercedes and the Waning Moon: The Dungeoneering Feats of a Discarded Vampire Aristocrat",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13593,7 +13558,7 @@
     ]
   },
   {
-    "rank": 405,
+    "rank": 404,
     "title": "Moon Blossom Asura: The Ruthless Reincarnated Mercenary Forms the Ultimate Army",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13626,7 +13591,7 @@
     ]
   },
   {
-    "rank": 406,
+    "rank": 405,
     "title": "The Neverending Winter, the Land of Broken Dreams",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -13657,7 +13622,7 @@
     ]
   },
   {
-    "rank": 407,
+    "rank": 406,
     "title": "Dagashi-ya Yahagi: Setting Up a Sweets Shop in Another World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13688,7 +13653,7 @@
     ]
   },
   {
-    "rank": 408,
+    "rank": 407,
     "title": "Goodbye, Overtime! This Reincarnated Villainess Is Living for Her New Big Brother",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13721,7 +13686,7 @@
     ]
   },
   {
-    "rank": 409,
+    "rank": 408,
     "title": "Zense, Deshi ni Korosareta Majo desuga, Norowareta Deshi ni Ai ni Ikimasu",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13752,7 +13717,7 @@
     ]
   },
   {
-    "rank": 410,
+    "rank": 409,
     "title": "Zerandiinu ~Shouwaru na Ibara Hime~",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13783,7 +13748,7 @@
     ]
   },
   {
-    "rank": 411,
+    "rank": 410,
     "title": "Zero Ickx Tendo",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13814,7 +13779,7 @@
     ]
   },
   {
-    "rank": 412,
+    "rank": 411,
     "title": "Zero Skill no Ryouriban",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13845,7 +13810,7 @@
     ]
   },
   {
-    "rank": 413,
+    "rank": 412,
     "title": "Zettai Chouwa Oura Sakichan!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13876,7 +13841,7 @@
     ]
   },
   {
-    "rank": 414,
+    "rank": 413,
     "title": "Zettai Fukujuu Kanojo.",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -13907,7 +13872,7 @@
     ]
   },
   {
-    "rank": 415,
+    "rank": 414,
     "title": "Zettai Joou Nyaa You",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -13938,7 +13903,7 @@
     ]
   },
   {
-    "rank": 416,
+    "rank": 415,
     "title": "Zettai Karen Children The Novels B. A. B. E. L. Houkai",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -13969,7 +13934,7 @@
     ]
   },
   {
-    "rank": 417,
+    "rank": 416,
     "title": "Zettai ni LoveCome Shite wa Ikenai Gakuen Seikatsu 24 Ji",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -14000,7 +13965,7 @@
     ]
   },
   {
-    "rank": 418,
+    "rank": 417,
     "title": "Monsterholic",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14030,7 +13995,7 @@
     ]
   },
   {
-    "rank": 419,
+    "rank": 418,
     "title": "The Trials and Tribulations of My Next Life as a Noblewoman",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14064,7 +14029,7 @@
     ]
   },
   {
-    "rank": 420,
+    "rank": 419,
     "title": "The Reincarnator and the Goblin Maiden's Happily Ever After: Using a Past Life to Keep a Joyful Wife",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14098,7 +14063,7 @@
     ]
   },
   {
-    "rank": 421,
+    "rank": 420,
     "title": "To Another World... with Land Mines!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14129,7 +14094,7 @@
     ]
   },
   {
-    "rank": 422,
+    "rank": 421,
     "title": "The Unimplemented Overlords Have Joined the Party!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14160,7 +14125,7 @@
     ]
   },
   {
-    "rank": 423,
+    "rank": 422,
     "title": "Butareba -The Story of a Man Turned into a Pig-",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14193,7 +14158,7 @@
     ]
   },
   {
-    "rank": 424,
+    "rank": 423,
     "title": "Bride of the Barrier Master",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14227,7 +14192,7 @@
     ]
   },
   {
-    "rank": 425,
+    "rank": 424,
     "title": "Housekeeping Mage from Another World: Making Your Adventures Feel Like Home!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14261,7 +14226,7 @@
     ]
   },
   {
-    "rank": 426,
+    "rank": 425,
     "title": "Houkagogakari",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14292,7 +14257,7 @@
     ]
   },
   {
-    "rank": 427,
+    "rank": 426,
     "title": "Zarusoba (Kawaii)",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14323,7 +14288,7 @@
     ]
   },
   {
-    "rank": 428,
+    "rank": 427,
     "title": "Zassou Reijou wa Tousouchuu! ~Kono Tabi, Kishidan no Makanai-gakari o Haimei Shimashita~",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14354,7 +14319,7 @@
     ]
   },
   {
-    "rank": 429,
+    "rank": 428,
     "title": "Zeitaku na Minoue",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14385,7 +14350,7 @@
     ]
   },
   {
-    "rank": 430,
+    "rank": 429,
     "title": "Zenbu Kanojo ni \"Mi\" rareteru?",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14416,7 +14381,7 @@
     ]
   },
   {
-    "rank": 431,
+    "rank": 430,
     "title": "Zenon-sama de Aru!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14447,7 +14412,7 @@
     ]
   },
   {
-    "rank": 432,
+    "rank": 431,
     "title": "Zenryaku Yome Atarimashita.",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14478,7 +14443,7 @@
     ]
   },
   {
-    "rank": 433,
+    "rank": 432,
     "title": "Zenosfeed Online",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14509,7 +14474,7 @@
     ]
   },
   {
-    "rank": 434,
+    "rank": 433,
     "title": "Scooped Up by an S-Rank Adventurer! This White Mage Is One Heck of a Healer",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14542,7 +14507,7 @@
     ]
   },
   {
-    "rank": 435,
+    "rank": 434,
     "title": "The Isle of Paramounts: Reborn into a Slow Life Among the Strongest in the World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14575,7 +14540,7 @@
     ]
   },
   {
-    "rank": 436,
+    "rank": 435,
     "title": "The Tanaka Family Reincarnates",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14609,7 +14574,7 @@
     ]
   },
   {
-    "rank": 437,
+    "rank": 436,
     "title": "The Girl Who Wants to Be a Hero and the Girl Who Ought to Be a Hero",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14642,7 +14607,7 @@
     ]
   },
   {
-    "rank": 438,
+    "rank": 437,
     "title": "The Villainess Speaks Not",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -14675,7 +14640,7 @@
     ]
   },
   {
-    "rank": 439,
+    "rank": 438,
     "title": "Our Last Crusade or the Rise of a New World: Secret File",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14709,7 +14674,7 @@
     ]
   },
   {
-    "rank": 440,
+    "rank": 439,
     "title": "Observation Records of My Wife",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14743,7 +14708,7 @@
     ]
   },
   {
-    "rank": 441,
+    "rank": 440,
     "title": "Miri Lives in the Cat's Eyes",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14776,7 +14741,7 @@
     ]
   },
   {
-    "rank": 442,
+    "rank": 441,
     "title": "The Banished Former Hero Lives as He Pleases",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14809,7 +14774,7 @@
     ]
   },
   {
-    "rank": 443,
+    "rank": 442,
     "title": "The Dawn of the Witch",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -14842,7 +14807,7 @@
     ]
   },
   {
-    "rank": 444,
+    "rank": 443,
     "title": "Abducted Princess Running Rampant: Wielding Forbidden Magic in the Demon King's Castle",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14875,7 +14840,7 @@
     ]
   },
   {
-    "rank": 445,
+    "rank": 444,
     "title": "The Dorky NPC Mercenary Knows His Place",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -14908,7 +14873,7 @@
     ]
   },
   {
-    "rank": 446,
+    "rank": 445,
     "title": "Inkya datta Ore no Seishun Revenge",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14939,7 +14904,7 @@
     ]
   },
   {
-    "rank": 447,
+    "rank": 446,
     "title": "Ashita, Hadashi de Koi.",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -14970,7 +14935,7 @@
     ]
   },
   {
-    "rank": 448,
+    "rank": 447,
     "title": "A Misanthrope Teaches a Class for Demi-Humans",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15003,7 +14968,7 @@
     ]
   },
   {
-    "rank": 449,
+    "rank": 448,
     "title": "Deathbound Duke's Daughter",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15036,7 +15001,7 @@
     ]
   },
   {
-    "rank": 450,
+    "rank": 449,
     "title": "Futago Matomete \"Kanojo\" ni Shinai?",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15067,7 +15032,7 @@
     ]
   },
   {
-    "rank": 451,
+    "rank": 450,
     "title": "I'm Not the Hero!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15098,7 +15063,7 @@
     ]
   },
   {
-    "rank": 452,
+    "rank": 451,
     "title": "Looks like a Job for a Maid! The Tales of a Dismissed Supermaid",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15132,7 +15097,7 @@
     ]
   },
   {
-    "rank": 453,
+    "rank": 452,
     "title": "Let's Get to Villainessin': Stratagems of a Former Commoner",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15165,7 +15130,7 @@
     ]
   },
   {
-    "rank": 454,
+    "rank": 453,
     "title": "Looks Are All You Need",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15195,7 +15160,7 @@
     ]
   },
   {
-    "rank": 455,
+    "rank": 454,
     "title": "My Little Sister Can Read Kanji",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -15228,7 +15193,7 @@
     ]
   },
   {
-    "rank": 456,
+    "rank": 455,
     "title": "Only the Villainous Lord Wields the Power to Level Up",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15261,7 +15226,7 @@
     ]
   },
   {
-    "rank": 457,
+    "rank": 456,
     "title": "Revenge of the Soul Eater: Cast Out as a Weakling by My Sword Saint Father",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15294,7 +15259,7 @@
     ]
   },
   {
-    "rank": 458,
+    "rank": 457,
     "title": "The Amazing Village Creator: Slow Living with the Village Building Cheat Skill",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15325,7 +15290,7 @@
     ]
   },
   {
-    "rank": 459,
+    "rank": 458,
     "title": "The Ephemeral Scenes of Setsuna's Journey",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15358,7 +15323,7 @@
     ]
   },
   {
-    "rank": 460,
+    "rank": 459,
     "title": "Thou, as My Knight...",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15389,7 +15354,7 @@
     ]
   },
   {
-    "rank": 461,
+    "rank": 460,
     "title": "Whoever Steals This Book",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15422,7 +15387,7 @@
     ]
   },
   {
-    "rank": 462,
+    "rank": 461,
     "title": "Almark",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15455,7 +15420,7 @@
     ]
   },
   {
-    "rank": 463,
+    "rank": 462,
     "title": "Cross-Dressing Villainess Cecilia Sylvie",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15489,7 +15454,7 @@
     ]
   },
   {
-    "rank": 464,
+    "rank": 463,
     "title": "Goodbye Otherworld, See You Tomorrow",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15522,7 +15487,7 @@
     ]
   },
   {
-    "rank": 465,
+    "rank": 464,
     "title": "In Another World with Household Spells",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15555,7 +15520,7 @@
     ]
   },
   {
-    "rank": 466,
+    "rank": 465,
     "title": "Yuusha Party o Oidasareta Kiyoubinbou: Party Jijou de Fuyo Jutsushi o Yatteita Kenshi, Bannou e to Itaru",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -15588,7 +15553,7 @@
     ]
   },
   {
-    "rank": 467,
+    "rank": 466,
     "title": "Expedition Cooking with the Enoch Royal Knights",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15622,7 +15587,7 @@
     ]
   },
   {
-    "rank": 468,
+    "rank": 467,
     "title": "Riviere and the Land of Prayer",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -15656,7 +15621,7 @@
     ]
   },
   {
-    "rank": 469,
+    "rank": 468,
     "title": "Onna Tomodachi wa Tanomeba Igai to Yarasete Kureru",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15687,7 +15652,7 @@
     ]
   },
   {
-    "rank": 470,
+    "rank": 469,
     "title": "Sword Saint Adel's Second Chance",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -15720,7 +15685,7 @@
     ]
   },
   {
-    "rank": 471,
+    "rank": 470,
     "title": "The Haunted Bookstore – Gateway to a Parallel Universe",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15753,7 +15718,7 @@
     ]
   },
   {
-    "rank": 472,
+    "rank": 471,
     "title": "The World's Strongest Witch: I'm Starting My Free Life in a World Where Only I Can See the Online Strategy Guide",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15787,7 +15752,7 @@
     ]
   },
   {
-    "rank": 473,
+    "rank": 472,
     "title": "Worthless at Home, Whiz to the World",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -15821,7 +15786,7 @@
     ]
   },
   {
-    "rank": 474,
+    "rank": 473,
     "title": "Even Dogs Go to Other Worlds: Life in Another World with My Beloved Hound",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15855,7 +15820,7 @@
     ]
   },
   {
-    "rank": 475,
+    "rank": 474,
     "title": "Duchess in the Attic",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15888,7 +15853,7 @@
     ]
   },
   {
-    "rank": 476,
+    "rank": 475,
     "title": "Majo to Ryouken",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -15919,7 +15884,7 @@
     ]
   },
   {
-    "rank": 477,
+    "rank": 476,
     "title": "Yuusha no Kokoroe",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15950,7 +15915,7 @@
     ]
   },
   {
-    "rank": 478,
+    "rank": 477,
     "title": "Yuusha no Party de, Boku dake Ni Gun!?",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -15981,7 +15946,7 @@
     ]
   },
   {
-    "rank": 479,
+    "rank": 478,
     "title": "Yuusha Rin no Densetsu",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16012,7 +15977,7 @@
     ]
   },
   {
-    "rank": 480,
+    "rank": 479,
     "title": "Yuusha to Maou no Battle wa Living de",
     "publisher": "Amak",
     "logo_url": "https://amak.vn/wp-content/uploads/2020/04/Logo-AMAK.png",
@@ -16043,7 +16008,7 @@
     ]
   },
   {
-    "rank": 481,
+    "rank": 480,
     "title": "Yuusha to Maou ga Dengeki Doumei!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16074,7 +16039,7 @@
     ]
   },
   {
-    "rank": 482,
+    "rank": 481,
     "title": "Yuusha to Tantei no Game",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16105,7 +16070,7 @@
     ]
   },
   {
-    "rank": 483,
+    "rank": 482,
     "title": "Yuusha to Yuusha to Yuusha to Yuusha",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -16136,7 +16101,7 @@
     ]
   },
   {
-    "rank": 484,
+    "rank": 483,
     "title": "Yuutousei Ijou, Furyoo Miman na Orera.",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -16167,7 +16132,7 @@
     ]
   },
   {
-    "rank": 485,
+    "rank": 484,
     "title": "Zainin Kyoushitsu",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16198,7 +16163,7 @@
     ]
   },
   {
-    "rank": 486,
+    "rank": 485,
     "title": "Zangyaku Sugiru Isekai de mo Suzuki wa Kawaii",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16229,7 +16194,7 @@
     ]
   },
   {
-    "rank": 487,
+    "rank": 486,
     "title": "Zarathustra e no Kaidan",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16260,7 +16225,7 @@
     ]
   },
   {
-    "rank": 488,
+    "rank": 487,
     "title": "The Abandoned Reincarnation Sage: Building a Mighty Empire of Monsters Within the Monsters' Forest",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16294,7 +16259,7 @@
     ]
   },
   {
-    "rank": 489,
+    "rank": 488,
     "title": "The Invincible Summoner Who Crawled Up from Level 1: Wrecking Reincarnators with My Hidden Dungeon",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16325,7 +16290,7 @@
     ]
   },
   {
-    "rank": 490,
+    "rank": 489,
     "title": "There Was No Secret Evil-Fighting Organization (srsly?!), So I Made One MYSELF!",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -16358,7 +16323,7 @@
     ]
   },
   {
-    "rank": 491,
+    "rank": 490,
     "title": "I'm Giving the Disgraced Noble Lady I Rescued a Crash Course in Naughtiness: I'll Spoil Her with Delicacies and Style to Make Her the Happiest Woman in the World!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16376,8 +16341,8 @@
       "High-demand genre (Fantasy)",
       "High-demand genre (Romance)"
     ],
-    "strategic_fit_en": "Fills IPM's Comedy target portfolio.",
-    "strategic_fit_vi": "Lấp đầy danh mục thể loại hài hước mục tiêu của IPM.",
+    "strategic_fit_en": "Fills IPM's Slice of life target portfolio.",
+    "strategic_fit_vi": "Lấp đầy danh mục thể loại đời thường mục tiêu của IPM.",
     "alternative_publishers": [
       {
         "name": "Amak",
@@ -16392,7 +16357,7 @@
     ]
   },
   {
-    "rank": 492,
+    "rank": 491,
     "title": "Lady Bumpkin and Her Lord Villain",
     "publisher": "Tsuki Light Novel",
     "logo_url": "https://pub-2080c0fa70954a7e98e48daff887c4cf.r2.dev/covers/464306279_3145498892258565_8948155468238558018_n.jpg",
@@ -16426,7 +16391,7 @@
     ]
   },
   {
-    "rank": 493,
+    "rank": 492,
     "title": "New Game Plus After Defeating the Last Boss",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16459,7 +16424,7 @@
     ]
   },
   {
-    "rank": 494,
+    "rank": 493,
     "title": "Magic Maker: How to Create Magic in Another World",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16492,7 +16457,7 @@
     ]
   },
   {
-    "rank": 495,
+    "rank": 494,
     "title": "No One Gets Past This Gatekeeper: The Unwanted Warrior Guards His New Post",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16525,7 +16490,7 @@
     ]
   },
   {
-    "rank": 496,
+    "rank": 495,
     "title": "Rakuen Noise",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16556,7 +16521,7 @@
     ]
   },
   {
-    "rank": 497,
+    "rank": 496,
     "title": "Shannon Wants to Die!",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16587,7 +16552,7 @@
     ]
   },
   {
-    "rank": 498,
+    "rank": 497,
     "title": "Yuusha datta Ore wa Osananajimi no Shitsuji ni Narimashita.",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16618,7 +16583,7 @@
     ]
   },
   {
-    "rank": 499,
+    "rank": 498,
     "title": "Yuusha Ikkou Burari Tabi",
     "publisher": "IPM",
     "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg",
@@ -16649,7 +16614,7 @@
     ]
   },
   {
-    "rank": 500,
+    "rank": 499,
     "title": "Yuusha ga Shura Ba Sugite Sekai o Sukutteru Baai ja Nai",
     "publisher": "Kim Đồng",
     "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
@@ -16662,6 +16627,37 @@
     "coming_factors": [
       "Ongoing sweet-spot start year",
       "JP Imprint: Kodansha Lanove Bunko"
+    ],
+    "success_factors": [],
+    "strategic_fit_en": "Aligns with Kim Đồng's active General reader base.",
+    "strategic_fit_vi": "Phù hợp với tệp độc giả đọc truyện general năng động của Kim Đồng.",
+    "alternative_publishers": [
+      {
+        "name": "IPM",
+        "score": 36,
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/C%C3%B4ng_ty_C%E1%BB%95_ph%E1%BA%A7n_Xu%E1%BA%A5t_b%E1%BA%A3n_v%C3%A0_Truy%E1%BB%81n_th%C3%B4ng_IPM.jpg"
+      },
+      {
+        "name": "Thái Hà Books",
+        "score": 27,
+        "logo_url": "https://file.hstatic.net/200000900535/file/gioi_thieu_5c72b32e12c044a08c571d2942d0e5b7_grande.jpg"
+      }
+    ]
+  },
+  {
+    "rank": 500,
+    "title": "Yuusha ni Kitai Shita Boku ga Baka deshita",
+    "publisher": "Kim Đồng",
+    "logo_url": "https://www.netabooks.vn/data/author/18398/logo-wings-books.jpg",
+    "cover_url": "https://images.ranobedb.org/K4IllULtyMN9cjW6.jpg",
+    "coming": 0.001,
+    "success": 0.05,
+    "volume_count": 3,
+    "status": "completed",
+    "jp_publisher": "Gagaga Bunko",
+    "coming_factors": [
+      "Completed sweet-spot length",
+      "JP Imprint: Gagaga Bunko"
     ],
     "success_factors": [],
     "strategic_fit_en": "Aligns with Kim Đồng's active General reader base.",
