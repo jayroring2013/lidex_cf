@@ -213,11 +213,11 @@ function MobilePredictionCard({
 export default function LicensePredictionPage() {
   const { locale } = useLocale()
   const vi = locale === 'vi'
-  const pageSize = 25
+  const pageSize = 500
 
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(0)
-  const [sortBy, setSortBy] = useState<SortField>('success')
+  const [sortBy, setSortBy] = useState<SortField>('coming')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [selectedPublisher, setSelectedPublisher] = useState<string>('')
 
