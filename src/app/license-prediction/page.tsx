@@ -36,6 +36,12 @@ function translateFactor(factor: string, vi: boolean): string {
   return factor
 }
 
+type AlternativePublisher = {
+  name: string
+  score: number
+  logo_url: string
+}
+
 type PredictionRow = {
   rank: number
   title: string
@@ -51,6 +57,7 @@ type PredictionRow = {
   success_factors?: string[]
   strategic_fit_en?: string
   strategic_fit_vi?: string
+  alternative_publishers?: AlternativePublisher[]
 }
 
 type SortField = 'rank' | 'coming' | 'success'
@@ -91,7 +98,8 @@ function MobilePredictionCard({
   index,
   showOriginal,
   showFactors,
-  showStrategicFit
+  showStrategicFit,
+  showAlternatives
 }: { 
   row: PredictionRow
   vi: boolean
@@ -99,6 +107,7 @@ function MobilePredictionCard({
   showOriginal: boolean
   showFactors: boolean
   showStrategicFit: boolean
+  showAlternatives: boolean
 }) {
   const statusLabel = row.status
     ? (vi
@@ -204,6 +213,38 @@ function MobilePredictionCard({
               </div>
             </div>
           )}
+
+          {/* Mobile Alternative Publishers list */}
+          {showAlternatives && row.alternative_publishers && row.alternative_publishers.length > 0 && (
+            <div className="mt-3.5 pt-3.5" style={{ borderTop: '1px dashed var(--card-border)' }}>
+              <p className="text-[10px] font-black uppercase tracking-wider mb-2" style={{ color: 'var(--foreground-muted)' }}>
+                {vi ? 'NPH phù hợp khác' : 'Alternative Publishers'}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {row.alternative_publishers.map((alt, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5">
+                    {alt.logo_url ? (
+                      <img
+                        src={alt.logo_url}
+                        alt=""
+                        className="w-4 h-4 object-contain rounded-full shadow-sm bg-white"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black">
+                        LN
+                      </div>
+                    )}
+                    <span className="text-xs font-bold" style={{ color: 'var(--foreground-secondary)' }}>
+                      {alt.name} <span className="text-[10px] text-cyan-400">({alt.score}%)</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </article>
@@ -225,6 +266,7 @@ export default function LicensePredictionPage() {
   const [showOriginal, setShowOriginal] = useState(true)
   const [showFactors, setShowFactors] = useState(true)
   const [showStrategicFit, setShowStrategicFit] = useState(true)
+  const [showAlternatives, setShowAlternatives] = useState(true)
 
   const uniquePublishers = useMemo(() => {
     const pubs = predictions.map((p) => p.publisher)
@@ -341,6 +383,17 @@ export default function LicensePredictionPage() {
               >
                 {vi ? 'Yếu tố đánh giá' : 'Evaluation Factors'}
               </button>
+              <button
+                type="button"
+                onClick={() => setShowAlternatives(!showAlternatives)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-card-border"
+                style={{
+                  background: showAlternatives ? 'var(--primary-color, #6366f1)' : 'var(--background-secondary)',
+                  color: showAlternatives ? '#ffffff' : 'var(--foreground-secondary)'
+                }}
+              >
+                {vi ? 'NPH phù hợp khác' : 'Alternative Publisher'}
+              </button>
             </div>
 
             {/* Filter & Search Bar */}
@@ -421,6 +474,7 @@ export default function LicensePredictionPage() {
                 showOriginal={showOriginal}
                 showFactors={showFactors}
                 showStrategicFit={showStrategicFit}
+                showAlternatives={showAlternatives}
               />
             ))}
 
@@ -448,6 +502,10 @@ export default function LicensePredictionPage() {
                   )}
                   
                   <th className="px-6 py-3 text-left text-base font-black w-[250px]">{vi ? 'NPH có thể thầu' : 'Likely Publisher'}</th>
+                  
+                  {showAlternatives && (
+                    <th className="px-6 py-3 text-left text-base font-black w-[280px]">{vi ? 'NPH phù hợp khác' : 'Alternative Publisher'}</th>
+                  )}
                   
                   <th className="px-6 py-3 w-[150px]">
                     <div className="flex justify-center">
@@ -539,6 +597,38 @@ export default function LicensePredictionPage() {
                           </span>
                         </div>
                       </td>
+
+                      {/* Alternative Publishers */}
+                      {showAlternatives && (
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-2">
+                            {row.alternative_publishers?.map((alt, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                {alt.logo_url ? (
+                                  <img
+                                    src={alt.logo_url}
+                                    alt=""
+                                    className="w-5 h-5 object-contain rounded-full shadow-sm bg-white border border-gray-100 p-0.5"
+                                    onError={(e) => {
+                                      (e.target as HTMLElement).style.display = 'none'
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-black">
+                                    LN
+                                  </div>
+                                )}
+                                <span className="font-semibold text-xs" style={{ color: 'var(--foreground-secondary)' }}>
+                                  {alt.name} <span className="text-[10px] text-cyan-400 font-bold">({alt.score}%)</span>
+                                </span>
+                              </div>
+                            ))}
+                            {!row.alternative_publishers?.length && (
+                              <span className="text-xs italic" style={{ color: 'var(--foreground-muted)' }}>—</span>
+                            )}
+                          </div>
+                        </td>
+                      )}
 
                       {/* % Coming */}
                       <td className="px-6 py-4 text-center font-black tabular-nums text-primary-500 text-sm">
