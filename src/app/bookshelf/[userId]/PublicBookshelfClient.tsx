@@ -462,7 +462,7 @@ export default function PublicBookshelfClient({
               </span>
             </h3>
             <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-[10px] sm:text-xs">
-              <span style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trung bình hệ thống' : 'System Average'}</span>
+              <span style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Trung bình' : 'Average'}</span>
               <span className="font-bold text-emerald-400">{formatVnd(avgSpending)}</span>
             </div>
           </div>
@@ -534,7 +534,7 @@ export default function PublicBookshelfClient({
               </div>
 
               {/* View Mode Toggle */}
-              <div className="flex bg-slate-800/40 p-1 rounded-xl border border-card-border shrink-0">
+              <div className="flex p-1 rounded-xl shrink-0" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                 <button
                   onClick={() => setViewMode('bookshelf')}
                   className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-black transition-all"

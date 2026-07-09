@@ -937,15 +937,6 @@ export default function UserDashboardPage() {
                 >
                   {isVI ? 'Cập nhật thông tin' : 'Update Info'}
                 </button>
-                <span className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}> · </span>
-                <button
-                  type="button"
-                  onClick={handleShareBookshelf}
-                  className="mt-1 inline-flex items-center gap-1 text-[11px] font-black text-primary-500 hover:text-primary-400 outline-none"
-                >
-                  <Share2 className="w-3 h-3" />
-                  {isVI ? 'Chia sẻ kệ sách' : 'Share Bookshelf'}
-                </button>
               </div>
             </div>
             {avatarError && (
@@ -1192,10 +1183,27 @@ export default function UserDashboardPage() {
           <main className="glass relative z-0 rounded-2xl p-4 sm:p-5 min-w-0 order-1 xl:order-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
               <div>
-                <h2 className="text-xl font-black" style={{ color: 'var(--foreground)' }}>
+                <h2 className="text-xl font-black flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
                   {viewMode === 'series'
                     ? (isVI ? 'Tất cả Light Novel' : 'All Light Novels')
-                    : 'Bookshelf'}
+                    : (
+                      <>
+                        <span>Bookshelf</span>
+                        <button
+                          type="button"
+                          onClick={handleShareBookshelf}
+                          className="inline-flex items-center justify-center p-1 rounded-lg transition-all"
+                          style={{
+                            background: 'var(--background-secondary)',
+                            border: '1px solid var(--card-border)',
+                            color: 'var(--primary-color, #6366f1)',
+                          }}
+                          title={isVI ? 'Chia sẻ kệ sách' : 'Share Bookshelf'}
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    )}
                 </h2>
                 <p className="text-xs mt-1" style={{ color: 'var(--foreground-muted)' }}>
                   {viewMode === 'series'
