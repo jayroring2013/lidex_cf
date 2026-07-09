@@ -1630,7 +1630,168 @@ export async function fetchSeriesVolumeDetails(seriesId: number) {
   }
 }
 
+let cachedAvgSpending: number | null = null
+let lastAvgCacheTime = 0
+const AVG_CACHE_DURATION = 3600 * 1000
 
+export async function fetchPublicBookshelfData(userId: string) {
+  try {
+    // 1. Fetch user profile
+    const profileRows = await sql(`
+      SELECT user_id, display_name, avatar_url, is_premium, premium_tier, age, gender
+      FROM user_profiles 
+      WHERE user_id = $1 
+      LIMIT 1
+    `, [userId])
+    const profile = profileRows[0] || null
 
+    if (!profile) return null
 
+    // 2. Fetch library and purchases in parallel
+    const [libraryRows, purchaseRows] = await Promise.all([
+      sql(`
+        SELECT series_id, rating, status, updated_at 
+        FROM series_user_library 
+        WHERE user_id = $1 
+        ORDER BY updated_at DESC
+        LIMIT 1000
+      `, [userId]),
+      sql(`
+        SELECT volume_id, created_at 
+        FROM series_user_volume_purchases 
+        WHERE user_id = $1 
+        ORDER BY created_at DESC
+        LIMIT 2000
+      `, [userId])
+    ])
 
+    const volumeIds = purchaseRows.map((row: any) => Number(row.volume_id)).filter(Boolean)
+    const librarySeriesIds = libraryRows.map((row: any) => Number(row.series_id)).filter(Boolean)
+
+    // Distinct series ids for purchased volumes
+    let purchasedSeriesIds: number[] = []
+    if (volumeIds.length > 0) {
+      const distinctPurchasedSeriesResult = await sql(`
+        SELECT DISTINCT v.series_id 
+        FROM volumes v
+        WHERE v.id = ANY($1::int[])
+      `, [volumeIds])
+      purchasedSeriesIds = distinctPurchasedSeriesResult.map((row: any) => Number(row.series_id)).filter(Boolean)
+    }
+
+    const seriesIds = Array.from(new Set([
+      ...librarySeriesIds,
+      ...purchasedSeriesIds,
+    ]))
+
+    // Fetch volume and series details in parallel
+    const [volumeRows, seriesRows] = await Promise.all([
+      volumeIds.length > 0
+        ? sql(`
+            SELECT id, series_id, volume_number, title, price, currency, cover_url, release_date 
+            FROM volumes 
+            WHERE id = ANY($1::int[])
+          `, [volumeIds])
+        : Promise.resolve([]),
+      seriesIds.length > 0
+        ? sql(`
+            SELECT s.id, s.title, s.title_vi, s.title_native, s.cover_url, s.slug, s.item_type, s.status, p.name as publisher
+            FROM series s
+            LEFT JOIN publishers p ON s.publisher_id = p.id
+            WHERE s.id = ANY($1::int[])
+          `, [seriesIds])
+        : Promise.resolve([])
+    ])
+
+    const seriesById = new Map(seriesRows.map((s: any) => [Number(s.id), s]))
+    const volumesById = new Map(volumeRows.map((v: any) => [Number(v.id), v]))
+
+    const purchases = purchaseRows
+      .map((p: any) => {
+        const volume = volumesById.get(Number(p.volume_id))
+        if (!volume) return null
+        const series = seriesById.get(Number(volume.series_id)) || null
+        return {
+          volumeId: Number(volume.id),
+          seriesId: Number(volume.series_id),
+          volumeNumber: volume.volume_number,
+          title: volume.title,
+          price: volume.price == null ? null : Number(volume.price),
+          currency: volume.currency || 'VND',
+          coverUrl: proxyImg(volume.cover_url || series?.cover_url || null),
+          releaseDate: normalizeDbDate(volume.release_date),
+          series: series ? {
+            id: Number(series.id),
+            title: series.title,
+            titleVi: series.title_vi,
+            titleNative: series.title_native,
+            coverUrl: proxyImg(series.cover_url),
+            slug: series.slug,
+            itemType: series.item_type,
+            status: series.status,
+            publisher: series.publisher || null,
+          } : null,
+        }
+      })
+      .filter(Boolean)
+
+    const ratedList = libraryRows.map((entry: any) => {
+      const series = seriesById.get(Number(entry.series_id)) || null
+      return {
+        seriesId: Number(entry.series_id),
+        rating: entry.rating == null ? null : Number(entry.rating),
+        status: entry.status || null,
+        updatedAt: entry.updated_at,
+        series: series ? {
+          id: Number(series.id),
+          title: series.title,
+          titleVi: series.title_vi,
+          titleNative: series.title_native,
+          coverUrl: proxyImg(series.cover_url),
+          slug: series.slug,
+          itemType: series.item_type,
+          status: series.status,
+        } : null,
+      }
+    })
+
+    // Calculate global average spending with Edge caching
+    const now = Date.now()
+    if (cachedAvgSpending === null || now - lastAvgCacheTime > AVG_CACHE_DURATION) {
+      try {
+        const avgRows = await sql(`
+          SELECT COALESCE(AVG(total_price), 0) as avg_spending
+          FROM (
+            SELECT SUM(COALESCE(v.price, 0)) as total_price
+            FROM series_user_volume_purchases p
+            JOIN volumes v ON p.volume_id = v.id
+            GROUP BY p.user_id
+          ) t
+        `)
+        cachedAvgSpending = Number(avgRows[0]?.avg_spending || 0)
+        lastAvgCacheTime = now
+      } catch (err) {
+        console.error('failed to calculate average spending in fetchPublicBookshelfData:', err)
+        cachedAvgSpending = cachedAvgSpending ?? 200000
+      }
+    }
+
+    return {
+      profile: {
+        userId: profile.user_id,
+        displayName: profile.display_name || null,
+        avatarUrl: proxyImg(profile.avatar_url),
+        isPremium: Boolean(profile.is_premium),
+        premiumTier: profile.premium_tier || null,
+        age: profile.age || null,
+        gender: profile.gender || null,
+      },
+      purchases,
+      ratedList,
+      avgSpending: cachedAvgSpending,
+    }
+  } catch (error) {
+    console.error('Failed to fetch public bookshelf:', error)
+    return null
+  }
+}
