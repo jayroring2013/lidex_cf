@@ -1733,7 +1733,7 @@ export async function fetchPublicBookshelfData(userId: string) {
           } : null,
         }
       })
-      .filter(Boolean)
+      .filter((p): p is NonNullable<typeof p> => p !== null)
 
     const ratedList = libraryRows.map((entry: any) => {
       const series = seriesById.get(Number(entry.series_id)) || null
