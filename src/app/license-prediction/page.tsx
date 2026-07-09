@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Heart } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
+import { supabase } from '@/lib/supabase'
 import predictions from '@/data/license_predictions.json'
 
 const FACTOR_TRANSLATIONS: Record<string, string> = {
@@ -99,7 +100,10 @@ function MobilePredictionCard({
   showOriginal,
   showFactors,
   showStrategicFit,
-  showAlternatives
+  showAlternatives,
+  wishlisted,
+  onWishlistToggle,
+  wishlistCount
 }: { 
   row: PredictionRow
   vi: boolean
@@ -108,6 +112,9 @@ function MobilePredictionCard({
   showFactors: boolean
   showStrategicFit: boolean
   showAlternatives: boolean
+  wishlisted: boolean
+  onWishlistToggle: () => void
+  wishlistCount: number
 }) {
   const statusLabel = row.status
     ? (vi
@@ -135,9 +142,25 @@ function MobilePredictionCard({
 
         {/* Title & Details */}
         <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-black leading-snug line-clamp-2" style={{ color: 'var(--foreground)' }}>
-            {row.title}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-black leading-snug line-clamp-2" style={{ color: 'var(--foreground)' }}>
+              {row.title}
+            </h2>
+            <button
+              type="button"
+              onClick={onWishlistToggle}
+              className="focus:outline-none p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all shrink-0"
+              title={wishlisted ? (vi ? 'Bỏ thích' : 'Remove from wishlist') : (vi ? 'Yêu thích' : 'Add to wishlist')}
+            >
+              <Heart
+                className={`w-3.5 h-3.5 transition-transform duration-200 active:scale-125 ${
+                  wishlisted
+                    ? 'fill-rose-500 text-rose-500 scale-110'
+                    : 'text-foreground-muted opacity-40 hover:opacity-100 hover:text-rose-500'
+                }`}
+              />
+            </button>
+          </div>
 
           {/* Original JP publisher, volumes & status */}
           {showOriginal && (row.jp_publisher || row.volume_count) && (
@@ -174,21 +197,29 @@ function MobilePredictionCard({
             </p>
           )}
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-2">
             <div className="rounded-xl px-2.5 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
               <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
                 {vi ? 'Khả năng mua' : '% Coming'}
               </p>
-              <p className="text-xs font-black tabular-nums mt-0.5 text-primary-500">
+              <p className="text-[11px] font-black tabular-nums mt-0.5 text-primary-500">
                 {(row.coming * 100).toFixed(1)}%
               </p>
             </div>
             <div className="rounded-xl px-2.5 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
               <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
-                {vi ? 'Tỉ lệ thành công' : '% Success'}
+                {vi ? 'Thành công' : '% Success'}
               </p>
-              <p className="text-xs font-black tabular-nums mt-0.5 text-green-500">
+              <p className="text-[11px] font-black tabular-nums mt-0.5 text-green-500">
                 {(row.success * 100).toFixed(1)}%
+              </p>
+            </div>
+            <div className="rounded-xl px-2.5 py-2" style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
+              <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>
+                {vi ? 'Yêu thích' : 'Wishlist'}
+              </p>
+              <p className="text-[11px] font-black mt-0.5 text-rose-500">
+                {wishlistCount}
               </p>
             </div>
           </div>
@@ -268,6 +299,87 @@ export default function LicensePredictionPage() {
   const [showFactors, setShowFactors] = useState(true)
   const [showStrategicFit, setShowStrategicFit] = useState(true)
   const [showAlternatives, setShowAlternatives] = useState(true)
+
+  const [session, setSession] = useState<any>(null)
+  const [wishlistedTitles, setWishlistedTitles] = useState<string[]>([])
+  const [wishlistCounts, setWishlistCounts] = useState<Record<string, number>>({})
+  const [wishlistLoading, setWishlistLoading] = useState<Record<string, boolean>>({})
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  const fetchWishlist = async (token?: string) => {
+    try {
+      const headers: Record<string, string> = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      const res = await fetch('/api/wishlist', { headers })
+      if (res.ok) {
+        const data = await res.json()
+        setWishlistedTitles(data.wishlistedTitles || [])
+        setWishlistCounts(data.globalWishlistCounts || {})
+      }
+    } catch (err) {
+      console.error('Error fetching wishlist:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchWishlist(session?.access_token)
+  }, [session])
+
+  const toggleWishlist = async (title: string) => {
+    if (!session) {
+      alert(vi ? 'Vui lòng đăng nhập để thêm vào danh sách mong muốn!' : 'Please log in to wishlist this novel!')
+      return
+    }
+
+    const isWishlisted = wishlistedTitles.includes(title)
+    const newWishlisted = isWishlisted 
+      ? wishlistedTitles.filter(t => t !== title)
+      : [...wishlistedTitles, title]
+    setWishlistedTitles(newWishlisted)
+
+    const oldCount = wishlistCounts[title] || 0
+    const newCount = isWishlisted ? Math.max(0, oldCount - 1) : oldCount + 1
+    setWishlistCounts({
+      ...wishlistCounts,
+      [title]: newCount
+    })
+
+    setWishlistLoading(prev => ({ ...prev, [title]: true }))
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ series_title: title })
+      })
+      if (!res.ok) {
+        setWishlistedTitles(wishlistedTitles)
+        setWishlistCounts(prev => ({ ...prev, [title]: oldCount }))
+      }
+    } catch (err) {
+      setWishlistedTitles(wishlistedTitles)
+      setWishlistCounts(prev => ({ ...prev, [title]: oldCount }))
+    } finally {
+      setWishlistLoading(prev => ({ ...prev, [title]: false }))
+    }
+  }
 
   const uniquePublishers = useMemo(() => {
     const pubs = predictions.map((p) => p.publisher)
@@ -476,6 +588,9 @@ export default function LicensePredictionPage() {
                 showFactors={showFactors}
                 showStrategicFit={showStrategicFit}
                 showAlternatives={showAlternatives}
+                wishlisted={wishlistedTitles.includes(row.title)}
+                onWishlistToggle={() => toggleWishlist(row.title)}
+                wishlistCount={wishlistCounts[row.title] || 0}
               />
             ))}
 
@@ -520,6 +635,12 @@ export default function LicensePredictionPage() {
                     </div>
                   </th>
 
+                  <th className="px-6 py-3 w-[160px]">
+                    <div className="flex justify-center text-base font-black text-center uppercase tracking-tight" style={{ color: '#e2695f' }}>
+                      {vi ? 'Yêu thích' : 'Fan Wishlist'}
+                    </div>
+                  </th>
+
                   {showStrategicFit && (
                     <th className="px-6 py-3 text-left text-base font-black w-[300px]">{vi ? 'Đề xuất chiến lược' : 'Strategic Fit'}</th>
                   )}
@@ -548,8 +669,24 @@ export default function LicensePredictionPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-4">
                           <CoverThumb coverUrl={row.cover_url} />
-                          <div className="font-bold text-sm sm:text-base leading-snug line-clamp-2" style={{ color: displayIndex <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
-                            {row.title}
+                          <div className="flex items-center gap-2">
+                            <div className="font-bold text-sm sm:text-base leading-snug line-clamp-2" style={{ color: displayIndex <= 3 ? '#f59e0b' : 'var(--foreground)' }}>
+                              {row.title}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => toggleWishlist(row.title)}
+                              className="focus:outline-none p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all shrink-0"
+                              title={wishlistedTitles.includes(row.title) ? (vi ? 'Bỏ thích' : 'Remove from wishlist') : (vi ? 'Yêu thích' : 'Add to wishlist')}
+                            >
+                              <Heart
+                                className={`w-4 h-4 transition-transform duration-200 active:scale-125 ${
+                                  wishlistedTitles.includes(row.title)
+                                    ? 'fill-rose-500 text-rose-500 scale-110'
+                                    : 'text-foreground-muted opacity-40 hover:opacity-100 hover:text-rose-500'
+                                }`}
+                              />
+                            </button>
                           </div>
                         </div>
                       </td>
@@ -640,6 +777,11 @@ export default function LicensePredictionPage() {
                       {/* % Success */}
                       <td className="px-6 py-4 text-center font-black tabular-nums text-green-500 text-sm">
                         {(row.success * 100).toFixed(1)}%
+                      </td>
+
+                      {/* Fan Wishlist */}
+                      <td className="px-6 py-4 text-center font-black tabular-nums text-rose-500 text-sm">
+                        {wishlistCounts[row.title] || 0}
                       </td>
 
                       {/* Strategic Fit */}
