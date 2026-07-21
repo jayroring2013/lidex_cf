@@ -67,8 +67,8 @@ def download_and_resize_cover(url, volume_id):
     # Try to load and resize
     try:
         with Image.open(local_path) as img:
-            # Resize to cover thumb: 45 width, 65 height
-            thumb = img.convert("RGBA").resize((45, 65), Image.Resampling.LANCZOS)
+            # Resize to cover thumb: 56 width, 80 height
+            thumb = img.convert("RGBA").resize((56, 80), Image.Resampling.LANCZOS)
             return thumb
     except:
         return None
@@ -91,7 +91,7 @@ def download_and_resize_logo(url, publisher_id):
             
     try:
         with Image.open(local_path) as img:
-            logo = img.convert("RGBA").resize((21, 21), Image.Resampling.LANCZOS)
+            logo = img.convert("RGBA").resize((26, 26), Image.Resampling.LANCZOS)
             return logo
     except Exception as e:
         return None
@@ -175,13 +175,13 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
     actual_series_count = len(set(r.get('series_title_vi') or r.get('series_title') for r in releases))
     print(f"Found {len(releases)} releases from {actual_series_count} different series. Generating image...")
     
-    # Setup canvas dimensions
-    width = 1600
-    header_h = 160
-    col_header_h = 60
-    day_header_h = 60
-    row_h = 85
-    footer_h = 50
+    # Setup canvas dimensions (Optimized for 1920 width)
+    width = 1920
+    header_h = 180
+    col_header_h = 70
+    day_header_h = 70
+    row_h = 100
+    footer_h = 60
     
     # Group releases by date
     grouped = {}
@@ -200,41 +200,40 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
     img = Image.new("RGB", (width, total_height), "#0b0f19")
     draw = ImageDraw.Draw(img)
     
-    # Load fonts
+    # Load fonts with increased size for high resolution crispness
     try:
-        font_title = ImageFont.truetype(FONT_BOLD, 36)
-        font_subtitle = ImageFont.truetype(FONT_SEMIBOLD, 14)
-        font_week = ImageFont.truetype(FONT_BOLD, 18)
-        font_badge = ImageFont.truetype(FONT_BOLD, 14)
-        font_col_header = ImageFont.truetype(FONT_BOLD, 13)
-        font_day_header = ImageFont.truetype(FONT_BOLD, 14)
-        font_row_title = ImageFont.truetype(FONT_BOLD, 15)
-        font_row_subtitle = ImageFont.truetype(FONT_REG, 11)
-        font_row_normal = ImageFont.truetype(FONT_REG, 14)
-        font_row_bold = ImageFont.truetype(FONT_BOLD, 14)
-        font_badge_text = ImageFont.truetype(FONT_BOLD, 10)
+        font_title = ImageFont.truetype(FONT_BOLD, 44)
+        font_subtitle = ImageFont.truetype(FONT_SEMIBOLD, 18)
+        font_week = ImageFont.truetype(FONT_BOLD, 22)
+        font_badge = ImageFont.truetype(FONT_BOLD, 18)
+        font_col_header = ImageFont.truetype(FONT_BOLD, 15)
+        font_day_header = ImageFont.truetype(FONT_BOLD, 16)
+        font_row_title = ImageFont.truetype(FONT_BOLD, 18)
+        font_row_subtitle = ImageFont.truetype(FONT_REG, 14)
+        font_row_normal = ImageFont.truetype(FONT_REG, 16)
+        font_row_bold = ImageFont.truetype(FONT_BOLD, 16)
+        font_badge_text = ImageFont.truetype(FONT_BOLD, 12)
     except:
         print("Warning: Segoe UI fonts not found. Falling back to default system fonts.")
         font_title = font_subtitle = font_week = font_badge = font_col_header = font_day_header = font_row_title = font_row_subtitle = font_row_normal = font_row_bold = font_badge_text = ImageFont.load_default()
 
     # Draw header background (sleek gradient simulation)
     for y in range(header_h):
-        # Linear interpolation from deep indigo to dark blue
         r_val = int(9 + (15 - 9) * (y / header_h))
         g_val = int(14 + (23 - 14) * (y / header_h))
         b_val = int(25 + (41 - 25) * (y / header_h))
         draw.line([(0, y), (width, y)], fill=(r_val, g_val, b_val))
         
     # Draw calendar icon in header
-    draw.rectangle([50, 45, 100, 95], outline="#818cf8", width=3)
-    draw.rectangle([50, 45, 100, 58], fill="#818cf8")
+    draw.rectangle([80, 55, 150, 125], outline="#818cf8", width=4)
+    draw.rectangle([80, 55, 150, 73], fill="#818cf8")
     for i in range(3):
         for j in range(3):
-            draw.rectangle([60 + j*12, 68 + i*8, 64 + j*12, 72 + i*8], fill="#ffffff")
+            draw.rectangle([94 + j*16, 85 + i*11, 100 + j*16, 91 + i*11], fill="#ffffff")
             
     # Draw header text
-    draw.text((120, 42), "LỊCH PHÁT HÀNH", fill="#ffffff", font=font_title)
-    draw.text((120, 87), "CẬP NHẬT MANGA & LIGHT NOVEL MỚI NHẤT", fill="#818cf8", font=font_subtitle)
+    draw.text((180, 52), "LỊCH PHÁT HÀNH", fill="#ffffff", font=font_title)
+    draw.text((180, 105), "CẬP NHẬT MANGA & LIGHT NOVEL MỚI NHẤT", fill="#818cf8", font=font_subtitle)
     
     # Calculate dates of week
     start_date = min(grouped.keys())
@@ -242,29 +241,29 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
     week_range_text = f"{start_date.strftime('%d/%m/%Y')} – {end_date.strftime('%d/%m/%Y')}"
     
     # Week Box (Center-Right)
-    draw.rectangle([1030, 45, 1330, 95], fill="#1e293b", outline="#243249", width=1)
-    draw.text((1050, 52), "TUẦN PHÁT HÀNH", fill="#94a3b8", font=font_row_subtitle)
-    draw.text((1050, 68), week_range_text, fill="#ffffff", font=font_week)
+    draw.rectangle([1200, 55, 1520, 125], fill="#1e293b", outline="#243249", width=1)
+    draw.text((1220, 62), "TUẦN PHÁT HÀNH", fill="#94a3b8", font=font_row_subtitle)
+    draw.text((1220, 83), week_range_text, fill="#ffffff", font=font_week)
     
     # Total Releases Badge (Right)
-    badge_x_start = 1350
-    badge_width = 200
-    draw.rectangle([badge_x_start, 45, badge_x_start + badge_width, 95], fill="#6366f1", outline="#818cf8", width=1)
-    draw.text((badge_x_start + 20, 52), "TỔNG SỐ LƯỢNG", fill="#c7d2fe", font=font_row_subtitle)
-    draw.text((badge_x_start + 20, 68), f"{len(releases)} PHÁT HÀNH", fill="#ffffff", font=font_badge)
+    badge_x_start = 1550
+    badge_width = 290
+    draw.rectangle([badge_x_start, 55, badge_x_start + badge_width, 125], fill="#6366f1", outline="#818cf8", width=1)
+    draw.text((badge_x_start + 20, 62), "TỔNG SỐ LƯỢNG", fill="#c7d2fe", font=font_row_subtitle)
+    draw.text((badge_x_start + 20, 83), f"{len(releases)} PHÁT HÀNH", fill="#ffffff", font=font_badge)
     
     # Draw horizontal rule below header
     draw.line([(0, header_h), (width, header_h)], fill="#1e293b")
     
-    # Column Header Layout
-    col_y = header_h + 15
-    draw.text((50, col_y), "#", fill="#e2695f", font=font_col_header)
-    draw.text((130, col_y), "TÁC PHẨM", fill="#e2695f", font=font_col_header)
-    draw.text((680, col_y), "PHÂN LOẠI", fill="#e2695f", font=font_col_header)
-    draw.text((860, col_y), "TẬP", fill="#e2695f", font=font_col_header)
-    draw.text((980, col_y), "NGÀY PHÁT HÀNH", fill="#e2695f", font=font_col_header)
-    draw.text((1200, col_y), "NHÀ XUẤT BẢN", fill="#e2695f", font=font_col_header)
-    draw.text((1430, col_y), "GIÁ BÁN", fill="#e2695f", font=font_col_header)
+    # Column Header Layout (Optimized spacing for 1920 width)
+    col_y = header_h + 23
+    draw.text((80, col_y), "#", fill="#e2695f", font=font_col_header)
+    draw.text((160, col_y), "TÁC PHẨM", fill="#e2695f", font=font_col_header)
+    draw.text((850, col_y), "PHÂN LOẠI", fill="#e2695f", font=font_col_header)
+    draw.text((1040, col_y), "TẬP", fill="#e2695f", font=font_col_header)
+    draw.text((1180, col_y), "NGÀY PHÁT HÀNH", fill="#e2695f", font=font_col_header)
+    draw.text((1420, col_y), "NHÀ XUẤT BẢN", fill="#e2695f", font=font_col_header)
+    draw.text((1720, col_y), "GIÁ BÁN", fill="#e2695f", font=font_col_header)
     
     draw.line([(0, header_h + col_header_h), (width, header_h + col_header_h)], fill="#1e293b")
     
@@ -281,11 +280,11 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
         # Draw Day Header
         draw.rectangle([0, current_y, width, current_y + day_header_h], fill="#0f172a")
         # Left accent dot
-        draw.ellipse([50, current_y + 24, 60, current_y + 34], fill="#818cf8")
-        draw.text((75, current_y + 20), day_str, fill="#818cf8", font=font_day_header)
+        draw.ellipse([80, current_y + 29, 92, current_y + 41], fill="#818cf8")
+        draw.text((115, current_y + 24), day_str, fill="#818cf8", font=font_day_header)
         
         # Thin divider line
-        draw.line([(350, current_y + 30), (width - 50, current_y + 30)], fill="#1e293b")
+        draw.line([(380, current_y + 35), (width - 80, current_y + 35)], fill="#1e293b")
         
         current_y += day_header_h
         
@@ -299,32 +298,32 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
                 
             # Row index STT
             stt_str = f"{row_index:02d}"
-            draw.text((50, current_y + 32), stt_str, fill="#94a3b8", font=font_row_bold)
+            draw.text((80, current_y + 39), stt_str, fill="#94a3b8", font=font_row_bold)
             
             # Fetch and draw cover thumbnail
             cover_url = r['volume_cover_url'] or r['series_cover_url']
             thumb = download_and_resize_cover(cover_url, r['id'])
             
-            thumb_x = 90
+            thumb_x = 150
             thumb_y = current_y + 10
             if thumb:
                 img.paste(thumb, (thumb_x, thumb_y), thumb)
             else:
                 # Draw placeholder cover
-                draw.rectangle([thumb_x, thumb_y, thumb_x + 45, thumb_y + 65], fill="#1e293b", outline="#243249")
-                draw.text((thumb_x + 10, thumb_y + 22), "LN", fill="#475569", font=font_badge_text)
+                draw.rectangle([thumb_x, thumb_y, thumb_x + 56, thumb_y + 80], fill="#1e293b", outline="#243249")
+                draw.text((thumb_x + 16, thumb_y + 30), "LN", fill="#475569", font=font_badge_text)
                 
-            # Title
+            # Title (Positioned nicely at x=230)
             title_text = r['series_title_vi'] or r['series_title'] or 'Untitled'
-            draw.text((150, current_y + 22), title_text, fill="#ffffff", font=font_row_title)
+            draw.text((230, current_y + 26), title_text, fill="#ffffff", font=font_row_title)
             
             # Author
             author_text = r['series_author'] or 'Chưa rõ tác giả'
             if r['series_artist']:
                 author_text += f" / {r['series_artist']}"
-            draw.text((150, current_y + 46), author_text, fill="#94a3b8", font=font_row_subtitle)
+            draw.text((230, current_y + 54), author_text, fill="#94a3b8", font=font_row_subtitle)
             
-            # Type Badge
+            # Type Badge (Positioned at x=850)
             item_type = (r['series_item_type'] or 'novel').lower()
             badge_text = "MANGA"
             badge_color = "#22c55e" # green
@@ -333,24 +332,24 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
                 badge_color = "#a855f7" # purple
             
             # Draw badge box
-            badge_w = 110 if badge_text == "LIGHT NOVEL" else 75
-            bx = 680
-            by = current_y + 28
-            draw.rectangle([bx, by, bx + badge_w, by + 24], outline=badge_color, width=1)
+            badge_w = 120 if badge_text == "LIGHT NOVEL" else 80
+            bx = 850
+            by = current_y + 35
+            draw.rectangle([bx, by, bx + badge_w, by + 30], outline=badge_color, width=1)
             # Center badge text
-            tx = bx + (badge_w - len(badge_text)*6) // 2
-            draw.text((tx, by + 5), badge_text, fill=badge_color, font=font_badge_text)
+            tx = bx + (badge_w - len(badge_text)*7) // 2
+            draw.text((tx, by + 7), badge_text, fill=badge_color, font=font_badge_text)
             
-            # Volume Number
+            # Volume Number (Positioned at x=1040)
             vol_num = r['volume_number']
             vol_str = f"Tập {vol_num}" if vol_num is not None else "Tập lẻ"
-            draw.text((860, current_y + 32), vol_str, fill="#ffffff", font=font_row_bold)
+            draw.text((1040, current_y + 39), vol_str, fill="#ffffff", font=font_row_bold)
             
-            # Release Date (Simple format)
+            # Release Date (Simple format) (Positioned at x=1180)
             date_str = release_date.strftime('%d/%m/%Y')
-            draw.text((980, current_y + 32), date_str, fill="#94a3b8", font=font_row_normal)
+            draw.text((1180, current_y + 39), date_str, fill="#94a3b8", font=font_row_normal)
             
-            # Publisher and Logo
+            # Publisher and Logo (Positioned at x=1420)
             pub_name = r['publisher_name_vi'] or r['publisher_name'] or 'Chưa rõ NPH'
             pub_logo_url = r.get('publisher_logo_url')
             pub_id = r.get('publisher_id')
@@ -358,26 +357,26 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
             logo = download_and_resize_logo(pub_logo_url, pub_id)
             if logo:
                 # Draw a white backing rectangle for the logo to stand out
-                logo_bg_x = 1200
-                logo_bg_y = current_y + 29
-                draw.rounded_rectangle([logo_bg_x, logo_bg_y, logo_bg_x + 27, logo_bg_y + 27], radius=4, fill="#ffffff")
+                logo_bg_x = 1420
+                logo_bg_y = current_y + 33
+                draw.rounded_rectangle([logo_bg_x, logo_bg_y, logo_bg_x + 34, logo_bg_y + 34], radius=5, fill="#ffffff")
                 
-                # Center the 21x21 logo inside the 27x27 white box
-                logo_paste_x = logo_bg_x + (27 - logo.width) // 2
-                logo_paste_y = logo_bg_y + (27 - logo.height) // 2
+                # Center the 26x26 logo inside the 34x34 white box
+                logo_paste_x = logo_bg_x + (34 - logo.width) // 2
+                logo_paste_y = logo_bg_y + (34 - logo.height) // 2
                 img.paste(logo, (logo_paste_x, logo_paste_y), logo)
                 
                 # Write the text shifted to the right
-                draw.text((1237, current_y + 32), pub_name, fill="#ffffff", font=font_row_bold)
+                draw.text((1468, current_y + 39), pub_name, fill="#ffffff", font=font_row_bold)
             else:
-                draw.text((1200, current_y + 32), pub_name, fill="#ffffff", font=font_row_bold)
+                draw.text((1420, current_y + 39), pub_name, fill="#ffffff", font=font_row_bold)
             
-            # Price
+            # Price (Positioned at x=1720)
             price_str = format_vnd(r['price'])
-            draw.text((1430, current_y + 32), price_str, fill="#818cf8", font=font_row_bold)
+            draw.text((1720, current_y + 39), price_str, fill="#818cf8", font=font_row_bold)
             
             # Subtle divider line below row
-            draw.line([(50, current_y + row_h), (width - 50, current_y + row_h)], fill="#1e293b")
+            draw.line([(80, current_y + row_h), (width - 80, current_y + row_h)], fill="#1e293b")
             
             current_y += row_h
             row_index += 1
@@ -385,10 +384,10 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
     # Draw Footer
     draw.rectangle([0, current_y, width, current_y + footer_h], fill="#0b0f19")
     footer_text = "Dữ liệu được cập nhật từ hệ thống LiDex. Ngày phát hành có thể thay đổi tùy thuộc vào nhà xuất bản."
-    draw.text((50, current_y + 18), footer_text, fill="#475569", font=font_row_subtitle)
+    draw.text((80, current_y + 20), footer_text, fill="#475569", font=font_row_subtitle)
     
     # Save Image
-    img.save(output_path, "JPEG", quality=95)
+    img.save(output_path, "JPEG", quality=100)
     print(f"Success! Image saved to {output_path}")
     return True
 
