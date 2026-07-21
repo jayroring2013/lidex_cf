@@ -3,6 +3,7 @@ import os
 import sys
 import argparse
 import urllib.request
+import ssl
 import psycopg2
 from datetime import datetime, timedelta
 from PIL import Image, ImageDraw, ImageFont
@@ -18,6 +19,9 @@ FONT_SEMIBOLD = "C:/Windows/Fonts/segoeuisl.ttf"
 # Create a local cache folder for cover thumbnails
 CACHE_DIR = "./cover_cache"
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+# Disable SSL verification for downloading images from pb.tana.moe
+ssl_context = ssl._create_unverified_context()
 
 def get_vietnamese_day_name(date_obj):
     # Map weekday number to Vietnamese names
@@ -53,7 +57,7 @@ def download_and_resize_cover(url, volume_id):
             # Set a 3-second timeout for downloading
             headers = {'User-Agent': 'Mozilla/5.0'}
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=3) as response:
+            with urllib.request.urlopen(req, timeout=3, context=ssl_context) as response:
                 with open(local_path, 'wb') as out_file:
                     out_file.write(response.read())
         except Exception as e:
@@ -67,6 +71,29 @@ def download_and_resize_cover(url, volume_id):
             thumb = img.convert("RGBA").resize((45, 65), Image.Resampling.LANCZOS)
             return thumb
     except:
+        return None
+
+def download_and_resize_logo(url, publisher_id):
+    if not url or not publisher_id:
+        return None
+        
+    local_path = os.path.join(CACHE_DIR, f"pub_logo_{publisher_id}.png")
+    
+    if not os.path.exists(local_path):
+        try:
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=3, context=ssl_context) as response:
+                with open(local_path, 'wb') as out_file:
+                    out_file.write(response.read())
+        except Exception as e:
+            return None
+            
+    try:
+        with Image.open(local_path) as img:
+            logo = img.convert("RGBA").resize((21, 21), Image.Resampling.LANCZOS)
+            return logo
+    except Exception as e:
         return None
 
 def fetch_calendar_data(week_str, limit=18):
@@ -88,11 +115,14 @@ def fetch_calendar_data(week_str, limit=18):
             p.name as publisher_name,
             v.price,
             v.cover_url as volume_cover_url,
-            s.cover_url as series_cover_url
+            s.cover_url as series_cover_url,
+            p.logo_url as publisher_logo_url,
+            p.id as publisher_id
         FROM volumes v
         JOIN series s ON v.series_id = s.id
         LEFT JOIN publishers p ON v.publisher_id = p.id
         WHERE v.release_date IS NOT NULL
+          AND LOWER(s.item_type) = 'novel'
           AND TO_CHAR(v.release_date, 'IYYY-IW') = %s
         ORDER BY v.release_date ASC, s.title_vi ASC, v.volume_number ASC
         LIMIT %s
@@ -320,9 +350,27 @@ def generate_image(week_str, output_path="release_calendar.jpg", limit=18):
             date_str = release_date.strftime('%d/%m/%Y')
             draw.text((980, current_y + 32), date_str, fill="#94a3b8", font=font_row_normal)
             
-            # Publisher
+            # Publisher and Logo
             pub_name = r['publisher_name_vi'] or r['publisher_name'] or 'Chưa rõ NPH'
-            draw.text((1200, current_y + 32), pub_name, fill="#ffffff", font=font_row_bold)
+            pub_logo_url = r.get('publisher_logo_url')
+            pub_id = r.get('publisher_id')
+            
+            logo = download_and_resize_logo(pub_logo_url, pub_id)
+            if logo:
+                # Draw a white backing rectangle for the logo to stand out
+                logo_bg_x = 1200
+                logo_bg_y = current_y + 29
+                draw.rounded_rectangle([logo_bg_x, logo_bg_y, logo_bg_x + 27, logo_bg_y + 27], radius=4, fill="#ffffff")
+                
+                # Center the 21x21 logo inside the 27x27 white box
+                logo_paste_x = logo_bg_x + (27 - logo.width) // 2
+                logo_paste_y = logo_bg_y + (27 - logo.height) // 2
+                img.paste(logo, (logo_paste_x, logo_paste_y), logo)
+                
+                # Write the text shifted to the right
+                draw.text((1237, current_y + 32), pub_name, fill="#ffffff", font=font_row_bold)
+            else:
+                draw.text((1200, current_y + 32), pub_name, fill="#ffffff", font=font_row_bold)
             
             # Price
             price_str = format_vnd(r['price'])
