@@ -1795,3 +1795,65 @@ export async function fetchPublicBookshelfData(userId: string) {
     return null
   }
 }
+
+// ============================================
+// NOVEL NETWORK DATA
+// ============================================
+export async function fetchNovelNetworkData() {
+  try {
+    const rows = await sql(`
+      SELECT 
+        r.id,
+        r.series_title,
+        r.lidex_series_id,
+        r.publisher,
+        r.number_of_volumes,
+        r.original_volumes,
+        r.original_status,
+        r.evalution,
+        r.evaluation_basis,
+        r.ln_score,
+        r.trang_thai,
+        r.average_price,
+        r.max_release_at,
+        r.drop_percent,
+        r.months_since_last_release,
+        COALESCE(s.cover_url, r.cover_url) as cover_url,
+        s.title_vi,
+        s.title_native,
+        s.slug,
+        s.genres,
+        p.logo_url as publisher_logo
+      FROM ln_series_ranking r
+      LEFT JOIN series s ON r.lidex_series_id = s.id
+      LEFT JOIN publishers p ON (LOWER(TRIM(p.name)) = LOWER(TRIM(r.publisher)) OR LOWER(TRIM(p.name_vi)) = LOWER(TRIM(r.publisher)))
+    `)
+
+    return rows.map((r: any) => ({
+      id: Number(r.id),
+      series_title: r.series_title,
+      lidex_series_id: r.lidex_series_id ? Number(r.lidex_series_id) : null,
+      publisher: r.publisher || 'Khác',
+      publisher_logo: r.publisher_logo ? proxyImg(r.publisher_logo) : null,
+      number_of_volumes: r.number_of_volumes != null ? Number(r.number_of_volumes) : null,
+      original_volumes: r.original_volumes != null ? Number(r.original_volumes) : null,
+      original_status: r.original_status || null,
+      evalution: r.evalution || null,
+      evaluation_basis: r.evaluation_basis || null,
+      ln_score: r.ln_score != null ? Number(r.ln_score) : null,
+      trang_thai: r.trang_thai || 'Đang tiến hành',
+      average_price: r.average_price != null ? Number(r.average_price) : null,
+      max_release_at: r.max_release_at ? normalizeDbDate(r.max_release_at) : null,
+      drop_percent: r.drop_percent != null ? Number(r.drop_percent) : null,
+      months_since_last_release: r.months_since_last_release != null ? Number(r.months_since_last_release) : null,
+      cover_url: r.cover_url ? proxyImg(r.cover_url) : null,
+      title_vi: r.title_vi || null,
+      title_native: r.title_native || null,
+      slug: r.slug || null,
+      genres: Array.isArray(r.genres) ? r.genres : [],
+    }))
+  } catch (error) {
+    console.error('Failed to fetch novel network data:', error)
+    return []
+  }
+}
