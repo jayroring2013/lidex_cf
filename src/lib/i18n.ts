@@ -16,6 +16,7 @@ export const translations = {
     nav_table:          'Bảng tổng hợp',
     nav_leaderboard:    'BXH LN',
     nav_prediction:     'Dự đoán bản quyền LN',
+    nav_network:        'Mạng lưới Novel',
     nav_genre_matrix:   'Ma trận thể loại',
     nav_studio:         'Studio',
 
@@ -127,6 +128,7 @@ export const translations = {
     nav_table:          'Table',
     nav_leaderboard:    'LN Ranking',
     nav_prediction:     'LN License Prediction',
+    nav_network:        'Novel Network',
     nav_genre_matrix:   'Genre Matrix',
     nav_studio:         'Studios',
 
