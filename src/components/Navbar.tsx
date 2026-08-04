@@ -143,7 +143,7 @@ export default function Navbar() {
   }
 
   const isChartsActive =
-    pathname === '/leaderboard' || pathname === '/license-prediction'
+    pathname === '/leaderboard' || pathname === '/license-prediction' || pathname === '/novel-network'
 
   const flatLinks = [
     { href: '/',          label: t('nav_home')      },
@@ -152,7 +152,8 @@ export default function Navbar() {
   ]
 
   const chartsChildren = [
-    { href: '/leaderboard',  label: t('nav_leaderboard')  },
+    { href: '/novel-network',  label: t('nav_network')  },
+    { href: '/leaderboard',    label: t('nav_leaderboard')  },
     { href: '/license-prediction', label: t('nav_prediction') },
   ]
 
