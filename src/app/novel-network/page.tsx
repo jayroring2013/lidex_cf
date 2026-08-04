@@ -1,4 +1,4 @@
-import { getCachedNovelNetworkData } from '@/lib/cachedDb'
+import { fetchNovelNetworkData } from '@/lib/db'
 import NovelNetworkClient from './NovelNetworkClient'
 
 export const dynamic = 'force-dynamic'
@@ -13,6 +13,6 @@ export const metadata = {
 }
 
 export default async function NovelNetworkPage() {
-  const data = await getCachedNovelNetworkData()
+  const data = await fetchNovelNetworkData()
   return <NovelNetworkClient initialData={data || []} />
 }
