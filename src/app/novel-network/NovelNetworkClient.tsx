@@ -665,7 +665,7 @@ export default function NovelNetworkClient({ initialData }: { initialData: Novel
   const isPanningRef = useRef<boolean>(false)
   const startPanRef = useRef({ x: 0, y: 0 })
 
-  const getCanvasMousePos = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const getCanvasMousePos = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
     if (!canvas) return { x: 0, y: 0 }
     const rect = canvas.getBoundingClientRect()
