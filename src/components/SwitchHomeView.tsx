@@ -216,56 +216,56 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
           </div>
         </div>
 
-        {/* 3. Authentic Nintendo Switch Style Circular Action Dock */}
-        <div className="flex items-center justify-center gap-4 sm:gap-7 mt-5">
+        {/* 3. Circular Action Dock (Dark Glass Button Design with Updated Icons) */}
+        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6">
           
-          {/* News Button (Red Circle) */}
+          {/* News Button */}
           <Link href="/board" className="group flex flex-col items-center gap-1.5">
-            <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-white border-2 border-slate-200 text-red-500 shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-200">
-              <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-200">
+              <Newspaper className="w-6 h-6 stroke-[2]" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-white">News</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">News</span>
           </Link>
 
-          {/* eShop / Library Button (Orange Circle) */}
+          {/* Library Button */}
           <Link href="/browse" className="group flex flex-col items-center gap-1.5">
-            <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-white border-2 border-slate-200 text-amber-500 shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-200">
-              <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-200">
+              <BookOpen className="w-6 h-6 stroke-[2]" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-white">Library</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Library</span>
           </Link>
 
-          {/* Album / Network Button (Blue Circle) */}
+          {/* Network Button */}
           <Link href="/novel-network" className="group flex flex-col items-center gap-1.5">
-            <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-white border-2 border-slate-200 text-cyan-500 shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-[#00d2ff] group-hover:text-white transition-all duration-200">
-              <Network className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-200">
+              <Network className="w-6 h-6 stroke-[2]" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-white">Network</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Network</span>
           </Link>
 
-          {/* Predictions Button (Yellow Circle) */}
+          {/* Predictions Button */}
           <Link href="/license-prediction" className="group flex flex-col items-center gap-1.5">
-            <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-white border-2 border-slate-200 text-yellow-500 shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-yellow-400 group-hover:text-slate-950 transition-all duration-200">
-              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-200">
+              <Sparkles className="w-6 h-6 stroke-[2]" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-white">Predictions</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Predictions</span>
           </Link>
 
-          {/* Settings Button (Grey Circle) */}
+          {/* Settings Button */}
           <div className="group flex flex-col items-center gap-1.5 cursor-pointer">
-            <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-white border-2 border-slate-200 text-slate-700 shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-slate-800 group-hover:text-white transition-all duration-200">
-              <Settings className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-200">
+              <Settings className="w-6 h-6 stroke-[2]" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-white">Settings</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Settings</span>
           </div>
 
-          {/* Web Mode Toggle (Power/Switch Circle) */}
+          {/* Web Mode Toggle Button */}
           {onSwitchToClassicView && (
             <div onClick={onSwitchToClassicView} className="group flex flex-col items-center gap-1.5 cursor-pointer">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-white border-2 border-slate-200 text-indigo-600 shadow-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-200">
-                <Power className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2]" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-200">
+                <Power className="w-6 h-6 stroke-[2]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 group-hover:text-white">Web Mode</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Web Mode</span>
             </div>
           )}
 
