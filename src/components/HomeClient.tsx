@@ -242,7 +242,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
   const [user,        setUser]        = useState<any>(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const [isSwitchMode, setIsSwitchMode] = useState(false)
+  const [isSwitchMode, setIsSwitchMode] = useState(true)
 
   const initialCarouselData = useMemo<Record<CarouselSection, CarouselItem[]>>(() => ({
     anime: data.topAnime.map((s: any) => ({ id: s.id, title: s.title, cover_url: s.cover_url, score: s.anime_mean_score, href: `/content/${s.id}` })),
@@ -332,7 +332,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const color = SECTION_CONFIG[activeSection].color
 
   if (isSwitchMode) {
-    return <SwitchHomeView items={switchItems} onCloseSwitchMode={() => setIsSwitchMode(false)} />
+    return <SwitchHomeView items={switchItems} onSwitchToClassicView={() => setIsSwitchMode(false)} />
   }
 
   return (
