@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen, UserPlus, LayoutDashboard } from 'lucide-react'
+import { ArrowRight, Sparkles, BarChart2, Flame, Info, BrainCircuit, Building2, Trophy, Loader2, BookOpen, UserPlus, LayoutDashboard, Gamepad2 } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
 import supabase from '@/lib/supabaseClient'
+import SwitchHomeView from '@/components/SwitchHomeView'
 
 interface Cover { id: number; title: string; cover_url: string | null }
 interface TypeCounts { anime: number; manga: number; novel: number }
@@ -241,6 +242,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
   const [user,        setUser]        = useState<any>(null)
   const [authLoading, setAuthLoading] = useState(true)
+  const [isSwitchMode, setIsSwitchMode] = useState(false)
 
   const initialCarouselData = useMemo<Record<CarouselSection, CarouselItem[]>>(() => ({
     anime: data.topAnime.map((s: any) => ({ id: s.id, title: s.title, cover_url: s.cover_url, score: s.anime_mean_score, href: `/content/${s.id}` })),
@@ -249,6 +251,28 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       ? data.votingNovels
       : data.recentNovels.map((n: any) => ({ id: n.id, title: n.title, cover_url: data.novelVolCovers[n.id] !== undefined ? data.novelVolCovers[n.id] : n.cover_url, score: null, href: `/content/${n.id}` })),
   }), [data])
+
+  const switchItems = useMemo<CarouselItem[]>(() => {
+    const list: CarouselItem[] = []
+    if (data.votingNovels && data.votingNovels.length > 0) {
+      list.push(...data.votingNovels)
+    }
+    if (data.trendingNovels) {
+      data.trendingNovels.forEach(c => {
+        list.push({ id: c.id, title: c.title, cover_url: c.cover_url, score: 9.2, href: `/content/${c.id}` })
+      })
+    }
+    if (data.trendingManga) {
+      data.trendingManga.forEach(c => {
+        list.push({ id: c.id, title: c.title, cover_url: c.cover_url, score: 8.9, href: `/content/${c.id}` })
+      })
+    }
+    return list.length > 0 ? list : [
+      { id: 1, title: 'Classroom of the Elite Vol. 2', cover_url: 'https://picsum.photos/seed/cote/300/450', score: 9.5, href: '/browse' },
+      { id: 2, title: 'Re:Zero Vol. 18', cover_url: 'https://picsum.photos/seed/rezero/300/450', score: 9.3, href: '/browse' },
+      { id: 3, title: 'Solo Leveling Vol. 4', cover_url: 'https://picsum.photos/seed/sololeveling/300/450', score: 9.1, href: '/browse' }
+    ]
+  }, [data])
 
   const [covers] = useState<Cover[]>(() => data.covers.slice(0, 36))
   const [trending] = useState<Cover[]>(() => [...data.trendingAnime, ...data.trendingManga, ...data.trendingNovels].slice(0, 8))
@@ -307,6 +331,10 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const items = carouselData[activeSection]
   const color = SECTION_CONFIG[activeSection].color
 
+  if (isSwitchMode) {
+    return <SwitchHomeView items={switchItems} onCloseSwitchMode={() => setIsSwitchMode(false)} />
+  }
+
   return (
     <div style={{ background: 'var(--background)' }}>
       <section className="relative flex flex-col overflow-hidden" style={{ minHeight: '100svh' }}>
@@ -353,6 +381,19 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
                 {vi ? 'Bắt đầu ngay' : 'Start Exploring'}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
+              <button
+                type="button"
+                onClick={() => setIsSwitchMode(true)}
+                className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-sm font-extrabold text-cyan-300 transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: 'rgba(6,182,212,0.12)',
+                  border: '1px solid rgba(6,182,212,0.4)',
+                  boxShadow: '0 0 15px rgba(6,182,212,0.2)'
+                }}
+              >
+                <Gamepad2 className="w-4 h-4 text-cyan-400" />
+                {vi ? 'Switch Mode' : 'Switch Mode'}
+              </button>
               {authLoading ? (
                 <div className="px-6 py-3.5 rounded-xl text-sm font-semibold animate-pulse" 
                   style={{ width: '120px', height: '48px', border: '1px solid var(--hero-secondary-button-border)', background: 'var(--hero-secondary-button-bg)' }} />
