@@ -1,142 +1,159 @@
-# LiDex Platform — Project Architecture & Context Guide
+# LiDex Platform — Project Architecture & Database Mapping Guide
 
-This document serves as an authoritative context guide for AI Coding Assistants and developers working on the **LiDex** codebase. It outlines the technology stack, database schemas, page routes, API endpoints, Python tooling, and implementation rules.
+This document serves as an authoritative architecture guide for AI Coding Assistants and developers working on the **LiDex** codebase. It explicitly maps every **Neon PostgreSQL database table** to the **React components, Next.js pages, API routes, and Python scripts** that consume it, detailing the exact data flow and columns used.
 
 ---
 
-## 1. Project Overview & Tech Stack
+## 1. Executive Summary & Tech Stack
 
-**LiDex** is a web platform and analytics dashboard for Manga, Light Novels, and Anime in Vietnam. It tracks publishing schedules, licensing prediction leaderboards, market statistics, user bookshelves, and interactive network visualizers.
+**LiDex** is a web analytics platform for Manga, Light Novels, and Anime in Vietnam. It tracks publishing release schedules, licensing prediction leaderboards, market statistics, user bookshelves, and interactive network visualizers.
 
-* **Framework**: Next.js 14 (App Router, Server Components & Client Components)
+* **Framework**: Next.js 14 (App Router with React Server Components & Client Components)
 * **Language**: TypeScript (`.ts`, `.tsx`), JavaScript (`.js`)
 * **Styling**: Vanilla CSS with Design System Tokens (`src/app/globals.css`), TailwindCSS, Glassmorphism UI
-* **Database**: **Neon PostgreSQL** (serverless connection pooled via `@neondatabase/serverless` / `psycopg2`)
+* **Database**: **Neon PostgreSQL** (Serverless SQL pooler via `@neondatabase/serverless` / `psycopg2`)
 * **Authentication**: **Supabase Auth** (Client-side JWT session state, server routes verify `Authorization: Bearer <token>`)
-* **Storage & Proxy**: Cloudflare R2 / Pocketbase image proxies (`src/lib/imageProxy.ts`)
-* **Local Python Tooling**: Python 3.x, Pillow (PIL), `psycopg2` for calendar generation & local DB sync
+* **Image Proxies & Storage**: Cloudflare R2 / Pocketbase image proxy helpers (`src/lib/imageProxy.ts`)
+* **Local Tooling**: Python 3.x, Pillow (PIL), `psycopg2` for calendar image generation & local DB sync
 
 ---
 
-## 2. Neon Database Architecture & Schemas
+## 2. Component & API to Database Table Mapping Matrix
 
-The database is hosted on **Neon PostgreSQL**. Key tables and views include:
+The table below outlines which components and API routes consume which Neon database tables:
 
-### Core Tables
-1. **`series`**: Core record for all media items.
-   - `id`: integer (Primary Key)
-   - `title`: string (Original/English title)
-   - `title_vi`: string (Vietnamese localized title)
-   - `title_native`: string (Japanese/Native title)
-   - `slug`: string (URL slug)
-   - `cover_url`, `banner_url`: image URLs
-   - `status`: string (`'Ongoing'`, `'Completed'`, `'Hiatus'`, etc.)
-   - `genres`: text array (`['Fantasy', 'Isekai', ...]`)
-   - `item_type`: string (`'anime'`, `'manga'`, `'novel'`)
-   - `publisher_id`: integer (Foreign key to `publishers`)
-
-2. **`volumes`**: Individual volume release records.
-   - `id`: integer (Primary Key)
-   - `series_id`: integer (FK to `series`)
-   - `publisher_id`: integer (FK to `publishers`)
-   - `volume_number`: float / int
-   - `title`: string (Volume title)
-   - `release_date`: date / timestamp
-   - `price`: numeric / integer (VND)
-   - `cover_url`: string
-
-3. **`publishers`**: Vietnamese publishing houses.
-   - `id`: integer (Primary Key)
-   - `name`: string (e.g., `'Kim Đồng'`, `'IPM'`, `'Hikari'`, `'NXB Trẻ'`)
-   - `name_vi`: string (Vietnamese display name)
-   - `logo_url`: string
-
-4. **Metadata Tables**:
-   - **`novel_meta`**: `series_id`, `volume_count`, `is_completed`, `updated_at`.
-   - **`manga_meta`**: `series_id`, `demographic`, `original_language`, `vn_licensed`, `vn_publisher_id`.
-   - **`anime_meta`**: `series_id`, `trending`, `mean_score`, `popularity`, `format`, `episodes`, `season`, `season_year`.
-
-5. **Licensing & Wishlist Tables**:
-   - **`ln_series_ranking`**: Light Novel market prediction leaderboard data (ranking scores, publisher likelihood, evaluation factors).
-   - **`license_wishlist`**: Fan wishlist voting table.
-     ```sql
-     CREATE TABLE license_wishlist (
-       id SERIAL PRIMARY KEY,
-       user_id TEXT NOT NULL,
-       series_title TEXT NOT NULL,
-       created_at TIMESTAMPTZ DEFAULT NOW(),
-       UNIQUE (user_id, series_title)
-     );
-     ```
-
-6. **User Library & Social Tables**:
-   - **`user_profiles`**: `user_id`, `display_name`, `avatar_url`, `is_premium`, `premium_tier`.
-   - **`series_user_library`**: User series ratings, status tracking (`reading`, `completed`, `plan_to_read`).
-   - **`series_user_volume_purchases`**: User bookshelf volume collection & purchase logs.
-   - **`series_reviews`** & **`series_review_likes`**: Community reviews and likes.
+| Feature / Component | File Location | Database Tables Used | Primary Columns Extracted & Purpose |
+| :--- | :--- | :--- | :--- |
+| **Novel Network Visualizer** | [`src/app/novel-network/NovelNetworkClient.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/novel-network/NovelNetworkClient.tsx)<br>[`src/app/api/novel-network/route.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/api/novel-network/route.ts) | `ln_series_ranking`<br>`series`<br>`publishers` | `ln_series_ranking`: `series_title`, `number_of_volumes`, `ln_score`, `trang_thai`, `publisher`<br>`series`: `cover_url`, `title_vi`, `slug`, `genres`<br>`publishers`: `logo_url`<br>*(Renders force-directed canvas graph connecting publishers to Light Novels)* |
+| **Licensing Predictions & Fan Wishlist** | [`src/app/license-prediction/LicensePredictionClient.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/license-prediction/LicensePredictionClient.tsx)<br>[`src/app/api/wishlist/route.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/api/wishlist/route.ts) | `license_wishlist`<br>`ln_series_ranking` | `license_wishlist`: `user_id`, `series_title`, `created_at`<br>`ln_series_ranking`: top 1000 Light Novel market evaluation scores<br>*(Renders 1000 items leaderboard with live wishlist vote toggles & fan vote counts)* |
+| **Public User Bookshelf** | [`src/app/bookshelf/[userId]/PublicBookshelfClient.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/bookshelf/%5BuserId%5D/PublicBookshelfClient.tsx) | `user_profiles`<br>`series_user_volume_purchases`<br>`series_user_library`<br>`volumes`<br>`series`<br>`publishers` | `user_profiles`: `display_name`, `avatar_url`, `is_premium`<br>`purchases`: `volume_id`, `purchase_price`, `purchase_date`<br>`volumes`: `volume_number`, `title`, `cover_url`<br>`series`: `title`, `title_vi`, `cover_url`<br>*(Calculates user collection value vs system average & displays collection grid)* |
+| **Series Content Details** | [`src/app/content/[id]/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/content/%5Bid%5D/page.tsx) | `series`<br>`volumes`<br>`publishers`<br>`ln_series_ranking`<br>`voting_results`<br>`voting_periods` | `series`: `id`, `title`, `title_vi`, `cover_url`, `banner_url`<br>`volumes`: `volume_number`, `release_date`, `price`<br>`ln_series_ranking`: market score breakdown<br>*(Renders volume release schedule timeline & score details)* |
+| **Homepage & Trending** | [`src/app/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/page.tsx)<br>[`src/app/api/stats/route.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/api/stats/route.ts) | `series`<br>`anime_meta`<br>`series_rating_summary` | `series`: `id`, `title`, `title_vi`, `item_type`, `genres`, `cover_url`<br>`anime_meta`: `trending`, `mean_score`, `popularity`<br>*(Displays site stats counts, seasonal trending anime, top rated series)* |
+| **Catalog Discovery** | [`src/app/browse/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/browse/page.tsx) | `series`<br>`manga_meta`<br>`novel_meta`<br>`anime_meta`<br>`publishers` | `series`: `id`, `title`, `status`, `genres`, `item_type`<br>`meta`: `demographic`, `vn_licensed`, `vn_publisher_id`<br>*(Multi-filter search catalog for manga, novels, and anime)* |
+| **Poll Leaderboards** | [`src/app/leaderboard/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/leaderboard/page.tsx)<br>[`src/app/api/leaderboard/route.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/api/leaderboard/route.ts) | `voting_periods`<br>`voting_results`<br>`series`<br>`publishers` | `voting_periods`: `id`, `label`, `year`, `month`<br>`voting_results`: `series_id`, `rank`, `votes`<br>*(Renders community voting poll rankings)* |
+| **Publishing Calendar Image Generator** | [`generate_calendar.py`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/generate_calendar.py) | `volumes`<br>`series`<br>`publishers` | `volumes`: `volume_number`, `release_date`, `price`, `cover_url`<br>`series`: `title`, `title_vi`, `author`, `artist`, `item_type`<br>`publishers`: `name`, `name_vi`, `logo_url`<br>*(Renders 1920px Full HD release calendar JPG image)* |
 
 ---
 
-## 3. Application Structure & Pages
+## 3. Deep Dive into Database Schemas & Data Structures
 
-All pages are located under [`src/app`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app):
+### 3.1. `series` (Core Media Records)
+The central entity for all titles on the platform.
+```sql
+SELECT id, title, title_vi, title_native, slug, cover_url, banner_url, status, genres, item_type, publisher_id 
+FROM series;
+```
+* **`item_type`**: Restricted string: `'anime'`, `'manga'`, or `'novel'`.
+* **`status`**: String indicating publication status (`'Ongoing'`, `'Completed'`, `'Hiatus'`).
+* **`genres`**: Postgres text array `text[]` (e.g. `ARRAY['Fantasy', 'Action', 'Isekai']`).
+* **Usage**: Consumed by virtually every page (`/browse`, `/content/[id]`, `/novel-network`, `/bookshelf/[userId]`).
 
-* **`/`** ([`page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/page.tsx)): Home dashboard featuring site statistics, trending anime/manga/novels, top rated titles, and recent volume releases.
-* **`/novel-network`** ([`page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/novel-network/page.tsx)): Interactive force-directed canvas network graph ([`NovelNetworkClient.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/novel-network/NovelNetworkClient.tsx)) mapping Light Novel titles, publishers, market share progress bars, and volume stats.
-* **`/license-prediction`** ([`page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/license-prediction/page.tsx)): Top 1000 Light Novel prediction leaderboard with `% Coming`, `% Success`, column toggles, and live wishlist heart button toggles.
-* **`/bookshelf/[userId]`** ([`PublicBookshelfClient.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/bookshelf/%5BuserId%5D/PublicBookshelfClient.tsx)): Public user bookshelf showcasing owned volumes, collection statistics, and average spending comparisons.
-* **`/browse`**: Media discovery grid filtering across Light Novels, Manga, and Anime.
-* **`/content/[id]`**: Detailed page for a specific series.
-* **`/board`**, **`/charts`**, **`/compare`**, **`/leaderboard`**, **`/studio`**, **`/table`**, **`/user`**: Secondary analytics and user management tools.
+### 3.2. `volumes` (Release Schedule Data)
+Contains volume-level release data in Vietnam.
+```sql
+SELECT id, series_id, publisher_id, volume_number, title, release_date, price, cover_url 
+FROM volumes;
+```
+* **`volume_number`**: Numeric volume index (e.g., `1`, `2`, `2.5`).
+* **`price`**: Numeric price in VND (e.g., `95000`, `110000`).
+* **`release_date`**: Date/timestamp of official Vietnamese publication.
+* **Usage**: Powering volume release timelines on `/content/[id]`, `/board`, user bookshelf value calculation, and `generate_calendar.py`.
+
+### 3.3. `publishers` (Vietnamese Publishing Houses)
+Contains official Vietnamese publisher metadata.
+```sql
+SELECT id, name, name_vi, logo_url FROM publishers;
+```
+* **`name`**: Standard publisher name (e.g. `'Kim Đồng'`, `'IPM'`, `'Hikari'`, `'NXB Trẻ'`, `'Amak'`).
+* **`logo_url`**: Remote URL for publisher logo image.
+* **Usage**: Rendered next to volume listings, inside `generate_calendar.py` white card logo boxes, and on publisher network hubs in `/novel-network`.
+
+### 3.4. `ln_series_ranking` (Light Novel Licensing Rankings)
+View/table containing evaluation parameters for un-licensed Light Novels.
+```sql
+SELECT id, series_title, lidex_series_id, publisher, number_of_volumes, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, average_price, max_release_at, drop_percent, months_since_last_release, cover_url 
+FROM ln_series_ranking;
+```
+* **`ln_score`**: Calculated rating score (e.g. `9.2`).
+* **`evalution`**: String evaluation verdict.
+* **Usage**: Feeds top 1000 recommendations on `/license-prediction` and node graph data on `/novel-network`.
+
+### 3.5. `license_wishlist` (Fan Wishlist Votes)
+Tracks unique fan votes for un-licensed series.
+```sql
+CREATE TABLE license_wishlist (
+  id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  series_title TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (user_id, series_title)
+);
+```
+* **`user_id`**: Supabase Auth user UUID.
+* **`series_title`**: Distinct series title. Enforces one vote per distinct series per user.
+* **Usage**: Managed by `/api/wishlist` (GET & POST) to render heart toggles and vote counts on `/license-prediction`.
+
+### 3.6. User Bookshelf & Social Tables
+* **`user_profiles`**: `user_id`, `display_name`, `avatar_url`, `is_premium`, `premium_tier`.
+* **`series_user_library`**: `user_id`, `series_id`, `status` (`'reading'`, `'completed'`), `user_rating`.
+* **`series_user_volume_purchases`**: `user_id`, `volume_id`, `purchase_price`, `purchase_date`.
+* **`series_rating_summary`**: `series_id`, `average_rating`, `rating_count`.
+* **Usage**: Consumed by `/bookshelf/[userId]` and `/user` profiles.
 
 ---
 
-## 4. API Endpoints (`src/app/api/`)
+## 4. API Endpoints & Data Flow
 
-* **`GET /api/wishlist`**: Returns global wishlist vote counts for all series and the list of titles wishlisted by the current authenticated user.
-* **`POST /api/wishlist`**: Accepts `{ series_title }` in body and toggles (adds or deletes) the vote for the authenticated user session.
-* **`GET /api/novel-network`**: Delivers graph node/link payload for the Light Novel network diagram with `Cache-Control` edge caching.
-* **`GET /api/series`**, **`GET /api/series/[id]`**: Series data lookup.
-* **`GET /api/stats`**, **`GET /api/leaderboard`**, **`GET /api/dashboard`**: Platform statistics and leaderboard data.
+### 4.1. Wishlist Endpoint (`/api/wishlist`)
+* **`GET /api/wishlist`**:
+  1. Executes `SELECT series_title, COUNT(*)::int as count FROM license_wishlist GROUP BY series_title`.
+  2. If an `Authorization: Bearer <token>` header is present, resolves the Supabase user and fetches their wishlisted titles: `SELECT series_title FROM license_wishlist WHERE user_id = $1`.
+  3. Returns `{ counts: { [series_title]: vote_count }, userWishlist: [ 'Title A', ... ] }`.
+* **`POST /api/wishlist`**:
+  1. Validates Supabase JWT token from `Authorization` header.
+  2. Checks if vote exists: `SELECT id FROM license_wishlist WHERE user_id = $1 AND series_title = $2`.
+  3. Toggles vote: deletes if present (`DELETE`), inserts if absent (`INSERT`).
 
----
-
-## 5. Key Source Modules
-
-* [`src/lib/db.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/lib/db.ts): Server database access layer containing raw SQL queries (`getSiteStats`, `getTrendingSeries`, `fetchNovelNetworkData`, `fetchPublicBookshelfData`, etc.).
-* [`src/lib/neonClient.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/lib/neonClient.ts): Connection manager for Neon PostgreSQL serverless SQL execution.
-* [`src/lib/cachedDb.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/lib/cachedDb.ts): Server-side `unstable_cache` wrappers for Next.js Data Cache revalidation.
-* [`src/lib/imageProxy.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/lib/imageProxy.ts): URL proxy helper to handle remote image caching and fallback CDN links.
-* [`src/components/Navbar.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/components/Navbar.tsx): Main site navigation header.
-
----
-
-## 6. Python Tooling & Scripts
-
-1. **`generate_calendar.py`**:
-   - Standalone Python script using **Pillow (PIL)** and `psycopg2`.
-   - Queries Light Novel volume releases from Neon DB for a specified week.
-   - Bypasses SSL checks to download cover art and publisher logos.
-   - Renders high-resolution 1920px Full-HD publishing calendar JPG images (`release_calendar.jpg`).
-   - Run via: `python generate_calendar.py --week 2024-27 --limit 18 --out release_calendar.jpg`
-
-2. **`LN_Data/recommend_lns.py`**:
-   - Recommendation & licensing prediction script. Writes top 1000 predictions into `src/data/license_predictions.json`.
-
-3. **`ln_up.py`**:
-   - Private local database synchronization script (`ON CONFLICT DO UPDATE SET cover_url = EXCLUDED.cover_url`). *Kept untracked locally for developer use.*
+### 4.2. Novel Network Endpoint (`/api/novel-network`)
+* **`GET /api/novel-network`**:
+  1. Executes `fetchNovelNetworkData()` in `src/lib/db.ts`.
+  2. Joins `ln_series_ranking`, `series`, and `publishers`.
+  3. Sets `Cache-Control: public, max-age=21600, s-maxage=21600, stale-while-revalidate=86400`.
+  4. Returns `{ data: [ NovelNetworkItem, ... ] }`.
 
 ---
 
-## 7. Guidelines & Rules for AI Assistants
+## 5. Python Tooling & Local Scripts
 
-When modifying this repository, follow these rules:
+### 5.1. `generate_calendar.py`
+* **Purpose**: Generates high-resolution publishing calendar JPG images.
+* **SQL Query**:
+  ```sql
+  SELECT v.id, v.volume_number, v.release_date, v.price, v.cover_url,
+         s.title, s.title_vi, s.author, s.artist, s.item_type,
+         p.name as publisher_name, p.name_vi as publisher_name_vi, p.logo_url as publisher_logo_url, p.id as publisher_id
+  FROM volumes v
+  JOIN series s ON v.series_id = s.id
+  LEFT JOIN publishers p ON v.publisher_id = p.id
+  WHERE LOWER(s.item_type) = 'novel' AND v.release_date >= $1 AND v.release_date <= $2
+  ORDER BY v.release_date ASC
+  ```
+* **Execution**: `python generate_calendar.py --week 2025-32 --limit 18 --out release_calendar.jpg`
+* **Output**: Renders `1920px` Full HD JPG image with cover art thumbnails (`56x80px`) and publisher logos inside white card backings (`34x34px`).
 
-1. **Do NOT touch `manga_ref` table**: Never alter or attempt database schema changes on `manga_ref`.
-2. **Local Python Script `ln_up.py`**: Keep `ln_up.py` modified locally for local DB sync operations, but do NOT force-push or track private credentials.
-3. **Authentication Token Passing**: Authenticated API calls forward the Supabase access token in request headers as `Authorization: Bearer <token>`. Route handlers resolve the user via `supabase.auth.getUser(token)`.
-4. **Build Verification Command**: Always verify changes by running the Next.js production build command:
+### 5.2. `ln_up.py` *(Local Developer Script)*
+* **Purpose**: Local database updater for volume covers.
+* **Behavior**: Executes `INSERT INTO ... ON CONFLICT DO UPDATE SET cover_url = EXCLUDED.cover_url` for `series` and `volumes`.
+
+---
+
+## 6. Guidelines & Rules for AI Assistants
+
+1. **Database Safety**: Never alter or drop the `manga_ref` table.
+2. **Local Script `ln_up.py`**: Keep `ln_up.py` untracked in Git for local developer usage.
+3. **Authentication Header**: Server routes verify user sessions by fetching `Authorization: Bearer <token>` from request headers.
+4. **Build Check Command**: Always verify builds using:
    ```powershell
    $env:NODE_OPTIONS='--use-system-ca'; npm.cmd run build
    ```
-5. **Git Repository Remote**: Active GitHub repository is `https://github.com/jayroring2013/lidex_cf.git`.
+5. **Git Remote**: Active GitHub repository URL is `https://github.com/jayroring2013/lidex_cf.git`.
