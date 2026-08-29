@@ -235,19 +235,19 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
       {/* 2. Main Game Menu Area */}
       <div className="flex-1 flex flex-col justify-center items-center py-2 relative">
         
-        {/* Active Title Header (Glow Text with Natural Casing) */}
+        {/* Active Title Header (Glow Text with Natural Casing & Ample Line-Height for Tone Marks) */}
         <div className="text-center mb-3 sm:mb-5 max-w-3xl px-4 animate-in fade-in duration-300">
-          <h2 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-[0_0_16px_rgba(0,210,255,0.75)] line-clamp-1">
+          <h2 className="text-xl sm:text-3xl md:text-4xl font-black tracking-normal leading-normal sm:leading-relaxed text-white drop-shadow-[0_0_16px_rgba(0,210,255,0.75)] line-clamp-1 py-1">
             {currentItem?.title || 'Classroom of the Elite'}
           </h2>
           
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1.5 text-xs font-extrabold">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1 text-xs font-extrabold">
             {currentItem?.score && (
               <span className="bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)]">
                 ★ {currentItem.score} pts
               </span>
             )}
-            <span className="text-slate-400 tracking-wider text-[10px] sm:text-[11px]">
+            <span className="text-slate-400 tracking-wide text-[10px] sm:text-[11px]">
               {vi ? 'Đang chọn phát hành' : 'Selected Volume Release'}
             </span>
           </div>
@@ -270,10 +270,11 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
-          {/* Carousel Track with CONSTANT Card Outer Dimensions to Eliminate Jitter */}
+          {/* Carousel Track with Hiddens Scrollbar */}
           <div
             ref={trackRef}
             className="flex items-center gap-3 sm:gap-6 overflow-x-auto py-6 px-2 sm:px-4 no-scrollbar"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {displayItems.map((item, idx) => {
               const isSelected = idx === selectedIndex
