@@ -142,9 +142,9 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
       {/* 2. Main Game Menu Area */}
       <div className="flex-1 flex flex-col justify-center items-center py-2 relative">
         
-        {/* Active Title Header (Glow Text) */}
+        {/* Active Title Header (Glow Text with Natural Casing) */}
         <div className="text-center mb-3 sm:mb-5 max-w-3xl px-4 animate-in fade-in duration-300">
-          <h2 className="text-xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-white drop-shadow-[0_0_16px_rgba(0,210,255,0.75)] line-clamp-1">
+          <h2 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-[0_0_16px_rgba(0,210,255,0.75)] line-clamp-1">
             {currentItem?.title || 'Classroom of the Elite'}
           </h2>
           
@@ -154,7 +154,7 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
                 ★ {currentItem.score} pts
               </span>
             )}
-            <span className="text-slate-400 uppercase tracking-wider text-[10px] sm:text-[11px]">
+            <span className="text-slate-400 tracking-wider text-[10px] sm:text-[11px]">
               {vi ? 'Đang chọn phát hành' : 'Selected Volume Release'}
             </span>
           </div>
