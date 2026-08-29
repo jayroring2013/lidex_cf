@@ -332,7 +332,14 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const color = SECTION_CONFIG[activeSection].color
 
   if (isSwitchMode) {
-    return <SwitchHomeView items={switchItems} onSwitchToClassicView={() => setIsSwitchMode(false)} />
+    return (
+      <SwitchHomeView
+        items={switchItems}
+        user={user}
+        authLoading={authLoading}
+        onSwitchToClassicView={() => setIsSwitchMode(false)}
+      />
+    )
   }
 
   return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Newspaper, BookOpen, Network, Sparkles, Settings, Power,
@@ -19,10 +19,12 @@ interface CarouselItem {
 
 interface SwitchHomeViewProps {
   items: CarouselItem[]
+  user?: any
+  authLoading?: boolean
   onSwitchToClassicView?: () => void
 }
 
-export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchHomeViewProps) {
+export default function SwitchHomeView({ items, user, authLoading, onSwitchToClassicView }: SwitchHomeViewProps) {
   const { locale } = useLocale()
   const vi = locale === 'vi'
 
@@ -45,7 +47,24 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
     return () => clearInterval(timer)
   }, [])
 
-  const currentItem = items[selectedIndex] || items[0]
+  // Filter items dynamically based on header search input
+  const displayItems = useMemo(() => {
+    if (!searchQuery.trim()) return items
+    const q = searchQuery.toLowerCase().trim()
+    const filtered = items.filter(item => item.title.toLowerCase().includes(q))
+    return filtered.length > 0 ? filtered : items
+  }, [items, searchQuery])
+
+  // Reset selected carousel index when query changes
+  useEffect(() => {
+    setSelectedIndex(0)
+  }, [searchQuery])
+
+  const currentItem = displayItems[selectedIndex] || displayItems[0]
+
+  const displayName = user
+    ? (user.user_metadata?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User')
+    : null
 
   // Smooth centered scrolling WITHOUT layout shifts or shaking
   useEffect(() => {
@@ -60,17 +79,17 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
         behavior: 'smooth'
       })
     }
-  }, [selectedIndex])
+  }, [selectedIndex, displayItems])
 
   // Keyboard Navigation: Left/Right arrows, Enter for Launch, X for Classic View
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') {
         e.preventDefault()
-        setSelectedIndex(prev => (prev < items.length - 1 ? prev + 1 : 0))
+        setSelectedIndex(prev => (prev < displayItems.length - 1 ? prev + 1 : 0))
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault()
-        setSelectedIndex(prev => (prev > 0 ? prev - 1 : items.length - 1))
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : displayItems.length - 1))
       } else if (e.key === 'Enter' && currentItem?.href) {
         window.location.href = currentItem.href
       } else if ((e.key === 'x' || e.key === 'X') && onSwitchToClassicView) {
@@ -79,7 +98,7 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [items, currentItem, onSwitchToClassicView])
+  }, [displayItems, currentItem, onSwitchToClassicView])
 
   return (
     <div className="fixed inset-0 z-50 bg-[#0b0f19] text-[#f8fafc] flex flex-col justify-between font-sans overflow-y-auto sm:overflow-hidden select-none"
@@ -93,19 +112,50 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
       
       {/* 1. Header Bar (Responsive Mobile & PC) */}
       <div className="p-3 sm:p-5 flex flex-wrap items-center justify-between border-b border-white/10 gap-2 bg-slate-950/40 backdrop-blur-md">
-        {/* Left User Profile Avatar */}
-        <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 border-2 border-[#00d2ff] flex items-center justify-center shadow-[0_0_12px_rgba(0,210,255,0.5)] group-hover:scale-105 transition-all">
-            <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#00d2ff]" />
+        {/* Left User Profile Avatar / Auth State */}
+        {authLoading ? (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 animate-pulse border border-white/10" />
+            <div className="w-20 h-4 bg-slate-800 rounded animate-pulse" />
           </div>
-          <div>
-            <div className="text-xs sm:text-sm font-black tracking-wide text-white group-hover:text-[#00d2ff] transition-colors">Alex R.</div>
-            <div className="text-[9px] sm:text-[10px] font-bold text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
-              Online
+        ) : user ? (
+          <Link href="/user" className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 border-2 border-[#00d2ff] flex items-center justify-center overflow-hidden shadow-[0_0_12px_rgba(0,210,255,0.5)] group-hover:scale-105 transition-all">
+              {user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#00d2ff]" />
+              )}
             </div>
-          </div>
-        </div>
+            <div>
+              <div className="text-xs sm:text-sm font-black tracking-wide text-white group-hover:text-[#00d2ff] transition-colors line-clamp-1">
+                {displayName}
+              </div>
+              <div className="text-[9px] sm:text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
+                Online
+              </div>
+            </div>
+          </Link>
+        ) : (
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('trigger-auth-modal', { detail: { mode: 'signup' } }))}
+            className="flex items-center gap-2 group cursor-pointer"
+            title={vi ? 'Đăng nhập / Đăng ký' : 'Sign in / Sign up'}
+          >
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-900 border-2 border-slate-700 group-hover:border-[#00d2ff] flex items-center justify-center text-slate-400 group-hover:text-[#00d2ff] shadow-md transition-all">
+              <User className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <div className="text-left hidden xs:block">
+              <div className="text-xs sm:text-sm font-extrabold text-slate-200 group-hover:text-[#00d2ff] transition-colors">
+                {vi ? 'Đăng ký' : 'Sign up'}
+              </div>
+              <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400">
+                {vi ? 'Tài khoản' : 'Account'}
+              </div>
+            </div>
+          </button>
+        )}
 
         {/* Center Console Brand */}
         <div className="flex items-center gap-2">
@@ -207,14 +257,14 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
         <div className="w-full max-w-6xl relative px-4 sm:px-12">
           {/* Nav Controls */}
           <button
-            onClick={() => setSelectedIndex(prev => (prev > 0 ? prev - 1 : items.length - 1))}
+            onClick={() => setSelectedIndex(prev => (prev > 0 ? prev - 1 : displayItems.length - 1))}
             className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-900/90 border border-white/15 text-white flex items-center justify-center z-20 hover:bg-[#00d2ff]/20 hover:border-[#00d2ff] transition-all shadow-xl"
           >
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           <button
-            onClick={() => setSelectedIndex(prev => (prev < items.length - 1 ? prev + 1 : 0))}
+            onClick={() => setSelectedIndex(prev => (prev < displayItems.length - 1 ? prev + 1 : 0))}
             className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-900/90 border border-white/15 text-white flex items-center justify-center z-20 hover:bg-[#00d2ff]/20 hover:border-[#00d2ff] transition-all shadow-xl"
           >
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -225,7 +275,7 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
             ref={trackRef}
             className="flex items-center gap-3 sm:gap-6 overflow-x-auto py-6 px-2 sm:px-4 no-scrollbar"
           >
-            {items.map((item, idx) => {
+            {displayItems.map((item, idx) => {
               const isSelected = idx === selectedIndex
               return (
                 <div
