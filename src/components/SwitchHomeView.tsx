@@ -225,56 +225,57 @@ export default function SwitchHomeView({ items, onSwitchToClassicView }: SwitchH
           </div>
         </div>
 
-        {/* 3. Circular Action Dock (Dark Glass Button Design) */}
+        {/* 3. Circular Action Dock (Dark Minimal Monochrome Design matching reference UI) */}
         <div className="flex items-center justify-center gap-3 sm:gap-6 mt-4 sm:mt-6 px-2 flex-wrap sm:flex-nowrap">
           
-          {/* News Button */}
-          <Link href="/board" className="group flex flex-col items-center gap-1">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-200">
-              <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+          {/* News Button (With Active Orange Tint + Notification Dot) */}
+          <Link href="/board" className="group flex flex-col items-center gap-1.5">
+            <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-orange-500/10 border border-orange-500/70 text-orange-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-orange-500/25 group-hover:border-orange-400 transition-all duration-200">
+              <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
+              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-orange-500 ring-2 ring-[#0b0f19] animate-pulse" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">News</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-300 group-hover:text-orange-400 transition-colors">News</span>
           </Link>
 
           {/* Library Button */}
-          <Link href="/browse" className="group flex flex-col items-center gap-1">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-200">
-              <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+          <Link href="/browse" className="group flex flex-col items-center gap-1.5">
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+              <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Library</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Library</span>
           </Link>
 
           {/* Network Button */}
-          <Link href="/novel-network" className="group flex flex-col items-center gap-1">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-200">
-              <Network className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+          <Link href="/novel-network" className="group flex flex-col items-center gap-1.5">
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+              <Network className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Network</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Network</span>
           </Link>
 
           {/* Predictions Button */}
-          <Link href="/license-prediction" className="group flex flex-col items-center gap-1">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-200">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+          <Link href="/license-prediction" className="group flex flex-col items-center gap-1.5">
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Predictions</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Predictions</span>
           </Link>
 
           {/* Settings Button */}
-          <div className="group flex flex-col items-center gap-1 cursor-pointer">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-200">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+          <div className="group flex flex-col items-center gap-1.5 cursor-pointer">
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Settings</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Settings</span>
           </div>
 
           {/* Web Mode Toggle Button */}
           {onSwitchToClassicView && (
-            <div onClick={onSwitchToClassicView} className="group flex flex-col items-center gap-1 cursor-pointer">
-              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-200">
-                <Power className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
+            <div onClick={onSwitchToClassicView} className="group flex flex-col items-center gap-1.5 cursor-pointer">
+              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+                <Power className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
               </div>
-              <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-white">Web Mode</span>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Web Mode</span>
             </div>
           )}
 
