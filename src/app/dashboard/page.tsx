@@ -2479,34 +2479,35 @@ function LNWatchlist({ rows, publisherLogos = {}, onSelect, vi }: { rows: LNRow[
     <div className="space-y-4">
       
       {/* Recently Released Ticker Row (Matching Image 2 Reference UI) */}
-      <div className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-2xl border backdrop-blur-xl relative overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', borderColor: 'var(--card-border)' }}>
+      <div className="flex items-center gap-2 sm:gap-3 py-1 relative">
         {/* Red Live Indicator Dot on Far Left */}
-        <div className="flex-shrink-0 flex items-center justify-center pl-2 sm:pl-3">
-          <span className="relative flex h-3 w-3">
+        <div className="flex-shrink-0 flex items-center justify-center pl-1 sm:pl-2 pr-1">
+          <span className="relative flex h-3.5 w-3.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_#ef4444]"></span>
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 shadow-[0_0_12px_#ef4444]"></span>
           </span>
         </div>
 
         {/* Auto-scrolling horizontal cards container with CSS Snap & Right Padding */}
         <div
           ref={tickerRef}
-          className="flex-1 flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5 pr-6 sm:pr-10 snap-x snap-mandatory scroll-smooth"
+          className="flex-1 flex items-center gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar py-1 px-0.5 pr-6 sm:pr-10 snap-x snap-mandatory scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {recentVolumeReleases.map((item) => (
             <Link
               key={item.series_key}
               href={`/content/${item.lidex_series_id || item.source_row_id}`}
-              className="flex items-center gap-2.5 sm:gap-3 w-[220px] xs:w-[250px] sm:w-[270px] p-2 sm:p-2.5 rounded-2xl border transition-all duration-200 hover:scale-[1.02] flex-shrink-0 snap-start group cursor-pointer"
+              className="flex items-center gap-2.5 sm:gap-3 w-[220px] xs:w-[250px] sm:w-[270px] p-2.5 sm:p-3 rounded-2xl border transition-all duration-200 hover:scale-[1.02] hover:shadow-md flex-shrink-0 snap-start group cursor-pointer"
               style={{
-                background: 'var(--ln-control-bg)',
+                background: 'var(--ln-panel-bg-strong)',
                 borderColor: 'var(--card-border)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
               }}
               title={item.series_title}
             >
               {/* Left Circle/Thumbnail Avatar */}
-              <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-indigo-500/50 flex-shrink-0 shadow-md group-hover:border-cyan-400 transition-colors">
+              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/60 flex-shrink-0 shadow-sm group-hover:border-indigo-500 transition-colors">
                 {item.cover_url ? (
                   <img src={item.cover_url} alt={item.series_title} className="w-full h-full object-cover" />
                 ) : (
@@ -2518,12 +2519,12 @@ function LNWatchlist({ rows, publisherLogos = {}, onSelect, vi }: { rows: LNRow[
 
               {/* Center Title & Metadata */}
               <div className="flex-1 min-w-0">
-                <h4 className="text-[11px] sm:text-xs font-black tracking-normal leading-tight group-hover:text-[#7c6af5] transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
+                <h4 className="text-[11px] sm:text-xs font-black tracking-tight leading-tight group-hover:text-[#7c6af5] transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
                   {item.series_title}
                 </h4>
                 
                 <div className="flex items-center gap-1.5 mt-1 text-[10px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>
-                  <span className="inline-flex items-center gap-1 font-bold px-1.5 py-0.5 rounded-md border" style={{ background: 'rgba(124,106,245,.15)', color: '#7c6af5', borderColor: 'rgba(124,106,245,.3)' }}>
+                  <span className="inline-flex items-center gap-1 font-bold px-1.5 py-0.5 rounded-md border" style={{ background: 'rgba(124,106,245,.12)', color: '#7c6af5', borderColor: 'rgba(124,106,245,.25)' }}>
                     Tập {item.number_of_volumes}
                   </span>
                   <span>&bull;</span>
