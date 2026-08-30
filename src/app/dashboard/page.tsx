@@ -2454,32 +2454,50 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
     return recent
   }, [rows])
 
+  const tickerRef = useRef<HTMLDivElement>(null)
+
+  // Auto scroll ticker every 10 seconds smoothly
+  useEffect(() => {
+    if (!recentVolumeReleases.length) return
+    const track = tickerRef.current
+    if (!track) return
+
+    const interval = setInterval(() => {
+      const maxScrollLeft = track.scrollWidth - track.clientWidth
+      if (track.scrollLeft >= maxScrollLeft - 15) {
+        track.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        track.scrollBy({ left: 280, behavior: 'smooth' })
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [recentVolumeReleases])
+
   return (
     <div className="space-y-4">
       
-      {/* Recently Released / New Volume Ticker (Matching Reference Image 2 UI) */}
-      <div className="rounded-2xl p-3 sm:p-4 backdrop-blur-xl relative overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
-        <div className="flex items-center justify-between gap-2 mb-3 px-1">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
-            </span>
-            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider" style={{ color: 'var(--foreground)' }}>
-              {vi ? 'Series mới ra tập (2 tháng gần đây)' : 'New Volume Releases (Last 2 Months)'}
-            </h3>
-          </div>
-          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-muted)', borderColor: 'var(--card-border)' }}>
-            {recentVolumeReleases.length} {vi ? 'tựa mới' : 'series'}
+      {/* Recently Released Ticker Row (Matching Image 2 Reference UI) */}
+      <div className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-2xl border backdrop-blur-xl relative" style={{ background: 'var(--ln-panel-bg-strong)', borderColor: 'var(--card-border)' }}>
+        {/* Red Live Indicator Dot on Far Left */}
+        <div className="flex-shrink-0 flex items-center justify-center pl-2 sm:pl-3">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_#ef4444]"></span>
           </span>
         </div>
 
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 pt-0.5 px-0.5" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {/* Auto-scrolling horizontal cards container */}
+        <div
+          ref={tickerRef}
+          className="flex-1 flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           {recentVolumeReleases.map((item) => (
             <Link
               key={item.series_key}
               href={`/content/${item.lidex_series_id || item.source_row_id}`}
-              className="flex items-center gap-3 min-w-[270px] sm:min-w-[300px] max-w-[330px] p-2.5 rounded-2xl border transition-all duration-200 hover:scale-[1.02] flex-shrink-0 group cursor-pointer"
+              className="flex items-center gap-3 min-w-[240px] sm:min-w-[270px] max-w-[300px] p-2 sm:p-2.5 rounded-2xl border transition-all duration-200 hover:scale-[1.02] flex-shrink-0 group cursor-pointer"
               style={{
                 background: 'var(--ln-control-bg)',
                 borderColor: 'var(--card-border)',
@@ -2509,12 +2527,6 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                   <span>&bull;</span>
                   <span>{fmtDate(item.max_release_at)}</span>
                 </div>
-              </div>
-
-              {/* Right Status Badge */}
-              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-400 border border-blue-500/30 flex-shrink-0 group-hover:bg-blue-500/25 transition-colors">
-                <span>{vi ? 'Mới ra tập' : 'New Volume'}</span>
-                <CheckCircle2 className="w-3 h-3 text-blue-400" />
               </div>
             </Link>
           ))}
