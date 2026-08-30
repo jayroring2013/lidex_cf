@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Newspaper, BookOpen, Network, Sparkles, Settings, Power,
-  User, Bell, Wifi, Battery, ChevronLeft, ChevronRight, Gamepad2, Search
+  User, Bell, Wifi, Battery, ChevronLeft, ChevronRight, Gamepad2, Search, BarChart3
 } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -157,19 +157,18 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
           </button>
         )}
 
-        {/* Center Console Brand */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-slate-900/90 border border-white/10 shadow-lg">
-            <Gamepad2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00d2ff]" />
-            <span className="text-xs sm:text-sm font-black uppercase tracking-widest bg-gradient-to-r from-white via-cyan-100 to-[#00d2ff] bg-clip-text text-transparent">
-              LiDex OS
-            </span>
+        {/* Center Official Brand Logo */}
+        <Link href="/" className="flex items-center gap-2 sm:gap-2.5">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(99,102,241,0.4)]">
+            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white stroke-[2.2]" />
           </div>
-        </div>
+          <span className="text-lg sm:text-xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent tracking-tight">
+            LiDex
+          </span>
+        </Link>
 
-        {/* Right System Indicators & Search Bar */}
-        <div className="flex items-center gap-2 sm:gap-4 text-xs font-bold text-slate-300">
-          
+        {/* Right Header: Search Bar */}
+        <div className="flex items-center text-xs font-bold text-slate-300">
           {/* Header Search Bar / Button Pill */}
           <div className="relative flex items-center">
             {showSearchInput ? (
@@ -209,26 +208,6 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
               </button>
             )}
           </div>
-
-          <span className="text-xs sm:text-sm tracking-wider font-extrabold text-white">{timeStr}</span>
-          
-          <div className="hidden sm:flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded-full border border-white/10">
-            <Battery className="w-4 h-4 text-emerald-400" />
-            <span className="text-[11px] font-extrabold">89%</span>
-          </div>
-
-          <Wifi className="hidden sm:block w-4 h-4 text-slate-300" />
-          <Bell className="hidden sm:block w-4 h-4 text-slate-300 hover:text-white cursor-pointer transition-colors" />
-
-          {onSwitchToClassicView && (
-            <button
-              onClick={onSwitchToClassicView}
-              className="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold bg-white/10 hover:bg-white/20 text-slate-200 border border-white/15 transition-all flex items-center gap-1.5"
-            >
-              <Power className="w-3 h-3 text-cyan-400" />
-              <span>{vi ? 'Web View (X)' : 'Web View (X)'}</span>
-            </button>
-          )}
         </div>
       </div>
 
