@@ -2456,7 +2456,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
 
   const tickerRef = useRef<HTMLDivElement>(null)
 
-  // Auto scroll ticker every 10 seconds smoothly
+  // Auto scroll ticker every 10 seconds smoothly with exact card step math
   useEffect(() => {
     if (!recentVolumeReleases.length) return
     const track = tickerRef.current
@@ -2464,10 +2464,11 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
 
     const interval = setInterval(() => {
       const maxScrollLeft = track.scrollWidth - track.clientWidth
-      if (track.scrollLeft >= maxScrollLeft - 15) {
+      if (track.scrollLeft >= maxScrollLeft - 20) {
         track.scrollTo({ left: 0, behavior: 'smooth' })
       } else {
-        track.scrollBy({ left: 280, behavior: 'smooth' })
+        const step = track.firstElementChild ? (track.firstElementChild as HTMLElement).offsetWidth + 12 : 260
+        track.scrollBy({ left: step, behavior: 'smooth' })
       }
     }, 10000)
 
@@ -2478,7 +2479,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
     <div className="space-y-4">
       
       {/* Recently Released Ticker Row (Matching Image 2 Reference UI) */}
-      <div className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-2xl border backdrop-blur-xl relative" style={{ background: 'var(--ln-panel-bg-strong)', borderColor: 'var(--card-border)' }}>
+      <div className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-2xl border backdrop-blur-xl relative overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', borderColor: 'var(--card-border)' }}>
         {/* Red Live Indicator Dot on Far Left */}
         <div className="flex-shrink-0 flex items-center justify-center pl-2 sm:pl-3">
           <span className="relative flex h-3 w-3">
@@ -2487,24 +2488,25 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
           </span>
         </div>
 
-        {/* Auto-scrolling horizontal cards container */}
+        {/* Auto-scrolling horizontal cards container with CSS Snap & Right Padding */}
         <div
           ref={tickerRef}
-          className="flex-1 flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5"
+          className="flex-1 flex items-center gap-3 overflow-x-auto no-scrollbar py-1 px-0.5 pr-6 sm:pr-10 snap-x snap-mandatory scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {recentVolumeReleases.map((item) => (
             <Link
               key={item.series_key}
               href={`/content/${item.lidex_series_id || item.source_row_id}`}
-              className="flex items-center gap-3 min-w-[240px] sm:min-w-[270px] max-w-[300px] p-2 sm:p-2.5 rounded-2xl border transition-all duration-200 hover:scale-[1.02] flex-shrink-0 group cursor-pointer"
+              className="flex items-center gap-2.5 sm:gap-3 w-[220px] xs:w-[250px] sm:w-[270px] p-2 sm:p-2.5 rounded-2xl border transition-all duration-200 hover:scale-[1.02] flex-shrink-0 snap-start group cursor-pointer"
               style={{
                 background: 'var(--ln-control-bg)',
                 borderColor: 'var(--card-border)',
               }}
+              title={item.series_title}
             >
               {/* Left Circle/Thumbnail Avatar */}
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-indigo-500/50 flex-shrink-0 shadow-md group-hover:border-cyan-400 transition-colors">
+              <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-indigo-500/50 flex-shrink-0 shadow-md group-hover:border-cyan-400 transition-colors">
                 {item.cover_url ? (
                   <img src={item.cover_url} alt={item.series_title} className="w-full h-full object-cover" />
                 ) : (
@@ -2516,7 +2518,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
 
               {/* Center Title & Metadata */}
               <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-black tracking-tight group-hover:text-[#7c6af5] transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
+                <h4 className="text-[11px] sm:text-xs font-black tracking-normal leading-tight group-hover:text-[#7c6af5] transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
                   {item.series_title}
                 </h4>
                 
