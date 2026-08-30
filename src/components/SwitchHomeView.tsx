@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
-  Newspaper, BookOpen, Network, Sparkles, Settings, Power,
-  User, Bell, Wifi, Battery, ChevronLeft, ChevronRight, Gamepad2, Search, BarChart3
+  Home, BookOpen, LayoutDashboard, Trophy, Sparkles,
+  User, ChevronLeft, ChevronRight, Search, BarChart3
 } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -298,59 +298,49 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
           </div>
         </div>
 
-        {/* 3. Circular Action Dock (Dark Minimal Monochrome Design matching reference UI) */}
+        {/* 3. Circular Action Dock (Exactly 5 Lucide Buttons) */}
         <div className="flex items-center justify-center gap-3 sm:gap-6 mt-4 sm:mt-6 px-2 flex-wrap sm:flex-nowrap">
           
-          {/* News Button (With Active Orange Tint + Notification Dot) */}
-          <Link href="/board" className="group flex flex-col items-center gap-1.5">
+          {/* 1. Home Button (Access Normal Homepage) */}
+          <div onClick={onSwitchToClassicView} className="group flex flex-col items-center gap-1.5 cursor-pointer" title={vi ? 'Trang chủ (Web View)' : 'Home (Web View)'}>
             <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-orange-500/10 border border-orange-500/70 text-orange-400 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-orange-500/25 group-hover:border-orange-400 transition-all duration-200">
-              <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
+              <Home className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
               <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-orange-500 ring-2 ring-[#0b0f19] animate-pulse" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-300 group-hover:text-orange-400 transition-colors">News</span>
-          </Link>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-300 group-hover:text-orange-400 transition-colors">Home</span>
+          </div>
 
-          {/* Library Button */}
-          <Link href="/browse" className="group flex flex-col items-center gap-1.5">
+          {/* 2. Library Button (/browse) */}
+          <Link href="/browse" className="group flex flex-col items-center gap-1.5" title={vi ? 'Thư viện' : 'Library'}>
             <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
               <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
             <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Library</span>
           </Link>
 
-          {/* Network Button */}
-          <Link href="/novel-network" className="group flex flex-col items-center gap-1.5">
+          {/* 3. Dashboard Button (/dashboard) */}
+          <Link href="/dashboard" className="group flex flex-col items-center gap-1.5" title={vi ? 'Bảng điều khiển' : 'Dashboard'}>
             <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
-              <Network className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
+              <LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Network</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Dashboard</span>
           </Link>
 
-          {/* Predictions Button */}
-          <Link href="/license-prediction" className="group flex flex-col items-center gap-1.5">
+          {/* 4. BXH Leaderboard Button (/leaderboard) */}
+          <Link href="/leaderboard" className="group flex flex-col items-center gap-1.5" title={vi ? 'Bảng xếp hạng' : 'Leaderboard'}>
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">BXH</span>
+          </Link>
+
+          {/* 5. Prediction Button (/license-prediction) */}
+          <Link href="/license-prediction" className="group flex flex-col items-center gap-1.5" title={vi ? 'Dự đoán bản quyền' : 'License Predictions'}>
             <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
               <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Predictions</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Prediction</span>
           </Link>
-
-          {/* Settings Button */}
-          <div className="group flex flex-col items-center gap-1.5 cursor-pointer">
-            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Settings</span>
-          </div>
-
-          {/* Web Mode Toggle Button */}
-          {onSwitchToClassicView && (
-            <div onClick={onSwitchToClassicView} className="group flex flex-col items-center gap-1.5 cursor-pointer">
-              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
-                <Power className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
-              </div>
-              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Web Mode</span>
-            </div>
-          )}
 
         </div>
 
