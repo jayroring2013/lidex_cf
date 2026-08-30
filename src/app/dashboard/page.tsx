@@ -2431,16 +2431,95 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
     [vi ? 'Hoàn thành' : 'Completed', completed],
   ]
 
+  const recentVolumeReleases = useMemo(() => {
+    const sysdate = new Date()
+    const sysdateMs = sysdate.getTime()
+    const sixtyDaysMs = 60 * 24 * 60 * 60 * 1000
+
+    const recent = rows.filter(r => {
+      if (!r.max_release_at) return false
+      const d = new Date(r.max_release_at)
+      if (Number.isNaN(d.getTime())) return false
+      const diff = sysdateMs - d.getTime()
+      return diff >= 0 && diff <= sixtyDaysMs
+    }).sort((a, b) => new Date(b.max_release_at!).getTime() - new Date(a.max_release_at!).getTime())
+
+    if (recent.length < 5) {
+      return [...rows]
+        .filter(r => Boolean(r.max_release_at))
+        .sort((a, b) => new Date(b.max_release_at!).getTime() - new Date(a.max_release_at!).getTime())
+        .slice(0, 10)
+    }
+
+    return recent
+  }, [rows])
+
   return (
-    <div className="space-y-3">
-      <header className="text-center">
-        <p className="text-[10px] font-black uppercase tracking-[.15em] mb-2 inline-flex items-center justify-center gap-2" style={{ color: '#7c6af5' }}>
-          <span className="w-5 h-0.5 rounded-full" style={{ background: '#7c6af5' }} />
-          {vi ? 'Vietnamese Light Novel DOA' : 'Vietnamese Light Novel DOA'}
-        </p>
-        <h2 className="text-xl sm:text-3xl font-black tracking-tight" style={{ color: 'var(--foreground)' }}>{vi ? 'Bảng xếp hạng Light Novel Việt Nam Ded or Alive' : 'Vietnamese Light Novel Ded or Alive Ranking'}</h2>
-        <p className="text-xs mt-2 max-w-3xl mx-auto" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Xếp hạng theo Điểm LN, ngày phát hành gần nhất, tình trạng phát hành tại Việt Nam và khả năng bị drop.' : 'Ranked by LN Score, latest release date, Vietnamese release status, and drop risk.'}</p>
-      </header>
+    <div className="space-y-4">
+      
+      {/* Recently Released / New Volume Ticker (Matching Reference Image 2 UI) */}
+      <div className="rounded-2xl p-3 sm:p-4 backdrop-blur-xl relative overflow-hidden" style={{ background: 'var(--ln-panel-bg-strong)', border: '1px solid var(--card-border)' }}>
+        <div className="flex items-center justify-between gap-2 mb-3 px-1">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
+            </span>
+            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider" style={{ color: 'var(--foreground)' }}>
+              {vi ? 'Series mới ra tập (2 tháng gần đây)' : 'New Volume Releases (Last 2 Months)'}
+            </h3>
+          </div>
+          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-muted)', borderColor: 'var(--card-border)' }}>
+            {recentVolumeReleases.length} {vi ? 'tựa mới' : 'series'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 pt-0.5 px-0.5" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {recentVolumeReleases.map((item) => (
+            <Link
+              key={item.series_key}
+              href={`/content/${item.lidex_series_id || item.source_row_id}`}
+              className="flex items-center gap-3 min-w-[270px] sm:min-w-[300px] max-w-[330px] p-2.5 rounded-2xl border transition-all duration-200 hover:scale-[1.02] flex-shrink-0 group cursor-pointer"
+              style={{
+                background: 'var(--ln-control-bg)',
+                borderColor: 'var(--card-border)',
+              }}
+            >
+              {/* Left Circle/Thumbnail Avatar */}
+              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-indigo-500/50 flex-shrink-0 shadow-md group-hover:border-cyan-400 transition-colors">
+                {item.cover_url ? (
+                  <img src={item.cover_url} alt={item.series_title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                    LN
+                  </div>
+                )}
+              </div>
+
+              {/* Center Title & Metadata */}
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-black tracking-tight group-hover:text-[#7c6af5] transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
+                  {item.series_title}
+                </h4>
+                
+                <div className="flex items-center gap-1.5 mt-1 text-[10px] font-semibold" style={{ color: 'var(--foreground-muted)' }}>
+                  <span className="inline-flex items-center gap-1 font-bold px-1.5 py-0.5 rounded-md border" style={{ background: 'rgba(124,106,245,.15)', color: '#7c6af5', borderColor: 'rgba(124,106,245,.3)' }}>
+                    Tập {item.number_of_volumes}
+                  </span>
+                  <span>&bull;</span>
+                  <span>{fmtDate(item.max_release_at)}</span>
+                </div>
+              </div>
+
+              {/* Right Status Badge */}
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-400 border border-blue-500/30 flex-shrink-0 group-hover:bg-blue-500/25 transition-colors">
+                <span>{vi ? 'Mới ra tập' : 'New Volume'}</span>
+                <CheckCircle2 className="w-3 h-3 text-blue-400" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <div className="flex sm:grid sm:grid-cols-5 gap-2 overflow-x-auto pb-1">
         {stats.map(([label, value]) => (
