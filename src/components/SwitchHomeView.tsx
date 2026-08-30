@@ -378,7 +378,7 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
         </div>
 
         <div className="text-[10px] sm:text-[11px] text-slate-400 font-semibold tracking-wide">
-          Nintendo Switch Inspired UI &middot; Press A or Enter to launch details
+          &copy; 2026 Lidex. All rights reserved.
         </div>
       </div>
 
