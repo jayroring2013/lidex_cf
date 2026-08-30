@@ -2358,7 +2358,7 @@ function dropTooltip(row: LNRow) {
 
 
 
-function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LNRow) => void; vi: boolean }) {
+function LNWatchlist({ rows, publisherLogos = {}, onSelect, vi }: { rows: LNRow[]; publisherLogos?: PublisherLogoMap; onSelect: (row: LNRow) => void; vi: boolean }) {
   const pageSize = 25
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
@@ -2644,7 +2644,7 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                   ? ['Hạng', 'Series', 'Số tập', 'Ngày phát hành gần nhất', 'Nhà PH', 'Trạng thái', 'Điểm đánh giá', 'Khả năng drop', 'Đánh giá']
                   : ['Rank', 'Series', 'Volumes', 'Latest release', 'Publisher', 'Status', 'LN Score', 'Drop risk', 'Evaluation']
                 ).map((h, i) => (
-                  <th key={h} className={`${i === 0 ? 'text-center' : 'text-left'} font-black uppercase tracking-widest py-2.5 px-3 whitespace-nowrap`}>{h}</th>
+                  <th key={h} className={`${i === 0 || i === 2 || i === 3 || i === 5 || i === 6 || i === 7 || i === 8 ? 'text-center' : 'text-left'} font-black uppercase tracking-widest py-3 px-3 whitespace-nowrap`}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -2653,43 +2653,54 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                 <tr><td colSpan={9} className="text-center py-10" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series nào phù hợp với bộ lọc.' : 'No series match the current filters.'}</td></tr>
               ) : pagedRows.map((row, idx) => {
                 const displayRank = pageStart + idx + 1
-                const scoreBar = Math.max(0, Math.min(100, row.ln_score * 10))
-                const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
                 const rankBg = displayRank === 1 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : displayRank === 2 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : displayRank === 3 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
                 const rankColor = displayRank <= 3 ? '#161616' : 'var(--foreground-muted)'
                 const rsStyle = releaseStatusStyle(row)
                 const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
                 const href = detailHref(row)
                 return (
-                  <tr key={row.series_key} style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
+                  <tr key={row.series_key} className="hover:bg-slate-500/5 transition-colors" style={{ borderBottom: '1px solid var(--ln-row-border)' }}>
                     <td className="py-2.5 px-3 text-center"><span className="inline-flex items-center justify-center min-w-[34px] h-[34px] rounded-lg font-black text-[11px]" style={{ background: rankBg, color: rankColor }}>#{displayRank}</span></td>
                     <td className="py-2.5 px-3">
-                      <div className="flex items-center gap-3 min-w-[300px]">
+                      <div className="flex items-center gap-3 min-w-[280px]">
                         <Link href={href} aria-label={row.series_title} className="shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                          {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" loading="lazy" className="w-[64px] h-[90px] object-cover rounded-lg shadow-lg transition-transform hover:scale-[1.03]" /> : <div className="w-[64px] h-[90px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                          {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" loading="lazy" className="w-[56px] h-[80px] object-cover rounded-lg shadow-md transition-transform hover:scale-[1.03]" /> : <div className="w-[56px] h-[80px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
                         </Link>
                         <div className="min-w-0">
-                          <Link href={href} className="font-black leading-snug line-clamp-2 max-w-[340px] hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
+                          <Link href={href} className="font-black leading-snug line-clamp-2 max-w-[320px] hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3 tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.number_of_volumes, 0)}</td>
-                    <td className="py-2.5 px-3 tabular-nums" style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</td>
-                    <td className="py-2.5 px-3" style={{ color: 'var(--foreground-secondary)' }}>{row.publisher || '—'}</td>
-                    <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span></td>
-                    <td className="py-2.5 px-3">
-                      <div title={scoreTooltip(row)} className="cursor-help">
-                        <p className="text-lg font-black leading-none" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</p>
-                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><div className="h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></div>
+                    <td className="py-2.5 px-3 text-center tabular-nums font-bold" style={{ color: 'var(--foreground-secondary)' }}>{fmtNum(row.number_of_volumes, 0)}</td>
+                    <td className="py-2.5 px-3 text-center tabular-nums font-bold text-xs" style={{ color: 'var(--foreground-secondary)' }}>{fmtDate(row.max_release_at)}</td>
+                    <td className="py-2.5 px-3 text-left whitespace-nowrap">
+                      {row.publisher ? (
+                        <div className="flex items-center gap-2" title={row.publisher}>
+                          <PublisherLogoMark
+                            name={row.publisher}
+                            logoUrl={proxyImg(publisherLogos[publisherKey(row.publisher)] || null)}
+                            size="sm"
+                          />
+                          <span className="text-xs font-bold hidden lg:inline" style={{ color: 'var(--foreground)' }}>
+                            {row.publisher}
+                          </span>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--foreground-muted)' }}>—</span>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-3 text-center"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span></td>
+                    <td className="py-2.5 px-3 text-center">
+                      <div title={scoreTooltip(row)} className="cursor-help inline-block">
+                        <span className="text-base font-black" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</span>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3">
-                      <div title={dropTooltip(row)} className="cursor-help">
-                        <p className="text-sm font-black leading-none" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</p>
-                        <div className="w-[68px] h-1 rounded-full mt-1 overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><div className="h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></div>
+                    <td className="py-2.5 px-3 text-center">
+                      <div title={dropTooltip(row)} className="cursor-help inline-block">
+                        <span className="text-xs font-black" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</span>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution, vi)}</span></td>
+                    <td className="py-2.5 px-3 text-center"><span className="inline-flex rounded-full px-2.5 py-1 text-[10px] font-black whitespace-nowrap" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution, vi)}</span></td>
                   </tr>
                 )
               })}
@@ -2700,8 +2711,6 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
         <div className="md:hidden">
           {pagedRows.map((row, idx) => {
             const displayRank = pageStart + idx + 1
-            const scoreBar = Math.max(0, Math.min(100, row.ln_score * 10))
-            const riskBar = Math.max(0, Math.min(100, pctValue(row.drop_percent)))
             const rsStyle = releaseStatusStyle(row)
             const evalColor = statusColors[row.evalution || ''] || '#94a3b8'
             const rankBg = displayRank === 1 ? 'linear-gradient(135deg,#f6d860,#e8a800)' : displayRank === 2 ? 'linear-gradient(135deg,#d8dde8,#a5afc0)' : displayRank === 3 ? 'linear-gradient(135deg,#e8a86e,#c47730)' : 'var(--ln-muted-bg)'
@@ -2711,30 +2720,37 @@ function LNWatchlist({ rows, onSelect, vi }: { rows: LNRow[]; onSelect: (row: LN
                 <div className="flex gap-3">
                   <div className="w-8 shrink-0 pt-1"><span className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-[10px]" style={{ background: rankBg, color: displayRank <= 3 ? '#161616' : 'var(--foreground-muted)' }}>#{displayRank}</span></div>
                   <Link href={href} aria-label={row.series_title} className="shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" loading="lazy" className="w-[104px] h-[148px] object-cover rounded-lg shadow-lg" /> : <div className="w-[104px] h-[148px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
+                    {row.cover_url ? <img src={proxyImg(row.cover_url) || ''} alt="" loading="lazy" className="w-[84px] h-[120px] object-cover rounded-lg shadow-lg" /> : <div className="w-[84px] h-[120px] rounded-lg" style={{ background: 'rgba(124,106,245,.14)' }} />}
                   </Link>
                   <div className="min-w-0 flex-1">
-                    <Link href={href} className="text-sm font-black leading-snug line-clamp-4 hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{row.publisher || '—'}</span>
+                    <Link href={href} className="text-xs sm:text-sm font-black leading-snug line-clamp-3 hover:underline" style={{ color: 'var(--foreground)' }}>{row.series_title}</Link>
+                    <div className="flex flex-wrap gap-1.5 mt-2 items-center">
+                      {row.publisher && (
+                        <div className="flex items-center gap-1 bg-slate-800/20 px-1.5 py-0.5 rounded-md border border-white/5">
+                          <PublisherLogoMark
+                            name={row.publisher}
+                            logoUrl={proxyImg(publisherLogos[publisherKey(row.publisher)] || null)}
+                            size="sm"
+                          />
+                          <span className="text-[10px] font-bold text-slate-300">{row.publisher}</span>
+                        </div>
+                      )}
                       <span className="text-[10px] font-bold px-2 py-1 rounded-md" style={{ color: 'var(--foreground-muted)', background: 'var(--ln-muted-bg)' }}>{fmtDate(row.max_release_at)}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="pl-11 mt-2 flex flex-wrap gap-1.5">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
+                <div className="pl-11 mt-2 flex flex-wrap gap-1.5 items-center">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
                     <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Điểm' : 'Score'}</span>
                     <strong className="text-xs font-black" style={{ color: scoreColor(row.ln_score) }}>{row.ln_score.toFixed(1)}</strong>
-                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><span className="block h-full rounded-full" style={{ width: `${scoreBar}%`, background: 'linear-gradient(90deg,#ef4444 0%,#eab308 50%,#22c55e 100%)' }} /></span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
                     <span className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>Drop</span>
                     <strong className="text-xs font-black" style={{ color: dropColor(row.drop_percent) }}>{fmtPercent(row.drop_percent)}</strong>
-                    <span className="w-10 h-1 rounded-full overflow-hidden" style={{ background: 'var(--ln-track-bg)' }}><span className="block h-full rounded-full" style={{ width: `${riskBar}%`, background: 'linear-gradient(90deg,#22c55e 0%,#eab308 40%,#ef4444 80%)' }} /></span>
                   </span>
-                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution, vi)}</span>
-                  <span className="inline-flex rounded-lg px-2.5 py-1.5 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span>
+                  <span className="inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black" style={{ color: evalColor, background: `${evalColor}20`, border: `1px solid ${evalColor}40` }}>{evalLabel(row.evalution, vi)}</span>
+                  <span className="inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black" style={{ color: rsStyle.color, background: rsStyle.bg, border: `1px solid ${rsStyle.border}` }}>{releaseStatusLabel(releaseStatus(row), vi)}</span>
                 </div>
               </div>
             )
@@ -2928,7 +2944,7 @@ export default function Dashboard() {
             </div>
           </Card>
         ) : mode === 'watchlist' ? (
-          <LNWatchlist rows={rows} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setSelectedPublisher(row.publisher || selectedPublisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
+          <LNWatchlist rows={rows} publisherLogos={publisherLogos} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setSelectedPublisher(row.publisher || selectedPublisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
         ) : mode === 'publisher' ? (
           <PublisherFocusView rows={rows} volumeRows={volumeRows} publisherLogos={publisherLogos} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key) }} />
         ) : (
