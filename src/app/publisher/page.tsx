@@ -198,7 +198,7 @@ export default function PublisherPage() {
 
           setVolumeRows(volumeReleases)
           setPublisherLogos(logos)
-          setSelectedPublisher(buildPublishers(fanHydrated, volumeReleases).find(p => p.releases24 > 0)?.publisher || fanHydrated[0]?.publisher || null)
+          setSelectedPublisher(null)
           setLoading(false)
         })
         .catch(err => {

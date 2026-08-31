@@ -940,12 +940,13 @@ export function PublisherFocusView({
   volumeRows: VolumeReleaseRow[]
   publisherLogos: PublisherLogoMap
   selectedPublisher: string | null
-  setSelectedPublisher: (publisher: string) => void
+  setSelectedPublisher: (publisher: string | null) => void
   selectedKey: string | null
   onSelectSeries: (row: LNRow) => void
   vi?: boolean
 }) {
   const publishers = buildPublishers(rows, volumeRows).filter(p => p.releases24 > 0)
+  const isDetailOpen = Boolean(selectedPublisher)
   const currentName = selectedPublisher || publishers[0]?.publisher || 'Unknown'
   const logoUrl = proxyImg(publisherLogos[publisherKey(currentName)] || null)
   const publisher = publishers.find(p => p.publisher === currentName) || publishers[0]
@@ -990,90 +991,123 @@ export function PublisherFocusView({
 
   return (
     <div className="space-y-4">
-      {/* 1. Top Publisher Cards Grid (Matching Reference Image) */}
+      {/* 1. Top Publisher Cards Grid */}
       <PublisherCardsGrid
         publishers={publishers}
         rows={rows}
         volumeRows={volumeRows}
         publisherLogos={publisherLogos}
-        selectedPublisher={currentName}
-        onSelectPublisher={setSelectedPublisher}
+        selectedPublisher={selectedPublisher}
+        onSelectPublisher={(name) => setSelectedPublisher(name === selectedPublisher ? null : name)}
         vi={vi}
       />
 
-      {/* 2. Detailed Publisher Focus Header */}
-      <Card className="p-3.5">
-        <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr_260px] gap-4 items-center">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-[92px] h-[92px] rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '5px solid rgba(255,255,255,.96)', boxShadow: '0 0 0 1px rgba(136,146,170,.18)' }}>
-              {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt={`${currentName} logo`}
-                  className="w-full h-full object-contain"
-                  loading="eager"
-                  decoding="async"
-                />
-              ) : (
-                currentName.slice(0, 3).toUpperCase()
-              )}
+      {/* 2. Detail View Condition */}
+      {!isDetailOpen ? (
+        <Card className="p-8 text-center border-dashed border-2 border-slate-700/50 bg-slate-900/30">
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <span className="text-3xl animate-bounce">👆</span>
+            <h3 className="text-base font-extrabold text-slate-200">
+              Nhấn vào một thẻ nhà phát hành ở trên để xem chi tiết
+            </h3>
+            <p className="text-xs text-slate-400 max-w-md">
+              Xem thông số NPH, DNA radar, series nổi bật, tiến độ ra tập và cảnh báo rủi ro cho nhà phát hành bạn chọn.
+            </p>
+          </div>
+        </Card>
+      ) : (
+        <div className="space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
+          {/* Header Banner with Close Button */}
+          <div className="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/30 rounded-2xl px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              <span className="text-xs font-black text-cyan-300 uppercase tracking-wider">
+                Đang xem chi tiết: <strong className="text-white text-sm ml-1">{currentName}</strong>
+              </span>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Nhà phát hành</p>
+            <button
+              onClick={() => setSelectedPublisher(null)}
+              className="text-xs font-black text-rose-400 hover:text-rose-300 bg-rose-950/50 hover:bg-rose-900/70 border border-rose-500/30 px-3 py-1 rounded-xl transition-all"
+            >
+              Thu gọn chi tiết ✕
+            </button>
+          </div>
+
+          {/* Detailed Publisher Focus Header */}
+          <Card className="p-3.5">
+            <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr_260px] gap-4 items-center">
               <div className="flex items-center gap-3 min-w-0">
-                <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
-                <span className="shrink-0 text-2xl font-black leading-none" style={{ color: 'var(--foreground-muted)', textShadow: '0 0 14px rgba(234,179,8,.55)' }}>#{rank}</span>
-                <PublisherHeaderPicker
-                  currentName={currentName}
-                  publishers={publisherPickerItems}
-                  publisherLogos={publisherLogos}
-                  onSelect={setSelectedPublisher}
-                  vi={vi}
-                />
+                <div className="w-[92px] h-[92px] rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '5px solid rgba(255,255,255,.96)', boxShadow: '0 0 0 1px rgba(136,146,170,.18)' }}>
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={`${currentName} logo`}
+                      className="w-full h-full object-contain"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  ) : (
+                    currentName.slice(0, 3).toUpperCase()
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Nhà phát hành</p>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
+                    <span className="shrink-0 text-2xl font-black leading-none" style={{ color: 'var(--foreground-muted)', textShadow: '0 0 14px rgba(234,179,8,.55)' }}>#{rank}</span>
+                    <PublisherHeaderPicker
+                      currentName={currentName}
+                      publishers={publisherPickerItems}
+                      publisherLogos={publisherLogos}
+                      onSelect={(p) => setSelectedPublisher(p)}
+                      vi={vi}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                {kpis.map(kpi => (
+                  <div key={kpi.label} className="rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
+                    <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{kpi.label}</p>
+                    <p className="text-2xl font-black mt-1 leading-none" style={{ color: 'var(--foreground)' }}>{kpi.value}</p>
+                    <p className="text-[10px] mt-1" style={{ color: kpi.color }}>{kpi.delta}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Publisher Reliability</p>
+                  <span className="text-sm font-black" style={{ color: 'var(--foreground-muted)' }}>Rank {rank}/{publishers.length}</span>
+                </div>
+                <div className="flex items-end gap-2">
+                  <span className="text-5xl font-black leading-none" style={{ color: publisherScoreColor(reliability) }}>{reliability.toFixed(0)}</span>
+                  <span className="pb-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>/100</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden mt-3" style={{ background: 'var(--ln-track-bg)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, reliability))}%`, background: 'linear-gradient(90deg,#38bdf8,#a78bfa)' }} />
+                </div>
               </div>
             </div>
+          </Card>
+
+          {/* Publisher Analytics Detail Sections */}
+          <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
+            <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+            <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
+            <PublisherBreakdown rows={portfolioRows} vi={vi} />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            {kpis.map(kpi => (
-              <div key={kpi.label} className="rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
-                <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{kpi.label}</p>
-                <p className="text-2xl font-black mt-1 leading-none" style={{ color: 'var(--foreground)' }}>{kpi.value}</p>
-                <p className="text-[10px] mt-1" style={{ color: kpi.color }}>{kpi.delta}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Publisher Reliability</p>
-              <span className="text-sm font-black" style={{ color: 'var(--foreground-muted)' }}>Rank {rank}/{publishers.length}</span>
+          <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
+            <div className="grid grid-cols-1 gap-3">
+              <GrowthChart volumeRows={publisherVolumes} vi={vi} />
+              <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
             </div>
-            <div className="flex items-end gap-2">
-              <span className="text-5xl font-black leading-none" style={{ color: publisherScoreColor(reliability) }}>{reliability.toFixed(0)}</span>
-              <span className="pb-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>/100</span>
-            </div>
-            <div className="h-2 rounded-full overflow-hidden mt-3" style={{ background: 'var(--ln-track-bg)' }}>
-              <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, reliability))}%`, background: 'linear-gradient(90deg,#38bdf8,#a78bfa)' }} />
-            </div>
+            <PublisherRiskCards rows={portfolioRows} vi={vi} />
           </div>
         </div>
-      </Card>
-
-      {/* 3. Publisher Analytics Detail Sections */}
-      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
-        <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
-        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
-        <PublisherBreakdown rows={portfolioRows} vi={vi} />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
-        <div className="grid grid-cols-1 gap-3">
-          <GrowthChart volumeRows={publisherVolumes} vi={vi} />
-          <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
-        </div>
-        <PublisherRiskCards rows={portfolioRows} vi={vi} />
-      </div>
+      )}
     </div>
   )
 }
