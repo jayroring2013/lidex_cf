@@ -312,15 +312,15 @@ function PublisherHeaderPicker({
   )
 }
 
-const CARD_GRADIENTS = [
-  'from-blue-900 via-indigo-900 to-slate-950 border-blue-500/30',
-  'from-rose-800 via-red-900 to-slate-950 border-rose-500/30',
-  'from-purple-900 via-violet-950 to-slate-950 border-purple-500/30',
-  'from-amber-700 via-yellow-900 to-slate-950 border-amber-500/30',
-  'from-teal-800 via-emerald-900 to-slate-950 border-teal-500/30',
-  'from-indigo-800 via-purple-900 to-slate-950 border-indigo-500/30',
-  'from-cyan-800 via-blue-950 to-slate-950 border-cyan-500/30',
-  'from-fuchsia-900 via-pink-950 to-slate-950 border-fuchsia-500/30',
+const CARD_COLORS = [
+  'bg-gradient-to-b from-[#1638a0] to-[#0c2370]', // Deep Blue (Bac Ninh style)
+  'bg-gradient-to-b from-[#dc2626] to-[#991b1b]', // Crimson Red (Cong An Ha Noi style)
+  'bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d]', // Dark Red (Cong An TPHCM style)
+  'bg-gradient-to-b from-[#581c87] to-[#3b0764]', // Royal Purple (Ha Noi FC style)
+  'bg-gradient-to-b from-[#c2410c] to-[#7c2d12]', // Hai Phong style
+  'bg-gradient-to-b from-[#d97706] to-[#92400e]', // Hoang Anh Gia Lai Gold style
+  'bg-gradient-to-b from-[#be123c] to-[#881337]', // Ha Tinh FC style
+  'bg-gradient-to-b from-[#9f1239] to-[#4c0519]', // Binh Dinh style
 ]
 
 function PublisherCardsGrid({
@@ -341,17 +341,8 @@ function PublisherCardsGrid({
   vi?: boolean
 }) {
   return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-2.5 px-1">
-        <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
-          Danh sách nhà phát hành ({publishers.length})
-        </h3>
-        <span className="text-[11px] text-slate-400">
-          Nhấn vào thẻ để xem chi tiết
-        </span>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+    <div className="mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {publishers.map((p, idx) => {
           const isSelected = p.publisher === selectedPublisher
           const pRows = rows.filter(r => (r.publisher || 'Unknown') === p.publisher)
@@ -367,36 +358,29 @@ function PublisherCardsGrid({
 
           const isLiveActive = p.releases24 > 0 || activeCount > 0
           const logoUrl = proxyImg(publisherLogos[publisherKey(p.publisher)] || null)
-          const bgGradient = CARD_GRADIENTS[idx % CARD_GRADIENTS.length]
+          const bgClass = CARD_COLORS[idx % CARD_COLORS.length]
 
           return (
             <div
               key={p.publisher}
               onClick={() => onSelectPublisher(p.publisher)}
-              className={`relative rounded-2xl p-3 cursor-pointer transition-all duration-200 bg-gradient-to-br ${bgGradient} border shadow-lg hover:shadow-2xl flex flex-col justify-between h-40 sm:h-44 group ${
+              className={`relative rounded-3xl p-3 sm:p-4 cursor-pointer transition-all duration-200 ${bgClass} shadow-xl hover:shadow-2xl flex flex-col justify-between items-center h-36 sm:h-44 group ${
                 isSelected
-                  ? 'ring-2 ring-cyan-400 border-cyan-400 scale-[1.03] shadow-cyan-500/25 z-10'
-                  : 'hover:scale-[1.02] opacity-90 hover:opacity-100'
+                  ? 'ring-4 ring-cyan-400 scale-[1.04] z-10 shadow-cyan-500/30'
+                  : 'hover:scale-[1.02] opacity-95 hover:opacity-100'
               }`}
             >
-              {/* Top Bar: Red Live Pulsing Dot */}
-              <div className="flex items-center justify-between w-full">
-                {isLiveActive ? (
-                  <div className="flex items-center gap-1.5" title="Nhà phát hành đang hoạt động">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.9)]" />
-                  </div>
-                ) : (
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-600/60" />
-                )}
-                
-                <span className="text-[10px] font-black text-slate-300/80 bg-black/30 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
-                  #{idx + 1}
-                </span>
-              </div>
+              {/* Red Live Pulsing Dot (Top Left) */}
+              {isLiveActive && (
+                <span
+                  className="absolute top-3.5 left-4 w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.95)]"
+                  title="Hoạt động"
+                />
+              )}
 
-              {/* Center: Publisher Emblem / Logo */}
-              <div className="flex flex-col items-center justify-center my-1 text-center">
-                <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-full bg-white/95 p-1 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/40">
+              {/* Center Publisher Logo Emblem */}
+              <div className="flex-1 flex items-center justify-center my-auto">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/95 p-1.5 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/60">
                   {logoUrl ? (
                     <img
                       src={logoUrl}
@@ -405,34 +389,27 @@ function PublisherCardsGrid({
                       loading="lazy"
                     />
                   ) : (
-                    <span className="text-xs font-black text-slate-800 uppercase">
+                    <span className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
                       {p.publisher.slice(0, 3)}
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-black text-white line-clamp-1 mt-1.5 drop-shadow-md">
-                  {p.publisher}
-                </p>
               </div>
 
-              {/* Bottom Bar Footer: Green Tick (Active) & Red X (Dropped) */}
-              <div className="flex items-center justify-around bg-black/40 backdrop-blur-md rounded-xl px-1.5 py-1 border border-white/10 text-xs font-black">
-                <div className="flex items-center gap-1 text-emerald-400" title="Series đang phát hành / hoạt động">
-                  <Check className="w-3.5 h-3.5 stroke-[2.8]" />
+              {/* Bottom Minimal Footer Stats Row: ↑ active  ↓ dropped  ■ total volumes */}
+              <div className="flex items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm font-black text-white/90 pt-1">
+                <div className="flex items-center gap-1 text-emerald-400" title="Active LN series">
+                  <span className="text-xs font-black">↑</span>
                   <span>{activeCount}</span>
                 </div>
 
-                <div className="w-px h-3 bg-white/20" />
-
-                <div className="flex items-center gap-1 text-rose-400" title="Series ngưng / dropped">
-                  <X className="w-3.5 h-3.5 stroke-[2.8]" />
+                <div className="flex items-center gap-1 text-rose-400" title="Dropped / inactive series">
+                  <span className="text-xs font-black">↓</span>
                   <span>{droppedCount}</span>
                 </div>
 
-                <div className="w-px h-3 bg-white/20" />
-
-                <div className="flex items-center gap-1 text-cyan-300" title="Số tập phát hành">
-                  <BookOpen className="w-3.5 h-3.5 stroke-[2]" />
+                <div className="flex items-center gap-1 text-slate-300" title="Volume releases">
+                  <span className="text-[10px]">■</span>
                   <span>{pVolumes.length}</span>
                 </div>
               </div>
