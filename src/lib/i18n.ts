@@ -8,7 +8,7 @@ export const translations = {
     // ── Navbar ──────────────────────────────────────────────────────────────
     nav_home:           'Trang chủ',
     nav_dashboard:      'Dashboard',
-    nav_charts:         'Biểu đồ',
+    nav_charts:         'Thông số',
     nav_scatter:        'Scatter',
     nav_compare:        'So sánh',
     nav_index:          'Index',
@@ -38,7 +38,7 @@ export const translations = {
     top_rated:          'Xếp hạng cao',
 
     // ── Charts ──────────────────────────────────────────────────────────────
-    charts_title:       'Biểu đồ',
+    charts_title:       'Thông số',
     charts_subtitle_anime: 'Phân tích phân tán Anime',
     charts_subtitle_novel: 'Phân tích phân tán Tiểu thuyết',
     series_plotted:     'tựa được vẽ',
