@@ -289,6 +289,86 @@ function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: b
   )
 }
 
+function buildHeatmap(rows: VolumeReleaseRow[]) {
+  const map = new Map<string, HeatmapRow>()
+  for (const row of rows) {
+    const d = new Date(row.release_date)
+    if (Number.isNaN(d.getTime())) continue
+    const monthKey = String(d.getMonth()).padStart(2, '0')
+    const monthLabel = d.toLocaleString('en-US', { month: 'short' })
+    const publisher = row.publisher || 'Unknown'
+    const key = `${publisher}|${monthKey}`
+    const prev = map.get(key) || { publisher, monthKey, monthLabel, count: 0 }
+    prev.count += 1
+    map.set(key, prev)
+  }
+  return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey) || a.publisher.localeCompare(b.publisher))
+}
+
+function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean }) {
+  const [selectedYear, setSelectedYear] = useState<number | null>(null)
+  const years = availableReleaseYears(volumeRows)
+  const filteredVolumes = filterVolumeRowsBySingleYear(volumeRows, selectedYear)
+  const data = buildHeatmap(filteredVolumes)
+  const months = Array.from({ length: 12 }, (_, month) => [
+    String(month).padStart(2, '0'),
+    new Date(2020, month, 1).toLocaleString('en-US', { month: 'short' }),
+  ] as const)
+  const max = Math.max(...data.map(d => d.count), 1)
+  const selectedPublisher = rows[0]?.publisher || filteredVolumes[0]?.publisher || 'Unknown'
+  const lookup = new Map(data.map(d => [`${d.publisher}|${d.monthKey}`, d.count]))
+
+  return (
+    <Card className="p-3 min-h-[150px] overflow-hidden">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div>
+          <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Hoạt động phát hành' : 'Release Activity'}</p>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập theo tháng/năm đã chọn.' : 'Volume count by selected month/year.'}</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <CompactYearSelect years={years} selectedYear={selectedYear} setSelectedYear={setSelectedYear} vi={vi} />
+          <BarChart3 className="w-4 h-4 shrink-0" style={{ color: '#ec4899' }} />
+        </div>
+      </div>
+
+      <div>
+        <div className="grid gap-1.5 mb-1.5" style={{ gridTemplateColumns: 'repeat(12, minmax(0, 1fr))' }}>
+          {months.map(([key, label]) => (
+            <div key={key} className="text-[10px] font-bold text-center" style={{ color: 'var(--foreground-muted)' }}>{label}</div>
+          ))}
+        </div>
+
+        <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(12, minmax(0, 1fr))' }}>
+          {months.map(([key]) => {
+            const v = lookup.get(`${selectedPublisher}|${key}`) || 0
+            const alpha = v === 0 ? .10 : .22 + v / max * .76
+            return (
+              <div
+                key={key}
+                title={`${selectedPublisher}: ${v.toLocaleString('vi-VN')} tập`}
+                className="relative h-7 rounded-md transition-all duration-150 hover:ring-2 hover:ring-cyan-300/70 hover:brightness-125 hover:scale-105"
+                style={{ background: `rgba(124,106,245,${alpha})`, border: '1px solid rgba(255,255,255,.06)' }}
+              >
+                {v > 0 && (
+                  <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white/90">
+                    {v}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>0</span>
+          <div className="h-2 flex-1 rounded-full" style={{ background: 'linear-gradient(90deg,rgba(124,106,245,.18),#3b82f6,#22c5b8)' }} />
+          <span className="text-[10px] font-bold" style={{ color: 'var(--foreground-muted)' }}>{max}+</span>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 function volumeReleaseYear(row: VolumeReleaseRow) {
   if (!row.release_date) return null
   const d = new Date(row.release_date)
