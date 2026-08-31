@@ -1003,19 +1003,7 @@ export function PublisherFocusView({
       />
 
       {/* 2. Detail View Condition */}
-      {!isDetailOpen ? (
-        <Card className="p-8 text-center border-dashed border-2 border-slate-700/50 bg-slate-900/30">
-          <div className="flex flex-col items-center justify-center space-y-2">
-            <span className="text-3xl animate-bounce">👆</span>
-            <h3 className="text-base font-extrabold text-slate-200">
-              Nhấn vào một thẻ nhà phát hành ở trên để xem chi tiết
-            </h3>
-            <p className="text-xs text-slate-400 max-w-md">
-              Xem thông số NPH, DNA radar, series nổi bật, tiến độ ra tập và cảnh báo rủi ro cho nhà phát hành bạn chọn.
-            </p>
-          </div>
-        </Card>
-      ) : (
+      {isDetailOpen && (
         <div className="space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
           {/* Header Banner with Close Button */}
           <div className="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/30 rounded-2xl px-4 py-2.5">
