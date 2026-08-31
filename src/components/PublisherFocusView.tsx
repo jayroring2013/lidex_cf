@@ -185,6 +185,110 @@ function scatterStableNoise(key: string) {
   }
 }
 
+function buildGrowth(rows: VolumeReleaseRow[]) {
+  const map = new Map<number, { year: number; volumes: number }>()
+  for (const row of rows) {
+    const year = volumeReleaseYear(row)
+    if (year === null) continue
+    const prev = map.get(year) || { year, volumes: 0 }
+    prev.volumes += 1
+    map.set(year, prev)
+  }
+  return Array.from(map.values()).sort((a, b) => a.year - b.year)
+}
+
+function GrowthChart({ volumeRows, vi }: { volumeRows: VolumeReleaseRow[]; vi: boolean }) {
+  const data = buildGrowth(volumeRows)
+  const w = 720
+  const h = 270
+  const padL = 50
+  const padR = 24
+  const padT = 24
+  const padB = 44
+  const maxY = Math.max(...data.map(d => d.volumes), 1)
+  const tickStep = maxY <= 30 ? 5 : maxY <= 80 ? 10 : maxY <= 160 ? 20 : 50
+  const roundedMax = Math.max(tickStep, Math.ceil(maxY / tickStep) * tickStep)
+  const yTicks = Array.from({ length: 5 }, (_, i) => Math.round((roundedMax / 4) * (4 - i)))
+  const points = data.map((d, i) => {
+    const x = padL + i / Math.max(1, data.length - 1) * (w - padL - padR)
+    const y = h - padB - d.volumes / roundedMax * (h - padT - padB)
+    return { x, y, d }
+  })
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+  const areaPath = points.length
+    ? `${linePath} L ${points[points.length - 1].x} ${h - padB} L ${points[0].x} ${h - padB} Z`
+    : ''
+  const xTickEvery = data.length > 11 ? 2 : 1
+  const xTickIndexes = data.map((_, i) => i).filter(i => i === 0 || i === data.length - 1 || i % xTickEvery === 0)
+
+  return (
+    <Card className="p-3 h-[330px] overflow-hidden">
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <p className="text-[12px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Số lượng tập truyện phát hành theo từng năm' : 'Vietnamese LN Market Growth'}</p>
+          <p className="text-[11px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Số tập phát hành theo năm từ bảng volumes.' : 'Released volumes by year from volume data.'}</p>
+        </div>
+        <TrendingUp className="w-4 h-4" style={{ color: '#22c55e' }} />
+      </div>
+
+      <div className="rounded-lg px-1 pt-1" style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)' }}>
+        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-[264px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Biểu đồ số tập phát hành theo năm">
+          <defs>
+            <linearGradient id="growthArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+
+          <rect x={padL} y={padT} width={w - padL - padR} height={h - padT - padB} rx="8" fill="var(--ln-chart-plot-bg)" stroke="var(--ln-chart-grid)" />
+          {yTicks.map((tick, i) => {
+            const y = h - padB - tick / roundedMax * (h - padT - padB)
+            return (
+              <g key={`${tick}-${i}`}>
+                <line x1={padL} x2={w - padR} y1={y} y2={y} stroke="var(--ln-chart-grid)" strokeDasharray={tick === 0 ? '0' : '5 5'} />
+                <text x={padL - 9} y={y + 5} textAnchor="end" fontSize="14" fontWeight="800" fill="var(--foreground-secondary)">
+                  {tick.toLocaleString('vi-VN', { notation: tick >= 1000 ? 'compact' : 'standard' })}
+                </text>
+              </g>
+            )
+          })}
+
+          {xTickIndexes.map(i => {
+            const p = points[i]
+            if (!p) return null
+            return (
+              <g key={`x-${p.d.year}`}>
+                <line x1={p.x} x2={p.x} y1={padT} y2={h - padB} stroke="var(--ln-chart-grid)" opacity="0.55" />
+                <text x={p.x} y={h - 14} textAnchor="middle" fontSize="14" fontWeight="900" fill="var(--foreground-secondary)">
+                  {p.d.year}
+                </text>
+              </g>
+            )
+          })}
+
+          {areaPath && <path d={areaPath} fill="url(#growthArea)" />}
+          <path d={linePath} fill="none" stroke="#22c55e" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+
+          {points.map((p, i) => (
+            <g key={p.d.year}>
+              <title>{`${p.d.year}: ${p.d.volumes.toLocaleString('vi-VN')} tập`}</title>
+              <line x1={p.x} x2={p.x} y1={p.y} y2={h - padB} stroke="#22c55e" strokeOpacity="0.12" />
+              <circle cx={p.x} cy={p.y} r="8" fill="#22c55e" opacity="0.14" />
+              <circle cx={p.x} cy={p.y} r="4.8" fill="#bbf7d0" stroke="#22c55e" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
+              {(i === points.length - 1 || p.d.volumes === maxY) && (
+                <g>
+                  <rect x={p.x - 22} y={p.y - 32} width="44" height="22" rx="6" fill="var(--ln-tooltip-bg)" stroke="rgba(34,197,94,.35)" />
+                  <text x={p.x} y={p.y - 17} textAnchor="middle" fontSize="13" fontWeight="900" fill="#16a34a">{p.d.volumes}</text>
+                </g>
+              )}
+            </g>
+          ))}
+        </svg>
+      </div>
+    </Card>
+  )
+}
+
 function volumeReleaseYear(row: VolumeReleaseRow) {
   if (!row.release_date) return null
   const d = new Date(row.release_date)
