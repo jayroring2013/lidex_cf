@@ -1,17 +1,19 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Suspense } from 'react'
 import Link from 'next/link'
-import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Loader2, AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react'
 import {
   PublisherFocusView,
+  PublisherCardsGrid,
   LNRow,
   VolumeReleaseRow,
   PublisherLogoMap,
   Card,
 } from '@/components/PublisherFocusView'
+
 type RawRankingRow = any
-import { useLocale } from '@/contexts/LocaleContext'
 
 function num(v: unknown, fallback = 0) {
   const n = Number(v)
@@ -112,12 +114,15 @@ function buildPublishers(rows: LNRow[], volumeRows: VolumeReleaseRow[]) {
   }).sort((a, b) => b.releases24 - a.releases24 || a.publisher.localeCompare(b.publisher))
 }
 
-export default function PublisherPage() {
+function PublisherPageContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const publisherParam = searchParams.get('name')
+
   const [rows, setRows] = useState<LNRow[]>([])
   const [volumeRows, setVolumeRows] = useState<VolumeReleaseRow[]>([])
   const [publisherLogos, setPublisherLogos] = useState<PublisherLogoMap>({})
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
-  const [selectedPublisher, setSelectedPublisher] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -198,7 +203,6 @@ export default function PublisherPage() {
 
           setVolumeRows(volumeReleases)
           setPublisherLogos(logos)
-          setSelectedPublisher(null)
           setLoading(false)
         })
         .catch(err => {
@@ -217,6 +221,10 @@ export default function PublisherPage() {
     load()
   }, [])
 
+  const publishers = useMemo(() => {
+    return buildPublishers(rows, volumeRows).filter(p => p.releases24 > 0)
+  }, [rows, volumeRows])
+
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'var(--background)' }}>
       <div className="absolute inset-0 pointer-events-none">
@@ -225,8 +233,21 @@ export default function PublisherPage() {
       </div>
 
       <div className="relative max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-5">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <h1 className="text-xl sm:text-2xl font-black" style={{ color: 'var(--foreground)' }}>Nhà phát hành</h1>
+        {/* Top Header & Breadcrumb */}
+        <div className="flex items-center justify-between gap-2 mb-5">
+          <div className="flex items-center gap-3">
+            {publisherParam && (
+              <Link
+                href="/publisher"
+                className="inline-flex items-center gap-1.5 text-xs font-black text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 px-3.5 py-2 rounded-xl border border-slate-700/60 transition-all shadow-md"
+              >
+                <ArrowLeft className="w-4 h-4" /> Quay lại
+              </Link>
+            )}
+            <h1 className="text-xl sm:text-2xl font-black" style={{ color: 'var(--foreground)' }}>
+              {publisherParam ? `Nhà phát hành: ${publisherParam}` : 'Nhà phát hành'}
+            </h1>
+          </div>
           <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title="Làm mới">
             <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
           </button>
@@ -249,13 +270,24 @@ export default function PublisherPage() {
               </div>
             </div>
           </Card>
+        ) : !publisherParam ? (
+          /* When NO publisher param: Render ONLY the Publisher Cards Grid */
+          <PublisherCardsGrid
+            publishers={publishers}
+            rows={rows}
+            volumeRows={volumeRows}
+            publisherLogos={publisherLogos}
+            onSelectPublisher={(name) => router.push(`/publisher?name=${encodeURIComponent(name)}`)}
+            vi={true}
+          />
         ) : (
+          /* When publisher param is present (New Page): Render dedicated Publisher Details Page */
           <PublisherFocusView
             rows={rows}
             volumeRows={volumeRows}
             publisherLogos={publisherLogos}
-            selectedPublisher={selectedPublisher}
-            setSelectedPublisher={setSelectedPublisher}
+            selectedPublisher={publisherParam}
+            setSelectedPublisher={(p) => p ? router.push(`/publisher?name=${encodeURIComponent(p)}`) : router.push('/publisher')}
             selectedKey={selectedKey}
             onSelectSeries={(row) => setSelectedKey(row.series_key)}
             vi={true}
@@ -263,5 +295,20 @@ export default function PublisherPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PublisherPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-[60vh] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--foreground-secondary)' }}>
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Đang tải...
+        </div>
+      </div>
+    }>
+      <PublisherPageContent />
+    </Suspense>
   )
 }

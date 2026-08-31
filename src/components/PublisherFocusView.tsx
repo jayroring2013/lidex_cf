@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo, ReactNode } from 'react'
-import { Search, ChevronDown, Sparkles, Check, X, BookOpen, TrendingUp, BarChart3 } from 'lucide-react'
+import Link from 'next/link'
+import { Search, ChevronDown, Sparkles, Check, X, BookOpen, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react'
 
 export type LNRow = {
   raw_rank: number
@@ -634,7 +635,7 @@ const CARD_COLORS = [
   'bg-gradient-to-b from-[#9f1239] to-[#4c0519]', // Binh Dinh style
 ]
 
-function PublisherCardsGrid({
+export function PublisherCardsGrid({
   publishers,
   rows,
   volumeRows,
@@ -647,8 +648,8 @@ function PublisherCardsGrid({
   rows: LNRow[]
   volumeRows: VolumeReleaseRow[]
   publisherLogos: PublisherLogoMap
-  selectedPublisher: string | null
-  onSelectPublisher: (publisher: string) => void
+  selectedPublisher?: string | null
+  onSelectPublisher?: (publisher: string) => void
   vi?: boolean
 }) {
   return (
@@ -672,9 +673,10 @@ function PublisherCardsGrid({
           const bgClass = CARD_COLORS[idx % CARD_COLORS.length]
 
           return (
-            <div
+            <Link
               key={p.publisher}
-              onClick={() => onSelectPublisher(p.publisher)}
+              href={`/publisher?name=${encodeURIComponent(p.publisher)}`}
+              onClick={() => onSelectPublisher?.(p.publisher)}
               className={`relative rounded-3xl p-3 sm:p-4 cursor-pointer transition-all duration-200 ${bgClass} shadow-xl hover:shadow-2xl flex flex-col justify-between items-center h-36 sm:h-44 group ${
                 isSelected
                   ? 'ring-4 ring-cyan-400 scale-[1.04] z-10 shadow-cyan-500/30'
@@ -724,7 +726,7 @@ function PublisherCardsGrid({
                   <span>{pVolumes.length}</span>
                 </div>
               </div>
-            </div>
+            </Link>
           )
         })}
       </div>
