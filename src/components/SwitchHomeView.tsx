@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import {
-  Home, BookOpen, LayoutDashboard, Trophy, Sparkles,
+  Home, BookOpen, LayoutDashboard, Trophy, Sparkles, Building2,
   User, ChevronLeft, ChevronRight, Search, BarChart3
 } from 'lucide-react'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -318,12 +318,20 @@ export default function SwitchHomeView({ items, user, authLoading, onSwitchToCla
             <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Library</span>
           </Link>
 
-          {/* 3. Dashboard Button (/dashboard) */}
-          <Link href="/dashboard" className="group flex flex-col items-center gap-1.5" title={vi ? 'Bảng điều khiển' : 'Dashboard'}>
+          {/* 3. Bảng theo dõi Button (/dashboard) */}
+          <Link href="/dashboard" className="group flex flex-col items-center gap-1.5" title={vi ? 'Bảng theo dõi' : 'Watchlist'}>
             <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
               <LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Dashboard</span>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Theo dõi</span>
+          </Link>
+
+          {/* 4. Nhà phát hành Button (/publisher) */}
+          <Link href="/publisher" className="group flex flex-col items-center gap-1.5" title={vi ? 'Nhà phát hành' : 'Publishers'}>
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#181d28] border border-white/10 text-slate-300 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-400/60 group-hover:text-white group-hover:bg-slate-800 transition-all duration-200">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.6]" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">Nhà PH</span>
           </Link>
 
           {/* 4. BXH Leaderboard Button (/leaderboard) */}

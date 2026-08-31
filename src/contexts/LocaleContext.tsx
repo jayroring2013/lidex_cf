@@ -18,22 +18,15 @@ const LocaleContext = createContext<LocaleContextValue>({
 const STORAGE_KEY = 'lidex_locale'
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  // Default to Vietnamese
-  const [locale, setLocaleState] = useState<Locale>('vi')
+  // Always Vietnamese
+  const locale: Locale = 'vi'
 
-  // Rehydrate from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Locale | null
-    if (saved === 'vi' || saved === 'en') setLocaleState(saved)
-  }, [])
-
-  function setLocale(l: Locale) {
-    setLocaleState(l)
-    localStorage.setItem(STORAGE_KEY, l)
+  function setLocale(_l: Locale) {
+    // No-op for VI only
   }
 
   function t(key: TranslationKey): string {
-    return translations[locale][key] ?? translations.vi[key] ?? key
+    return translations.vi[key] ?? key
   }
 
   return (

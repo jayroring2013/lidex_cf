@@ -60,7 +60,7 @@ type RawRankingRow = {
   updated_at: string | null
 }
 
-type LNRow = {
+export type LNRow = {
   raw_rank: number
   source_row_id: number
   series_key: string
@@ -104,7 +104,7 @@ type LNRow = {
   momentum_score: number
 }
 
-type VolumeReleaseRow = {
+export type VolumeReleaseRow = {
   series_id: number
   publisher: string
   release_date: string
@@ -2920,9 +2920,9 @@ export default function Dashboard() {
       </div>
 
       <div className="relative max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-5">
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <ModeSwitch mode={mode} setMode={setMode} vi={vi} />
-          <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title={vi ? 'Làm mới' : 'Refresh'}>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h1 className="text-xl sm:text-2xl font-black" style={{ color: 'var(--foreground)' }}>Bảng theo dõi</h1>
+          <button onClick={load} className="p-1.5 rounded-lg transition-all hover:scale-110" style={{ background: 'var(--glass-bg)', border: '1px solid var(--card-border)' }} title="Làm mới">
             <RefreshCw className="w-4 h-4" style={{ color: 'var(--foreground-secondary)' }} />
           </button>
         </div>
@@ -2931,7 +2931,7 @@ export default function Dashboard() {
           <div className="h-[60vh] flex items-center justify-center">
             <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--foreground-secondary)' }}>
               <Loader2 className="w-5 h-5 animate-spin" />
-              {vi ? 'Đang tải phân tích thị trường LN...' : 'Loading LN market analytics...'}
+              Đang tải bảng theo dõi LN...
             </div>
           </div>
         ) : error ? (
@@ -2939,30 +2939,13 @@ export default function Dashboard() {
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 mt-0.5" style={{ color: '#f59e0b' }} />
               <div>
-                <p className="font-bold" style={{ color: 'var(--foreground)' }}>{vi ? 'Không tải được dữ liệu dashboard' : 'Dashboard data failed to load'}</p>
+                <p className="font-bold" style={{ color: 'var(--foreground)' }}>Không tải được dữ liệu bảng theo dõi</p>
                 <p className="text-sm mt-1" style={{ color: 'var(--foreground-secondary)' }}>{error}</p>
               </div>
             </div>
           </Card>
-        ) : mode === 'watchlist' ? (
-          <LNWatchlist rows={rows} publisherLogos={publisherLogos} vi={vi} onSelect={(row) => { setSelectedKey(row.series_key); setSelectedPublisher(row.publisher || selectedPublisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
-        ) : mode === 'publisher' ? (
-          <PublisherFocusView rows={rows} volumeRows={volumeRows} publisherLogos={publisherLogos} selectedPublisher={selectedPublisher} setSelectedPublisher={setSelectedPublisher} selectedKey={selectedKey} vi={vi} onSelectSeries={(row) => { setSelectedKey(row.series_key) }} />
         ) : (
-          <div className="space-y-4">
-            <KpiStrip rows={rows} vi={vi} />
-
-            <div className="grid grid-cols-1 xl:grid-cols-[1.7fr_0.9fr] gap-4">
-              <ScatterPlot rows={rows} selectedKey={selectedKey} vi={vi} onSelect={row => setSelectedKey(row.series_key)} />
-              <RadarChart row={selected} vi={vi} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <PublisherLeaderboard rows={rows} volumeRows={volumeRows} vi={vi} onSelectPublisher={(publisher) => { setSelectedPublisher(publisher); setMode('publisher'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
-              <GrowthChart volumeRows={volumeRows} vi={vi} />
-              <Heatmap rows={rows} volumeRows={volumeRows} vi={vi} />
-            </div>
-          </div>
+          <LNWatchlist rows={rows} publisherLogos={publisherLogos} vi={true} onSelect={(row) => { window.location.href = '/publisher' }} />
         )}
       </div>
     </div>

@@ -146,9 +146,10 @@ export default function Navbar() {
     pathname === '/leaderboard' || pathname === '/license-prediction' || pathname === '/novel-network'
 
   const flatLinks = [
-    { href: '/',          label: t('nav_home')      },
-    { href: '/dashboard', label: t('nav_dashboard') },
-    { href: '/browse',    label: t('nav_browse')    },
+    { href: '/',          label: 'Trang chủ' },
+    { href: '/dashboard', label: 'Bảng theo dõi' },
+    { href: '/publisher', label: 'Nhà phát hành' },
+    { href: '/browse',    label: 'Khám phá' },
   ]
 
   const chartsChildren = [
@@ -232,37 +233,8 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right side: language toggle + theme + mobile menu */}
+          {/* Right side: theme + mobile menu */}
           <div className="flex items-center gap-1.5 sm:gap-3">
-
-            {/* VI / EN pill toggle */}
-            <div
-              className="flex rounded-lg overflow-hidden text-xs font-bold"
-              style={{ border: '1px solid var(--card-border)' }}
-            >
-              <button
-                onClick={() => setLocale('vi')}
-                className="px-2 py-1.5 sm:px-2.5 transition-colors"
-                style={locale === 'vi'
-                  ? { background: '#6366f1', color: '#fff' }
-                  : { background: 'var(--background-secondary)', color: 'var(--foreground-secondary)' }
-                }
-                title="Tiếng Việt"
-              >
-                VI
-              </button>
-              <button
-                onClick={() => setLocale('en')}
-                className="px-2 py-1.5 sm:px-2.5 transition-colors"
-                style={locale === 'en'
-                  ? { background: '#6366f1', color: '#fff' }
-                  : { background: 'var(--background-secondary)', color: 'var(--foreground-secondary)' }
-                }
-                title="English"
-              >
-                EN
-              </button>
-            </div>
 
             <button
               onClick={toggleTheme}
