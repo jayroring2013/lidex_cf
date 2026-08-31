@@ -72,6 +72,14 @@ type HeatmapRow = {
   count: number
 }
 
+const statusColors: Record<string, string> = {
+  Good: '#22c55e',
+  Limping: '#eab308',
+  Dead: '#ef4444',
+  Dropped: '#dc2626',
+  Completed: '#38bdf8',
+}
+
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
@@ -184,6 +192,54 @@ function scatterStableNoise(key: string) {
     x: (normX - 0.5) * 0.36,
     y: (normY - 0.5) * 3.6,
   }
+}
+
+function volumeReleaseYear(row: VolumeReleaseRow) {
+  if (!row.release_date) return null
+  const d = new Date(row.release_date)
+  const year = d.getFullYear()
+  return Number.isFinite(year) ? year : null
+}
+
+function availableReleaseYears(rows: VolumeReleaseRow[]) {
+  const years = new Set<number>()
+  for (const row of rows) {
+    const y = volumeReleaseYear(row)
+    if (y !== null) years.add(y)
+  }
+  return Array.from(years).sort((a, b) => b - a)
+}
+
+function filterVolumeRowsBySingleYear(rows: VolumeReleaseRow[], selectedYear: number | null) {
+  if (selectedYear === null) return rows
+  return rows.filter(row => volumeReleaseYear(row) === selectedYear)
+}
+
+function CompactYearSelect({
+  years,
+  selectedYear,
+  setSelectedYear,
+  vi,
+}: {
+  years: number[]
+  selectedYear: number | null
+  setSelectedYear: (year: number | null) => void
+  vi: boolean
+}) {
+  const displayYears = [...years].sort((a, b) => b - a)
+  return (
+    <select
+      value={selectedYear ?? ''}
+      onChange={e => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+      className="px-2.5 py-1.5 rounded-lg text-[10px] font-black outline-none min-w-[92px]"
+      style={{ background: selectedYear === null ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYear === null ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+    >
+      <option value="">{vi ? 'Tất cả năm' : 'All years'}</option>
+      {displayYears.map(year => (
+        <option key={year} value={year}>{year}</option>
+      ))}
+    </select>
+  )
 }
 
 function buildGrowth(rows: VolumeReleaseRow[]) {
@@ -367,54 +423,6 @@ function Heatmap({ rows, volumeRows, vi }: { rows: LNRow[]; volumeRows: VolumeRe
         </div>
       </div>
     </Card>
-  )
-}
-
-function volumeReleaseYear(row: VolumeReleaseRow) {
-  if (!row.release_date) return null
-  const d = new Date(row.release_date)
-  const year = d.getFullYear()
-  return Number.isFinite(year) ? year : null
-}
-
-function availableReleaseYears(rows: VolumeReleaseRow[]) {
-  const years = new Set<number>()
-  for (const row of rows) {
-    const y = volumeReleaseYear(row)
-    if (y !== null) years.add(y)
-  }
-  return Array.from(years).sort((a, b) => b - a)
-}
-
-function filterVolumeRowsBySingleYear(rows: VolumeReleaseRow[], selectedYear: number | null) {
-  if (selectedYear === null) return rows
-  return rows.filter(row => volumeReleaseYear(row) === selectedYear)
-}
-
-function CompactYearSelect({
-  years,
-  selectedYear,
-  setSelectedYear,
-  vi,
-}: {
-  years: number[]
-  selectedYear: number | null
-  setSelectedYear: (year: number | null) => void
-  vi: boolean
-}) {
-  const displayYears = [...years].sort((a, b) => b - a)
-  return (
-    <select
-      value={selectedYear ?? ''}
-      onChange={e => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
-      className="px-2.5 py-1.5 rounded-lg text-[10px] font-black outline-none min-w-[92px]"
-      style={{ background: selectedYear === null ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYear === null ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
-    >
-      <option value="">{vi ? 'Tất cả năm' : 'All years'}</option>
-      {displayYears.map(year => (
-        <option key={year} value={year}>{year}</option>
-      ))}
-    </select>
   )
 }
 
@@ -625,15 +633,37 @@ function PublisherHeaderPicker({
 }
 
 const CARD_COLORS = [
-  'bg-gradient-to-b from-[#1638a0] to-[#0c2370]', // Deep Blue (Bac Ninh style)
-  'bg-gradient-to-b from-[#dc2626] to-[#991b1b]', // Crimson Red (Cong An Ha Noi style)
-  'bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d]', // Dark Red (Cong An TPHCM style)
-  'bg-gradient-to-b from-[#581c87] to-[#3b0764]', // Royal Purple (Ha Noi FC style)
-  'bg-gradient-to-b from-[#c2410c] to-[#7c2d12]', // Hai Phong style
-  'bg-gradient-to-b from-[#d97706] to-[#92400e]', // Hoang Anh Gia Lai Gold style
-  'bg-gradient-to-b from-[#be123c] to-[#881337]', // Ha Tinh FC style
-  'bg-gradient-to-b from-[#9f1239] to-[#4c0519]', // Binh Dinh style
+  'bg-gradient-to-b from-[#1638a0] to-[#0c2370]', // Deep Blue
+  'bg-gradient-to-b from-[#dc2626] to-[#991b1b]', // Crimson Red
+  'bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d]', // Dark Red
+  'bg-gradient-to-b from-[#581c87] to-[#3b0764]', // Royal Purple
+  'bg-gradient-to-b from-[#c2410c] to-[#7c2d12]', // Bronze
+  'bg-gradient-to-b from-[#d97706] to-[#92400e]', // Gold
+  'bg-gradient-to-b from-[#be123c] to-[#881337]', // Rose
+  'bg-gradient-to-b from-[#9f1239] to-[#4c0519]', // Magenta
 ]
+
+function getPublisherCardColor(publisherName: string, idx: number): string {
+  const name = publisherName.toLowerCase().trim()
+  if (name.includes('ipm')) return 'bg-gradient-to-b from-[#007038] to-[#004221]' // IPM Iconic Forest Green
+  if (name.includes('wings')) return 'bg-gradient-to-b from-[#0284c7] to-[#0369a1]' // WingsBooks Sky Blue
+  if (name.includes('trẻ') || name.includes('tre')) return 'bg-gradient-to-b from-[#b91c1c] to-[#7f1d1d]' // NXB Trẻ Red
+  if (name.includes('amak')) return 'bg-gradient-to-b from-[#581c87] to-[#3b0764]' // AMAK Deep Purple
+  if (name.includes('tsuki')) return 'bg-gradient-to-b from-[#9a3412] to-[#7c2d12]' // Tsuki Warm Bronze
+  if (name.includes('sky')) return 'bg-gradient-to-b from-[#d97706] to-[#92400e]' // Skybooks Gold Amber
+  if (name.includes('hikari')) return 'bg-gradient-to-b from-[#be123c] to-[#881337]' // Hikari Pink Rose
+  if (name.includes('quảng văn') || name.includes('quang van')) return 'bg-gradient-to-b from-[#881337] to-[#4c0519]' // Quảng Văn Wine Burgundy
+  if (name.includes('shine')) return 'bg-gradient-to-b from-[#1e40af] to-[#1e3a8a]' // Shine Books Sapphire
+  if (name.includes('owl')) return 'bg-gradient-to-b from-[#0f766e] to-[#115e59]' // Owlbooks Teal
+  if (name.includes('kim đồng') || name.includes('kim dong')) return 'bg-gradient-to-b from-[#dc2626] to-[#991b1b]' // Kim Đồng Red
+  if (name.includes('uranix')) return 'bg-gradient-to-b from-[#6b21a8] to-[#4c1d95]' // Uranix Purple
+  if (name.includes('ai novel')) return 'bg-gradient-to-b from-[#c2410c] to-[#7c2d12]' // Ai Novel Bronze
+  if (name.includes('ichi')) return 'bg-gradient-to-b from-[#ea580c] to-[#9a3412]' // Ichi Fox Orange
+  if (name.includes('orion')) return 'bg-gradient-to-b from-[#9f1239] to-[#4c0519]' // Orion Magenta
+  if (name.includes('ta books')) return 'bg-gradient-to-b from-[#1d4ed8] to-[#1e40af]' // Ta Books Royal Blue
+
+  return CARD_COLORS[idx % CARD_COLORS.length]
+}
 
 export function PublisherCardsGrid({
   publishers,
@@ -670,7 +700,7 @@ export function PublisherCardsGrid({
 
           const isLiveActive = p.releases24 > 0 || activeCount > 0
           const logoUrl = proxyImg(publisherLogos[publisherKey(p.publisher)] || null)
-          const bgClass = CARD_COLORS[idx % CARD_COLORS.length]
+          const bgClass = getPublisherCardColor(p.publisher, idx)
 
           return (
             <Link
@@ -896,6 +926,261 @@ function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   )
 }
 
+function PublisherPortfolioMap({ rows, selectedKey, onSelect, vi }: { rows: LNRow[]; selectedKey: string | null; onSelect: (row: LNRow) => void; vi: boolean }) {
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 5, y: 50 })
+  const [query, setQuery] = useState('')
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null)
+  const dragRef = useRef<{ x: number; y: number } | null>(null)
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>())
+  const pinchRef = useRef<{ dist: number; zoom: number; pan: { x: number; y: number }; pct: { x: number; y: number }; data: { x: number; y: number } } | null>(null)
+  const chartRef = useRef<HTMLDivElement | null>(null)
+
+  const plotRows = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return rows.filter(row => {
+      const rs = releaseStatus(row)
+      if (rs === 'Có bản quyền nhưng chưa phát hành') return false
+      const searchable = `${row.series_title} ${row.series_id || ''} ${row.series_code || ''}`.toLowerCase()
+      return !q || searchable.includes(q)
+    })
+  }, [rows, query])
+
+  function transformPoint(row: LNRow) {
+    const jitter = scatterStableNoise(row.series_key)
+    const rawX = Math.max(0, Math.min(10, row.ln_score + jitter.x))
+    const rawY = Math.max(0, Math.min(100, pctValue(row.drop_percent) + jitter.y))
+    const x = 50 + (rawX - pan.x) * 10 * zoom
+    const y = 50 - (rawY - pan.y) * zoom
+    return {
+      x,
+      y,
+      rawX,
+      rawY,
+      visible: x >= -5 && x <= 105 && y >= -5 && y <= 105,
+    }
+  }
+
+  function clampPan(next: { x: number; y: number }) {
+    return {
+      x: Math.max(-1, Math.min(11, next.x)),
+      y: Math.max(-10, Math.min(110, next.y)),
+    }
+  }
+
+  function pointPercent(clientX: number, clientY: number, element: HTMLElement) {
+    const rect = element.getBoundingClientRect()
+    return {
+      x: ((clientX - rect.left) / rect.width) * 100,
+      y: ((clientY - rect.top) / rect.height) * 100,
+    }
+  }
+
+  function dataAtPercent(percent: { x: number; y: number }, currentZoom = zoom, currentPan = pan) {
+    return {
+      x: currentPan.x + (percent.x - 50) / (10 * currentZoom),
+      y: currentPan.y + (50 - percent.y) / currentZoom,
+    }
+  }
+
+  function zoomAt(percent: { x: number; y: number }, nextZoom: number, baseZoom = zoom, basePan = pan) {
+    const clamped = Math.max(1, Math.min(6, Number(nextZoom.toFixed(2))))
+    const data = dataAtPercent(percent, baseZoom, basePan)
+    setZoom(clamped)
+    setPan(clampPan({
+      x: data.x - (percent.x - 50) / (10 * clamped),
+      y: data.y - (50 - percent.y) / clamped,
+    }))
+  }
+
+  const hoveredRow = hoveredKey ? plotRows.find(row => row.series_key === hoveredKey) || null : null
+  const hoveredPoint = hoveredRow ? transformPoint(hoveredRow) : null
+
+  useEffect(() => {
+    const element = chartRef.current
+    if (!element) return
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      const percent = pointPercent(event.clientX, event.clientY, element)
+      zoomAt(percent, zoom * (event.deltaY > 0 ? 0.88 : 1.12))
+    }
+
+    element.addEventListener('wheel', onWheel, { passive: false })
+    return () => element.removeEventListener('wheel', onWheel)
+  }, [zoom, pan])
+
+  function resetMap() {
+    setZoom(1)
+    setPan({ x: 5, y: 50 })
+  }
+
+  return (
+    <Card className="p-3">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 mb-2">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Biểu đồ sinh tồn của các bộ truyện' : 'Portfolio Quality Map'}</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Hiển thị toàn bộ portfolio; điểm được tách nhẹ để dễ bấm.' : 'Shows the full portfolio; points are separated for clickability.'}</p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3" style={{ color: 'var(--foreground-muted)' }} />
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder={vi ? 'Tìm...' : 'Search...'}
+              className="pl-7 pr-2 py-1.5 rounded-lg text-[10px] font-semibold outline-none w-[132px]"
+              style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground)', border: '1px solid var(--card-border)' }}
+            />
+          </div>
+          <button type="button" onClick={resetMap} className="px-2 py-1.5 rounded-lg text-[10px] font-black transition-all hover:scale-[1.03]" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}>Reset</button>
+          <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
+            <button type="button" onClick={() => setZoom(z => Math.max(1, Number((z - 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>−</button>
+            <button type="button" onClick={() => { setZoom(1); setPan({ x: 5, y: 50 }) }} className="px-2 py-1.5 text-[10px] font-black" style={{ background: zoom === 1 ? '#7c6af5' : 'var(--ln-control-bg)', color: zoom === 1 ? '#fff' : 'var(--foreground-secondary)' }}>{zoom.toFixed(1)}x</button>
+            <button type="button" onClick={() => setZoom(z => Math.min(3.5, Number((z + 0.35).toFixed(2))))} className="px-2 py-1.5 text-[10px] font-black" style={{ background: 'var(--ln-control-bg)', color: 'var(--foreground-secondary)' }}>+</button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        ref={chartRef}
+        className="relative h-[230px] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        style={{ background: 'var(--ln-chart-bg)', border: '1px solid var(--card-border)', touchAction: 'none' }}
+        onPointerDown={e => {
+          e.currentTarget.setPointerCapture(e.pointerId)
+          pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+          dragRef.current = { x: e.clientX, y: e.clientY }
+          pinchRef.current = null
+        }}
+        onPointerMove={e => {
+          if (!pointersRef.current.has(e.pointerId)) return
+          pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+          const pointers = Array.from(pointersRef.current.values())
+          if (pointers.length >= 2) {
+            const [a, b] = pointers
+            const dist = Math.hypot(a.x - b.x, a.y - b.y)
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+            const percent = pointPercent(mid.x, mid.y, e.currentTarget)
+            if (!pinchRef.current) {
+              pinchRef.current = { dist, zoom, pan, pct: percent, data: dataAtPercent(percent) }
+              return
+            }
+            const start = pinchRef.current
+            const nextZoom = Math.max(1, Math.min(6, Number((start.zoom * (dist / Math.max(1, start.dist))).toFixed(2))))
+            setZoom(nextZoom)
+            setPan(clampPan({
+              x: start.data.x - (start.pct.x - 50) / (10 * nextZoom),
+              y: start.data.y - (50 - start.pct.y) / nextZoom,
+            }))
+            return
+          }
+          if (!dragRef.current) return
+          const dx = e.clientX - dragRef.current.x
+          const dy = e.clientY - dragRef.current.y
+          const rect = e.currentTarget.getBoundingClientRect()
+          dragRef.current = { x: e.clientX, y: e.clientY }
+          setPan(current => clampPan({
+            x: current.x - (dx / rect.width * 100) / (10 * zoom),
+            y: current.y + (dy / rect.height * 100) / zoom,
+          }))
+        }}
+        onPointerUp={e => {
+          pointersRef.current.delete(e.pointerId)
+          dragRef.current = null
+          pinchRef.current = null
+        }}
+        onPointerCancel={e => {
+          pointersRef.current.delete(e.pointerId)
+          dragRef.current = null
+          pinchRef.current = null
+        }}
+      >
+        <div className="absolute inset-0 opacity-50 pointer-events-none">
+          <div className="absolute left-0 top-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,.08), transparent)' }} />
+          <div className="absolute right-0 bottom-0 w-1/2 h-1/2" style={{ background: 'linear-gradient(315deg, rgba(34,197,94,.08), transparent)' }} />
+        </div>
+
+        <div className="absolute inset-x-8 inset-y-7">
+          {[0, 25, 50, 75, 100].map(v => (
+            <div key={`py-${v}`} className="absolute left-0 right-0 border-t border-dashed" style={{ top: `${100 - v}%`, borderColor: 'rgba(136,146,170,.14)' }}>
+              <span className="absolute -left-2 -translate-x-full -top-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}%</span>
+            </div>
+          ))}
+          {[0, 2, 4, 6, 8, 10].map(v => (
+            <div key={`px-${v}`} className="absolute top-0 bottom-0 border-l border-dashed" style={{ left: `${v * 10}%`, borderColor: 'rgba(136,146,170,.10)' }}>
+              <span className="absolute -bottom-4 -translate-x-1/2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{v}</span>
+            </div>
+          ))}
+
+          <span className="absolute left-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#ef4444' }}>{vi ? 'Rủi ro cao' : 'High Risk'}</span>
+          <span className="absolute right-2 top-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#38bdf8' }}>{vi ? 'Khỏe mạnh nhưng rủi ro' : 'Popular Risk'}</span>
+          <span className="absolute left-2 bottom-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#a78bfa' }}>{vi ? 'Đình trệ' : 'Stalled'}</span>
+          <span className="absolute right-2 bottom-2 text-[9px] font-black uppercase pointer-events-none" style={{ color: '#22c55e' }}>{vi ? 'Khỏe mạnh' : 'Healthy'}</span>
+
+          {plotRows.map(row => {
+            const point = transformPoint(row)
+            if (!point.visible) return null
+            const active = row.series_key === selectedKey
+            const hovered = row.series_key === hoveredKey
+            const color = statusColors[row.evalution || ''] || scoreColor(row.ln_score)
+            const size = active ? 16 : hovered ? 14 : Math.max(9, Math.min(14, 7 + row.demand_score * 0.65))
+            return (
+              <button
+                key={row.series_key}
+                onClick={e => { e.preventDefault(); e.currentTarget.blur(); setHoveredKey(row.series_key); onSelect(row) }}
+                onMouseEnter={() => setHoveredKey(row.series_key)}
+                onMouseLeave={() => setHoveredKey(null)}
+                onFocus={() => setHoveredKey(row.series_key)}
+                onBlur={() => setHoveredKey(null)}
+                className="absolute rounded-full transition-all hover:scale-125 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                style={{
+                  left: `${point.x}%`,
+                  top: `${point.y}%`,
+                  width: size,
+                  height: size,
+                  background: color,
+                  border: active ? '2px solid #fff' : '1px solid rgba(255,255,255,.40)',
+                  boxShadow: active ? `0 0 0 7px ${color}26, 0 0 24px ${color}` : hovered ? `0 0 0 5px ${color}25, 0 0 18px ${color}` : `0 0 10px ${color}66`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: active || hovered ? 30 : 10,
+                }}
+              />
+            )
+          })}
+          {hoveredRow && hoveredPoint && hoveredPoint.visible && (
+            <div
+              className="absolute pointer-events-none rounded-lg px-2.5 py-2 text-[10px] shadow-xl"
+              style={{
+                left: `clamp(6px, ${hoveredPoint.x}%, calc(100% - 190px))`,
+                top: `clamp(6px, ${hoveredPoint.y}%, calc(100% - 76px))`,
+                transform: 'translate(10px, -50%)',
+                background: 'var(--ln-tooltip-bg)',
+                border: '1px solid rgba(136,146,170,.28)',
+                color: 'var(--foreground-secondary)',
+                zIndex: 50,
+                width: 184,
+              }}
+            >
+              <p className="truncate font-black mb-1" style={{ color: 'var(--foreground)' }}>{hoveredRow.series_title}</p>
+              <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 tabular-nums">
+                <span>LN</span><span className="text-right font-bold">{hoveredRow.ln_score.toFixed(1)}</span>
+                <span>{vi ? 'Drop' : 'Drop'}</span><span className="text-right font-bold">{fmtPercent(hoveredRow.drop_percent)}</span>
+                <span>{vi ? 'Tập' : 'Volumes'}</span><span className="text-right font-bold">{fmtNum(hoveredRow.number_of_volumes, 0)}</span>
+                <span>{vi ? 'Trạng thái' : 'Status'}</span><span className="text-right font-bold truncate">{releaseStatusLabel(releaseStatus(hoveredRow), vi)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="absolute left-10 bottom-2 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>LN Score →</div>
+        <div className="absolute left-3 top-1/2 -rotate-90 text-[9px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Drop Risk' : 'Drop Risk'}</div>
+      </div>
+    </Card>
+  )
+}
+
 function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
   const risky = [...rows].sort((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)).slice(0, 5)
   const stalled = rows.filter(isStalledSeries).sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0)).slice(0, 5)
@@ -948,7 +1233,6 @@ export function PublisherFocusView({
   vi?: boolean
 }) {
   const publishers = buildPublishers(rows, volumeRows).filter(p => p.releases24 > 0)
-  const isDetailOpen = Boolean(selectedPublisher)
   const currentName = selectedPublisher || publishers[0]?.publisher || 'Unknown'
   const logoUrl = proxyImg(publisherLogos[publisherKey(currentName)] || null)
   const publisher = publishers.find(p => p.publisher === currentName) || publishers[0]
@@ -992,112 +1276,81 @@ export function PublisherFocusView({
   ]
 
   return (
-    <div className="space-y-4">
-      {/* 1. Top Publisher Cards Grid */}
-      <PublisherCardsGrid
-        publishers={publishers}
-        rows={rows}
-        volumeRows={volumeRows}
-        publisherLogos={publisherLogos}
-        selectedPublisher={selectedPublisher}
-        onSelectPublisher={(name) => setSelectedPublisher(name === selectedPublisher ? null : name)}
-        vi={vi}
-      />
-
-      {/* 2. Detail View Condition */}
-      {isDetailOpen && (
-        <div className="space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
-          {/* Header Banner with Close Button */}
-          <div className="flex items-center justify-between bg-cyan-950/40 border border-cyan-500/30 rounded-2xl px-4 py-2.5">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <span className="text-xs font-black text-cyan-300 uppercase tracking-wider">
-                Đang xem chi tiết: <strong className="text-white text-sm ml-1">{currentName}</strong>
-              </span>
+    <div className="space-y-4 animate-in fade-in duration-200">
+      {/* 1. Detailed Publisher Focus Header */}
+      <Card className="p-3.5">
+        <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr_260px] gap-4 items-center">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-[92px] h-[92px] rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '5px solid rgba(255,255,255,.96)', boxShadow: '0 0 0 1px rgba(136,146,170,.18)' }}>
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={`${currentName} logo`}
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  decoding="async"
+                />
+              ) : (
+                currentName.slice(0, 3).toUpperCase()
+              )}
             </div>
-            <button
-              onClick={() => setSelectedPublisher(null)}
-              className="text-xs font-black text-rose-400 hover:text-rose-300 bg-rose-950/50 hover:bg-rose-900/70 border border-rose-500/30 px-3 py-1 rounded-xl transition-all"
-            >
-              Thu gọn chi tiết ✕
-            </button>
-          </div>
-
-          {/* Detailed Publisher Focus Header */}
-          <Card className="p-3.5">
-            <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr_260px] gap-4 items-center">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Nhà phát hành</p>
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-[92px] h-[92px] rounded-full flex items-center justify-center text-2xl font-black shrink-0 overflow-hidden" style={{ background: 'rgba(255,255,255,.96)', color: '#1d4ed8', border: '5px solid rgba(255,255,255,.96)', boxShadow: '0 0 0 1px rgba(136,146,170,.18)' }}>
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt={`${currentName} logo`}
-                      className="w-full h-full object-contain"
-                      loading="eager"
-                      decoding="async"
-                    />
-                  ) : (
-                    currentName.slice(0, 3).toUpperCase()
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Nhà phát hành</p>
-                  <div className="flex items-center gap-3 min-w-0">
-                    <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
-                    <span className="shrink-0 text-2xl font-black leading-none" style={{ color: 'var(--foreground-muted)', textShadow: '0 0 14px rgba(234,179,8,.55)' }}>#{rank}</span>
-                    <PublisherHeaderPicker
-                      currentName={currentName}
-                      publishers={publisherPickerItems}
-                      publisherLogos={publisherLogos}
-                      onSelect={(p) => setSelectedPublisher(p)}
-                      vi={vi}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                {kpis.map(kpi => (
-                  <div key={kpi.label} className="rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
-                    <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{kpi.label}</p>
-                    <p className="text-2xl font-black mt-1 leading-none" style={{ color: 'var(--foreground)' }}>{kpi.value}</p>
-                    <p className="text-[10px] mt-1" style={{ color: kpi.color }}>{kpi.delta}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Publisher Reliability</p>
-                  <span className="text-sm font-black" style={{ color: 'var(--foreground-muted)' }}>Rank {rank}/{publishers.length}</span>
-                </div>
-                <div className="flex items-end gap-2">
-                  <span className="text-5xl font-black leading-none" style={{ color: publisherScoreColor(reliability) }}>{reliability.toFixed(0)}</span>
-                  <span className="pb-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>/100</span>
-                </div>
-                <div className="h-2 rounded-full overflow-hidden mt-3" style={{ background: 'var(--ln-track-bg)' }}>
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, reliability))}%`, background: 'linear-gradient(90deg,#38bdf8,#a78bfa)' }} />
-                </div>
+                <h2 className="text-2xl font-black truncate" style={{ color: 'var(--foreground)' }}>{currentName}</h2>
+                <span className="shrink-0 text-2xl font-black leading-none" style={{ color: 'var(--foreground-muted)', textShadow: '0 0 14px rgba(234,179,8,.55)' }}>#{rank}</span>
+                <PublisherHeaderPicker
+                  currentName={currentName}
+                  publishers={publisherPickerItems}
+                  publisherLogos={publisherLogos}
+                  onSelect={(p) => setSelectedPublisher(p)}
+                  vi={vi}
+                />
               </div>
             </div>
-          </Card>
-
-          {/* Publisher Analytics Detail Sections */}
-          <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
-            <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
-            <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
-            <PublisherBreakdown rows={portfolioRows} vi={vi} />
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
-            <div className="grid grid-cols-1 gap-3">
-              <GrowthChart volumeRows={publisherVolumes} vi={vi} />
-              <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            {kpis.map(kpi => (
+              <div key={kpi.label} className="rounded-xl p-3" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
+                <p className="text-[9px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>{kpi.label}</p>
+                <p className="text-2xl font-black mt-1 leading-none" style={{ color: 'var(--foreground)' }}>{kpi.value}</p>
+                <p className="text-[10px] mt-1" style={{ color: kpi.color }}>{kpi.delta}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl p-3" style={{ background: 'rgba(124,106,245,.10)', border: '1px solid rgba(124,106,245,.20)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground-muted)' }}>Publisher Reliability</p>
+              <span className="text-sm font-black" style={{ color: 'var(--foreground-muted)' }}>Rank {rank}/{publishers.length}</span>
             </div>
-            <PublisherRiskCards rows={portfolioRows} vi={vi} />
+            <div className="flex items-end gap-2">
+              <span className="text-5xl font-black leading-none" style={{ color: publisherScoreColor(reliability) }}>{reliability.toFixed(0)}</span>
+              <span className="pb-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>/100</span>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden mt-3" style={{ background: 'var(--ln-track-bg)' }}>
+              <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, reliability))}%`, background: 'linear-gradient(90deg,#38bdf8,#a78bfa)' }} />
+            </div>
           </div>
         </div>
-      )}
+      </Card>
+
+      {/* 2. Publisher Analytics Detail Sections */}
+      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
+        <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
+        <PublisherBreakdown rows={portfolioRows} vi={vi} />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
+        <div className="grid grid-cols-1 gap-3">
+          <GrowthChart volumeRows={publisherVolumes} vi={vi} />
+          <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+        </div>
+        <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
+        <PublisherRiskCards rows={portfolioRows} vi={vi} />
+      </div>
     </div>
   )
 }
