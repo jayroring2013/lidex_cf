@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo, ReactNode } from 'react'
-import { Search, ChevronDown, Sparkles, Check, X, BookOpen } from 'lucide-react'
+import { Search, ChevronDown, Sparkles, Check, X, BookOpen, TrendingUp, BarChart3 } from 'lucide-react'
 
 export type LNRow = {
   raw_rank: number
@@ -55,6 +55,22 @@ export type VolumeReleaseRow = {
 
 export type PublisherLogoMap = Record<string, string>
 
+type PublisherAgg = {
+  publisher: string
+  releases24: number
+  seriesCount: number
+  avgScore: number
+  avgDrop: number
+  marketShare: number
+}
+
+type HeatmapRow = {
+  publisher: string
+  monthKey: string
+  monthLabel: string
+  count: number
+}
+
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
@@ -83,6 +99,18 @@ function publisherKey(name: string | null | undefined): string {
   return name.toLowerCase().trim().replace(/[^a-z0-9]/g, '')
 }
 
+function releaseStatusLabel(status: string, vi = true) {
+  if (vi) return status
+  return ({
+    'Đang phát hành': 'Active',
+    'Lâu lắm rồi chưa có tập mới': 'Long inactive',
+    Drop: 'Dropped',
+    'Đã bắt kịp bản gốc JP': 'Caught up to JP',
+    'Hoàn thành': 'Completed',
+    'Có bản quyền nhưng chưa phát hành': 'Licensed but unreleased',
+  } as Record<string, string>)[status] || status
+}
+
 function releaseStatus(row: LNRow) {
   return row.trang_thai || (
     row.evalution === 'Completed'
@@ -93,6 +121,23 @@ function releaseStatus(row: LNRow) {
           ? 'Drop'
           : 'Đang phát hành'
   )
+}
+
+function isStalledSeries(row: LNRow) {
+  const rs = releaseStatus(row)
+  if (rs === 'Có bản quyền nhưng chưa phát hành') return false
+  const label = releaseStatusLabel(rs, false)
+  return row.evalution !== 'Completed' && label !== 'Completed' && label !== 'Caught up to JP'
+}
+
+function releaseStatusStyle(row: LNRow) {
+  const s = releaseStatus(row)
+  if (s === 'Hoàn thành') return { bg: 'rgba(56,189,248,.18)', color: '#38bdf8', border: 'rgba(56,189,248,.30)' }
+  if (s === 'Đang phát hành') return { bg: 'rgba(34,197,94,.18)', color: '#22c55e', border: 'rgba(34,197,94,.30)' }
+  if (s === 'Đã bắt kịp bản gốc JP') return { bg: 'rgba(168,85,247,.18)', color: '#c084fc', border: 'rgba(168,85,247,.30)' }
+  if (s === 'Lâu lắm rồi chưa có tập mới') return { bg: 'rgba(234,179,8,.18)', color: '#facc15', border: 'rgba(234,179,8,.30)' }
+  if (s === 'Drop') return { bg: 'rgba(239,68,68,.18)', color: '#f87171', border: 'rgba(239,68,68,.30)' }
+  return { bg: 'rgba(148,163,184,.14)', color: '#cbd5e1', border: 'rgba(148,163,184,.22)' }
 }
 
 function avgValue<T>(list: T[], fn: (item: T) => number): number {
@@ -106,17 +151,99 @@ function pctValue(v: number | null | undefined): number {
   return v > 1 ? v : v * 100
 }
 
-function publisherReliabilityScore(portfolioRows: LNRow[], publisherVolumes: VolumeReleaseRow[]) {
-  if (!portfolioRows.length) return 0
-  const avgScore = avgValue(portfolioRows, row => row.ln_score)
-  const avgDrop = avgValue(portfolioRows, row => pctValue(row.drop_percent))
-  const completed = portfolioRows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
-  const active = portfolioRows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
-  const releasesCount = publisherVolumes.length
+function fmtPercent(v: number | null | undefined): string {
+  if (v === null || v === undefined) return '—'
+  const p = pctValue(v)
+  return `${p.toFixed(1)}%`
+}
+
+function fmtNum(value: number | null | undefined, digits = 1) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '—'
+  return Number(value).toLocaleString('vi-VN', { maximumFractionDigits: digits })
+}
+
+function fmtDurationFromMonths(months: number | null | undefined, vi = true): string {
+  if (months == null || Number.isNaN(Number(months))) return vi ? 'Chưa có thông tin' : 'No data'
+  const m = Math.max(0, Math.round(Number(months)))
+  const years = Math.floor(m / 12)
+  const remMonths = m % 12
+  const parts = [
+    years > 0 ? `${years} ${vi ? 'năm' : years === 1 ? 'year' : 'years'}` : '',
+    remMonths > 0 ? `${remMonths} ${vi ? 'tháng' : remMonths === 1 ? 'month' : 'months'}` : '',
+  ].filter(Boolean)
+  return parts.length ? parts.join(' ') : (vi ? 'Vừa mới ra' : 'Just released')
+}
+
+function scatterStableNoise(key: string) {
+  let hash = 0
+  for (let i = 0; i < key.length; i++) hash = (hash << 5) - hash + key.charCodeAt(i)
+  const normX = (Math.abs(hash) % 100) / 100
+  const normY = (Math.abs(hash >> 3) % 100) / 100
+  return {
+    x: (normX - 0.5) * 0.36,
+    y: (normY - 0.5) * 3.6,
+  }
+}
+
+function volumeReleaseYear(row: VolumeReleaseRow) {
+  if (!row.release_date) return null
+  const d = new Date(row.release_date)
+  const year = d.getFullYear()
+  return Number.isFinite(year) ? year : null
+}
+
+function availableReleaseYears(rows: VolumeReleaseRow[]) {
+  const years = new Set<number>()
+  for (const row of rows) {
+    const y = volumeReleaseYear(row)
+    if (y !== null) years.add(y)
+  }
+  return Array.from(years).sort((a, b) => b - a)
+}
+
+function filterVolumeRowsBySingleYear(rows: VolumeReleaseRow[], selectedYear: number | null) {
+  if (selectedYear === null) return rows
+  return rows.filter(row => volumeReleaseYear(row) === selectedYear)
+}
+
+function CompactYearSelect({
+  years,
+  selectedYear,
+  setSelectedYear,
+  vi,
+}: {
+  years: number[]
+  selectedYear: number | null
+  setSelectedYear: (year: number | null) => void
+  vi: boolean
+}) {
+  const displayYears = [...years].sort((a, b) => b - a)
+  return (
+    <select
+      value={selectedYear ?? ''}
+      onChange={e => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+      className="px-2.5 py-1.5 rounded-lg text-[10px] font-black outline-none min-w-[92px]"
+      style={{ background: selectedYear === null ? '#7c6af5' : 'var(--ln-control-bg)', color: selectedYear === null ? '#fff' : 'var(--foreground-secondary)', border: '1px solid var(--card-border)' }}
+    >
+      <option value="">{vi ? 'Tất cả năm' : 'All years'}</option>
+      {displayYears.map(year => (
+        <option key={year} value={year}>{year}</option>
+      ))}
+    </select>
+  )
+}
+
+function publisherReliabilityScore(rows: LNRow[], volumeRows: VolumeReleaseRow[] = []) {
+  if (rows.length === 0) return 0
+  const avgScore = avgValue(rows, r => r.ln_score)
+  const avgDrop = avgValue(rows, r => pctValue(r.drop_percent))
+  const completed = rows.filter(r => r.evalution === 'Completed' || releaseStatus(r) === 'Hoàn thành').length
+  const active = rows.filter(r => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(r))).length
+  const releasesCount = volumeRows.length
 
   const scorePart = (avgScore / 10) * 35
   const dropPart = (1 - Math.min(100, avgDrop) / 100) * 35
-  const activePart = (active / Math.max(1, portfolioRows.length)) * 15
+  const activePart = (active / Math.max(1, rows.length)) * 15
   const completedPart = Math.min(10, completed * 2)
   const volumePart = Math.min(5, releasesCount * 0.5)
 
@@ -165,19 +292,24 @@ function buildPublishers(rows: LNRow[], volumeRows: VolumeReleaseRow[]) {
   return Object.values(map).map(({ publisher, rows: pRows, volumeRows: pVols }) => {
     const releases24 = pVols.length
     const marketShare = (releases24 / totalReleases24) * 100
+    const seriesCount = pRows.length
+    const avgScore = avgValue(pRows, r => r.ln_score)
+    const avgDrop = avgValue(pRows, r => pctValue(r.drop_percent))
     return {
       publisher,
       rows: pRows,
       volumeRows: pVols,
       releases24,
       marketShare,
+      seriesCount,
+      avgScore,
+      avgDrop,
     }
   }).sort((a, b) => b.releases24 - a.releases24 || a.publisher.localeCompare(b.publisher))
 }
 
 function PublisherLogoMark({ name, logoUrl, size = 'md' }: { name: string; logoUrl: string | null; size?: 'sm' | 'md' }) {
   const dim = size === 'sm' ? 'w-9 h-9' : 'w-11 h-11'
-
   return (
     <div
       className={`${dim} rounded-xl flex items-center justify-center shrink-0 overflow-hidden text-[10px] font-black`}
@@ -217,15 +349,12 @@ function PublisherHeaderPicker({
 
   useEffect(() => {
     if (!open) return
-
     function onPointerDown(event: Event) {
       if (!wrapRef.current?.contains(event.target as Node)) setOpen(false)
     }
-
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') setOpen(false)
     }
-
     document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
     return () => {
@@ -278,7 +407,6 @@ function PublisherHeaderPicker({
             {filtered.map(p => {
               const logoUrl = proxyImg(publisherLogos[publisherKey(p.publisher)] || null)
               const active = p.publisher === currentName
-
               return (
                 <button
                   key={p.publisher}
@@ -299,7 +427,6 @@ function PublisherHeaderPicker({
                 </button>
               )
             })}
-
             {filtered.length === 0 && (
               <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--foreground-muted)' }}>
                 {vi ? 'Không tìm thấy nhà phát hành.' : 'No publishers found.'}
@@ -417,6 +544,200 @@ function PublisherCardsGrid({
           )
         })}
       </div>
+    </div>
+  )
+}
+
+function PublisherDNARadar({ publisher, rows, volumeRows, vi }: { publisher: PublisherAgg; rows: LNRow[]; volumeRows: VolumeReleaseRow[]; vi: boolean }) {
+  const [hoveredAxis, setHoveredAxis] = useState<number | null>(null)
+  const activeCount = rows.filter(row => ['Đang phát hành', 'Đã bắt kịp bản gốc JP', 'Lâu lắm rồi chưa có tập mới'].includes(releaseStatus(row))).length
+  const completedCount = rows.filter(row => row.evalution === 'Completed' || releaseStatus(row) === 'Hoàn thành').length
+  const safety = Math.max(0, Math.min(100, 100 - publisher.avgDrop))
+  const releaseActivity = Math.max(0, Math.min(100, publisher.marketShare * 3.5))
+  const quality = Math.max(0, Math.min(100, publisher.avgScore * 10))
+  const completion = rows.length ? (completedCount / rows.length) * 100 : 0
+  const active = rows.length ? (activeCount / rows.length) * 100 : 0
+  const catchup = avgValue(rows, row => row.catch_up_score * 10)
+  const releasePace = publisherReliabilityScore(rows, volumeRows)
+  const reliability = publisherReliabilityScore(rows, volumeRows)
+
+  const axes = [
+    { label: vi ? 'Sản lượng' : 'Output', short: vi ? 'SL' : 'OUT', icon: '↗', value: releaseActivity, description: vi ? 'Tỷ trọng số tập phát hành của nhà phát hành trong dữ liệu hiện tại.' : 'Publisher release share across the current dataset.' },
+    { label: vi ? 'Hoàn thành' : 'Completion', short: vi ? 'HT' : 'CMP', icon: '✓', value: completion, description: vi ? 'Tỷ lệ series đã hoàn thành trong portfolio.' : 'Share of completed series in the portfolio.' },
+    { label: vi ? 'Độ tin cậy' : 'Reliability', short: vi ? 'TC' : 'REL', icon: '◉', value: reliability, description: vi ? 'Đánh giá năng lực NPH: độ mới phát hành, tỷ lệ truyện drop/lâu chưa ra, tốc độ ra tập.' : 'Publisher competency score.' },
+    { label: vi ? 'Tốc độ phát hành' : 'Release Pace', short: vi ? 'TĐ' : 'PACE', icon: '≋', value: releasePace, description: vi ? 'Dựa chủ yếu vào khoảng cách trung bình giữa các tập.' : 'Based mainly on average months between volumes.' },
+    { label: vi ? 'Bắt kịp' : 'Catch-up', short: vi ? 'BK' : 'CUP', icon: '⇄', value: catchup, description: vi ? 'Mức độ bản Việt bắt kịp số tập gốc/JP.' : 'How closely Vietnamese releases match original volumes.' },
+    { label: vi ? 'Chất lượng' : 'Quality', short: vi ? 'CL' : 'QLT', icon: '◆', value: quality, description: vi ? 'Điểm LN trung bình được quy đổi về thang 100.' : 'Average LN score scaled to 100.' },
+    { label: vi ? 'An toàn' : 'Safety', short: vi ? 'AT' : 'SAF', icon: '◌', value: safety, description: vi ? 'Nghịch đảo của khả năng drop trung bình.' : 'Inverse of average drop risk.' },
+    { label: vi ? 'Đang phát hành' : 'Active', short: vi ? 'ĐP' : 'ACT', icon: '●', value: active, description: vi ? 'Tỷ lệ series vẫn còn hoạt động.' : 'Share of active series.' },
+  ] as const
+
+  const size = 260
+  const cx = size / 2
+  const cy = size / 2
+  const maxR = 78
+  const points = axes.map((axis, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+    const r = Math.max(0, Math.min(100, axis.value)) / 100 * maxR
+    return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
+  }).join(' ')
+  const grids = [0.25, 0.5, 0.75, 1].map(level => axes.map((_, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+    const r = level * maxR
+    return `${cx + Math.cos(angle) * r},${cy + Math.sin(angle) * r}`
+  }).join(' '))
+
+  return (
+    <Card className="p-3 h-full">
+      <div className="mb-1">
+        <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Thông số NPH' : 'Publisher DNA'}</p>
+        <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Rê chuột hoặc chạm vào từng trục để xem chi tiết.' : 'Hover or tap each axis for details.'}</p>
+      </div>
+
+      <div className="relative flex justify-center overflow-visible pt-3" onMouseLeave={() => setHoveredAxis(null)}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="max-w-full">
+          {grids.map((g, i) => <polygon key={i} points={g} fill="none" stroke="var(--ln-chart-grid)" />)}
+          {axes.map((axis, i) => {
+            const angle = -Math.PI / 2 + (i * 2 * Math.PI) / axes.length
+            const x1 = cx + Math.cos(angle) * maxR
+            const y1 = cy + Math.sin(angle) * maxR
+            const x = cx + Math.cos(angle) * (maxR + 31)
+            const y = cy + Math.sin(angle) * (maxR + 31)
+            const isActive = hoveredAxis === i
+            const color = publisherScoreColor(axis.value)
+            return (
+              <g key={axis.label} onMouseEnter={() => setHoveredAxis(i)} style={{ cursor: 'pointer' }}>
+                <title>{`${axis.label}: ${axis.value.toFixed(0)}/100`}</title>
+                <line x1={cx} y1={cy} x2={x1} y2={y1} stroke="var(--ln-chart-grid)" />
+                <circle cx={x} cy={y} r={isActive ? 15 : 13} fill={isActive ? `${color}22` : 'var(--ln-control-bg)'} stroke={isActive ? color : 'var(--card-border)'} strokeWidth={isActive ? 2 : 1} />
+                <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="900" fill={color}>{axis.icon}</text>
+              </g>
+            )
+          })}
+          <polygon points={points} fill="rgba(56,189,248,.26)" stroke="#38bdf8" strokeWidth="2" />
+        </svg>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; selectedKey: string | null; vi: boolean }) {
+  const items = useMemo(() => {
+    const fanRanked = rows.filter(row => row.fan_vote_rank != null)
+    const source = fanRanked.length > 0 ? fanRanked : rows
+    return [...source].sort((a, b) => b.ln_score - a.ln_score).slice(0, 10)
+  }, [rows])
+
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [failedCoverKey, setFailedCoverKey] = useState<string | null>(null)
+
+  if (items.length === 0) {
+    return <Card className="p-3"><span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>Không có series.</span></Card>
+  }
+
+  const safeIndex = Math.min(activeIndex, items.length - 1)
+  const active = items[safeIndex]
+  const cover = proxyImg(active.cover_url)
+
+  return (
+    <Card className="p-3 overflow-hidden">
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Các series LN nổi bật</p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Chọn series nổi bật trong portfolio.</p>
+        </div>
+        <div className="flex items-center gap-2 rounded-full px-2.5 py-1.5 shadow-sm" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
+          {items.map((row, idx) => (
+            <button
+              key={row.series_key}
+              type="button"
+              onClick={() => setActiveIndex(idx)}
+              className="w-3 h-3 rounded-full transition-all"
+              style={{ background: idx === safeIndex ? '#7c6af5' : 'var(--foreground-muted)', opacity: idx === safeIndex ? 1 : 0.55 }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="relative rounded-2xl overflow-hidden p-4 min-h-[200px]" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
+        <div className="flex items-center gap-4">
+          {cover && !failedCoverKey && (
+            <img src={cover} alt="" className="w-24 h-36 object-cover rounded-xl shadow-lg shrink-0" onError={() => setFailedCoverKey(active.series_key)} />
+          )}
+          <div>
+            <h3 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
+            <p className="text-xs mt-1" style={{ color: '#22c55e' }}>Điểm LN: {active.ln_score.toFixed(1)}/10</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--foreground-secondary)' }}>Số tập: {active.number_of_volumes}</p>
+            <p className="text-xs mt-2 line-clamp-3" style={{ color: 'var(--foreground-muted)' }}>{active.description || 'Chưa có mô tả cho series này.'}</p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const activeCount = rows.filter(r => ['Đang phát hành', 'Đã bắt kịp bản gốc JP'].includes(releaseStatus(r))).length
+  const completedCount = rows.filter(r => r.evalution === 'Completed' || releaseStatus(r) === 'Hoàn thành').length
+  const droppedCount = rows.filter(r => r.evalution === 'Dropped' || releaseStatus(r) === 'Drop').length
+  const total = Math.max(1, rows.length)
+
+  return (
+    <Card className="p-3 h-full overflow-hidden">
+      <div className="mb-2">
+        <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Tình trạng các bộ LN</p>
+        <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Diện tích theo số series.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 h-[200px]">
+        <div className="rounded-xl p-3 bg-emerald-500/10 border border-emerald-500/30 flex flex-col justify-between">
+          <span className="text-xs font-black text-emerald-400">COMPLETED</span>
+          <span className="text-3xl font-black text-emerald-400">{completedCount}</span>
+          <span className="text-[10px] text-emerald-400/80">{((completedCount / total) * 100).toFixed(1)}% portfolio</span>
+        </div>
+        <div className="rounded-xl p-3 bg-blue-500/10 border border-blue-500/30 flex flex-col justify-between">
+          <span className="text-xs font-black text-blue-400">ONGOING</span>
+          <span className="text-3xl font-black text-blue-400">{activeCount}</span>
+          <span className="text-[10px] text-blue-400/80">{((activeCount / total) * 100).toFixed(1)}% portfolio</span>
+        </div>
+        <div className="rounded-xl p-3 bg-rose-500/10 border border-rose-500/30 flex flex-col justify-between col-span-2">
+          <span className="text-xs font-black text-rose-400">DROPPED</span>
+          <span className="text-3xl font-black text-rose-400">{droppedCount}</span>
+          <span className="text-[10px] text-rose-400/80">{((droppedCount / total) * 100).toFixed(1)}% portfolio</span>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+function PublisherRiskCards({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
+  const risky = [...rows].sort((a, b) => pctValue(b.drop_percent) - pctValue(a.drop_percent)).slice(0, 5)
+  const stalled = rows.filter(isStalledSeries).sort((a, b) => (b.months_since_last_release || 0) - (a.months_since_last_release || 0)).slice(0, 5)
+
+  return (
+    <div className="grid grid-cols-1 gap-3">
+      <Card className="p-3">
+        <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#f87171' }}>Các bộ truyện có nguy cơ drop cao nhất</p>
+        <div className="space-y-2">
+          {risky.map((row, i) => (
+            <div key={row.series_key} className="flex items-center justify-between gap-2 text-[12px]">
+              <span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span>
+              <span className="font-black text-rose-400">{fmtPercent(row.drop_percent)}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <Card className="p-3">
+        <p className="text-xs font-black uppercase tracking-wide mb-3" style={{ color: '#fb923c' }}>Các bộ truyện lâu chưa ra mới</p>
+        <div className="space-y-2">
+          {stalled.map((row, i) => (
+            <div key={row.series_key} className="flex items-center justify-between gap-2 text-[12px]">
+              <span className="truncate" style={{ color: 'var(--foreground-secondary)' }}>{i + 1}. {row.series_title}</span>
+              <span className="font-black text-amber-400 text-right shrink-0">{fmtDurationFromMonths(row.months_since_last_release, vi)}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   )
 }
@@ -554,6 +875,21 @@ export function PublisherFocusView({
           </div>
         </div>
       </Card>
+
+      {/* 3. Publisher Analytics Detail Sections */}
+      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
+        <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
+        <PublisherBreakdown rows={portfolioRows} vi={vi} />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
+        <div className="grid grid-cols-1 gap-3">
+          <GrowthChart volumeRows={publisherVolumes} vi={vi} />
+          <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+        </div>
+        <PublisherRiskCards rows={portfolioRows} vi={vi} />
+      </div>
     </div>
   )
 }
