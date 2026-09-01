@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo, ReactNode } from 'react'
 import Link from 'next/link'
-import { Search, ChevronDown, Sparkles, Check, X, BookOpen, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react'
+import { Search, ChevronDown, Sparkles, Check, X, BookOpen, TrendingUp, BarChart3, ArrowLeft, ArrowRight } from 'lucide-react'
 
 export type LNRow = {
   raw_rank: number
@@ -837,30 +837,106 @@ function PublisherDNARadar({ publisher, rows, volumeRows, vi }: { publisher: Pub
   )
 }
 
+function detailHref(row: LNRow) {
+  const targetId = row.lidex_series_id || row.series_id || row.series_code || row.series_key
+  return `/content/${encodeURIComponent(targetId)}`
+}
+
+function fmtDate(d: string | null | undefined): string {
+  if (!d) return '—'
+  const date = new Date(d)
+  if (Number.isNaN(date.getTime())) return String(d).slice(0, 10)
+  return date.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+}
+
+function publisherPortfolioBuckets(rows: LNRow[]) {
+  const buckets = {
+    completed: [] as LNRow[],
+    ongoing: [] as LNRow[],
+    stalled: [] as LNRow[],
+    dropped: [] as LNRow[],
+    caught: [] as LNRow[],
+  }
+
+  rows.forEach(row => {
+    const status = releaseStatusLabel(releaseStatus(row), false)
+    if (row.evalution === 'Completed' || status === 'Completed') buckets.completed.push(row)
+    else if (row.evalution === 'Dropped' || status === 'Dropped') buckets.dropped.push(row)
+    else if (status === 'Caught up to JP') buckets.caught.push(row)
+    else if (row.evalution === 'Limping' || row.evalution === 'Dead' || status === 'Long inactive') buckets.stalled.push(row)
+    else buckets.ongoing.push(row)
+  })
+
+  return buckets
+}
+
 function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; selectedKey: string | null; vi: boolean }) {
   const items = useMemo(() => {
     const fanRanked = rows.filter(row => row.fan_vote_rank != null)
     const source = fanRanked.length > 0 ? fanRanked : rows
-    return [...source].sort((a, b) => b.ln_score - a.ln_score).slice(0, 10)
+    return [...source]
+      .sort((a, b) => {
+        const aRank = a.fan_vote_rank ?? Number.MAX_SAFE_INTEGER
+        const bRank = b.fan_vote_rank ?? Number.MAX_SAFE_INTEGER
+        return (aRank - bRank)
+          || ((b.fan_vote_year || 0) - (a.fan_vote_year || 0))
+          || ((b.fan_vote_votes || 0) - (a.fan_vote_votes || 0))
+          || (b.ln_score - a.ln_score)
+          || pctValue(a.drop_percent) - pctValue(b.drop_percent)
+          || String(b.max_release_at || '').localeCompare(String(a.max_release_at || ''))
+      })
+      .slice(0, 10)
   }, [rows])
 
-  const [activeIndex, setActiveIndex] = useState(0)
+  const initial = Math.max(0, items.findIndex(row => row.series_key === selectedKey))
+  const [activeIndex, setActiveIndex] = useState(initial < 0 ? 0 : initial)
   const [failedCoverKey, setFailedCoverKey] = useState<string | null>(null)
 
+  useEffect(() => {
+    const idx = items.findIndex(row => row.series_key === selectedKey)
+    if (idx >= 0) setActiveIndex(idx)
+    else setActiveIndex(0)
+  }, [selectedKey, items.length])
+
+  useEffect(() => {
+    if (items.length <= 1) return
+    const timer = window.setInterval(() => {
+      setActiveIndex(idx => (idx + 1) % items.length)
+    }, 8000)
+    return () => window.clearInterval(timer)
+  }, [items.length])
+
   if (items.length === 0) {
-    return <Card className="p-3"><span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>Không có series.</span></Card>
+    return <Card className="p-3"><span className="text-xs" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Không có series.' : 'No series.'}</span></Card>
   }
 
   const safeIndex = Math.min(activeIndex, items.length - 1)
   const active = items[safeIndex]
+  const activeStyle = releaseStatusStyle(active)
   const cover = proxyImg(active.cover_url)
+  const showCover = Boolean(cover && failedCoverKey !== active.series_key)
+  const volumeCount = Math.max(0, Math.round(active.number_of_volumes || 0))
+  const isCompletedOneshot = volumeCount === 1 && (active.evalution === 'Completed' || releaseStatusLabel(releaseStatus(active), false) === 'Completed')
+  const volumeLabel = isCompletedOneshot
+    ? 'Oneshot'
+    : vi
+      ? `${fmtNum(volumeCount, 0)} tập`
+      : `${fmtNum(volumeCount, 0)} ${volumeCount === 1 ? 'Volume' : 'Volumes'}`
+  const fanVoteLabel = active.fan_vote_rank && active.fan_vote_year
+    ? (vi ? `LN ưa thích số ${active.fan_vote_rank} năm ${active.fan_vote_year}` : `Favourite Fan Vote #${active.fan_vote_rank} ${active.fan_vote_year}`)
+    : null
+  const description = active.description || (vi ? 'Chưa có mô tả cho series này.' : 'No description available for this series.')
 
   return (
     <Card className="p-3 overflow-hidden">
       <div className="flex items-center justify-between gap-3 mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Các series LN nổi bật</p>
-          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Chọn series nổi bật trong portfolio.</p>
+          <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>
+            {vi ? 'Các series LN nổi bật' : 'Top Series Slideshow'}
+          </p>
+          <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+            {vi ? 'Chọn series nổi bật trong portfolio.' : 'Browse this publisher portfolio.'}
+          </p>
         </div>
         <div className="flex items-center gap-2 rounded-full px-2.5 py-1.5 shadow-sm" style={{ background: 'var(--ln-control-bg)', border: '1px solid var(--card-border)' }}>
           {items.map((row, idx) => (
@@ -868,23 +944,59 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
               key={row.series_key}
               type="button"
               onClick={() => setActiveIndex(idx)}
-              className="w-3 h-3 rounded-full transition-all"
-              style={{ background: idx === safeIndex ? '#7c6af5' : 'var(--foreground-muted)', opacity: idx === safeIndex ? 1 : 0.55 }}
+              className="w-3 h-3 rounded-full transition-all hover:scale-125"
+              style={{ background: idx === safeIndex ? '#7c6af5' : 'var(--foreground-muted)', opacity: idx === safeIndex ? 1 : 0.55, boxShadow: idx === safeIndex ? '0 0 0 3px rgba(124,106,245,.22)' : 'none' }}
+              aria-label={`Show slide ${idx + 1}`}
+              title={`${idx + 1}/${items.length}`}
             />
           ))}
         </div>
       </div>
 
-      <div className="relative rounded-2xl overflow-hidden p-4 min-h-[200px]" style={{ background: 'var(--ln-panel-bg)', border: '1px solid var(--card-border)' }}>
-        <div className="flex items-center gap-4">
-          {cover && !failedCoverKey && (
-            <img src={cover} alt="" className="w-24 h-36 object-cover rounded-xl shadow-lg shrink-0" onError={() => setFailedCoverKey(active.series_key)} />
-          )}
-          <div>
-            <h3 className="text-lg font-black" style={{ color: 'var(--foreground)' }}>{active.series_title}</h3>
-            <p className="text-xs mt-1" style={{ color: '#22c55e' }}>Điểm LN: {active.ln_score.toFixed(1)}/10</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--foreground-secondary)' }}>Số tập: {active.number_of_volumes}</p>
-            <p className="text-xs mt-2 line-clamp-3" style={{ color: 'var(--foreground-muted)' }}>{active.description || 'Chưa có mô tả cho series này.'}</p>
+      <div className="relative rounded-2xl overflow-hidden" style={{ background: 'var(--ln-slideshow-bg)', border: '1px solid var(--card-border)' }}>
+        {showCover && <img src={cover || ''} alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08] blur-md scale-110" onError={() => setFailedCoverKey(active.series_key)} />}
+        <div className="absolute inset-0" style={{ background: 'var(--ln-slideshow-overlay)' }} />
+
+        <Link href={detailHref(active)} className="absolute right-3 top-3 z-20 inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-black transition-all hover:scale-[1.02] min-w-[78px]" style={{ background: 'var(--ln-slideshow-open-bg)', color: 'var(--ln-slideshow-open-text)', border: '1px solid var(--ln-slideshow-open-border)' }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
+
+        <div className="relative grid grid-cols-[122px_1fr] sm:grid-cols-[150px_1fr] gap-4 p-3 min-h-[244px]">
+          <div className="relative">
+            <div className="relative rounded-xl overflow-hidden shadow-xl" style={{ aspectRatio: '2/3', border: '1px solid var(--ln-slideshow-cover-border)', background: 'var(--ln-slideshow-cover-bg)' }}>
+              {showCover ? (
+                <img src={cover || ''} alt={active.series_title} className="w-full h-full object-cover" onError={() => setFailedCoverKey(active.series_key)} />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <BookOpen className="w-8 h-8 opacity-50" style={{ color: 'var(--foreground-muted)' }} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="min-w-0 flex flex-col justify-between">
+            <div className="pr-24">
+              <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-black" style={{ color: activeStyle.color, background: activeStyle.bg, border: `1px solid ${activeStyle.border}` }}>{releaseStatusLabel(releaseStatus(active), vi)}</span>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--ln-slideshow-volume-text)', background: 'var(--ln-slideshow-volume-bg)', border: '1px solid var(--ln-slideshow-volume-border)' }}>{volumeLabel}</span>
+                <span className="rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ color: 'var(--ln-slideshow-date-text)', background: 'var(--ln-slideshow-date-bg)', border: '1px solid var(--card-border)' }}>
+                  {fmtDate(active.max_release_at)}
+                </span>
+                {fanVoteLabel && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[9px] font-black"
+                    style={{ color: 'var(--ln-slideshow-vote-text)', background: 'var(--ln-slideshow-vote-bg)', border: '1px solid var(--ln-slideshow-vote-border)' }}
+                    title={active.fan_vote_votes ? `${fmtNum(active.fan_vote_votes, 0)} votes · ${active.fan_vote_period || active.fan_vote_year}` : active.fan_vote_period || undefined}
+                  >
+                    {fanVoteLabel}
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-black leading-tight line-clamp-3" style={{ color: 'var(--ln-slideshow-title)' }}>{active.series_title}</h3>
+            </div>
+
+            <div className="mt-3 rounded-xl p-3 min-h-[126px] max-h-[154px] overflow-hidden" style={{ background: 'var(--ln-slideshow-desc-bg)', border: '1px solid var(--ln-slideshow-desc-border)' }}>
+              <p className="text-[11px] leading-relaxed line-clamp-6" style={{ color: 'var(--ln-slideshow-text)' }}>{description}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -893,34 +1005,47 @@ function PublisherSeriesCarousel({ rows, selectedKey, vi }: { rows: LNRow[]; sel
 }
 
 function PublisherBreakdown({ rows, vi }: { rows: LNRow[]; vi: boolean }) {
-  const activeCount = rows.filter(r => ['Đang phát hành', 'Đã bắt kịp bản gốc JP'].includes(releaseStatus(r))).length
-  const completedCount = rows.filter(r => r.evalution === 'Completed' || releaseStatus(r) === 'Hoàn thành').length
-  const droppedCount = rows.filter(r => r.evalution === 'Dropped' || releaseStatus(r) === 'Drop').length
+  const buckets = publisherPortfolioBuckets(rows)
+  const groups = [
+    { key: 'completed', label: vi ? 'Completed' : 'Completed', color: '#22c55e', rows: buckets.completed },
+    { key: 'active', label: vi ? 'Ongoing' : 'Ongoing', color: '#2563eb', rows: buckets.ongoing },
+    { key: 'stalled', label: vi ? 'Stalled' : 'Stalled', color: '#eab308', rows: buckets.stalled },
+    { key: 'dropped', label: vi ? 'Dropped' : 'Dropped', color: '#ef4444', rows: buckets.dropped },
+    { key: 'caught', label: vi ? 'Caught Up' : 'Caught Up', color: '#7c6af5', rows: buckets.caught },
+  ].filter(group => group.rows.length > 0).sort((a, b) => b.rows.length - a.rows.length)
+
   const total = Math.max(1, rows.length)
 
   return (
     <Card className="p-3 h-full overflow-hidden">
       <div className="mb-2">
-        <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>Tình trạng các bộ LN</p>
-        <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>Diện tích theo số series.</p>
+        <p className="text-[11px] font-black uppercase tracking-wide" style={{ color: 'var(--foreground)' }}>{vi ? 'Tình trạng các bộ LN' : 'Portfolio Treemap'}</p>
+        <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{vi ? 'Diện tích theo số series.' : 'Area by number of series.'}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 h-[200px]">
-        <div className="rounded-xl p-3 bg-emerald-500/10 border border-emerald-500/30 flex flex-col justify-between">
-          <span className="text-xs font-black text-emerald-400">COMPLETED</span>
-          <span className="text-3xl font-black text-emerald-400">{completedCount}</span>
-          <span className="text-[10px] text-emerald-400/80">{((completedCount / total) * 100).toFixed(1)}% portfolio</span>
-        </div>
-        <div className="rounded-xl p-3 bg-blue-500/10 border border-blue-500/30 flex flex-col justify-between">
-          <span className="text-xs font-black text-blue-400">ONGOING</span>
-          <span className="text-3xl font-black text-blue-400">{activeCount}</span>
-          <span className="text-[10px] text-blue-400/80">{((activeCount / total) * 100).toFixed(1)}% portfolio</span>
-        </div>
-        <div className="rounded-xl p-3 bg-rose-500/10 border border-rose-500/30 flex flex-col justify-between col-span-2">
-          <span className="text-xs font-black text-rose-400">DROPPED</span>
-          <span className="text-3xl font-black text-rose-400">{droppedCount}</span>
-          <span className="text-[10px] text-rose-400/80">{((droppedCount / total) * 100).toFixed(1)}% portfolio</span>
-        </div>
+      <div className="flex flex-wrap gap-1.5 h-[230px]">
+        {groups.map(group => {
+          const pct = (group.rows.length / total) * 100
+          return (
+            <div
+              key={group.key}
+              className="rounded-xl p-3 min-w-[116px] flex flex-col justify-between overflow-hidden"
+              style={{
+                flex: `${Math.max(0.25, group.rows.length)} 1 ${Math.max(24, pct)}%`,
+                background: `linear-gradient(135deg, ${group.color}55, ${group.color}22)`,
+                border: `1px solid ${group.color}66`,
+              }}
+            >
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-wide truncate" style={{ color: 'var(--foreground)' }}>{group.label}</p>
+                <p className="text-3xl font-black leading-none mt-1" style={{ color: 'var(--foreground)' }}>{group.rows.length}</p>
+              </div>
+              <div>
+                <p className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>{pct.toFixed(1)}% portfolio</p>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </Card>
   )
