@@ -1388,6 +1388,8 @@ export function PublisherFocusView({
   const marketShare = publisher?.marketShare || 0
   const publisherPickerItems = publishers.map(p => ({ publisher: p.publisher }))
 
+  const [activeTab, setActiveTab] = useState<'overview' | 'catalog' | 'analytics' | 'risk'>('overview')
+
   if (!publisher) {
     return <Card className="p-6 text-sm"><span style={{ color: 'var(--foreground-muted)' }}>Không có dữ liệu nhà phát hành.</span></Card>
   }
@@ -1461,21 +1463,85 @@ export function PublisherFocusView({
         </div>
       </Card>
 
-      {/* 2. Publisher Analytics Detail Sections */}
-      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.45fr_0.92fr] gap-3 items-stretch">
-        <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
-        <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
-        <PublisherBreakdown rows={portfolioRows} vi={vi} />
+      {/* 2. Interactive Navigation Tabs Header */}
+      <div className="flex items-center justify-between border-b border-slate-800 pb-3 gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'overview'
+                ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-lg shadow-sky-500/20'
+                : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60'
+            }`}
+          >
+            📌 Tổng quan Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('catalog')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'catalog'
+                ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-lg shadow-sky-500/20'
+                : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60'
+            }`}
+          >
+            📚 Tình trạng LN ({portfolioRows.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'analytics'
+                ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-lg shadow-sky-500/20'
+                : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60'
+            }`}
+          >
+            📈 Sinh tồn & Tăng trưởng
+          </button>
+          <button
+            onClick={() => setActiveTab('risk')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === 'risk'
+                ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-lg shadow-sky-500/20'
+                : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60'
+            }`}
+          >
+            ⚠️ Phân tích Rủi ro
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[0.78fr_1.28fr_0.9fr] gap-3 items-start">
-        <div className="grid grid-cols-1 gap-3">
-          <GrowthChart volumeRows={publisherVolumes} vi={vi} />
-          <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+      {/* TAB CONTENTS */}
+      {activeTab === 'overview' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch animate-in fade-in duration-200">
+          <div className="lg:col-span-1">
+            <PublisherDNARadar publisher={publisher} rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+          </div>
+          <div className="lg:col-span-2">
+            <PublisherSeriesCarousel rows={portfolioRows} selectedKey={selectedKey} vi={vi} />
+          </div>
         </div>
-        <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
-        <PublisherRiskCards rows={portfolioRows} vi={vi} />
-      </div>
+      )}
+
+      {activeTab === 'catalog' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          <PublisherBreakdown rows={portfolioRows} vi={vi} />
+        </div>
+      )}
+
+      {activeTab === 'analytics' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          <PublisherPortfolioMap rows={portfolioRows} selectedKey={selectedKey} vi={vi} onSelect={onSelectSeries} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <GrowthChart volumeRows={publisherVolumes} vi={vi} />
+            <Heatmap rows={portfolioRows} volumeRows={publisherVolumes} vi={vi} />
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'risk' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          <PublisherRiskCards rows={portfolioRows} vi={vi} />
+        </div>
+      )}
     </div>
   )
 }
