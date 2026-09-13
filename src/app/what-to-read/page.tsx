@@ -109,7 +109,9 @@ export default function WhatToReadPage() {
       const data = await res.json()
       if (!data || !data.rankingRows) throw new Error('Dữ liệu không hợp lệ')
 
-      const mapped: NovelItem[] = data.rankingRows.map((r: any, idx: number) => {
+      const mapped: NovelItem[] = data.rankingRows
+        .filter((r: any) => (Number(r.number_of_volumes) || 0) > 0)
+        .map((r: any, idx: number) => {
         const score = Number(r.ln_score) || 0
         const targetId = r.lidex_series_id || r.series_id || r.series_code || r.series_key || `id-${idx}`
         return {
