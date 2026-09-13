@@ -149,6 +149,7 @@ export default function Navbar() {
     { href: '/',          label: 'Trang chủ' },
     { href: '/dashboard', label: 'Bảng theo dõi' },
     { href: '/publisher', label: 'Nhà phát hành' },
+    { href: '/what-to-read', label: 'Hôm nay đọc gì?' },
     { href: '/browse',    label: 'Khám phá' },
   ]
 
