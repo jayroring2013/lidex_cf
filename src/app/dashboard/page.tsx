@@ -2831,16 +2831,17 @@ export default function Dashboard() {
 
       // Hydrate fan votes
       const latestVotesMap = new Map<number, { votes: number; rank: number | null; period: string | null; year: number | null; sort: number }>()
-      for (const vote of voteRows) {
+      for (const vote of (voteRows || [])) {
+        if (!vote || !vote.voting_periods) continue
         const seriesId = vote.series_id
-        const sortVal = vote.voting_periods.year * 12 + vote.voting_periods.month
+        const sortVal = (vote.voting_periods.year || 0) * 12 + (vote.voting_periods.month || 0)
         const existing = latestVotesMap.get(seriesId)
         if (!existing || sortVal > existing.sort) {
           latestVotesMap.set(seriesId, {
             votes: vote.votes,
             rank: vote.rank,
-            period: vote.voting_periods.label,
-            year: vote.voting_periods.year,
+            period: vote.voting_periods.label || null,
+            year: vote.voting_periods.year || null,
             sort: sortVal
           })
         }

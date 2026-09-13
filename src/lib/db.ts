@@ -1387,12 +1387,14 @@ export async function fetchDashboardWatchlistData() {
     if (ids.length > 0) {
       voteRows = await sql(`
         SELECT vr.series_id, 
-               MAX(vr.votes)::int as votes,
-               SUM(vr.votes)::int as total_votes,
-               MIN(vr.rank)::int as min_rank
+               vr.votes::int as votes,
+               vr.rank::int as rank,
+               vp.year::int as period_year,
+               vp.month::int as period_month,
+               vp.label as period_label
         FROM voting_results vr
+        LEFT JOIN voting_periods vp ON vr.period_id = vp.id
         WHERE vr.series_id = ANY($1)
-        GROUP BY vr.series_id
       `, [ids])
     }
 
@@ -1419,9 +1421,13 @@ export async function fetchDashboardWatchlistData() {
       voteRows: voteRows.map((r: any) => ({
         series_id: Number(r.series_id),
         votes: Number(r.votes) || 0,
-        total_votes: Number(r.total_votes) || Number(r.votes) || 0,
-        rank: r.min_rank == null ? null : Number(r.min_rank),
-        voting_periods: null
+        total_votes: Number(r.votes) || 0,
+        rank: r.rank == null ? null : Number(r.rank),
+        voting_periods: r.period_year ? {
+          year: Number(r.period_year),
+          month: Number(r.period_month) || 1,
+          label: r.period_label || ''
+        } : null
       }))
     }
   } catch (error) {
