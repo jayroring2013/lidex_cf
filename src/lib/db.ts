@@ -1353,7 +1353,7 @@ export async function fetchDashboardWatchlistData() {
           -- 2. Canonical s.cover_url
           NULLIF(TRIM(s.cover_url), ''),
           -- 3. Any volume cover for matched series s or lidex_series_id or series_id
-          (SELECT v.cover_url FROM volumes v WHERE (v.series_id = s.id OR v.series_id = r.lidex_series_id OR v.series_id = r.series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
+          (SELECT v.cover_url FROM volumes v WHERE (v.series_id = s.id OR v.series_id = r.lidex_series_id OR (r.series_id ~ '^[0-9]+$' AND v.series_id = r.series_id::int)) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
           -- 4. Volume cover matched by series title ILIKE
           (SELECT v.cover_url FROM volumes v JOIN series s2 ON v.series_id = s2.id WHERE (LOWER(TRIM(s2.title)) = LOWER(TRIM(r.series_title)) OR LOWER(TRIM(s2.title_vi)) = LOWER(TRIM(r.series_title)) OR s2.title ILIKE '%' || TRIM(r.series_title) || '%' OR r.series_title ILIKE '%' || TRIM(s2.title_vi) || '%') AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
           -- 5. Fallback r.cover_url
@@ -1362,16 +1362,23 @@ export async function fetchDashboardWatchlistData() {
         r.cover_source_title,
         COALESCE(s.title, r.series_title) as canonical_title,
         COALESCE(s.description_vi, s.description) as canonical_description,
-        COALESCE(s.id, r.lidex_series_id, r.series_id) as resolved_series_id
+        COALESCE(s.id, r.lidex_series_id, CASE WHEN r.series_id ~ '^[0-9]+$' THEN r.series_id::int ELSE NULL END) as resolved_series_id
       FROM ln_series_ranking r
       LEFT JOIN series s ON (
         s.id = r.lidex_series_id 
-        OR s.id = r.series_id
-        OR LOWER(TRIM(s.title)) = LOWER(TRIM(r.series_title))
-        OR LOWER(TRIM(s.title_vi)) = LOWER(TRIM(r.series_title))
-        OR (r.series_title IS NOT NULL AND (s.title ILIKE '%' || TRIM(r.series_title) || '%' OR r.series_title ILIKE '%' || TRIM(s.title_vi) || '%'))
+        OR (r.lidex_series_id IS NULL AND (
+          (r.series_id ~ '^[0-9]+$' AND s.id = r.series_id::int)
+          OR LOWER(TRIM(s.title)) = LOWER(TRIM(r.series_title))
+          OR LOWER(TRIM(s.title_vi)) = LOWER(TRIM(r.series_title))
+          OR (r.series_title IS NOT NULL AND (s.title ILIKE '%' || TRIM(r.series_title) || '%' OR r.series_title ILIKE '%' || TRIM(s.title_vi) || '%'))
+        ))
       )
-      ORDER BY r.id, (CASE WHEN s.cover_url IS NOT NULL THEN 0 ELSE 1 END), r.ln_score DESC
+      ORDER BY r.id, 
+        (CASE WHEN s.id = r.lidex_series_id THEN 0 ELSE 1 END),
+        (CASE WHEN s.item_type = 'novel' THEN 0 ELSE 1 END),
+        (CASE WHEN s.cover_url LIKE '%r2.dev%' OR s.cover_url LIKE '%imagedelivery.net%' THEN 0 ELSE 1 END),
+        (CASE WHEN s.cover_url IS NOT NULL THEN 0 ELSE 1 END),
+        r.ln_score DESC
     `)
 
     const ids = Array.from(new Set(rankingRows.map((r: any) => Number(r.resolved_series_id || r.lidex_series_id || r.series_id)).filter(Boolean)))
