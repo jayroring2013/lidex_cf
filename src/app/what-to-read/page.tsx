@@ -7,6 +7,7 @@ import {
   ArrowRight, ExternalLink, Filter, Trophy, Star, ShieldAlert
 } from 'lucide-react'
 import { Card } from '@/components/PublisherFocusView'
+import { proxyImg } from '@/lib/imageProxy'
 
 export type NovelItem = {
   id: string | number
@@ -24,14 +25,6 @@ export type NovelItem = {
 
 const RARITY_COLORS = ['#4b69ff', '#8847ff', '#d32ce6', '#eb4b4b', '#e4ae39']
 const RARITY_NAMES = ['Thông thường', 'Hiếm', 'Sơ cấp', 'Huyền thoại', 'Báu vật 👑']
-
-function proxyImg(url: string | null): string | null {
-  if (!url) return null
-  if (url.startsWith('https://img.duoshuba.com') || url.startsWith('http://img.duoshuba.com')) {
-    return `/api/image-proxy?url=${encodeURIComponent(url)}`
-  }
-  return url
-}
 
 function calculateRarity(score: number): number {
   if (score >= 8.5) return 4
@@ -114,6 +107,7 @@ export default function WhatToReadPage() {
   const [novels, setNovels] = useState<NovelItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [imgErrorMap, setImgErrorMap] = useState<Record<string, boolean>>({})
 
   // Filters
   const [selectedPublisher, setSelectedPublisher] = useState<string>('all')
@@ -134,6 +128,10 @@ export default function WhatToReadPage() {
   const positionRef = useRef(-400)
   const animFrameRef = useRef(0)
   const busyRef = useRef(false)
+
+  const markImgError = (key: string | number) => {
+    setImgErrorMap(prev => ({ ...prev, [String(key)]: true }))
+  }
 
   // Load spin counter
   useEffect(() => {
@@ -431,6 +429,8 @@ export default function WhatToReadPage() {
             >
               {reel.map(({ id, novel }) => {
                 const color = RARITY_COLORS[novel.rarity]
+                const hasImgErr = imgErrorMap[`reel-${id}`] || imgErrorMap[novel.id]
+
                 return (
                   <div
                     key={id}
@@ -450,11 +450,19 @@ export default function WhatToReadPage() {
 
                     {/* Novel Cover Preview */}
                     <div className="my-auto flex justify-center">
-                      <div className="w-20 h-28 rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-slate-800 flex items-center justify-center">
-                        {novel.coverUrl ? (
-                          <img src={novel.coverUrl} alt={novel.title} className="w-full h-full object-cover" />
+                      <div className="w-20 h-28 rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-slate-800 flex items-center justify-center relative">
+                        {novel.coverUrl && !hasImgErr ? (
+                          <img
+                            src={novel.coverUrl}
+                            alt={novel.title}
+                            className="w-full h-full object-cover"
+                            onError={() => markImgError(`reel-${id}`)}
+                          />
                         ) : (
-                          <BookOpen className="w-8 h-8 opacity-40" />
+                          <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-slate-800 text-slate-400">
+                            <BookOpen className="w-7 h-7 mb-1 text-sky-400 opacity-60" />
+                            <span className="text-[9px] font-bold leading-tight line-clamp-2">{novel.title}</span>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -515,12 +523,18 @@ export default function WhatToReadPage() {
 
               {/* Cover & Info Grid */}
               <div className="flex flex-col sm:flex-row gap-5 items-center">
-                <div className="w-32 h-48 rounded-2xl overflow-hidden shrink-0 shadow-2xl border-2 border-white/20">
-                  {result.coverUrl ? (
-                    <img src={result.coverUrl} alt={result.title} className="w-full h-full object-cover" />
+                <div className="w-32 h-48 rounded-2xl overflow-hidden shrink-0 shadow-2xl border-2 border-white/20 relative bg-slate-800">
+                  {result.coverUrl && !imgErrorMap[`result-${result.id}`] ? (
+                    <img
+                      src={result.coverUrl}
+                      alt={result.title}
+                      className="w-full h-full object-cover"
+                      onError={() => markImgError(`result-${result.id}`)}
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-slate-800">
-                      <BookOpen className="w-10 h-10 opacity-50" />
+                    <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-slate-800 text-slate-400">
+                      <BookOpen className="w-10 h-10 mb-2 text-sky-400 opacity-60" />
+                      <span className="text-xs font-bold leading-tight">{result.title}</span>
                     </div>
                   )}
                 </div>
@@ -586,25 +600,46 @@ export default function WhatToReadPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {eligiblePool.map(n => (
-              <Link
-                key={n.id}
-                href={n.href}
-                className="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group"
-                style={{ borderLeft: `3px solid ${RARITY_COLORS[n.rarity]}` }}
-              >
-                <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
-                  <span className="truncate max-w-[90px]">{n.publisher}</span>
-                  <span className="text-emerald-400">★ {n.score.toFixed(1)}</span>
-                </div>
-                <h5 className="text-xs font-bold text-slate-200 group-hover:text-white truncate my-1.5">{n.title}</h5>
-                <div className="flex items-center justify-between text-[10px] text-slate-400">
-                  <span>{n.volumes} tập</span>
-                  <span className="text-indigo-400">Xem →</span>
-                </div>
-              </Link>
-            ))}
+          {/* Inventory Grid with Small Cover Image Thumbnail */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {eligiblePool.map(n => {
+              const hasImgErr = imgErrorMap[`inv-${n.id}`] || imgErrorMap[n.id]
+              return (
+                <Link
+                  key={n.id}
+                  href={n.href}
+                  className="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-3 group overflow-hidden"
+                  style={{ borderLeft: `4px solid ${RARITY_COLORS[n.rarity]}` }}
+                >
+                  {/* Small Cover Image Thumbnail */}
+                  <div className="w-11 h-16 rounded-lg overflow-hidden shrink-0 bg-slate-800 border border-slate-700 flex items-center justify-center relative">
+                    {n.coverUrl && !hasImgErr ? (
+                      <img
+                        src={n.coverUrl}
+                        alt={n.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        onError={() => markImgError(`inv-${n.id}`)}
+                      />
+                    ) : (
+                      <BookOpen className="w-5 h-5 text-sky-400 opacity-60" />
+                    )}
+                  </div>
+
+                  {/* Novel Details */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
+                      <span className="truncate max-w-[85px]">{n.publisher}</span>
+                      <span className="text-emerald-400">★ {n.score.toFixed(1)}</span>
+                    </div>
+                    <h5 className="text-xs font-black text-slate-200 group-hover:text-white truncate leading-tight">{n.title}</h5>
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                      <span>{n.volumes} tập</span>
+                      <span className="text-indigo-400 group-hover:translate-x-0.5 transition-transform">Xem →</span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </Card>
 
