@@ -45,7 +45,7 @@ class WebAudioSynth {
       if (AudioCtx) this.ctx = new AudioCtx()
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume()
+      this.ctx.resume().catch(() => {})
     }
   }
 
@@ -93,14 +93,10 @@ class WebAudioSynth {
 
 const audioSynth = new WebAudioSynth()
 
-// ── CS:GO Panorama Easing Curve ─────────────────────────────────────────────
-function spinProgress(progress: number, friction = 2.8) {
-  const p = Math.max(0, Math.min(1, progress))
-  return 1 - Math.pow(1 - p, friction)
-}
-
-function stopFraction() {
-  return (Math.floor(Math.random() * 81) + 10) / 100
+// CS:GO Deceleration Curve
+function easeOutQuad(p: number) {
+  const t = Math.max(0, Math.min(1, p))
+  return 1 - Math.pow(1 - t, 3.2)
 }
 
 export default function WhatToReadPage() {
@@ -125,8 +121,7 @@ export default function WhatToReadPage() {
   const [reel, setReel] = useState<{ id: number; novel: NovelItem }[]>([])
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
-  const positionRef = useRef(-400)
-  const animFrameRef = useRef(0)
+  const animFrameRef = useRef<number>(0)
   const busyRef = useRef(false)
 
   const markImgError = (key: string | number) => {
@@ -201,14 +196,21 @@ export default function WhatToReadPage() {
     })
   }, [novels, selectedPublisher, selectedStatus, minScore])
 
-  // Populate Reel on Pool Change
+  // Reset reel whenever pool changes
   useEffect(() => {
     if (spinning || !eligiblePool.length) return
-    const initialReel = Array.from({ length: 15 }, (_, i) => ({
+    const initialReel = Array.from({ length: 45 }, (_, i) => ({
       id: i,
       novel: eligiblePool[i % eligiblePool.length],
     }))
     setReel(initialReel)
+
+    // Position track at center of index 0
+    if (trackRef.current && viewportRef.current) {
+      const vw = viewportRef.current.clientWidth
+      const initPos = vw / 2 - 105
+      trackRef.current.style.transform = `translate3d(${initPos}px, 0, 0)`
+    }
   }, [eligiblePool, spinning])
 
   const toggleSound = () => {
@@ -222,53 +224,54 @@ export default function WhatToReadPage() {
     busyRef.current = true
     audioSynth.init()
 
-    // 1. Pick Winner
+    // 1. Select Winner from eligible pool
     const winner = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
 
-    const step = 224 // card width + gap
-    const tileWidth = 210
-    const viewportWidth = viewportRef.current.clientWidth
-    const start = positionRef.current
-    const centerSlot = Math.floor((viewportWidth / 2 - start) / step)
+    // 2. Build complete card reel (50 cards total)
+    const cardStep = 222 // 210px width + 12px gap
+    const winnerIndex = 32 // target landing index
+    const totalCards = 50
 
-    const totalTilesToSpin = 28 + Math.floor(Math.random() * 8)
-    const targetSlot = centerSlot + totalTilesToSpin
-    const end = viewportWidth / 2 - tileWidth * stopFraction() - targetSlot * step
-
-    // Generate upcoming cards in reel
-    const newItems = [...reel]
-    const lastId = Math.max(...newItems.map(item => item.id), targetSlot)
-
-    for (let id = lastId + 1; id <= targetSlot + 5; id++) {
-      const isWinnerSlot = id === targetSlot
-      const itemNovel = isWinnerSlot
-        ? winner
-        : eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
-      newItems.push({ id, novel: itemNovel })
+    const newCards: { id: number; novel: NovelItem }[] = []
+    for (let i = 0; i < totalCards; i++) {
+      if (i === winnerIndex) {
+        newCards.push({ id: i, novel: winner })
+      } else {
+        const randItem = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
+        newCards.push({ id: i, novel: randItem })
+      }
     }
 
-    setReel(newItems)
+    setReel(newCards)
     setSpinning(true)
     setResult(null)
 
-    const duration = 6500
-    const started = performance.now()
-    let lastCell = Math.floor((start - viewportWidth / 2) / step)
+    const vw = viewportRef.current.clientWidth
+    const startPos = vw / 2 - 105 // centered on card 0
+    const subCardOffset = (Math.random() - 0.5) * 110 // random alignment inside winning card
+    const targetCenter = winnerIndex * cardStep + 105
+    const endPos = vw / 2 - targetCenter + subCardOffset
+
+    // Initial positioning reset
+    trackRef.current.style.transform = `translate3d(${startPos}px, 0, 0)`
+
+    const duration = 5500 // 5.5s spin duration
+    const startTime = performance.now()
+    let lastCell = 0
 
     const animate = (now: number) => {
-      const progress = Math.max(0, Math.min(1, (now - started) / duration))
-      const currentPos = start + (end - start) * spinProgress(progress, 2.75)
-      positionRef.current = currentPos
+      const progress = Math.max(0, Math.min(1, (now - startTime) / duration))
+      const currentPos = startPos + (endPos - startPos) * easeOutQuad(progress)
 
       if (trackRef.current) {
         trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`
       }
 
-      // Audio Ticking per card crossed
-      const cell = Math.floor((currentPos - viewportWidth / 2) / step)
-      if (cell !== lastCell) {
+      // Audio Ticking on card border pass
+      const currentCell = Math.floor((-currentPos + vw / 2) / cardStep)
+      if (currentCell !== lastCell) {
         audioSynth.playTick()
-        lastCell = cell
+        lastCell = currentCell
       }
 
       if (progress < 1) {
@@ -276,7 +279,7 @@ export default function WhatToReadPage() {
         return
       }
 
-      // Complete Spin
+      // ── Complete Spin ──────────────────────────────────────────────────────
       busyRef.current = false
       setSpinning(false)
       setResult(winner)
@@ -294,7 +297,7 @@ export default function WhatToReadPage() {
     }
 
     animFrameRef.current = requestAnimationFrame(animate)
-  }, [eligiblePool, reel])
+  }, [eligiblePool])
 
   useEffect(() => {
     return () => cancelAnimationFrame(animFrameRef.current)
@@ -424,8 +427,7 @@ export default function WhatToReadPage() {
             {/* Reel Track */}
             <div
               ref={trackRef}
-              className="absolute top-4 left-0 flex items-center gap-3 will-change-transform transition-transform"
-              style={{ transform: `translate3d(${positionRef.current}px, 0, 0)` }}
+              className="absolute top-4 left-0 flex items-center gap-3 will-change-transform"
             >
               {reel.map(({ id, novel }) => {
                 const color = RARITY_COLORS[novel.rarity]
