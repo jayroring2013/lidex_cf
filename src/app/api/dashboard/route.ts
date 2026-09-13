@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchDashboardWatchlistData, fetchDashboardStatsData, fetchDashboardEnrichmentData } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(req: NextRequest) {
-  const url = req.url
   const { searchParams } = req.nextUrl
   const mode = searchParams.get('mode')
-
-  // Check Cloudflare Edge Cache first for instant response
-  const cache = typeof caches !== 'undefined' ? (caches as any).default : null
-  if (cache) {
-    try {
-      const cachedResponse = await cache.match(url)
-      if (cachedResponse) {
-        return cachedResponse
-      }
-    } catch (e) {
-      console.warn('[api/dashboard] Cache match error:', e)
-    }
-  }
 
   try {
     let data: any = null
@@ -32,31 +21,20 @@ export async function GET(req: NextRequest) {
     if (!data) {
       return NextResponse.json(
         { error: 'Failed to load dashboard data' },
-        { status: 500, headers: { 'Cache-Control': 'no-store' } }
+        { status: 500, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
       )
     }
 
-    // Cache the corrected response on Edge for 24 hours
-    const response = NextResponse.json(data, {
+    return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
       },
     })
-
-    if (cache) {
-      try {
-        await cache.put(url, response.clone())
-      } catch (e) {
-        console.warn('[api/dashboard] Cache put error:', e)
-      }
-    }
-
-    return response
   } catch (err: any) {
     console.error('[api/dashboard] error:', err)
     return NextResponse.json(
       { error: err?.message || 'Internal server error' },
-      { status: 500, headers: { 'Cache-Control': 'no-store' } }
+      { status: 500, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
     )
   }
 }
