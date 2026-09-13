@@ -135,10 +135,10 @@ export class CaseAudio {
 
   pause() {
     this.generation++;
-    for (const source of this.sources) {
+    this.sources.forEach(source => {
       try { source.stop(); } catch {}
       source.disconnect();
-    }
+    });
     this.sources.clear();
     this.legacyRoute?.pause();
   }
