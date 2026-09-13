@@ -1859,3 +1859,54 @@ export async function fetchNovelNetworkData() {
     return []
   }
 }
+
+// ============================================
+// GLOBAL ROLL COUNTER (STATTRAK)
+// ============================================
+export async function fetchGlobalRollCount(): Promise<number> {
+  try {
+    await sql(`
+      CREATE TABLE IF NOT EXISTS site_counters (
+        key TEXT PRIMARY KEY,
+        value BIGINT NOT NULL DEFAULT 0,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `)
+    await sql(`
+      INSERT INTO site_counters (key, value)
+      VALUES ('what_to_read_rolls', 0)
+      ON CONFLICT (key) DO NOTHING
+    `)
+    const rows = await sql(`
+      SELECT value FROM site_counters WHERE key = 'what_to_read_rolls' LIMIT 1
+    `)
+    return Number(rows[0]?.value || 0)
+  } catch (error) {
+    console.error('Failed to fetch global roll count:', error)
+    return 0
+  }
+}
+
+export async function incrementGlobalRollCount(): Promise<number> {
+  try {
+    await sql(`
+      CREATE TABLE IF NOT EXISTS site_counters (
+        key TEXT PRIMARY KEY,
+        value BIGINT NOT NULL DEFAULT 0,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `)
+    const rows = await sql(`
+      INSERT INTO site_counters (key, value)
+      VALUES ('what_to_read_rolls', 1)
+      ON CONFLICT (key) DO UPDATE
+      SET value = site_counters.value + 1, updated_at = NOW()
+      RETURNING value
+    `)
+    return Number(rows[0]?.value || 1)
+  } catch (error) {
+    console.error('Failed to increment global roll count:', error)
+    return 0
+  }
+}
+

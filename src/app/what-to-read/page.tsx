@@ -52,6 +52,7 @@ export default function WhatToReadPage() {
   const [result, setResult] = useState<NovelItem | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [spinCount, setSpinCount] = useState<number>(0)
+  const [globalRolls, setGlobalRolls] = useState<number>(0)
 
   // Reel DOM & Positioning
   const [reel, setReel] = useState<{ id: number; novel: NovelItem }[]>([])
@@ -85,12 +86,19 @@ export default function WhatToReadPage() {
     setImgErrorMap(prev => ({ ...prev, [String(key)]: true }))
   }
 
-  // Load spin counter
+  // Load spin counter & global StatTrak rolls
   useEffect(() => {
     try {
       const saved = localStorage.getItem('lidex_what_to_read_spin_count')
       if (saved) setSpinCount(Number(saved) || 0)
     } catch {}
+
+    fetch('/api/rolls')
+      .then(res => res.json())
+      .then(d => {
+        if (d && typeof d.totalRolls === 'number') setGlobalRolls(d.totalRolls)
+      })
+      .catch(() => {})
   }, [])
 
   // Load Novels Data
@@ -247,6 +255,16 @@ export default function WhatToReadPage() {
     caseAudioRef.current?.unlock()
     caseAudioRef.current?.play('csgo_ui_crate_open')
 
+    // Increment StatTrak global roll count
+    fetch('/api/rolls', { method: 'POST' })
+      .then(res => res.json())
+      .then(d => {
+        if (d && typeof d.totalRolls === 'number') setGlobalRolls(d.totalRolls)
+      })
+      .catch(() => {
+        setGlobalRolls(g => g + 1)
+      })
+
     // 1. Select Winner from eligible pool
     const winner = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
 
@@ -358,7 +376,20 @@ export default function WhatToReadPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* CS:GO StatTrak™ Global Roll Counter Badge */}
+            <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl bg-slate-950/90 border border-orange-500/50 shadow-[0_0_20px_rgba(249,115,22,0.25)] hover:border-orange-400 transition-all">
+              <span className="text-[10px] font-black tracking-widest text-orange-500 font-mono uppercase bg-orange-950/80 px-2 py-0.5 rounded-md border border-orange-500/40">
+                StatTrak™
+              </span>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Tổng Lần Mở Case</span>
+                <span className="font-mono text-base sm:text-lg font-black text-amber-400 tracking-widest drop-shadow-[0_0_8px_rgba(245,158,11,0.8)] leading-none">
+                  {String(globalRolls).padStart(6, '0')}
+                </span>
+              </div>
+            </div>
+
             <button
               onClick={toggleSound}
               className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800/80 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-all"
@@ -427,8 +458,15 @@ export default function WhatToReadPage() {
             </div>
 
             {/* Counter info */}
-            <div className="text-xs font-bold text-slate-400 flex items-center gap-2">
-              <span>Đã quay: <strong className="text-cyan-400 text-sm">{spinCount}</strong> lần</span>
+            <div className="text-xs font-bold text-slate-400 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-orange-950/40 border border-orange-500/40 text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.15)]">
+                <span className="text-[10px] font-black font-mono uppercase tracking-wider text-orange-400">StatTrak™:</span>
+                <strong className="font-mono text-sm text-amber-400 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">
+                  {String(globalRolls).padStart(6, '0')}
+                </strong>
+              </div>
+              <span>•</span>
+              <span>Cá nhân: <strong className="text-cyan-400 text-sm">{spinCount}</strong> lần</span>
               <span>•</span>
               <span>Pool: <strong className="text-emerald-400 text-sm">{eligiblePool.length}</strong> bộ</span>
             </div>
@@ -437,6 +475,17 @@ export default function WhatToReadPage() {
 
         {/* ── CS:GO REEL CASE WINDOW ────────────────────────────────────────── */}
         <div className="relative rounded-3xl p-6 bg-slate-900/90 border border-slate-700/80 shadow-2xl overflow-hidden">
+          {/* Physical StatTrak™ Digital Module on Box */}
+          <div className="absolute top-3 right-4 z-30 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-orange-500/60 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+            <span className="text-[10px] font-black tracking-widest text-orange-500 font-mono uppercase">
+              StatTrak™
+            </span>
+            <div className="bg-black/90 px-2 py-0.5 rounded border border-orange-600/40">
+              <span className="font-mono text-sm font-black text-amber-400 tracking-widest drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">
+                {String(globalRolls).padStart(6, '0')}
+              </span>
+            </div>
+          </div>
           {/* Top Ticker Needle Indicator */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
             <div className="w-0.5 h-6 bg-cyan-400 shadow-[0_0_12px_#38bdf8]" />
