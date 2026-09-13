@@ -106,7 +106,7 @@ export default function WhatToReadPage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/dashboard?mode=watchlist&t=${Date.now()}`, { cache: 'no-store' })
+      const res = await fetch('/api/dashboard?mode=watchlist')
       if (!res.ok) throw new Error('Không tải được dữ liệu Light Novel')
       const data = await res.json()
       if (!data || !data.rankingRows) throw new Error('Dữ liệu không hợp lệ')
