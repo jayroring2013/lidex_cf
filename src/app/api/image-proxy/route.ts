@@ -131,8 +131,10 @@ async function fetchImage(url: string, referer: string, origin: string, signal: 
 }
 
 export async function GET(req: NextRequest) {
-  const url = req.nextUrl.searchParams.get('url')
-  if (!url) return new NextResponse('Missing url', { status: 400 })
+  let rawUrl = req.nextUrl.searchParams.get('url')
+  if (!rawUrl) return new NextResponse('Missing url', { status: 400 })
+  rawUrl = rawUrl.replace(/\.hako\.re\b/gi, '.hako.vn')
+  const url = rawUrl
 
   // Read from Cloudflare Edge Cache programmatically
   const cache = typeof caches !== 'undefined' ? (caches as any).default : null

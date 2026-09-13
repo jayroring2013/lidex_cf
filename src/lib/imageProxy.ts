@@ -1,35 +1,42 @@
-export function proxyImageUrl(url: string | null | undefined): string | null {
+export function sanitizeCoverUrl(url: string | null | undefined): string | null {
   if (!url) return null
+  let sanitized = url.trim()
+  if (!sanitized) return null
+  // Replace defunct domain hako.re -> hako.vn
+  sanitized = sanitized.replace(/\.hako\.re\b/gi, '.hako.vn')
+  return sanitized
+}
+
+export function proxyImageUrl(url: string | null | undefined): string | null {
+  const cleanUrl = sanitizeCoverUrl(url)
+  if (!cleanUrl) return null
 
   try {
-    if (url.startsWith('/')) return url
+    if (cleanUrl.startsWith('/')) return cleanUrl
 
-    // Image proxying is expensive on the Cloudflare free tier because every
-    // proxied image consumes Worker CPU and subrequests. Prefer direct image
-    // URLs. Turn the proxy back on only for known hotlink-blocked sources by
-    // setting NEXT_PUBLIC_ENABLE_IMAGE_PROXY=true.
     const enableProxy = process.env.NEXT_PUBLIC_ENABLE_IMAGE_PROXY === 'true'
-    if (!enableProxy) return url
+    if (!enableProxy) return cleanUrl
 
-    const parsed = new URL(url)
+    const parsed = new URL(cleanUrl)
     const host = parsed.hostname
     const isSupabase = host.includes('supabase')
     const isLocal = host === 'localhost' || host === '127.0.0.1'
     const isR2 = host.includes('r2.dev') || host.includes('cloudflarestorage.com')
     const isTana = host.includes('tana.moe')
 
-    if (isSupabase || isLocal || isR2 || isTana) return url
-    return `/api/image-proxy?url=${encodeURIComponent(url)}`
+    if (isSupabase || isLocal || isR2 || isTana) return cleanUrl
+    return `/api/image-proxy?url=${encodeURIComponent(cleanUrl)}`
   } catch {
-    return url
+    return cleanUrl
   }
 }
 
 export function proxyImg(url: string | null | undefined): string | null {
-  if (!url) return null
+  const cleanUrl = sanitizeCoverUrl(url)
+  if (!cleanUrl) return null
   try {
-    if (url.startsWith('/')) return url
-    const h = new URL(url).hostname
+    if (cleanUrl.startsWith('/')) return cleanUrl
+    const h = new URL(cleanUrl).hostname
     if (
       !h.includes('supabase') &&
       !h.includes('localhost') &&
@@ -37,8 +44,8 @@ export function proxyImg(url: string | null | undefined): string | null {
       !h.includes('cloudflarestorage.com') &&
       !h.includes('tana.moe')
     ) {
-      return `/api/image-proxy?url=${encodeURIComponent(url)}`
+      return `/api/image-proxy?url=${encodeURIComponent(cleanUrl)}`
     }
   } catch {}
-  return url
+  return cleanUrl
 }

@@ -1349,13 +1349,16 @@ export async function fetchDashboardWatchlistData() {
         r.publisher_releases_last_24m, r.score_components, r.drop_components, 
         COALESCE(
           NULLIF(TRIM(s.cover_url), ''), 
-          (SELECT v.cover_url FROM volumes v WHERE v.series_id = s.id AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY v.volume_number ASC LIMIT 1),
+          (SELECT v.cover_url FROM volumes v WHERE v.series_id = COALESCE(s.id, r.lidex_series_id, r.series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY v.volume_number ASC LIMIT 1),
           NULLIF(TRIM(r.cover_url), '')
         ) as cover_url, r.cover_source_title,
         s.title as canonical_title,
         COALESCE(s.description_vi, s.description) as canonical_description
       FROM ln_series_ranking r
-      LEFT JOIN series s ON r.lidex_series_id = s.id
+      LEFT JOIN series s ON (
+        r.lidex_series_id = s.id 
+        OR (r.lidex_series_id IS NULL AND (LOWER(TRIM(s.title)) = LOWER(TRIM(r.series_title)) OR LOWER(TRIM(s.title_vi)) = LOWER(TRIM(r.series_title))))
+      )
       ORDER BY r.ln_score DESC, r.max_release_at DESC
     `)
 
