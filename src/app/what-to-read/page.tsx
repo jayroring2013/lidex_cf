@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { Card } from '@/components/PublisherFocusView'
 import { proxyImg } from '@/lib/imageProxy'
+import { CaseAudio, type CaseSound } from '@/lib/caseAudio'
 
 export type NovelItem = {
   id: string | number
@@ -33,65 +34,6 @@ function calculateRarity(score: number): number {
   if (score >= 6.0) return 1
   return 0
 }
-
-// ── Web Audio Synth Ticker ───────────────────────────────────────────────────
-class WebAudioSynth {
-  ctx: AudioContext | null = null
-  muted: boolean = false
-
-  init() {
-    if (!this.ctx && typeof window !== 'undefined') {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
-      if (AudioCtx) this.ctx = new AudioCtx()
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(() => {})
-    }
-  }
-
-  playTick() {
-    if (this.muted) return
-    this.init()
-    if (!this.ctx) return
-    try {
-      const osc = this.ctx.createOscillator()
-      const gain = this.ctx.createGain()
-      osc.type = 'triangle'
-      osc.frequency.setValueAtTime(440, this.ctx.currentTime)
-      osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.04)
-      gain.gain.setValueAtTime(0.15, this.ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04)
-      osc.connect(gain)
-      gain.connect(this.ctx.destination)
-      osc.start()
-      osc.stop(this.ctx.currentTime + 0.04)
-    } catch {}
-  }
-
-  playWin() {
-    if (this.muted) return
-    this.init()
-    if (!this.ctx) return
-    try {
-      const now = this.ctx.currentTime
-      const notes = [523.25, 659.25, 783.99, 1046.50]
-      notes.forEach((freq, i) => {
-        const osc = this.ctx!.createOscillator()
-        const gain = this.ctx!.createGain()
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(freq, now + i * 0.08)
-        gain.gain.setValueAtTime(0.2, now + i * 0.08)
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3)
-        osc.connect(gain)
-        gain.connect(this.ctx!.destination)
-        osc.start(now + i * 0.08)
-        osc.stop(now + i * 0.08 + 0.3)
-      })
-    } catch {}
-  }
-}
-
-const audioSynth = new WebAudioSynth()
 
 // CS:GO Deceleration Curve
 function easeOutQuad(p: number) {
@@ -123,6 +65,27 @@ export default function WhatToReadPage() {
   const trackRef = useRef<HTMLDivElement | null>(null)
   const animFrameRef = useRef<number>(0)
   const busyRef = useRef(false)
+
+  // Audio Engine Ref
+  const caseAudioRef = useRef<CaseAudio | null>(null)
+
+  useEffect(() => {
+    const audio = new CaseAudio('')
+    caseAudioRef.current = audio
+    audio.preload()
+
+    const handleVisibility = () => {
+      if (document.hidden) audio.pause()
+      else audio.recover()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      audio.dispose()
+      caseAudioRef.current = null
+    }
+  }, [])
 
   const markImgError = (key: string | number) => {
     setImgErrorMap(prev => ({ ...prev, [String(key)]: true }))
@@ -214,15 +177,19 @@ export default function WhatToReadPage() {
   }, [eligiblePool, spinning])
 
   const toggleSound = () => {
-    audioSynth.muted = !muted
-    setMuted(!muted)
+    const nextMuted = !muted
+    setMuted(nextMuted)
+    caseAudioRef.current?.setMuted(nextMuted)
   }
 
   // ── Spin Case Handler ───────────────────────────────────────────────────────
   const spinCase = useCallback(() => {
     if (busyRef.current || !eligiblePool.length || !viewportRef.current || !trackRef.current) return
     busyRef.current = true
-    audioSynth.init()
+
+    // Unlock audio context on user gesture
+    caseAudioRef.current?.unlock()
+    caseAudioRef.current?.play('csgo_ui_crate_open')
 
     // 1. Select Winner from eligible pool
     const winner = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
@@ -267,10 +234,10 @@ export default function WhatToReadPage() {
         trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`
       }
 
-      // Audio Ticking on card border pass
+      // Audio Ticking on card border pass (CS2 Crate Item Scroll Sound)
       const currentCell = Math.floor((-currentPos + vw / 2) / cardStep)
       if (currentCell !== lastCell) {
-        audioSynth.playTick()
+        caseAudioRef.current?.play('csgo_ui_crate_item_scroll')
         lastCell = currentCell
       }
 
@@ -284,7 +251,16 @@ export default function WhatToReadPage() {
       setSpinning(false)
       setResult(winner)
       setRevealed(true)
-      audioSynth.playWin()
+
+      // Play rarity reveal sound effect
+      const revealSounds: CaseSound[] = [
+        'item_reveal3_rare',
+        'item_reveal3_rare',
+        'item_reveal4_mythical',
+        'item_reveal5_legendary',
+        'item_reveal6_ancient',
+      ]
+      caseAudioRef.current?.play(revealSounds[winner.rarity] || 'item_reveal6_ancient')
 
       // Increment spin count
       setSpinCount(c => {
