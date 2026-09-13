@@ -1341,7 +1341,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
 export async function fetchDashboardWatchlistData() {
   try {
     const rankingRows = await sql(`
-      SELECT 
+      SELECT DISTINCT ON (r.id)
         r.id, r.series_title, r.series_id, r.lidex_series_id, r.series_code, r.number_of_volumes, 
         r.average_price, r.max_release_at, r.publisher, r.original_volumes, r.original_status, 
         r.evalution, r.evaluation_basis, r.ln_score, r.trang_thai, r.drop_percent, r.drop_basis, 
@@ -1349,18 +1349,20 @@ export async function fetchDashboardWatchlistData() {
         r.publisher_releases_last_24m, r.score_components, r.drop_components, 
         COALESCE(
           CASE WHEN s.cover_url LIKE '%r2.dev%' OR s.cover_url LIKE '%imagedelivery.net%' OR s.cover_url LIKE '%cloudflarestorage.com%' OR s.cover_url LIKE '%supabase%' OR s.cover_url LIKE '%tana.moe%' OR s.cover_url LIKE '%pages.dev%' THEN NULLIF(TRIM(s.cover_url), '') ELSE NULL END,
-          (SELECT v.cover_url FROM volumes v WHERE v.series_id = COALESCE(s.id, r.lidex_series_id, r.series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
           NULLIF(TRIM(s.cover_url), ''),
+          (SELECT v.cover_url FROM volumes v WHERE v.series_id = COALESCE(s.id, r.lidex_series_id, r.series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
           NULLIF(TRIM(r.cover_url), '')
         ) as cover_url, r.cover_source_title,
         s.title as canonical_title,
         COALESCE(s.description_vi, s.description) as canonical_description
       FROM ln_series_ranking r
       LEFT JOIN series s ON (
-        r.lidex_series_id = s.id 
-        OR (r.lidex_series_id IS NULL AND (LOWER(TRIM(s.title)) = LOWER(TRIM(r.series_title)) OR LOWER(TRIM(s.title_vi)) = LOWER(TRIM(r.series_title))))
+        s.id = r.lidex_series_id 
+        OR s.id = r.series_id
+        OR LOWER(TRIM(s.title)) = LOWER(TRIM(r.series_title))
+        OR LOWER(TRIM(s.title_vi)) = LOWER(TRIM(r.series_title))
       )
-      ORDER BY r.ln_score DESC, r.max_release_at DESC
+      ORDER BY r.id, (CASE WHEN s.cover_url IS NOT NULL THEN 0 ELSE 1 END), r.ln_score DESC
     `)
 
     const ids = Array.from(new Set(rankingRows.map((r: any) => Number(r.lidex_series_id)).filter(Boolean)))
