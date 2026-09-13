@@ -1348,9 +1348,9 @@ export async function fetchDashboardWatchlistData() {
         r.average_gap_months, r.months_since_last_release, r.completion_ratio, r.publisher_activity, 
         r.publisher_releases_last_24m, r.score_components, r.drop_components, 
         COALESCE(
-          r.cover_url, 
-          s.cover_url, 
-          (SELECT v.cover_url FROM volumes v WHERE v.series_id = s.id AND v.cover_url IS NOT NULL ORDER BY v.volume_number ASC LIMIT 1)
+          NULLIF(TRIM(r.cover_url), ''), 
+          NULLIF(TRIM(s.cover_url), ''), 
+          (SELECT v.cover_url FROM volumes v WHERE v.series_id = s.id AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY v.volume_number ASC LIMIT 1)
         ) as cover_url, r.cover_source_title,
         s.title as canonical_title,
         COALESCE(s.description_vi, s.description) as canonical_description
@@ -1364,12 +1364,13 @@ export async function fetchDashboardWatchlistData() {
     let voteRows: any[] = []
     if (ids.length > 0) {
       voteRows = await sql(`
-        SELECT DISTINCT ON (vr.series_id) 
-               vr.series_id, vr.votes, vr.rank, vp.month, vp.year, vp.label
+        SELECT vr.series_id, 
+               MAX(vr.votes)::int as votes,
+               SUM(vr.votes)::int as total_votes,
+               MIN(vr.rank)::int as min_rank
         FROM voting_results vr
-        JOIN voting_periods vp ON vr.period_id = vp.id
         WHERE vr.series_id = ANY($1)
-        ORDER BY vr.series_id, vp.year DESC, vp.month DESC
+        GROUP BY vr.series_id
       `, [ids])
     }
 
@@ -1396,12 +1397,9 @@ export async function fetchDashboardWatchlistData() {
       voteRows: voteRows.map((r: any) => ({
         series_id: Number(r.series_id),
         votes: Number(r.votes) || 0,
-        rank: r.rank == null ? null : Number(r.rank),
-        voting_periods: {
-          month: Number(r.month || 0),
-          year: Number(r.year || 0),
-          label: r.label
-        }
+        total_votes: Number(r.total_votes) || Number(r.votes) || 0,
+        rank: r.min_rank == null ? null : Number(r.min_rank),
+        voting_periods: null
       }))
     }
   } catch (error) {

@@ -16,6 +16,8 @@ export type NovelItem = {
   publisher: string
   volumes: number
   score: number
+  votes: number
+  compositeScore: number
   dropPct: number
   status: string
   coverUrl: string | null
@@ -25,15 +27,7 @@ export type NovelItem = {
 }
 
 const RARITY_COLORS = ['#4b69ff', '#8847ff', '#d32ce6', '#eb4b4b', '#e4ae39']
-const RARITY_NAMES = ['Thông thường', 'Hiếm', 'Sơ cấp', 'Huyền thoại', 'Báu vật 👑']
-
-function calculateRarity(score: number): number {
-  if (score >= 8.5) return 4
-  if (score >= 7.8) return 3
-  if (score >= 7.0) return 2
-  if (score >= 6.0) return 1
-  return 0
-}
+const RARITY_NAMES = ['Thông thường', 'Hiếm', 'Sơ cấp', 'Huyền thoại 🔴', 'Báu vật 👑']
 
 // CS:GO Deceleration Curve
 function easeOutQuad(p: number) {
@@ -109,23 +103,82 @@ export default function WhatToReadPage() {
       const data = await res.json()
       if (!data || !data.rankingRows) throw new Error('Dữ liệu không hợp lệ')
 
-      const mapped: NovelItem[] = data.rankingRows
+      // Map fan vote data by series_id
+      const voteMap = new Map<number, number>()
+      if (Array.isArray(data.voteRows)) {
+        for (const v of data.voteRows) {
+          const sid = Number(v.series_id)
+          if (sid) {
+            voteMap.set(sid, Math.max(Number(v.total_votes) || 0, Number(v.votes) || 0))
+          }
+        }
+      }
+
+      // Step 1: Filter 0-volume series and map raw attributes
+      const rawNovels = data.rankingRows
         .filter((r: any) => (Number(r.number_of_volumes) || 0) > 0)
         .map((r: any, idx: number) => {
-        const score = Number(r.ln_score) || 0
-        const targetId = r.lidex_series_id || r.series_id || r.series_code || r.series_key || `id-${idx}`
+          const targetId = r.lidex_series_id || r.series_id || r.series_code || r.series_key || `id-${idx}`
+          const sid = Number(r.lidex_series_id || r.series_id)
+          const votes = sid ? (voteMap.get(sid) || 0) : 0
+          const score = Number(r.ln_score) || 0
+
+          return {
+            id: targetId,
+            seriesId: sid,
+            title: r.series_title || 'Chưa có tên',
+            publisher: r.publisher || 'Không xác định',
+            volumes: Math.max(0, Number(r.number_of_volumes) || 0),
+            score: score,
+            votes: votes,
+            dropPct: Number(r.drop_percent) || 0,
+            status: r.trang_thai || r.evalution || 'Đang phát hành',
+            coverUrl: proxyImg(r.cover_url),
+            description: r.description || null,
+            href: `/content/${encodeURIComponent(targetId)}`,
+            compositeScore: 0,
+            rarity: 0,
+          }
+        })
+
+      // Step 2: Compute composite score combining LN Score + Fan Vote Popularity
+      const maxVotes = Math.max(...rawNovels.map((n: any) => n.votes), 1)
+
+      const novelsWithScore = rawNovels.map((n: any) => {
+        // Vote score 0..10 normalized with sqrt curve to avoid extreme outliers
+        const voteScore = n.votes > 0 ? 10 * Math.sqrt(n.votes / maxVotes) : 0
+        // Composite score: 55% LN score + 45% Fan Popularity score
+        const compositeScore = (n.score * 0.55) + (voteScore * 0.45)
         return {
-          id: targetId,
-          title: r.series_title || 'Chưa có tên',
-          publisher: r.publisher || 'Không xác định',
-          volumes: Math.max(0, Number(r.number_of_volumes) || 0),
-          score: score,
-          dropPct: Number(r.drop_percent) || 0,
-          status: r.trang_thai || r.evalution || 'Đang phát hành',
-          coverUrl: proxyImg(r.cover_url),
-          description: r.description || null,
-          href: `/content/${encodeURIComponent(targetId)}`,
-          rarity: calculateRarity(score),
+          ...n,
+          compositeScore: compositeScore,
+        }
+      })
+
+      // Step 3: Sort descending by compositeScore (fallback to LN score, then votes)
+      novelsWithScore.sort((a: any, b: any) => {
+        if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore
+        if (b.score !== a.score) return b.score - a.score
+        return b.votes - a.votes
+      })
+
+      // Step 4: Assign dynamic rarity tiers based on composite rank order:
+      // Index 0..9 (Top 10): Rarity 4 (👑 Báu vật - Gold, strictly max 10)
+      // Index 10..29 (Next 20): Rarity 3 (🔴 Huyền thoại - Red, strictly max 20)
+      // Index 30..59 (Next 30): Rarity 2 (🟣 Sơ cấp - Magenta)
+      // Index 60..99 (Next 40): Rarity 1 (💜 Hiếm - Purple)
+      // Index 100+: Rarity 0 (💙 Thông thường - Blue)
+      const mapped: NovelItem[] = novelsWithScore.map((n: any, rankIdx: number) => {
+        let rarity = 0
+        if (rankIdx < 10) rarity = 4      // Max 10 Báu vật 👑
+        else if (rankIdx < 30) rarity = 3 // Max 20 Huyền thoại 🔴
+        else if (rankIdx < 60) rarity = 2 // Sơ cấp 🟣
+        else if (rankIdx < 100) rarity = 1 // Hiếm 💜
+        else rarity = 0                   // Thông thường 💙
+
+        return {
+          ...n,
+          rarity,
         }
       })
 
@@ -586,13 +639,14 @@ export default function WhatToReadPage() {
           {/* Inventory Grid with Small Cover Image Thumbnail */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {eligiblePool.map(n => {
-              const hasImgErr = imgErrorMap[`inv-${n.id}`] || imgErrorMap[n.id]
+              const hasImgErr = imgErrorMap[`inv-${n.id}`] || imgErrorMap[String(n.id)]
+              const color = RARITY_COLORS[n.rarity]
               return (
                 <Link
                   key={n.id}
                   href={n.href}
                   className="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-3 group overflow-hidden"
-                  style={{ borderLeft: `4px solid ${RARITY_COLORS[n.rarity]}` }}
+                  style={{ borderLeft: `4px solid ${color}` }}
                 >
                   {/* Small Cover Image Thumbnail */}
                   <div className="w-11 h-16 rounded-lg overflow-hidden shrink-0 bg-slate-800 border border-slate-700 flex items-center justify-center relative">
@@ -604,7 +658,10 @@ export default function WhatToReadPage() {
                         onError={() => markImgError(`inv-${n.id}`)}
                       />
                     ) : (
-                      <BookOpen className="w-5 h-5 text-sky-400 opacity-60" />
+                      <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-slate-800 text-slate-400">
+                        <BookOpen className="w-5 h-5 mb-0.5 text-sky-400 opacity-60" />
+                        <span className="text-[8px] font-bold leading-tight line-clamp-2">{n.title}</span>
+                      </div>
                     )}
                   </div>
 
@@ -616,7 +673,9 @@ export default function WhatToReadPage() {
                     </div>
                     <h5 className="text-xs font-black text-slate-200 group-hover:text-white truncate leading-tight">{n.title}</h5>
                     <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
-                      <span>{n.volumes} tập</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black text-white" style={{ background: `${color}33`, border: `1px solid ${color}66` }}>
+                        {RARITY_NAMES[n.rarity]}
+                      </span>
                       <span className="text-indigo-400 group-hover:translate-x-0.5 transition-transform">Xem →</span>
                     </div>
                   </div>
