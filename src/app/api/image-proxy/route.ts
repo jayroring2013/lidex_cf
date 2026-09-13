@@ -63,6 +63,10 @@ function isDirectCdnHost(hostname: string) {
     h.includes('supabase') ||
     h.includes('r2.dev') ||
     h.includes('cloudflarestorage.com') ||
+    h.includes('imagedelivery.net') ||
+    h.includes('pages.dev') ||
+    h.includes('workers.dev') ||
+    h.includes('wibubros.id.vn') ||
     h.includes('tana.moe')
   )
 }

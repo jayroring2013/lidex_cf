@@ -1348,8 +1348,9 @@ export async function fetchDashboardWatchlistData() {
         r.average_gap_months, r.months_since_last_release, r.completion_ratio, r.publisher_activity, 
         r.publisher_releases_last_24m, r.score_components, r.drop_components, 
         COALESCE(
-          NULLIF(TRIM(s.cover_url), ''), 
-          (SELECT v.cover_url FROM volumes v WHERE v.series_id = COALESCE(s.id, r.lidex_series_id, r.series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY v.volume_number ASC LIMIT 1),
+          CASE WHEN s.cover_url LIKE '%r2.dev%' OR s.cover_url LIKE '%imagedelivery.net%' OR s.cover_url LIKE '%cloudflarestorage.com%' OR s.cover_url LIKE '%supabase%' OR s.cover_url LIKE '%tana.moe%' OR s.cover_url LIKE '%pages.dev%' THEN NULLIF(TRIM(s.cover_url), '') ELSE NULL END,
+          (SELECT v.cover_url FROM volumes v WHERE v.series_id = COALESCE(s.id, r.lidex_series_id, r.series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
+          NULLIF(TRIM(s.cover_url), ''),
           NULLIF(TRIM(r.cover_url), '')
         ) as cover_url, r.cover_source_title,
         s.title as canonical_title,
