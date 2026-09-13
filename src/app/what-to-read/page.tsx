@@ -159,13 +159,14 @@ export default function WhatToReadPage() {
     })
   }, [novels, selectedPublisher, selectedStatus, minScore])
 
-  // Reset reel whenever pool changes
+  // Reset reel whenever pool changes (Slots -10 to 50 so edge-to-edge is fully covered!)
   useEffect(() => {
     if (spinning || !eligiblePool.length) return
-    const initialReel = Array.from({ length: 45 }, (_, i) => ({
-      id: i,
-      novel: eligiblePool[i % eligiblePool.length],
-    }))
+    const initialReel: { id: number; novel: NovelItem }[] = []
+    for (let i = -10; i <= 50; i++) {
+      const idx = Math.abs(i) % eligiblePool.length
+      initialReel.push({ id: i, novel: eligiblePool[idx] })
+    }
     setReel(initialReel)
 
     // Position track at center of index 0
@@ -194,13 +195,14 @@ export default function WhatToReadPage() {
     // 1. Select Winner from eligible pool
     const winner = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
 
-    // 2. Build complete card reel (50 cards total)
+    // 2. Build complete card reel (Slots -10 to 50 total)
     const cardStep = 222 // 210px width + 12px gap
     const winnerIndex = 32 // target landing index
-    const totalCards = 50
+    const minSlot = -10
+    const maxSlot = 50
 
     const newCards: { id: number; novel: NovelItem }[] = []
-    for (let i = 0; i < totalCards; i++) {
+    for (let i = minSlot; i <= maxSlot; i++) {
       if (i === winnerIndex) {
         newCards.push({ id: i, novel: winner })
       } else {
@@ -400,10 +402,10 @@ export default function WhatToReadPage() {
             <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-950 to-transparent z-20 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-950 to-transparent z-20 pointer-events-none" />
 
-            {/* Reel Track */}
+            {/* Reel Track Container (Absolute SLOTTED positioning) */}
             <div
               ref={trackRef}
-              className="absolute top-4 left-0 flex items-center gap-3 will-change-transform"
+              className="absolute top-4 left-0 h-[220px] will-change-transform"
             >
               {reel.map(({ id, novel }) => {
                 const color = RARITY_COLORS[novel.rarity]
@@ -412,8 +414,9 @@ export default function WhatToReadPage() {
                 return (
                   <div
                     key={id}
-                    className="w-[210px] h-[220px] rounded-2xl p-3 shrink-0 flex flex-col justify-between relative overflow-hidden transition-all shadow-xl group border border-slate-700/60"
+                    className="w-[210px] h-[220px] rounded-2xl p-3 shrink-0 flex flex-col justify-between absolute top-0 overflow-hidden transition-all shadow-xl group border border-slate-700/60"
                     style={{
+                      left: `${id * 222}px`,
                       background: `linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.95) 100%)`,
                       borderBottom: `4px solid ${color}`,
                     }}
