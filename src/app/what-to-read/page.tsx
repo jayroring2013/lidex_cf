@@ -459,13 +459,6 @@ export default function WhatToReadPage() {
 
             {/* Counter info */}
             <div className="text-xs font-bold text-slate-400 flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-orange-950/40 border border-orange-500/40 text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.15)]">
-                <span className="text-[10px] font-black font-mono uppercase tracking-wider text-orange-400">StatTrak™:</span>
-                <strong className="font-mono text-sm text-amber-400 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]">
-                  {String(globalRolls).padStart(6, '0')}
-                </strong>
-              </div>
-              <span>•</span>
               <span>Cá nhân: <strong className="text-cyan-400 text-sm">{spinCount}</strong> lần</span>
               <span>•</span>
               <span>Pool: <strong className="text-emerald-400 text-sm">{eligiblePool.length}</strong> bộ</span>
@@ -475,17 +468,6 @@ export default function WhatToReadPage() {
 
         {/* ── CS:GO REEL CASE WINDOW ────────────────────────────────────────── */}
         <div className="relative rounded-3xl p-6 bg-slate-900/90 border border-slate-700/80 shadow-2xl overflow-hidden">
-          {/* Physical StatTrak™ Digital Module on Box */}
-          <div className="absolute top-3 right-4 z-30 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-orange-500/60 shadow-[0_0_15px_rgba(249,115,22,0.3)]">
-            <span className="text-[10px] font-black tracking-widest text-orange-500 font-mono uppercase">
-              StatTrak™
-            </span>
-            <div className="bg-black/90 px-2 py-0.5 rounded border border-orange-600/40">
-              <span className="font-mono text-sm font-black text-amber-400 tracking-widest drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">
-                {String(globalRolls).padStart(6, '0')}
-              </span>
-            </div>
-          </div>
           {/* Top Ticker Needle Indicator */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
             <div className="w-0.5 h-6 bg-cyan-400 shadow-[0_0_12px_#38bdf8]" />

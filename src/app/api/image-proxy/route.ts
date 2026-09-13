@@ -3,6 +3,12 @@ import { NextRequest, NextResponse } from 'next/server'
 export const revalidate = 604800
 
 const REFERER_MAP: Record<string, string> = {
+  'fahasa.com': 'https://www.fahasa.com/',
+  'cdn1.fahasa.com': 'https://www.fahasa.com/',
+  'hstatic.net': 'https://www.google.com/',
+  'product.hstatic.net': 'https://www.google.com/',
+  'dktcdn.net': 'https://www.google.com/',
+  'bizweb.dktcdn.net': 'https://www.google.com/',
   'docln.net': 'https://docln.net/',
   'i.docln.net': 'https://docln.net/',
   'i2.docln.net': 'https://docln.net/',

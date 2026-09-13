@@ -1348,9 +1348,9 @@ export async function fetchDashboardWatchlistData() {
         r.average_gap_months, r.months_since_last_release, r.completion_ratio, r.publisher_activity, 
         r.publisher_releases_last_24m, r.score_components, r.drop_components, 
         COALESCE(
-          NULLIF(TRIM(r.cover_url), ''), 
           NULLIF(TRIM(s.cover_url), ''), 
-          (SELECT v.cover_url FROM volumes v WHERE v.series_id = s.id AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY v.volume_number ASC LIMIT 1)
+          (SELECT v.cover_url FROM volumes v WHERE v.series_id = s.id AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY v.volume_number ASC LIMIT 1),
+          NULLIF(TRIM(r.cover_url), '')
         ) as cover_url, r.cover_source_title,
         s.title as canonical_title,
         COALESCE(s.description_vi, s.description) as canonical_description
