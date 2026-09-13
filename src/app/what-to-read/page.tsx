@@ -105,6 +105,7 @@ export default function WhatToReadPage() {
   async function loadData() {
     setLoading(true)
     setError(null)
+    setImgErrorMap({})
     try {
       const res = await fetch('/api/dashboard?mode=watchlist&v=2', { cache: 'no-store' })
       if (!res.ok) throw new Error('Không tải được dữ liệu Light Novel')
@@ -495,7 +496,7 @@ export default function WhatToReadPage() {
             >
               {reel.map(({ id, novel }) => {
                 const color = RARITY_COLORS[novel.rarity]
-                const hasImgErr = imgErrorMap[`reel-${id}`] || imgErrorMap[novel.id]
+                const hasImgErr = imgErrorMap[`reel-${id}`]
 
                 return (
                   <div
@@ -670,7 +671,7 @@ export default function WhatToReadPage() {
           {/* Inventory Grid with Small Cover Image Thumbnail */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {eligiblePool.map(n => {
-              const hasImgErr = imgErrorMap[`inv-${n.id}`] || imgErrorMap[String(n.id)]
+              const hasImgErr = imgErrorMap[`inv-${n.id}`]
               const color = RARITY_COLORS[n.rarity]
               return (
                 <Link
