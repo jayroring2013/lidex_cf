@@ -1,8 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, Menu, Moon, Sun, ChevronDown, LogIn, LogOut, UserCircle, X } from 'lucide-react'
-import { useState, useEffect, useRef, type FormEvent } from 'react'
+import { BarChart3, Menu, Moon, Sun, LogIn, LogOut, UserCircle, X } from 'lucide-react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useAvatar } from '@/contexts/AvatarContext'
@@ -15,7 +15,6 @@ export default function Navbar() {
   const { avatarUrl: navbarAvatarUrl } = useAvatar()
   const [isDark, setIsDark] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [chartsOpen, setChartsOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [authEmail, setAuthEmail] = useState('')
@@ -24,7 +23,6 @@ export default function Navbar() {
   const [authMessage, setAuthMessage] = useState<string | null>(null)
   const [authError, setAuthError] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
-  const chartsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('lidex-theme')
@@ -32,14 +30,6 @@ export default function Navbar() {
     document.documentElement.classList.toggle('dark', shouldUseDark)
     document.documentElement.style.colorScheme = shouldUseDark ? 'dark' : 'light'
     setIsDark(shouldUseDark)
-  }, [])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!chartsRef.current?.contains(e.target as Node)) setChartsOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   useEffect(() => {
@@ -142,21 +132,9 @@ export default function Navbar() {
     setIsDark(nextIsDark)
   }
 
-  const isChartsActive =
-    pathname === '/leaderboard' || pathname === '/license-prediction' || pathname === '/novel-network'
-
   const flatLinks = [
-    { href: '/',          label: 'Trang chủ' },
-    { href: '/dashboard', label: 'Bảng theo dõi' },
-    { href: '/publisher', label: 'Nhà phát hành' },
-    { href: '/what-to-read', label: 'Hôm nay đọc gì?' },
     { href: '/browse',    label: 'Khám phá' },
-  ]
-
-  const chartsChildren = [
-    { href: '/novel-network',  label: t('nav_network')  },
-    { href: '/leaderboard',    label: t('nav_leaderboard')  },
-    { href: '/license-prediction', label: t('nav_prediction') },
+    { href: '/what-to-read', label: 'Hôm nay đọc gì?' },
   ]
 
   return (
@@ -187,51 +165,6 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-
-            <div className="relative" ref={chartsRef}>
-              <button
-                onClick={() => setChartsOpen(o => !o)}
-                className={`nav-link flex items-center gap-1 ${isChartsActive ? 'active' : ''}`}
-              >
-                {t('nav_charts')}
-                <ChevronDown
-                  className="w-3.5 h-3.5 transition-transform"
-                  style={{ transform: chartsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                />
-              </button>
-
-              {chartsOpen && (
-                <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-40 rounded-xl overflow-hidden shadow-xl z-50"
-                  style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
-                >
-                  <div
-                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45"
-                    style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderBottom: 'none', borderRight: 'none' }}
-                  />
-                  {chartsChildren.map((child, i) => (
-                    <Link
-                      key={child.href}
-                      href={child.href}
-                      onClick={() => setChartsOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                      style={{
-                        color:        pathname === child.href ? '#6366f1' : 'var(--foreground-secondary)',
-                        borderBottom: i < chartsChildren.length - 1 ? '1px solid var(--card-border)' : 'none',
-                        background:   pathname === child.href ? 'var(--background-secondary)' : 'transparent',
-                      }}
-                      onMouseEnter={e => { if (pathname !== child.href) e.currentTarget.style.background = 'var(--background-secondary)' }}
-                      onMouseLeave={e => { if (pathname !== child.href) e.currentTarget.style.background = 'transparent' }}
-                    >
-                      {pathname === child.href && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />
-                      )}
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Right side: theme + mobile menu */}
@@ -315,20 +248,6 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
-              </Link>
-            ))}
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--foreground-muted)' }}>
-              {t('nav_charts')}
-            </p>
-            {chartsChildren.map(child => (
-              <Link
-                key={child.href}
-                href={child.href}
-                className="nav-link block pl-3"
-                onClick={() => setMobileMenuOpen(false)}
-                style={{ color: pathname === child.href ? '#6366f1' : undefined }}
-              >
-                {child.label}
               </Link>
             ))}
             <div className="pt-3" style={{ borderTop: '1px solid var(--card-border)' }}>

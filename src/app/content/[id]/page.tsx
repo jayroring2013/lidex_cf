@@ -863,8 +863,8 @@ export default function ContentDetail() {
           <ArrowLeft className="w-16 h-16 text-red-500 mx-auto mb-6" />
           <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>Series Not Found</h1>
           <p className="mb-6" style={{ color: 'var(--foreground-secondary)' }}>{error || "The series you're looking for doesn't exist."}</p>
-          <Link href="/dashboard" className="btn-primary inline-flex items-center space-x-2">
-            <ArrowLeft className="w-5 h-5" /><span>Back to Dashboard</span>
+          <Link href="/browse" className="btn-primary inline-flex items-center space-x-2">
+            <ArrowLeft className="w-5 h-5" /><span>Quay lại Khám phá</span>
           </Link>
         </div>
       </div>

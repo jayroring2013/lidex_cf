@@ -7,13 +7,12 @@ This document is the authoritative, comprehensive guide to the **LiDex** codebas
 ## 1. Executive Summary & Tech Stack
 
 **LiDex** (`wibubros.id.vn`) is a web analytics and community platform for Light Novels, Manga, and Anime in Vietnam. It provides:
-1. **Interactive Light Novel Discovery & Case Opening** (`/what-to-read`): CS:GO-style unboxing simulation with dynamic rarity tiers (Báu vật, Huyền thoại, Sơ cấp, Hiếm, Thông thường) calculated via composite market and community voting scores.
-2. **Publishing Dead-or-Alive (DOA) Analytics** (`/dashboard`): Drop risk percentages, release gap tracking, price progression, and market viability matrices.
-3. **Publisher Intelligence** (`/publisher`): Market share treemaps, 24-month release pace, and historical poll performance across Vietnamese publishing houses.
-4. **Interactive Network Visualizer** (`/novel-network`): 2D canvas force-directed graph linking publishers and light novels.
-5. **Licensing Prediction Leaderboard** (`/license-prediction`): Top 1000 unlicensed series with real-time fan wishlist voting.
-6. **Community Poll Leaderboards** (`/leaderboard`): Historical voting ranking data across periods.
-7. **Public User Bookshelves & Catalog Discovery** (`/bookshelf/[userId]`, `/browse`, `/content/[id]`): Multi-filter discovery, collection value valuation vs MSRP, and series timelines.
+1. **Catalog Discovery & Faceted Search** (`/browse`): Multi-filter catalog across Light Novels, Manga, and Anime with genre, publisher, demographic, and status filters.
+2. **Interactive Light Novel Discovery & Case Opening** (`/what-to-read`): CS:GO-style unboxing simulation with dynamic rarity tiers (Báu vật, Huyền thoại, Sơ cấp, Hiếm, Thông thường) calculated via composite market and community voting scores.
+3. **Canonical Series Profile** (`/content/[id]`): Full series profile with volume schedule grid, retail purchase links, DOA status, user ratings, radar charts, and community reviews.
+4. **User Profiles & Personal Management** (`/user`): User profile settings, reading lists, collection tracking, and avatar uploads.
+5. **Public User Bookshelves** (`/bookshelf/[userId]`): Public user collection showcase with collection valuation vs MSRP, series completion %, and volume grid.
+6. **Archived Modules** (`/_archive`): Experimental analytics, graphs, and matrices (DOA dashboard, treemaps, novel network visualizer, licensing prediction, etc.) preserved in `/_archive` for future reference and remaking.
 
 ### Technology Stack
 * **Framework**: Next.js 14 (App Router, React Server Components & Client Components).
@@ -202,27 +201,31 @@ When rendering items inside dynamic animations (like the CS:GO reel on `/what-to
 
 ---
 
-## 5. Page-by-Page Architectural Breakdown
-
+### 5.1. Active Core Routes
 | Page Route | Client Component / Location | Primary Data Tables | Functionality & Mechanics |
 | :--- | :--- | :--- | :--- |
-| **`/` (Homepage)** | [`src/app/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/page.tsx) | `series`, `volumes`, `publishers`, `anime_meta`, `voting_results` | Displays real-time platform statistics, upcoming light novel releases (2-month ticker), seasonal anime trends, top rated series, and community poll recaps via `fetchHomeData()`. |
-| **`/what-to-read` (Hôm nay đọc gì?)** | [`src/app/what-to-read/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/what-to-read/page.tsx) | `ln_series_ranking`, `series`, `voting_results`, `site_counters` | **CS:GO-style Light Novel Unboxing Game**: Filters out 0-volume titles. Calculates a composite score for each novel: `(LN_Score * 0.55) + (Vote_Popularity * 0.45)` where `Vote_Popularity = 10 * sqrt(votes / maxVotes)`. Assigns strictly capped rarity tiers: **Báu vật 👑 (Top 10)**, **Huyền thoại 🔴 (Next 20)**, **Sơ cấp 🟣 (Next 30)**, **Hiếm 💜 (Next 40)**, **Thông thường 💙 (Remainder)**. Features HTML5 audio engine ([`src/lib/caseAudio.ts`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/lib/caseAudio.ts)), rolling physics, and global StatTrak roll tracking via `/api/rolls`. |
-| **`/dashboard` (Bảng theo dõi)** | [`src/app/dashboard/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/dashboard/page.tsx) | `ln_series_ranking`, `series`, `volumes`, `voting_results`, `voting_periods` | Dead-or-Alive (DOA) matrix analyzing Light Novel health in Vietnam. Evaluates release frequency, drop risk %, volume price progression over time, and publication gaps. |
-| **`/publisher` (Nhà phát hành)** | [`src/app/publisher/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/publisher/page.tsx) | `publishers`, `volumes`, `ln_series_ranking`, `voting_results` | Market share treemap and publisher breakdown. Calculates 24-month publication velocity, series catalog distributions, and historical poll performance for Vietnamese publishers. |
-| **`/novel-network` (Novel Network)** | [`src/app/novel-network/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/novel-network/page.tsx) | `ln_series_ranking`, `series`, `publishers` | 2D canvas physics simulation with interactive force-directed graph connecting publishing houses to Light Novel nodes. Allows cluster drag-and-drop, physics customization, and slide-out metadata drawer. |
-| **`/license-prediction` (Dự đoán bản quyền)** | [`src/app/license-prediction/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/license-prediction/page.tsx) | `ln_series_ranking`, `license_wishlist` | Top 1000 unlicensed Light Novel predictions. Allows authenticated users to toggle wishlist hearts, updating real-time vote totals via `/api/wishlist`. |
-| **`/content/[id]` (Chi tiết tác phẩm)** | [`src/app/content/[id]/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/content/%5Bid%5D/page.tsx) | `series`, `volumes`, `publishers`, `series_reviews`, `series_rating_summary` | Full series profile with volume schedule grid, retail purchase links, DOA status, user ratings, and community reviews. |
-| **`/bookshelf/[userId]` (Tủ sách cá nhân)** | [`src/app/bookshelf/[userId]/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/bookshelf/%5BuserId%5D/page.tsx) | `user_profiles`, `series_user_volume_purchases`, `series_user_library`, `volumes`, `series` | Public user collection showcase. Calculates collection valuation vs total MSRP, series completion %, and volume grid. |
+| **`/` (Root)** | [`src/app/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/page.tsx) | N/A | Clean permanent redirect to `/browse`. |
 | **`/browse` (Khám phá)** | [`src/app/browse/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/browse/page.tsx) | `series`, `manga_meta`, `novel_meta`, `anime_meta`, `publishers` | Multi-filter faceted search across Light Novels, Manga, and Anime with genre, publisher, demographic, and status filters. |
-| **`/leaderboard` (Bảng xếp hạng)** | [`src/app/leaderboard/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/leaderboard/page.tsx) | `voting_periods`, `voting_results`, `series`, `publishers` | Community poll leaderboard displaying rankings, vote shares, and publisher distributions across historical voting periods. |
-| **`/charts` (Biểu đồ)** | [`src/app/charts/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/charts/page.tsx) | `volumes`, `series`, `publishers`, `stat_snapshots` | Interactive charts showing price distribution trends across release years, volume release timelines, and publisher market density. |
-| **`/compare` (So sánh)** | [`src/app/compare/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/compare/page.tsx) | `series`, `volumes`, `ln_series_ranking`, `anime_meta` | Side-by-side comparison between 2–4 titles across volume pace, pricing, scores, and popularity. |
-| **`/board` (Lịch phát hành)** | [`src/app/board/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/board/page.tsx) | `volumes`, `series`, `publishers` | Chronological release calendar organized by month and year. |
-| **`/table` (Bảng tổng hợp)** | [`src/app/table/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/table/page.tsx) | `v_series_full`, `series`, `volumes` | High-density data table supporting sorting, filtering, and CSV export. |
-| **`/genre-matrix` (Ma trận thể loại)**| [`src/app/genre-matrix/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/genre-matrix/page.tsx) | `series` | Co-occurrence matrix showing genre pairings and publisher genre specialization. |
-| **`/studio` (Hãng sản xuất)** | [`src/app/studio/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/studio/page.tsx) | `anime_meta`, `series` | Anime animation studio index and output statistics. |
-| **`/user` (Cá nhân)** | [`src/app/user/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/user/page.tsx) | `user_profiles`, `series_user_library` | User profile management, reading lists, and avatar upload (`/api/upload-avatar`). |
+| **`/what-to-read` (Hôm nay đọc gì?)** | [`src/app/what-to-read/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/what-to-read/page.tsx) | `ln_series_ranking`, `series`, `voting_results`, `site_counters` | **CS:GO-style Light Novel Unboxing Game**: Filters out 0-volume titles. Calculates composite score: `(LN_Score * 0.55) + (Vote_Popularity * 0.45)`. Strict rarity tiers: Báu vật 👑, Huyền thoại 🔴, Sơ cấp 🟣, Hiếm 💜, Thông thường 💙. Audio engine, spinning reel physics, StatTrak counter via `/api/rolls`. |
+| **`/content/[id]` (Chi tiết tác phẩm)** | [`src/app/content/[id]/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/content/%5Bid%5D/page.tsx) | `series`, `volumes`, `publishers`, `series_reviews`, `series_rating_summary` | Full series profile with volume schedule grid, retail purchase links, DOA status, user ratings, radar charts, and community reviews. |
+| **`/user` (Cá nhân)** | [`src/app/user/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/user/page.tsx) | `user_profiles`, `series_user_library` | User profile management, reading lists, collection tracking, and avatar upload (`/api/upload-avatar`). |
+| **`/bookshelf/[userId]` (Tủ sách cá nhân)** | [`src/app/bookshelf/[userId]/page.tsx`](file:///c:/Users/ADMIN/Desktop/Web/Current%20web/New%20folder/New%20folder/src/app/bookshelf/%5BuserId%5D/page.tsx) | `user_profiles`, `series_user_volume_purchases`, `series_user_library`, `volumes`, `series` | Public user collection showcase. Calculates collection valuation vs total MSRP, series completion %, and volume grid. |
+
+### 5.2. Archived Modules (`/_archive/`)
+The following pages and components have been moved to `_archive/` (excluded from TypeScript compilation and Next.js route builds) so that they can be referenced or remade in the future:
+* **`_archive/pages/dashboard`**: Dead-or-Alive (DOA) matrix analyzing Light Novel health in Vietnam.
+* **`_archive/pages/publisher`**: Market share treemap and Vietnamese publisher statistics.
+* **`_archive/pages/novel-network`**: Interactive 2D canvas force-directed graph.
+* **`_archive/pages/license-prediction`**: Top 1000 unlicensed Light Novel wishlist voting.
+* **`_archive/pages/leaderboard`**: Historical community voting poll leaderboard.
+* **`_archive/pages/charts`**: Volume release timelines and price distribution charts.
+* **`_archive/pages/compare`**: Side-by-side title comparison.
+* **`_archive/pages/board`**: Chronological release calendar.
+* **`_archive/pages/table`**: High-density data table with CSV export.
+* **`_archive/pages/genre-matrix`**: Genre pairings and co-occurrence matrix.
+* **`_archive/pages/studio`**: Animation studio index and output statistics.
+* **`_archive/pages/home_v1`**: Original landing page with tickers and stats widgets.
+* **`_archive/components/`**: `ActivityFeed`, `DashboardChart`, `LoadingSpinner`, `PublisherFocusView`, `SeriesCard`, `SeriesTable`, `StatsCard`.
 
 ---
 

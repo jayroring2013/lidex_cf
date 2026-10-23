@@ -6,9 +6,24 @@ import {
   Sparkles, RefreshCw, Volume2, VolumeX, BookOpen,
   ArrowRight, ExternalLink, Filter, Trophy, Star, ShieldAlert
 } from 'lucide-react'
-import { Card } from '@/components/PublisherFocusView'
 import { proxyImg } from '@/lib/imageProxy'
 import { CaseAudio, type CaseSound } from '@/lib/caseAudio'
+
+function Card({ children, className = '', style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <div
+      className={`rounded-xl ${className}`}
+      style={{
+        background: 'var(--ln-card-bg)',
+        border: '1px solid var(--card-border)',
+        boxShadow: 'var(--ln-card-shadow)',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
 
 export type NovelItem = {
   id: string | number
