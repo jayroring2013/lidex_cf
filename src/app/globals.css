@@ -290,3 +290,77 @@ button {
 .btn-secondary:hover {
   background: var(--foreground-muted);
 }
+
+/* ── Holographic Rainbow Shimmer Effect for Rare Classifications ── */
+@keyframes holo-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Ancient / Báu vật 👑 - Tier 4: Golden prismatic rainbow holo */
+.holo-line-ancient {
+  background: linear-gradient(
+    90deg,
+    #ffd700 0%,
+    #ff007f 18%,
+    #00f0ff 36%,
+    #7000ff 54%,
+    #ffd700 72%,
+    #ff8a00 86%,
+    #ffd700 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: holo-shimmer 2.5s ease infinite !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.75), 0 0 20px rgba(255, 0, 127, 0.45) !important;
+}
+
+/* Legendary / Huyền thoại 🔴 - Tier 3: Crimson to ruby-magenta-cyan holo */
+.holo-line-legendary {
+  background: linear-gradient(
+    90deg,
+    #eb4b4b 0%,
+    #ff007f 25%,
+    #9d00ff 50%,
+    #00e5ff 75%,
+    #eb4b4b 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: holo-shimmer 3s ease infinite !important;
+  box-shadow: 0 0 10px rgba(235, 75, 75, 0.7), 0 0 18px rgba(157, 0, 255, 0.4) !important;
+}
+
+/* Classified / Sơ cấp 🟣 - Tier 2: Neon magenta-violet-cyan holo */
+.holo-line-epic {
+  background: linear-gradient(
+    90deg,
+    #d32ce6 0%,
+    #8847ff 30%,
+    #00f0ff 60%,
+    #d32ce6 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: holo-shimmer 3.5s ease infinite !important;
+  box-shadow: 0 0 8px rgba(211, 44, 230, 0.65), 0 0 14px rgba(0, 240, 255, 0.35) !important;
+}
+
+/* Restricted / Hiếm 💜 - Tier 1: Deep purple to electric cyan shimmer */
+.holo-line-rare {
+  background: linear-gradient(
+    90deg,
+    #8847ff 0%,
+    #3b82f6 35%,
+    #00e5ff 70%,
+    #8847ff 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: holo-shimmer 4s ease infinite !important;
+  box-shadow: 0 0 7px rgba(136, 71, 255, 0.55) !important;
+}
+

@@ -45,6 +45,14 @@ export type NovelItem = {
 const RARITY_COLORS = ['#4b69ff', '#8847ff', '#d32ce6', '#eb4b4b', '#e4ae39']
 const RARITY_NAMES = ['Thông thường', 'Hiếm', 'Sơ cấp', 'Huyền thoại 🔴', 'Báu vật 👑']
 
+function getHoloLineClass(rarity: number): string {
+  if (rarity >= 4) return 'holo-line-ancient'
+  if (rarity === 3) return 'holo-line-legendary'
+  if (rarity === 2) return 'holo-line-epic'
+  if (rarity === 1) return 'holo-line-rare'
+  return ''
+}
+
 // CS:GO Deceleration Curve
 function easeOutQuad(p: number) {
   const t = Math.max(0, Math.min(1, p))
@@ -547,24 +555,15 @@ export default function WhatToReadPage() {
                 return (
                   <div
                     key={id}
-                    className="w-[210px] h-[220px] rounded-2xl p-3 shrink-0 flex flex-col justify-between absolute top-0 overflow-hidden transition-all shadow-xl group border border-slate-700/60"
+                    className="w-[210px] h-[220px] rounded-2xl p-3 shrink-0 flex flex-col justify-between absolute top-0 overflow-hidden transition-all shadow-xl group border border-slate-700/60 relative"
                     style={{
                       left: `${id * 222}px`,
-                      background: `linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.95) 100%)`,
-                      borderBottom: `4px solid ${color}`,
+                      background: `linear-gradient(180deg, rgba(30,41,59,0.92) 0%, rgba(15,23,42,0.98) 100%)`,
                     }}
                   >
-                    {/* Top Rarity Badge */}
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase">
-                      <span className="px-2 py-0.5 rounded-full text-white" style={{ background: `${color}44`, border: `1px solid ${color}88` }}>
-                        {RARITY_NAMES[novel.rarity]}
-                      </span>
-                      <span className="text-emerald-400">★ {novel.score.toFixed(1)}</span>
-                    </div>
-
                     {/* Novel Cover Preview */}
-                    <div className="my-auto flex justify-center">
-                      <div className="w-20 h-28 rounded-xl overflow-hidden shadow-lg border border-slate-700 bg-slate-800 flex items-center justify-center relative">
+                    <div className="my-auto flex justify-center pt-1">
+                      <div className="w-24 h-34 rounded-xl overflow-hidden shadow-lg border border-slate-700/80 bg-slate-800 flex items-center justify-center relative">
                         {novel.coverUrl && !hasImgErr ? (
                           <img
                             src={novel.coverUrl}
@@ -582,10 +581,16 @@ export default function WhatToReadPage() {
                     </div>
 
                     {/* Novel Info */}
-                    <div>
-                      <h4 className="text-xs font-black text-white truncate text-center">{novel.title}</h4>
-                      <p className="text-[10px] text-slate-400 text-center truncate mt-0.5">{novel.publisher}</p>
+                    <div className="pb-1 text-center">
+                      <h4 className="text-xs font-black text-white truncate">{novel.title}</h4>
+                      <p className="text-[10px] text-slate-400 truncate mt-0.5">{novel.publisher}</p>
                     </div>
+
+                    {/* Bottom Color / Holo Line */}
+                    <div
+                      className={`absolute bottom-0 inset-x-0 h-1.5 ${getHoloLineClass(novel.rarity)}`}
+                      style={{ background: getHoloLineClass(novel.rarity) ? undefined : color }}
+                    />
                   </div>
                 )
               })}
@@ -604,7 +609,7 @@ export default function WhatToReadPage() {
               }`}
             >
               <Sparkles className={`w-5 h-5 ${spinning ? 'animate-spin' : ''}`} />
-              <span>{spinning ? 'Đang mở hòm Light Novel...' : result ? 'Quay lại hòm 🎲' : 'Mở Hòm Ngẫu Nhiên 🎲'}</span>
+              <span>{spinning ? 'Đang mở hòm Light Novel...' : result ? 'Quay lại hòm' : 'Mở hòm ngẫu nhiên'}</span>
             </button>
           </div>
         </div>
@@ -690,7 +695,7 @@ export default function WhatToReadPage() {
                   }}
                   className="px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-slate-200 transition-all"
                 >
-                  Quay lại 🎲
+                  Quay lại
                 </button>
               </div>
             </div>
@@ -898,7 +903,10 @@ export default function WhatToReadPage() {
                       </div>
 
                       {/* Color accent line */}
-                      <div className="absolute bottom-0 inset-x-0 h-1" style={{ background: color }} />
+                      <div
+                        className={`absolute bottom-0 inset-x-0 h-1 sm:h-1.5 ${getHoloLineClass(n.rarity)}`}
+                        style={{ background: getHoloLineClass(n.rarity) ? undefined : color }}
+                      />
                     </div>
 
                     {/* Card Body */}
@@ -937,9 +945,13 @@ export default function WhatToReadPage() {
                     style={{
                       background: 'var(--card-bg)',
                       borderColor: 'var(--card-border)',
-                      borderLeft: `4px solid ${color}`,
                     }}
                   >
+                    {/* Left Holo / Color bar */}
+                    <div
+                      className={`w-1.5 self-stretch rounded-full shrink-0 -my-0.5 ${getHoloLineClass(n.rarity)}`}
+                      style={{ background: getHoloLineClass(n.rarity) ? undefined : color }}
+                    />
                     {/* Cover Thumbnail - w-16 h-24 */}
                     <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-slate-900/10 dark:bg-slate-950 border relative shadow flex items-center justify-center" style={{ borderColor: 'var(--card-border)' }}>
                       {n.coverUrl && !hasImgErr ? (
