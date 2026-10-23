@@ -8,8 +8,17 @@ import psycopg2
 from datetime import datetime, timedelta
 from PIL import Image, ImageDraw, ImageFont
 
-# Neon DB Connection URL
-db_url = "postgresql://neondb_owner:npg_m8HMX3QZNERs@ep-divine-poetry-aou08wpe-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Neon DB Connection URL (Loaded from environment or .env.local)
+db_url = os.environ.get("DATABASE_URL")
+if not db_url and os.path.exists(".env.local"):
+    try:
+        with open(".env.local", "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip().startswith("DATABASE_URL="):
+                    db_url = line.strip().split("=", 1)[1].strip(' "\'')
+                    break
+    except Exception:
+        pass
 
 # Standard font paths on Windows
 FONT_BOLD = "C:/Windows/Fonts/segoeuib.ttf"
