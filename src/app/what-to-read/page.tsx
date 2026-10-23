@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Sparkles, RefreshCw, Volume2, VolumeX, BookOpen,
-  ArrowRight, ExternalLink, Filter, Trophy, Star, ShieldAlert
+  ArrowRight, ExternalLink, Filter, Trophy, Star, ShieldAlert,
+  Search, LayoutGrid, List, X
 } from 'lucide-react'
 import { proxyImg } from '@/lib/imageProxy'
 import { CaseAudio, type CaseSound } from '@/lib/caseAudio'
@@ -61,6 +62,11 @@ export default function WhatToReadPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [minScore, setMinScore] = useState<number>(0)
   const [muted, setMuted] = useState(false)
+
+  // Showcase filters & view mode
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedRarity, setSelectedRarity] = useState<number | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   // Wheel State
   const [spinning, setSpinning] = useState(false)
@@ -237,6 +243,31 @@ export default function WhatToReadPage() {
       return true
     })
   }, [novels, selectedPublisher, selectedStatus, minScore])
+
+  // Count by rarity for quick filter pills
+  const rarityCounts = useMemo(() => {
+    const counts = [0, 0, 0, 0, 0]
+    eligiblePool.forEach(n => {
+      if (counts[n.rarity] !== undefined) counts[n.rarity]++
+    })
+    return counts
+  }, [eligiblePool])
+
+  // Displayed pool filtered by search query and rarity tab
+  const displayedPool = useMemo(() => {
+    let list = eligiblePool
+    if (selectedRarity !== null) {
+      list = list.filter(n => n.rarity === selectedRarity)
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase()
+      list = list.filter(n =>
+        n.title.toLowerCase().includes(q) ||
+        n.publisher.toLowerCase().includes(q)
+      )
+    }
+    return list
+  }, [eligiblePool, selectedRarity, searchQuery])
 
   // Reset reel whenever pool changes (Slots -10 to 50 so edge-to-edge is fully covered!)
   useEffect(() => {
@@ -667,69 +698,300 @@ export default function WhatToReadPage() {
         )}
 
         {/* ── INVENTORY POOL SHOWCASE ──────────────────────────────────────── */}
-        <Card className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span>Danh mục Light Novel trong Hòm ({eligiblePool.length})</span>
-            </h3>
-            <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
-              {RARITY_NAMES.map((name, i) => (
-                <span key={name} className="flex items-center gap-1">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: RARITY_COLORS[i] }} />
-                  <span>{name}</span>
-                </span>
-              ))}
+        <Card className="p-4 sm:p-6 space-y-5">
+          {/* Header & Controls Bar */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b" style={{ borderColor: 'var(--card-border)' }}>
+            <div className="space-y-1">
+              <h3 className="text-base sm:text-lg font-black uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
+                <Trophy className="w-5 h-5 text-amber-400" />
+                <span>Danh mục Light Novel trong Hòm ({displayedPool.length}/{eligiblePool.length})</span>
+              </h3>
+              <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>
+                Bìa sắc nét tỷ lệ 2:3, phân loại theo phẩm cấp và độ phổ biến trên thị trường
+              </p>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div
+                className="flex items-center p-1 rounded-xl border text-xs font-bold"
+                style={{ background: 'var(--background-secondary)', borderColor: 'var(--card-border)' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-indigo-600 text-white shadow'
+                      : 'hover:text-primary-500'
+                  }`}
+                  style={{ color: viewMode === 'grid' ? '#fff' : 'var(--foreground-secondary)' }}
+                  title="Dạng lưới bìa sách (Poster Grid)"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden sm:inline">Lưới bìa sách</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                    viewMode === 'list'
+                      ? 'bg-indigo-600 text-white shadow'
+                      : 'hover:text-primary-500'
+                  }`}
+                  style={{ color: viewMode === 'list' ? '#fff' : 'var(--foreground-secondary)' }}
+                  title="Dạng danh sách chi tiết (List View)"
+                >
+                  <List className="w-4 h-4" />
+                  <span className="hidden sm:inline">Danh sách</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Inventory Grid with Small Cover Image Thumbnail */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {eligiblePool.map(n => {
-              const hasImgErr = imgErrorMap[`inv-${n.id}`]
-              const color = RARITY_COLORS[n.rarity]
-              return (
-                <Link
-                  key={n.id}
-                  href={n.href}
-                  className="p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-3 group overflow-hidden"
-                  style={{ borderLeft: `4px solid ${color}` }}
+          {/* Search Bar & Rarity Filter Pills */}
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--foreground-muted)' }} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Tìm tên truyện, nhà phát hành..."
+                className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                style={{
+                  background: 'var(--background-secondary)',
+                  borderColor: 'var(--card-border)',
+                  color: 'var(--foreground)',
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-500/20"
+                  style={{ color: 'var(--foreground-muted)' }}
                 >
-                  {/* Small Cover Image Thumbnail */}
-                  <div className="w-11 h-16 rounded-lg overflow-hidden shrink-0 bg-slate-800 border border-slate-700 flex items-center justify-center relative">
-                    {n.coverUrl && !hasImgErr ? (
-                      <img
-                        src={n.coverUrl}
-                        alt={n.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        onError={() => markImgError(`inv-${n.id}`)}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-slate-800 text-slate-400">
-                        <BookOpen className="w-5 h-5 mb-0.5 text-sky-400 opacity-60" />
-                        <span className="text-[8px] font-bold leading-tight line-clamp-2">{n.title}</span>
-                      </div>
-                    )}
-                  </div>
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
 
-                  {/* Novel Details */}
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
-                      <span className="truncate max-w-[85px]">{n.publisher}</span>
-                      <span className="text-emerald-400">★ {n.score.toFixed(1)}</span>
-                    </div>
-                    <h5 className="text-xs font-black text-slate-200 group-hover:text-white truncate leading-tight">{n.title}</h5>
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-black text-white" style={{ background: `${color}33`, border: `1px solid ${color}66` }}>
-                        {RARITY_NAMES[n.rarity]}
-                      </span>
-                      <span className="text-indigo-400 group-hover:translate-x-0.5 transition-transform">Xem →</span>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
+            {/* Rarity Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setSelectedRarity(null)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0"
+                style={{
+                  background: selectedRarity === null ? 'var(--foreground)' : 'var(--background-secondary)',
+                  color: selectedRarity === null ? 'var(--background)' : 'var(--foreground-secondary)',
+                  borderColor: selectedRarity === null ? 'var(--foreground)' : 'var(--card-border)',
+                }}
+              >
+                Tất cả ({eligiblePool.length})
+              </button>
+
+              {RARITY_NAMES.map((name, i) => {
+                const isSelected = selectedRarity === i
+                const color = RARITY_COLORS[i]
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => setSelectedRarity(isSelected ? null : i)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0"
+                    style={{
+                      background: isSelected ? `${color}22` : 'var(--background-secondary)',
+                      color: isSelected ? color : 'var(--foreground-secondary)',
+                      borderColor: isSelected ? color : 'var(--card-border)',
+                      boxShadow: isSelected ? `0 0 14px ${color}33` : undefined,
+                    }}
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                    <span>{name}</span>
+                    <span
+                      className="px-1.5 py-0.2 rounded-md text-[10px] font-black"
+                      style={{
+                        background: isSelected ? `${color}44` : 'var(--card-border)',
+                        color: isSelected ? color : 'var(--foreground-muted)',
+                      }}
+                    >
+                      {rarityCounts[i]}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
+
+          {/* Grid View vs List View */}
+          {displayedPool.length === 0 ? (
+            <div className="py-12 text-center space-y-2">
+              <BookOpen className="w-10 h-10 mx-auto text-slate-400 opacity-50" />
+              <p className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>Không tìm thấy truyện phù hợp</p>
+              <p className="text-xs" style={{ color: 'var(--foreground-muted)' }}>Thử xóa từ khóa tìm kiếm hoặc chọn lại phẩm cấp</p>
+            </div>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
+              {displayedPool.map(n => {
+                const hasImgErr = imgErrorMap[`inv-${n.id}`]
+                const color = RARITY_COLORS[n.rarity]
+                return (
+                  <Link
+                    key={n.id}
+                    href={n.href}
+                    className="group rounded-2xl overflow-hidden flex flex-col border transition-all duration-200 shadow-sm hover:shadow-xl hover:-translate-y-1 relative"
+                    style={{
+                      background: 'var(--card-bg)',
+                      borderColor: 'var(--card-border)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = color
+                      e.currentTarget.style.boxShadow = `0 12px 24px -6px ${color}40`
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'var(--card-border)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  >
+                    {/* Cover Container - Standard 2:3 book ratio */}
+                    <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-900/10 dark:bg-slate-950 flex items-center justify-center">
+                      {n.coverUrl && !hasImgErr ? (
+                        <img
+                          src={n.coverUrl}
+                          alt={n.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={() => markImgError(`inv-${n.id}`)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-slate-800 text-slate-400">
+                          <BookOpen className="w-8 h-8 mb-1.5 text-sky-400 opacity-60" />
+                          <span className="text-[10px] font-bold leading-tight line-clamp-3">{n.title}</span>
+                        </div>
+                      )}
+
+                      {/* Top Badges Overlay */}
+                      <div className="absolute top-2 inset-x-2 flex items-center justify-between gap-1 pointer-events-none">
+                        <span
+                          className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider text-white shadow-md backdrop-blur-md truncate max-w-[65%]"
+                          style={{ background: `${color}e6` }}
+                        >
+                          {RARITY_NAMES[n.rarity]}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded-md text-[10px] font-black text-amber-300 bg-black/75 backdrop-blur-md shadow flex items-center gap-0.5 shrink-0">
+                          ★ {n.score.toFixed(1)}
+                        </span>
+                      </div>
+
+                      {/* Bottom Gradient Overlay on Image */}
+                      <div
+                        className="absolute bottom-0 inset-x-0 pt-6 pb-2 px-2.5 flex items-center justify-between text-white pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 65%, transparent 100%)',
+                        }}
+                      >
+                        <span className="text-[11px] font-bold text-white/90 truncate max-w-[70%]">{n.publisher}</span>
+                        <span className="text-[10px] font-black text-white/80 shrink-0">{n.volumes} tập</span>
+                      </div>
+
+                      {/* Color accent line */}
+                      <div className="absolute bottom-0 inset-x-0 h-1" style={{ background: color }} />
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-3 flex-1 flex flex-col justify-between gap-2">
+                      <h4
+                        className="text-xs sm:text-sm font-bold line-clamp-2 leading-snug group-hover:text-indigo-500 transition-colors"
+                        style={{ color: 'var(--foreground)' }}
+                        title={n.title}
+                      >
+                        {n.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-[11px] pt-1 border-t" style={{ borderColor: 'var(--card-border)' }}>
+                        <span className="truncate max-w-[60%]" style={{ color: 'var(--foreground-muted)' }}>
+                          {n.status}
+                        </span>
+                        <span className="font-bold text-indigo-500 group-hover:translate-x-0.5 transition-transform shrink-0 flex items-center gap-0.5">
+                          Chi tiết →
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          ) : (
+            /* List View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {displayedPool.map(n => {
+                const hasImgErr = imgErrorMap[`inv-${n.id}`]
+                const color = RARITY_COLORS[n.rarity]
+                return (
+                  <Link
+                    key={n.id}
+                    href={n.href}
+                    className="p-3 rounded-2xl border transition-all duration-200 flex items-center gap-3.5 group shadow-sm hover:shadow-lg hover:-translate-y-0.5 relative overflow-hidden"
+                    style={{
+                      background: 'var(--card-bg)',
+                      borderColor: 'var(--card-border)',
+                      borderLeft: `4px solid ${color}`,
+                    }}
+                  >
+                    {/* Cover Thumbnail - w-16 h-24 */}
+                    <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-slate-900/10 dark:bg-slate-950 border relative shadow flex items-center justify-center" style={{ borderColor: 'var(--card-border)' }}>
+                      {n.coverUrl && !hasImgErr ? (
+                        <img
+                          src={n.coverUrl}
+                          alt={n.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={() => markImgError(`inv-${n.id}`)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-1 text-center bg-slate-800 text-slate-400">
+                          <BookOpen className="w-6 h-6 mb-1 text-sky-400 opacity-60" />
+                          <span className="text-[9px] font-bold leading-tight line-clamp-2">{n.title}</span>
+                        </div>
+                      )}
+                      <div className="absolute top-1 right-1 px-1 py-0.2 rounded text-[9px] font-black text-amber-300 bg-black/75">
+                        ★ {n.score.toFixed(1)}
+                      </div>
+                    </div>
+
+                    {/* Novel Details */}
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex items-center justify-between gap-1 text-xs">
+                        <span className="font-bold truncate" style={{ color: 'var(--foreground-muted)' }}>{n.publisher}</span>
+                        <span className="text-[11px] font-bold shrink-0" style={{ color: 'var(--foreground-muted)' }}>{n.volumes} tập</span>
+                      </div>
+                      <h4
+                        className="text-sm font-bold line-clamp-2 leading-snug group-hover:text-indigo-500 transition-colors"
+                        style={{ color: 'var(--foreground)' }}
+                        title={n.title}
+                      >
+                        {n.title}
+                      </h4>
+                      <div className="flex items-center justify-between text-xs pt-1">
+                        <span
+                          className="px-2 py-0.5 rounded-md text-[10px] font-black text-white shrink-0"
+                          style={{ background: color }}
+                        >
+                          {RARITY_NAMES[n.rarity]}
+                        </span>
+                        <span className="font-bold text-indigo-500 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5 text-xs">
+                          Xem chi tiết →
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </Card>
 
       </div>
