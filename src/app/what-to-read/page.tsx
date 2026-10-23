@@ -287,11 +287,22 @@ export default function WhatToReadPage() {
     }
     setReel(initialReel)
 
-    // Position track at center of index 0
-    if (trackRef.current && viewportRef.current) {
-      const vw = viewportRef.current.clientWidth
-      const initPos = vw / 2 - 105
-      trackRef.current.style.transform = `translate3d(${initPos}px, 0, 0)`
+    // Position track at center of index 0 with resize listener and layout fallback
+    const updatePosition = () => {
+      if (trackRef.current && viewportRef.current && !spinning) {
+        const vw = viewportRef.current.clientWidth || (typeof window !== 'undefined' ? window.innerWidth : 1000)
+        const initPos = vw / 2 - 105
+        trackRef.current.style.transform = `translate3d(${initPos}px, 0, 0)`
+      }
+    }
+
+    updatePosition()
+    const rafId = requestAnimationFrame(updatePosition)
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('resize', updatePosition)
     }
   }, [eligiblePool, spinning])
 
@@ -555,7 +566,7 @@ export default function WhatToReadPage() {
                 return (
                   <div
                     key={id}
-                    className="w-[210px] h-[220px] rounded-2xl p-3 shrink-0 flex flex-col justify-between absolute top-0 overflow-hidden transition-all shadow-xl group border border-slate-700/60 relative"
+                    className="w-[210px] h-[220px] rounded-2xl p-3 shrink-0 flex flex-col justify-between absolute top-0 overflow-hidden transition-all shadow-xl group border border-slate-700/60"
                     style={{
                       left: `${id * 222}px`,
                       background: `linear-gradient(180deg, rgba(30,41,59,0.92) 0%, rgba(15,23,42,0.98) 100%)`,
@@ -563,7 +574,7 @@ export default function WhatToReadPage() {
                   >
                     {/* Novel Cover Preview */}
                     <div className="my-auto flex justify-center pt-1">
-                      <div className="w-24 h-34 rounded-xl overflow-hidden shadow-lg border border-slate-700/80 bg-slate-800 flex items-center justify-center relative">
+                      <div className="w-[96px] h-[136px] rounded-xl overflow-hidden shadow-lg border border-slate-700/80 bg-slate-800 flex items-center justify-center relative shrink-0">
                         {novel.coverUrl && !hasImgErr ? (
                           <img
                             src={novel.coverUrl}
