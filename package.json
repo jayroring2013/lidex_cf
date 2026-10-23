@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:build": "npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion",
-    "pages:preview": "npx wrangler dev",
-    "pages:deploy": "npx wrangler deploy"
+    "pages:build": "opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion",
+    "pages:preview": "wrangler dev",
+    "pages:deploy": "wrangler deploy"
   },
 
 

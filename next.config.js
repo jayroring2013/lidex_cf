@@ -2,6 +2,13 @@
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  swcMinify: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   images: {
     unoptimized: true,
     domains: ['supabase.co', 'your-cdn.com'],

@@ -45,3 +45,11 @@ Thumbs.db
 .open-next/
 .wrangler/
 scratch/
+
+# Local binaries & caches
+*.apk
+*.idsig
+*.zip
+__pycache__/
+cover_cache/
+
