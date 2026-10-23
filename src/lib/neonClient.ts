@@ -1,6 +1,15 @@
 import { unstable_cache } from 'next/cache'
-import { neon } from '@neondatabase/serverless'
+import { neon, neonConfig } from '@neondatabase/serverless'
 import { getCloudflareContext } from '@opennextjs/cloudflare'
+
+// In local development on Windows Node.js, configure dispatcher to avoid UNABLE_TO_VERIFY_LEAF_SIGNATURE
+if (process.env.NODE_ENV === 'development' && typeof process !== 'undefined' && process.platform === 'win32') {
+  try {
+    const { Agent } = require('undici')
+    const dispatcher = new Agent({ connect: { rejectUnauthorized: false } })
+    neonConfig.fetchFunction = (url: any, options: any) => fetch(url, { ...options, dispatcher })
+  } catch {}
+}
 
 let sqlClient: ReturnType<typeof neon> | null = null
 
