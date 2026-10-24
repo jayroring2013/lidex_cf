@@ -66,6 +66,19 @@ function pickRandomNovel(pool: NovelItem[], excludeIds: (string | number)[] = []
   return candidates[Math.floor(Math.random() * candidates.length)]
 }
 
+function resolveReleaseStatus(r: any): string {
+  if (r.trang_thai && typeof r.trang_thai === 'string' && r.trang_thai.trim()) {
+    return r.trang_thai.trim()
+  }
+  if (r.evalution === 'Completed') return 'Hoàn thành'
+  if (r.evalution === 'Dead') return 'Lâu lắm rồi chưa có tập mới'
+  if (r.evalution === 'Dropped') return 'Drop'
+  if (r.original_status && typeof r.original_status === 'string' && r.original_status.trim()) {
+    return r.original_status.trim()
+  }
+  return 'Đang phát hành'
+}
+
 export default function WhatToReadPage() {
   const [novels, setNovels] = useState<NovelItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -75,7 +88,7 @@ export default function WhatToReadPage() {
   // Filters
   const [selectedPublisher, setSelectedPublisher] = useState<string>('all')
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
-  const [minScore, setMinScore] = useState<number>(0)
+  const [scoreFilter, setScoreFilter] = useState<string>('all')
   const [muted, setMuted] = useState(false)
 
   // Showcase filters & view mode
@@ -177,7 +190,7 @@ export default function WhatToReadPage() {
             score: score,
             votes: votes,
             dropPct: Number(r.drop_percent) || 0,
-            status: r.trang_thai || r.evalution || 'Đang phát hành',
+            status: resolveReleaseStatus(r),
             coverUrl: proxyImg(r.cover_url),
             description: r.description || null,
             href: `/content/${encodeURIComponent(targetId)}`,
@@ -249,15 +262,34 @@ export default function WhatToReadPage() {
     return Array.from(set).sort()
   }, [novels])
 
+  // Statuses List (dynamically extracted from all loaded novels)
+  const statuses = useMemo(() => {
+    const map = new Map<string, number>()
+    novels.forEach(n => {
+      const s = n.status?.trim()
+      if (s) {
+        map.set(s, (map.get(s) || 0) + 1)
+      }
+    })
+    return Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([status]) => status)
+  }, [novels])
+
   // Filtered Eligible Novels Pool
   const eligiblePool = useMemo(() => {
     return novels.filter(n => {
       if (selectedPublisher !== 'all' && n.publisher !== selectedPublisher) return false
-      if (selectedStatus !== 'all' && !n.status.toLowerCase().includes(selectedStatus.toLowerCase())) return false
-      if (n.score < minScore) return false
+      if (selectedStatus !== 'all' && n.status.toLowerCase().trim() !== selectedStatus.toLowerCase().trim()) return false
+      if (scoreFilter === 'gte_8' && n.score < 8.0) return false
+      if (scoreFilter === 'gte_7' && n.score < 7.0) return false
+      if (scoreFilter === 'gte_6' && n.score < 6.0) return false
+      if (scoreFilter === 'gte_5' && n.score < 5.0) return false
+      if (scoreFilter === 'gte_4' && n.score < 4.0) return false
+      if (scoreFilter === 'lt_6' && n.score >= 6.0) return false
       return true
     })
-  }, [novels, selectedPublisher, selectedStatus, minScore])
+  }, [novels, selectedPublisher, selectedStatus, scoreFilter])
 
   // Count by rarity for quick filter pills
   const rarityCounts = useMemo(() => {
@@ -517,23 +549,31 @@ export default function WhatToReadPage() {
                 disabled={spinning}
                 className="bg-slate-800 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer"
               >
-                <option value="all">Tất cả Trạng thái</option>
-                <option value="phát hành">Đang phát hành</option>
-                <option value="hoàn thành">Hoàn thành</option>
-                <option value="bắt kịp">Đã bắt kịp JP</option>
+                <option value="all">Tất cả Trạng thái ({novels.length})</option>
+                {statuses.map(s => {
+                  const count = novels.filter(n => n.status.toLowerCase().trim() === s.toLowerCase().trim()).length
+                  return (
+                    <option key={s} value={s}>
+                      {s} ({count})
+                    </option>
+                  )
+                })}
               </select>
 
-              {/* Min Score Filter */}
+              {/* Score Filter */}
               <select
-                value={minScore}
-                onChange={e => setMinScore(Number(e.target.value))}
+                value={scoreFilter}
+                onChange={e => setScoreFilter(e.target.value)}
                 disabled={spinning}
                 className="bg-slate-800 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer"
               >
-                <option value={0}>Tất cả điểm số</option>
-                <option value={8.0}>★ ≥ 8.0 (Kiệt tác / Masterpiece)</option>
-                <option value={7.0}>★ ≥ 7.0 (Chất lượng cao)</option>
-                <option value={6.0}>★ ≥ 6.0 (Khá tốt)</option>
+                <option value="all">Tất cả điểm số</option>
+                <option value="gte_8">★ ≥ 8.0</option>
+                <option value="gte_7">★ ≥ 7.0</option>
+                <option value="gte_6">★ ≥ 6.0</option>
+                <option value="gte_5">★ ≥ 5.0</option>
+                <option value="gte_4">★ ≥ 4.0</option>
+                <option value="lt_6">★ &lt; 6.0</option>
               </select>
             </div>
 
