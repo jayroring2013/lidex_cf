@@ -549,15 +549,10 @@ export default function WhatToReadPage() {
                 disabled={spinning}
                 className="bg-slate-800 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer"
               >
-                <option value="all">Tất cả Trạng thái ({novels.length})</option>
-                {statuses.map(s => {
-                  const count = novels.filter(n => n.status.toLowerCase().trim() === s.toLowerCase().trim()).length
-                  return (
-                    <option key={s} value={s}>
-                      {s} ({count})
-                    </option>
-                  )
-                })}
+                <option value="all">Tất cả Trạng thái</option>
+                {statuses.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
               </select>
 
               {/* Score Filter */}
