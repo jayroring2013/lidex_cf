@@ -59,6 +59,13 @@ function easeOutQuad(p: number) {
   return 1 - Math.pow(1 - t, 3.2)
 }
 
+function pickRandomNovel(pool: NovelItem[], excludeIds: (string | number)[] = []): NovelItem {
+  if (!pool.length) return null as any
+  const filtered = pool.filter(n => !excludeIds.includes(n.id))
+  const candidates = filtered.length > 0 ? filtered : pool
+  return candidates[Math.floor(Math.random() * candidates.length)]
+}
+
 export default function WhatToReadPage() {
   const [novels, setNovels] = useState<NovelItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -277,13 +284,15 @@ export default function WhatToReadPage() {
     return list
   }, [eligiblePool, selectedRarity, searchQuery])
 
-  // Reset reel whenever pool changes (Slots -10 to 50 so edge-to-edge is fully covered!)
+  // Reset reel whenever pool changes (randomized series across all slots, no adjacent duplicates)
   useEffect(() => {
     if (spinning || !eligiblePool.length) return
     const initialReel: { id: number; novel: NovelItem }[] = []
+    let lastId: string | number | null = null
     for (let i = -10; i <= 50; i++) {
-      const idx = Math.abs(i) % eligiblePool.length
-      initialReel.push({ id: i, novel: eligiblePool[idx] })
+      const novel = pickRandomNovel(eligiblePool, lastId !== null ? [lastId] : [])
+      initialReel.push({ id: i, novel })
+      lastId = novel.id
     }
     setReel(initialReel)
 
@@ -341,12 +350,17 @@ export default function WhatToReadPage() {
     const maxSlot = 50
 
     const newCards: { id: number; novel: NovelItem }[] = []
+    let lastId: string | number | null = null
     for (let i = minSlot; i <= maxSlot; i++) {
       if (i === winnerIndex) {
         newCards.push({ id: i, novel: winner })
+        lastId = winner.id
       } else {
-        const randItem = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
+        const exclude = lastId !== null ? [lastId] : []
+        if (i === winnerIndex - 1) exclude.push(winner.id)
+        const randItem = pickRandomNovel(eligiblePool, exclude)
         newCards.push({ id: i, novel: randItem })
+        lastId = randItem.id
       }
     }
 

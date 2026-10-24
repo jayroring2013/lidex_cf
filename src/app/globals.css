@@ -304,21 +304,21 @@ button {
   }
 }
 
-/* Ancient / Báu vật 👑 - Tier 4: Golden prismatic rainbow holo */
+/* Ancient / Báu vật 👑 - Tier 4: Pure golden-yellow holographic shimmer */
 .holo-line-ancient {
   background: linear-gradient(
     90deg,
-    #ffd700 0%,
-    #ff007f 18%,
-    #00f0ff 36%,
-    #7000ff 54%,
-    #ffd700 72%,
-    #ff8a00 86%,
-    #ffd700 100%
+    #e4ae39 0%,
+    #ffe270 20%,
+    #fff7c2 38%,
+    #ffffff 50%,
+    #fff7c2 62%,
+    #ffcc00 80%,
+    #e4ae39 100%
   ) !important;
   background-size: 300% 100% !important;
   animation: holo-shimmer 2.5s ease infinite !important;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.75), 0 0 20px rgba(255, 0, 127, 0.45) !important;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.85), 0 0 22px rgba(255, 190, 0, 0.5) !important;
 }
 
 /* Legendary / Huyền thoại 🔴 - Tier 3: Crimson to ruby-magenta-cyan holo */
