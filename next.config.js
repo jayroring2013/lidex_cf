@@ -69,6 +69,16 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/about-books',
+        destination: '/collage',
+        permanent: false,
+      },
+      {
+        source: '/grid',
+        destination: '/collage',
+        permanent: false,
+      },
     ]
   },
 }

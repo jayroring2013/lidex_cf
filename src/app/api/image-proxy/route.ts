@@ -169,8 +169,9 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Invalid url', { status: 400 })
   }
 
-  // R2/Supabase/public CDN images should never burn Worker CPU.
-  if (isDirectCdnHost(parsed.hostname)) {
+  // R2/Supabase/public CDN images should never burn Worker CPU unless cors requested.
+  const forceCors = req.nextUrl.searchParams.get('cors') === '1'
+  if (!forceCors && isDirectCdnHost(parsed.hostname)) {
     return NextResponse.redirect(parsed.toString(), {
       status: 302,
       headers: cacheHeaders(parsed.hostname),
