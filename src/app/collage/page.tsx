@@ -148,7 +148,18 @@ export default function CollageEditorPage() {
   const [viewMode, setViewMode] = useState<'poster' | 'list'>('poster')
   const [showWatermark, setShowWatermark] = useState(true)
 
+  // Preview Modal State
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+
+  // Clean up object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+    }
+  }, [previewUrl])
 
   // Load saved state from localStorage on mount
   useEffect(() => {
@@ -453,6 +464,37 @@ export default function CollageEditorPage() {
     return canvas
   }
 
+  // ── Open Preview Modal Action ──────────────────────────────────────────────
+  const handleOpenPreview = async () => {
+    if (generating) return
+    setGenerating(true)
+    try {
+      const canvas = await renderToCanvas(2)
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert('Không thể tạo ảnh xem trước')
+          setGenerating(false)
+          return
+        }
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl)
+        }
+        const url = URL.createObjectURL(blob)
+        setPreviewUrl(url)
+        setPreviewOpen(true)
+        setGenerating(false)
+      }, 'image/png')
+    } catch (err: any) {
+      console.error('Preview failed:', err)
+      alert('Đã xảy ra lỗi khi tạo ảnh xem trước: ' + (err?.message || 'Lỗi không xác định'))
+      setGenerating(false)
+    }
+  }
+
+  const handleClosePreview = () => {
+    setPreviewOpen(false)
+  }
+
   // ── Download PNG Action ─────────────────────────────────────────────────────
   const handleDownload = async () => {
     if (generating) return
@@ -519,7 +561,7 @@ export default function CollageEditorPage() {
   }
 
   return (
-    <div className="min-h-screen relative pb-16 text-slate-100" style={{ background: 'var(--background)' }}>
+    <div className="min-h-screen relative pb-24 md:pb-16 text-slate-100" style={{ background: 'var(--background)' }}>
       {/* Background ambient lighting */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 left-1/3 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(217, 119, 6, 0.08)' }} />
@@ -543,11 +585,11 @@ export default function CollageEditorPage() {
           </div>
 
           {/* Action Toolbar */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <button
               onClick={handleRandomFill}
               disabled={loadingCatalog || catalog.length === 0}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800/90 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-all text-amber-300"
+              className="px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800/90 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-all text-amber-300 active:scale-95"
               title="Tự động điền ngẫu nhiên các ô còn trống từ kho Light Novel"
             >
               <Sparkles className="w-4 h-4 text-amber-400" />
@@ -557,7 +599,7 @@ export default function CollageEditorPage() {
             <button
               onClick={handleClearAll}
               disabled={filledCount === 0}
-              className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800/90 hover:bg-rose-950/60 hover:text-rose-400 hover:border-rose-800 border border-slate-700 flex items-center gap-1.5 transition-all text-slate-400 disabled:opacity-40"
+              className="px-2.5 sm:px-3 py-2 rounded-xl text-xs font-bold bg-slate-800/90 hover:bg-rose-950/60 hover:text-rose-400 hover:border-rose-800 border border-slate-700 flex items-center gap-1.5 transition-all text-slate-400 disabled:opacity-40 active:scale-95"
               title="Xóa tất cả các ô đã chọn"
             >
               <Trash2 className="w-4 h-4" />
@@ -567,55 +609,71 @@ export default function CollageEditorPage() {
             <button
               onClick={handleCopyImage}
               disabled={generating}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-all text-slate-200"
+              className="px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center gap-1.5 transition-all text-slate-200 active:scale-95"
               title="Sao chép ảnh vào clipboard để dán trực tiếp (Ctrl+V)"
             >
               <Copy className="w-4 h-4 text-sky-400" />
-              <span>{copiedToast ? 'Đã sao chép! ✓' : 'Sao chép ảnh'}</span>
+              <span>{copiedToast ? 'Đã sao chép! ✓' : 'Sao chép'}</span>
+            </button>
+
+            {/* PREVIEW BUTTON */}
+            <button
+              onClick={handleOpenPreview}
+              disabled={generating}
+              className="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-md shadow-indigo-600/20 active:scale-95 transition-all disabled:opacity-50"
+              title="Xem trước ảnh poster hoàn chỉnh trước khi tải"
+            >
+              <Eye className="w-4 h-4 text-white" />
+              <span>Xem trước</span>
             </button>
 
             <button
               onClick={handleDownload}
               disabled={generating}
-              className="px-5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 flex items-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95 transition-all disabled:opacity-50"
+              className="px-4 sm:px-5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 flex items-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
               <Download className={`w-4 h-4 ${generating ? 'animate-bounce' : ''}`} />
-              <span>{generating ? 'Đang xuất ảnh...' : 'Tải ảnh PNG'}</span>
+              <span>{generating ? 'Đang xuất...' : 'Tải ảnh PNG'}</span>
             </button>
           </div>
         </div>
 
         {/* ── Status Bar & View Mode Switcher ──────────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2.5">
             <span className="font-bold text-slate-400">Tiến độ:</span>
             <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">
               <span className="font-black text-amber-400 text-sm">{filledCount} / 20</span>
               <span className="text-slate-500 text-[11px]">ô đã điền</span>
             </div>
-            {filledCount === 20 && (
+            {filledCount === 20 ? (
               <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold text-[10px] border border-emerald-500/30 flex items-center gap-1">
                 <Check className="w-3 h-3" /> Hoàn thành 20/20
+              </span>
+            ) : (
+              <span className="text-slate-500 text-[11px] hidden sm:inline">
+                (Còn {20 - filledCount} ô)
               </span>
             )}
           </div>
 
-          {/* Watermark toggle pill */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2.5 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-300 font-semibold select-none">
+          {/* Watermark & View Mode Row */}
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5">
+            {/* Watermark toggle pill */}
+            <div className="flex items-center gap-2 bg-slate-900 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-800">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-300 font-semibold select-none text-[11px] sm:text-xs">
                 <input
                   type="checkbox"
                   checked={showWatermark}
                   onChange={e => setShowWatermark(e.target.checked)}
                   className="rounded border-slate-700 text-amber-500 focus:ring-0 cursor-pointer"
                 />
-                <span>Watermark ảnh:</span>
+                <span>Watermark</span>
               </label>
-              <span className={`text-[11px] font-mono px-2 py-0.5 rounded border transition-colors ${
+              <span className={`text-[10px] sm:text-[11px] font-mono px-1.5 py-0.5 rounded border transition-colors ${
                 showWatermark ? 'text-amber-400 bg-amber-950/60 border-amber-500/30 font-bold' : 'text-slate-500 bg-slate-800/40 border-slate-800 line-through'
               }`}>
-                {FIXED_WATERMARK}
+                LiDex
               </span>
             </div>
 
@@ -624,7 +682,7 @@ export default function CollageEditorPage() {
               <button
                 type="button"
                 onClick={() => setViewMode('poster')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-bold ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg transition-all font-bold text-[11px] sm:text-xs ${
                   viewMode === 'poster' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -634,7 +692,7 @@ export default function CollageEditorPage() {
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-bold ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg transition-all font-bold text-[11px] sm:text-xs ${
                   viewMode === 'list' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -749,7 +807,7 @@ export default function CollageEditorPage() {
           </div>
         ) : (
           /* ── LIST VIEW: ACCESSIBLE CARD LIST ────────────────────────────── */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {slots.map((slot) => {
               const isFilled = slot.novel !== null
               return (
@@ -836,29 +894,52 @@ export default function CollageEditorPage() {
 
         {/* ── NOVEL PICKER MODAL (9koma Inspiration) ───────────────────────── */}
         {activeSlotIdx !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
             <div
-              className="relative max-w-2xl w-full rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-700 bg-slate-900 text-slate-100 max-h-[90vh] flex flex-col space-y-4"
+              className="relative max-w-2xl w-full rounded-t-3xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-700 bg-slate-900 text-slate-100 max-h-[92dvh] sm:max-h-[90vh] flex flex-col space-y-3 sm:space-y-4"
               style={{ background: 'var(--card-bg)' }}
             >
               {/* Modal Header */}
               <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black uppercase text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
+                    <span className="text-xs font-black uppercase text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30 shrink-0">
                       Ô #{activeSlotIdx + 1}
                     </span>
-                    <h2 className="text-lg sm:text-xl font-black text-slate-100">
+                    <h2 className="text-base sm:text-xl font-black text-slate-100 truncate">
                       {slots[activeSlotIdx].category.label}
                     </h2>
                   </div>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs text-slate-400 mt-1 line-clamp-1">
                     {slots[activeSlotIdx].category.hint}
                   </p>
+
+                  {/* If slot already filled: quick action banner on mobile & desktop */}
+                  {slots[activeSlotIdx].novel && (
+                    <div className="mt-2.5 flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-950/70 border border-slate-800 text-xs">
+                      <div className="min-w-0 flex-1">
+                        <span className="text-slate-400 text-[10px] block">Đang chọn cho ô này:</span>
+                        <span className="text-amber-300 font-bold truncate block text-xs">
+                          {slots[activeSlotIdx].novel!.title}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleClearSlot(activeSlotIdx)
+                          closeModal()
+                        }}
+                        className="px-2.5 py-1 rounded-lg text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 font-bold text-xs flex items-center gap-1 shrink-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Xóa ô này</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={closeModal}
-                  className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-100 transition-colors"
+                  className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-100 transition-colors shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -914,28 +995,29 @@ export default function CollageEditorPage() {
                       )}
                     </div>
 
-                    {/* Publisher Dropdown */}
-                    <select
-                      value={modalPublisher}
-                      onChange={e => setModalPublisher(e.target.value)}
-                      className="bg-slate-800 text-slate-200 text-xs px-2.5 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer"
-                    >
-                      <option value="all">Tất cả NPH ({catalog.length})</option>
-                      {publishers.map(p => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
-                    </select>
+                    {/* Publisher & Score Dropdowns side-by-side on mobile */}
+                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                      <select
+                        value={modalPublisher}
+                        onChange={e => setModalPublisher(e.target.value)}
+                        className="w-full sm:w-auto bg-slate-800 text-slate-200 text-xs px-2.5 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer truncate"
+                      >
+                        <option value="all">Tất cả NPH ({catalog.length})</option>
+                        {publishers.map(p => (
+                          <option key={p} value={p}>{p}</option>
+                        ))}
+                      </select>
 
-                    {/* Score Dropdown */}
-                    <select
-                      value={modalScore}
-                      onChange={e => setModalScore(e.target.value)}
-                      className="bg-slate-800 text-slate-200 text-xs px-2.5 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer"
-                    >
-                      <option value="all">Tất cả điểm</option>
-                      <option value="gte_8">★ ≥ 8.0</option>
-                      <option value="gte_7">★ ≥ 7.0</option>
-                    </select>
+                      <select
+                        value={modalScore}
+                        onChange={e => setModalScore(e.target.value)}
+                        className="w-full sm:w-auto bg-slate-800 text-slate-200 text-xs px-2.5 py-2 rounded-xl border border-slate-700 font-bold outline-none cursor-pointer truncate"
+                      >
+                        <option value="all">Tất cả điểm</option>
+                        <option value="gte_8">★ ≥ 8.0</option>
+                        <option value="gte_7">★ ≥ 7.0</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Results Scroll Area */}
@@ -1125,6 +1207,116 @@ export default function CollageEditorPage() {
             </div>
           </div>
         )}
+
+        {/* ── FULLSCREEN IMAGE PREVIEW MODAL ──────────────────────────────── */}
+        {previewOpen && previewUrl && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-150">
+            <div className="relative max-w-4xl w-full rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-700 bg-slate-900 text-slate-100 max-h-[95dvh] flex flex-col space-y-3 sm:space-y-4">
+              
+              {/* Preview Header */}
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                    <Eye className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-white">Xem trước ảnh Poster</h3>
+                    <p className="text-[11px] text-slate-400">Khổ ảnh độ nét cao ({TEMPLATE_WIDTH * 2} × {TEMPLATE_HEIGHT * 2} px) • {filledCount}/20 ô</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClosePreview}
+                  className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Preview Image Body */}
+              <div className="flex-1 overflow-auto flex flex-col items-center justify-center py-1 sm:py-2">
+                <div className="relative max-h-[64vh] sm:max-h-[72vh] rounded-xl overflow-hidden shadow-2xl border border-amber-900/40 bg-[#fef1e1]">
+                  <img
+                    src={previewUrl}
+                    alt="Bản xem trước Light Novel của tôi"
+                    className="max-h-[64vh] sm:max-h-[72vh] w-auto object-contain select-none block"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-2 text-center">
+                  💡 <strong>Gợi ý:</strong> Trên điện thoại, bạn có thể nhấn giữ vào ảnh để chọn <em>&ldquo;Lưu hình ảnh&rdquo;</em> trực tiếp vào album.
+                </p>
+              </div>
+
+              {/* Preview Footer Actions */}
+              <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleClosePreview}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300"
+                >
+                  Đóng
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyImage}
+                    disabled={generating}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-sky-400" />
+                    <span>{copiedToast ? 'Đã sao chép! ✓' : 'Sao chép'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!previewUrl) return
+                      const a = document.createElement('a')
+                      a.href = previewUrl
+                      a.download = `about-you-books-lidex-${Date.now()}.png`
+                      document.body.appendChild(a)
+                      a.click()
+                      document.body.removeChild(a)
+                    }}
+                    className="px-4 sm:px-5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Tải ảnh PNG</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── STICKY FLOATING ACTION BAR FOR MOBILE ──────────────────────── */}
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 p-2.5 px-4 flex items-center justify-between gap-2 shadow-2xl">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-black uppercase text-slate-400">Tiến độ:</span>
+            <span className="font-mono text-xs font-black text-amber-400 bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">
+              {filledCount}/20
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleOpenPreview}
+              disabled={generating || filledCount === 0}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5 active:scale-95 disabled:opacity-40"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Xem trước</span>
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={generating}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 flex items-center gap-1.5 shadow-md active:scale-95 disabled:opacity-50"
+            >
+              <Download className={`w-3.5 h-3.5 ${generating ? 'animate-bounce' : ''}`} />
+              <span>{generating ? 'Xuất...' : 'Tải PNG'}</span>
+            </button>
+          </div>
+        </div>
 
       </div>
     </div>
