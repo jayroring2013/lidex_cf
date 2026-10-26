@@ -3,6 +3,7 @@ import './globals.css'
 import { Be_Vietnam_Pro, JetBrains_Mono } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { LocaleProvider } from '@/contexts/LocaleContext'
 import { AvatarProvider } from '@/contexts/AvatarContext'
 import { Suspense } from 'react'
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {children}
               </main>
               <Footer />
+              <ServiceWorkerRegister />
             </AvatarProvider>
           </LocaleProvider>
         </Suspense>

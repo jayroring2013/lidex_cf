@@ -181,31 +181,55 @@ export default function CollageEditorPage() {
     } catch {}
   }, [slots])
 
-  // Load Catalog Data
+  // Load Catalog Data with shared sessionStorage cache
   useEffect(() => {
     async function loadCatalog() {
+      const WATCHLIST_CACHE_KEY = 'lidex_dashboard_watchlist_cache'
+      const WATCHLIST_CACHE_TTL = 10 * 60 * 1000
+
+      const processCatalog = (data: any) => {
+        if (!data?.rankingRows) return
+        const mapped: NovelCatalogItem[] = data.rankingRows
+          .filter((r: any) => (Number(r.number_of_volumes) || 0) > 0)
+          .map((r: any, idx: number) => ({
+            id: r.lidex_series_id || r.series_id || `id-${idx}`,
+            seriesId: Number(r.lidex_series_id || r.series_id) || null,
+            title: r.series_title || 'Chưa có tên',
+            publisher: r.publisher || 'Không xác định',
+            volumes: Math.max(0, Number(r.number_of_volumes) || 0),
+            score: Number(r.ln_score) || 0,
+            coverUrl: r.cover_url || null,
+            description: r.description || null,
+          }))
+
+        mapped.sort((a, b) => b.score - a.score)
+        setCatalog(mapped)
+      }
+
+      // 1. Try reading from shared sessionStorage cache (instant 0ms)
+      try {
+        const cachedRaw = sessionStorage.getItem(WATCHLIST_CACHE_KEY)
+        if (cachedRaw) {
+          const { timestamp, data } = JSON.parse(cachedRaw)
+          if (Date.now() - timestamp < WATCHLIST_CACHE_TTL && data?.rankingRows) {
+            processCatalog(data)
+            setLoadingCatalog(false)
+            return
+          }
+        }
+      } catch {}
+
+      // 2. Fetch fresh from API if cache miss
       setLoadingCatalog(true)
       try {
-        const res = await fetch('/api/dashboard?mode=watchlist&v=2', { cache: 'no-store' })
+        const res = await fetch('/api/dashboard?mode=watchlist&v=2')
         if (!res.ok) throw new Error('Failed to load')
         const data = await res.json()
         if (data && Array.isArray(data.rankingRows)) {
-          const mapped: NovelCatalogItem[] = data.rankingRows
-            .filter((r: any) => (Number(r.number_of_volumes) || 0) > 0)
-            .map((r: any, idx: number) => ({
-              id: r.lidex_series_id || r.series_id || `id-${idx}`,
-              seriesId: Number(r.lidex_series_id || r.series_id) || null,
-              title: r.series_title || 'Chưa có tên',
-              publisher: r.publisher || 'Không xác định',
-              volumes: Math.max(0, Number(r.number_of_volumes) || 0),
-              score: Number(r.ln_score) || 0,
-              coverUrl: r.cover_url || null,
-              description: r.description || null,
-            }))
-          
-          // Sort by score descending
-          mapped.sort((a, b) => b.score - a.score)
-          setCatalog(mapped)
+          try {
+            sessionStorage.setItem(WATCHLIST_CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }))
+          } catch {}
+          processCatalog(data)
         }
       } catch (err) {
         console.error('Failed to load novels catalog:', err)

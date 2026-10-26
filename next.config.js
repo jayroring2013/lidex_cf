@@ -18,6 +18,14 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Service Worker script - never cache so updates take effect immediately
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
         // /_next/static/ assets have content hashes — safe to cache forever
         source: '/_next/static/:path*',
         headers: [

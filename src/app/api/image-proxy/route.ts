@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export const revalidate = 604800
+export const revalidate = 31536000
 
 const REFERER_MAP: Record<string, string> = {
   'fahasa.com': 'https://www.fahasa.com/',
@@ -77,13 +77,26 @@ function proxiedFallbackUrl(url: string) {
   return `https://images.weserv.nl/?url=${encodeURIComponent(target)}`
 }
 
-function cacheHeaders(hostname: string) {
-  return {
-    'Cache-Control': 'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+function generateETag(str: string): string {
+  let hash = 5381
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) + str.charCodeAt(i)
+    hash |= 0
+  }
+  return `W/"img-${Math.abs(hash).toString(36)}"`
+}
+
+function cacheHeaders(hostname: string, etag?: string) {
+  const headers: Record<string, string> = {
+    'Cache-Control': 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable',
     'Access-Control-Allow-Origin': '*',
     'X-Content-Type-Options': 'nosniff',
     'X-Image-Proxy-Host': hostname,
   }
+  if (etag) {
+    headers['ETag'] = etag
+  }
+  return headers
 }
 
 async function fetchImage(url: string, referer: string, origin: string, signal: AbortSignal): Promise<Response | null> {
@@ -139,6 +152,16 @@ export async function GET(req: NextRequest) {
   if (!rawUrl) return new NextResponse('Missing url', { status: 400 })
   rawUrl = rawUrl.replace(/\.hako\.re\b/gi, '.hako.vn')
   const url = rawUrl
+  const etag = generateETag(url)
+  const clientIfNoneMatch = req.headers.get('if-none-match')
+
+  // Early 304 if client sent matching ETag
+  if (clientIfNoneMatch && (clientIfNoneMatch === etag || clientIfNoneMatch.includes(etag))) {
+    return new NextResponse(null, {
+      status: 304,
+      headers: cacheHeaders('cached-browser', etag),
+    })
+  }
 
   // Read from Cloudflare Edge Cache programmatically
   const cache = typeof caches !== 'undefined' ? (caches as any).default : null
@@ -147,8 +170,16 @@ export async function GET(req: NextRequest) {
     try {
       const cachedResponse = await cache.match(cacheKey)
       if (cachedResponse) {
+        if (clientIfNoneMatch && clientIfNoneMatch === (cachedResponse.headers.get('ETag') || etag)) {
+          return new NextResponse(null, {
+            status: 304,
+            headers: cacheHeaders('cached-edge', etag),
+          })
+        }
         const headers = new Headers(cachedResponse.headers)
         headers.set('X-Image-Proxy-Cache', 'HIT')
+        headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable')
+        headers.set('ETag', etag)
         return new NextResponse(cachedResponse.body, {
           status: cachedResponse.status,
           statusText: cachedResponse.statusText,
@@ -213,7 +244,7 @@ export async function GET(req: NextRequest) {
     const buffer = await res.arrayBuffer()
 
     const headers = {
-      ...cacheHeaders(parsed.hostname),
+      ...cacheHeaders(parsed.hostname, etag),
       'Content-Type': contentType,
       'X-Image-Proxy-Cache': 'MISS',
     }

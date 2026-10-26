@@ -108,6 +108,76 @@ function pickWeightedNovel(pool: NovelItem[], excludeIds: (string | number)[] = 
 
 const pickRandomNovel = pickWeightedNovel
 
+function processNovelRanking(data: any): NovelItem[] {
+  if (!data || !data.rankingRows) return []
+  const voteMap = new Map<number, number>()
+  if (Array.isArray(data.voteRows)) {
+    for (const v of data.voteRows) {
+      const sid = Number(v.series_id)
+      if (sid) {
+        voteMap.set(sid, Math.max(Number(v.total_votes) || 0, Number(v.votes) || 0))
+      }
+    }
+  }
+
+  const rawNovels = data.rankingRows
+    .filter((r: any) => (Number(r.number_of_volumes) || 0) > 0)
+    .map((r: any, idx: number) => {
+      const targetId = r.lidex_series_id || r.series_id || r.series_code || r.series_key || `id-${idx}`
+      const sid = Number(r.lidex_series_id || r.series_id)
+      const votes = sid ? (voteMap.get(sid) || 0) : 0
+      const score = Number(r.ln_score) || 0
+
+      return {
+        id: targetId,
+        seriesId: sid,
+        title: r.series_title || 'Chưa có tên',
+        publisher: r.publisher || 'Không xác định',
+        volumes: Math.max(0, Number(r.number_of_volumes) || 0),
+        score: score,
+        votes: votes,
+        dropPct: Number(r.drop_percent) || 0,
+        status: resolveReleaseStatus(r),
+        coverUrl: proxyImg(r.cover_url),
+        description: r.description || null,
+        href: `/content/${encodeURIComponent(targetId)}`,
+        compositeScore: 0,
+        rarity: 0,
+      }
+    })
+
+  const maxVotes = Math.max(...rawNovels.map((n: any) => n.votes), 1)
+
+  const novelsWithScore = rawNovels.map((n: any) => {
+    const voteScore = n.votes > 0 ? 10 * Math.sqrt(n.votes / maxVotes) : 0
+    const compositeScore = (n.score * 0.55) + (voteScore * 0.45)
+    return {
+      ...n,
+      compositeScore: compositeScore,
+    }
+  })
+
+  novelsWithScore.sort((a: any, b: any) => {
+    if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore
+    if (b.score !== a.score) return b.score - a.score
+    return b.votes - a.votes
+  })
+
+  return novelsWithScore.map((n: any, rankIdx: number) => {
+    let rarity = 0
+    if (rankIdx < 10) rarity = 4
+    else if (rankIdx < 30) rarity = 3
+    else if (rankIdx < 60) rarity = 2
+    else if (rankIdx < 100) rarity = 1
+    else rarity = 0
+
+    return {
+      ...n,
+      rarity,
+    }
+  })
+}
+
 function resolveReleaseStatus(r: any): string {
   if (r.trang_thai && typeof r.trang_thai === 'string' && r.trang_thai.trim()) {
     return r.trang_thai.trim()
@@ -192,96 +262,44 @@ export default function HomePage() {
       .catch(() => {})
   }, [])
 
-  // Load Novels Data
-  async function loadData() {
-    setLoading(true)
+  const WATCHLIST_CACHE_KEY = 'lidex_dashboard_watchlist_cache'
+  const WATCHLIST_CACHE_TTL = 10 * 60 * 1000 // 10 minutes client cache
+
+  // Load Novels Data with sessionStorage cache
+  async function loadData(force = false) {
     setError(null)
     setImgErrorMap({})
+
+    // 1. Try reading from sessionStorage if not forced
+    if (!force && typeof window !== 'undefined') {
+      try {
+        const cachedRaw = sessionStorage.getItem(WATCHLIST_CACHE_KEY)
+        if (cachedRaw) {
+          const { timestamp, data } = JSON.parse(cachedRaw)
+          if (Date.now() - timestamp < WATCHLIST_CACHE_TTL && data?.rankingRows) {
+            const mapped = processNovelRanking(data)
+            if (mapped.length > 0) {
+              setNovels(mapped)
+              setLoading(false)
+              return
+            }
+          }
+        }
+      } catch {}
+    }
+
+    setLoading(true)
     try {
-      const res = await fetch('/api/dashboard?mode=watchlist&v=2', { cache: 'no-store' })
+      const res = await fetch('/api/dashboard?mode=watchlist&v=2')
       if (!res.ok) throw new Error('Không tải được dữ liệu Light Novel')
       const data = await res.json()
       if (!data || !data.rankingRows) throw new Error('Dữ liệu không hợp lệ')
 
-      // Map fan vote data by series_id
-      const voteMap = new Map<number, number>()
-      if (Array.isArray(data.voteRows)) {
-        for (const v of data.voteRows) {
-          const sid = Number(v.series_id)
-          if (sid) {
-            voteMap.set(sid, Math.max(Number(v.total_votes) || 0, Number(v.votes) || 0))
-          }
-        }
-      }
+      try {
+        sessionStorage.setItem(WATCHLIST_CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }))
+      } catch {}
 
-      // Step 1: Filter 0-volume series and map raw attributes
-      const rawNovels = data.rankingRows
-        .filter((r: any) => (Number(r.number_of_volumes) || 0) > 0)
-        .map((r: any, idx: number) => {
-          const targetId = r.lidex_series_id || r.series_id || r.series_code || r.series_key || `id-${idx}`
-          const sid = Number(r.lidex_series_id || r.series_id)
-          const votes = sid ? (voteMap.get(sid) || 0) : 0
-          const score = Number(r.ln_score) || 0
-
-          return {
-            id: targetId,
-            seriesId: sid,
-            title: r.series_title || 'Chưa có tên',
-            publisher: r.publisher || 'Không xác định',
-            volumes: Math.max(0, Number(r.number_of_volumes) || 0),
-            score: score,
-            votes: votes,
-            dropPct: Number(r.drop_percent) || 0,
-            status: resolveReleaseStatus(r),
-            coverUrl: proxyImg(r.cover_url),
-            description: r.description || null,
-            href: `/content/${encodeURIComponent(targetId)}`,
-            compositeScore: 0,
-            rarity: 0,
-          }
-        })
-
-      // Step 2: Compute composite score combining LN Score + Fan Vote Popularity
-      const maxVotes = Math.max(...rawNovels.map((n: any) => n.votes), 1)
-
-      const novelsWithScore = rawNovels.map((n: any) => {
-        // Vote score 0..10 normalized with sqrt curve to avoid extreme outliers
-        const voteScore = n.votes > 0 ? 10 * Math.sqrt(n.votes / maxVotes) : 0
-        // Composite score: 55% LN score + 45% Fan Popularity score
-        const compositeScore = (n.score * 0.55) + (voteScore * 0.45)
-        return {
-          ...n,
-          compositeScore: compositeScore,
-        }
-      })
-
-      // Step 3: Sort descending by compositeScore (fallback to LN score, then votes)
-      novelsWithScore.sort((a: any, b: any) => {
-        if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore
-        if (b.score !== a.score) return b.score - a.score
-        return b.votes - a.votes
-      })
-
-      // Step 4: Assign dynamic rarity tiers based on composite rank order:
-      // Index 0..9 (Top 10): Rarity 4 (👑 Báu vật - Gold, strictly max 10)
-      // Index 10..29 (Next 20): Rarity 3 (🔴 Huyền thoại - Red, strictly max 20)
-      // Index 30..59 (Next 30): Rarity 2 (🟣 Sơ cấp - Magenta)
-      // Index 60..99 (Next 40): Rarity 1 (💜 Hiếm - Purple)
-      // Index 100+: Rarity 0 (💙 Thông thường - Blue)
-      const mapped: NovelItem[] = novelsWithScore.map((n: any, rankIdx: number) => {
-        let rarity = 0
-        if (rankIdx < 10) rarity = 4      // Max 10 Báu vật 👑
-        else if (rankIdx < 30) rarity = 3 // Max 20 Huyền thoại 🔴
-        else if (rankIdx < 60) rarity = 2 // Sơ cấp 🟣
-        else if (rankIdx < 100) rarity = 1 // Hiếm 💜
-        else rarity = 0                   // Thông thường 💙
-
-        return {
-          ...n,
-          rarity,
-        }
-      })
-
+      const mapped = processNovelRanking(data)
       setNovels(mapped)
       setLoading(false)
     } catch (e: any) {
@@ -553,7 +571,7 @@ export default function HomePage() {
             </button>
 
             <button
-              onClick={loadData}
+              onClick={() => loadData(true)}
               className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition-all"
               title="Làm mới dữ liệu"
             >
@@ -684,6 +702,8 @@ export default function HomePage() {
                           <img
                             src={novel.coverUrl}
                             alt={novel.title}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover"
                             onError={() => markImgError(`reel-${id}`)}
                           />
