@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export const revalidate = 31536000
+export const revalidate = 604800
 
 const REFERER_MAP: Record<string, string> = {
   'fahasa.com': 'https://www.fahasa.com/',
@@ -88,7 +88,7 @@ function generateETag(str: string): string {
 
 function cacheHeaders(hostname: string, etag?: string) {
   const headers: Record<string, string> = {
-    'Cache-Control': 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=2592000, immutable',
+    'Cache-Control': 'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
     'Access-Control-Allow-Origin': '*',
     'X-Content-Type-Options': 'nosniff',
     'X-Image-Proxy-Host': hostname,

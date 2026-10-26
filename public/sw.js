@@ -96,7 +96,24 @@ self.addEventListener('fetch', (event) => {
         // 1. Try local cache first (0ms, 0 Cloudflare Worker invocations)
         const cachedResponse = await cache.match(request)
         if (cachedResponse) {
-          return cachedResponse
+          // Check cache age: 7 days TTL (7 * 24 * 60 * 60 * 1000 = 604,800,000 ms)
+          const dateHeader = cachedResponse.headers.get('date')
+          const isFresh = !dateHeader || (Date.now() - new Date(dateHeader).getTime() < 7 * 24 * 60 * 60 * 1000)
+          if (isFresh) {
+            return cachedResponse
+          }
+
+          // If older than 7 days, attempt network revalidation, fallback to cached
+          try {
+            const networkResponse = await fetch(request)
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(request, networkResponse.clone())
+              trimCache(CACHE_NAME, MAX_ENTRIES)
+              return networkResponse
+            }
+          } catch {
+            return cachedResponse
+          }
         }
 
         // 2. Not in cache: fetch from network
