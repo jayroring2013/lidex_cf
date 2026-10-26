@@ -517,9 +517,8 @@ export default function ContentDetail() {
       const isShopee = seriesAffiliate.platform.toLowerCase().includes('shopee')
       list.push({
         url: seriesAffiliate.url,
-        label: isShopee ? (isVI ? 'Mua trên Shopee' : 'Buy on Shopee') : (isVI ? `Mua trên ${seriesAffiliate.platform}` : `Buy on ${seriesAffiliate.platform}`),
-        link_type: 'purchase',
-        badge: 'Affiliate'
+        label: isShopee ? 'Shopee' : seriesAffiliate.platform,
+        link_type: 'purchase'
       })
     }
 
@@ -1702,11 +1701,6 @@ export default function ContentDetail() {
                           <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
                             {link.label}
                           </span>
-                          {link.badge && (
-                            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
-                              {link.badge}
-                            </span>
-                          )}
                         </div>
                         <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
                       </a>
@@ -2270,20 +2264,10 @@ function NovelGeneralInfo({
 function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]; latestVolume: any; locale: string }) {
   const isVI = locale === 'vi'
   const [activeIndex, setActiveIndex] = useState(0)
-  const trackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setActiveIndex(0)
   }, [volumes])
-
-  useEffect(() => {
-    if (trackRef.current && trackRef.current.children[activeIndex]) {
-      const activeEl = trackRef.current.children[activeIndex] as HTMLElement
-      if (activeEl && typeof activeEl.scrollIntoView === 'function') {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
-      }
-    }
-  }, [activeIndex])
 
   if (!volumes.length) {
     return (
@@ -2388,65 +2372,6 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
             </div>
           </div>
 
-          {/* ── Volume List Thumbnails Track ── */}
-          {volumes.length > 1 && (
-            <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
-              <div className="flex items-center justify-between mb-2.5 px-0.5">
-                <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
-                  {isVI ? 'Tất cả các tập' : 'All volumes'}
-                </span>
-                <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
-                  {isVI ? 'Nhấn vào tập để xem chi tiết' : 'Click a volume to view details'}
-                </span>
-              </div>
-              <div ref={trackRef} className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                {volumes.map((vol, idx) => {
-                  const isCur = idx === safeIndex
-                  const vLbl = getVolumeLabel(vol, isVI)
-                  const isLast = idx === volumes.length - 1
-                  return (
-                    <button
-                      key={vol.id || idx}
-                      type="button"
-                      onClick={() => setActiveIndex(idx)}
-                      className="relative shrink-0 flex flex-col items-center gap-1.5 p-1.5 rounded-xl transition-all hover:scale-105 text-left cursor-pointer"
-                      style={{
-                        width: 76,
-                        background: isCur ? 'rgba(124,58,237,.18)' : 'var(--background-secondary)',
-                        border: isCur ? '2px solid #8b5cf6' : '1px solid var(--card-border)',
-                        boxShadow: isCur ? '0 0 0 2px rgba(139,92,246,0.25)' : 'none',
-                      }}
-                      title={`${vLbl.title}${vLbl.subtitle ? `: ${vLbl.subtitle}` : ''}`}
-                    >
-                      <div className="w-full rounded-lg overflow-hidden shadow-sm" style={{ aspectRatio: '2/3', background: 'rgba(0,0,0,0.1)' }}>
-                        {vol.cover_url ? (
-                          <img src={vol.cover_url} alt={vLbl.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <BookOpen className="w-4 h-4 opacity-40 text-primary-400" />
-                          </div>
-                        )}
-                      </div>
-                      <span
-                        className="text-[10px] font-black truncate max-w-full text-center leading-tight"
-                        style={{ color: isCur ? '#a78bfa' : 'var(--foreground-secondary)' }}
-                      >
-                        {vLbl.title}
-                      </span>
-                      {isLast && (
-                        <span
-                          className="absolute -top-1 -right-1 px-1 py-0.5 rounded text-[8px] font-black uppercase text-amber-300 shadow-sm"
-                          style={{ background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(251,191,36,0.6)' }}
-                        >
-                          {isVI ? 'Mới' : 'New'}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </NovelSection>

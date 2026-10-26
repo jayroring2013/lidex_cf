@@ -8,6 +8,7 @@ import {
   Search, LayoutGrid, List, X, ShoppingCart, Info
 } from 'lucide-react'
 import seriesAffiliatesData from '@/data/series_affiliates.json'
+import kuranoSeriesMapData from '@/data/series_kurano_map.json'
 import { proxyImg } from '@/lib/imageProxy'
 import { CaseAudio, type CaseSound } from '@/lib/caseAudio'
 
@@ -96,6 +97,25 @@ function getSeriesAffiliate(title?: string | null): AffiliateRecord | null {
   const fuzzy = normalizedAffiliateList.find(item => normTitle.includes(item.normKey) || item.normKey.includes(normTitle))
   return fuzzy ? fuzzy.record : null
 }
+
+const kuranoMap = kuranoSeriesMapData as Record<string, { url: string; slug: string; title: string }>
+
+function getSeriesKuranoLink(novel: NovelItem | null): string | null {
+  if (!novel) return null
+  const byId = kuranoMap[String(novel.id)]
+  if (byId) return byId.url
+
+  if (novel.title) {
+    const norm = novel.title.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim()
+    for (const val of Object.values(kuranoMap)) {
+      if (val.title && val.title.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim() === norm) {
+        return val.url
+      }
+    }
+  }
+  return null
+}
+
 
 function getNovelRollPercentage(novel: NovelItem | null, pool: NovelItem[]): string {
   if (!novel) return '0.10'
@@ -410,6 +430,7 @@ export default function HomePage() {
   }, [eligiblePool])
 
   const activeAffiliate = useMemo(() => getSeriesAffiliate(result?.title), [result])
+  const activeKuranoUrl = useMemo(() => getSeriesKuranoLink(result), [result])
   const activeRollPercentage = useMemo(() => getNovelRollPercentage(result, eligiblePool), [result, eligiblePool])
 
   // Displayed pool filtered by search query and rarity tab
@@ -889,15 +910,17 @@ export default function HomePage() {
                     </a>
 
                     {/* Button Chi tiết (Icon info) */}
-                    <Link
-                      href={result.href}
-                      onClick={() => setRevealed(false)}
-                      className="px-3.5 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center justify-center gap-1.5 shrink-0"
-                      title="Xem chi tiết và thông số bộ truyện"
+                    <a
+                      href={activeKuranoUrl || result.href}
+                      target={activeKuranoUrl ? "_blank" : undefined}
+                      rel={activeKuranoUrl ? "noopener noreferrer" : undefined}
+                      onClick={() => !activeKuranoUrl && setRevealed(false)}
+                      className="px-3.5 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center justify-center gap-1.5 shrink-0 active:scale-95"
+                      title={activeKuranoUrl ? "Xem thông tin phát hành trên Kurano" : "Xem chi tiết và thông số bộ truyện"}
                     >
                       <Info className="w-4 h-4 text-sky-400" />
                       <span>Chi tiết</span>
-                    </Link>
+                    </a>
 
                     {/* Button Reroll */}
                     <button
