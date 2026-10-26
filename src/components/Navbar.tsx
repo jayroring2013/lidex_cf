@@ -133,9 +133,14 @@ export default function Navbar() {
   }
 
   const flatLinks = [
-    { href: '/browse',    label: 'Khám phá' },
-    { href: '/what-to-read', label: 'Hôm nay đọc gì?' },
+    { href: '/',          label: 'Hôm nay đọc gì?' },
+    { href: '/dashboard', label: 'Bảng theo dõi' },
   ]
+
+  const isLinkActive = (href: string) => {
+    if (href === '/') return pathname === '/' || pathname === '/what-to-read'
+    return pathname === href || (href !== '/' && !!pathname?.startsWith(href + '/'))
+  }
 
   return (
     <>
@@ -160,7 +165,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link ${pathname === link.href ? 'active' : ''}`}
+                className={`nav-link ${isLinkActive(link.href) ? 'active' : ''}`}
               >
                 {link.label}
               </Link>
@@ -244,7 +249,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="nav-link block"
+                className={`nav-link block ${isLinkActive(link.href) ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}

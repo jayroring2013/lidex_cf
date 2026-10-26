@@ -56,7 +56,21 @@ const nextConfig = {
     ]
   },
 
+
+  async redirects() {
+    return [
+      {
+        source: '/browse',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/what-to-read',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig
-

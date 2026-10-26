@@ -872,8 +872,8 @@ export default function ContentDetail() {
           <ArrowLeft className="w-16 h-16 text-red-500 mx-auto mb-6" />
           <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>Series Not Found</h1>
           <p className="mb-6" style={{ color: 'var(--foreground-secondary)' }}>{error || "The series you're looking for doesn't exist."}</p>
-          <Link href="/browse" className="btn-primary inline-flex items-center space-x-2">
-            <ArrowLeft className="w-5 h-5" /><span>Quay lại Khám phá</span>
+          <Link href="/" className="btn-primary inline-flex items-center space-x-2">
+            <ArrowLeft className="w-5 h-5" /><span>Quay lại Trang chủ</span>
           </Link>
         </div>
       </div>
@@ -3675,7 +3675,7 @@ function SimilarNovelsCarousel({ active, marketRows, locale }: { active: NovelRa
       <div className="overflow-x-auto pb-1">
         <div className="flex gap-3 min-w-max">
           {similar.map(row => {
-            const href = row.lidex_series_id ? `/content/${row.lidex_series_id}` : `/browse?search=${encodeURIComponent(row.series_title || '')}`
+            const href = row.lidex_series_id ? `/content/${row.lidex_series_id}` : (row.id ? `/content/${row.id}` : '/')
             return (
               <Link
                 key={`${row.lidex_series_id || row.id}-${row.series_code || ''}`}
