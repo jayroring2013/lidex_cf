@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Sparkles, RefreshCw, Volume2, VolumeX, BookOpen,
-  ArrowRight, ExternalLink, Filter, Trophy, Star, ShieldAlert,
+  ExternalLink, Filter, Trophy, Star, ShieldAlert,
   Search, LayoutGrid, List, X, ShoppingCart, Info
 } from 'lucide-react'
 import seriesAffiliatesData from '@/data/series_affiliates.json'
@@ -851,12 +851,17 @@ export default function HomePage() {
 
               {/* Cover & Info Grid */}
               <div className="flex flex-col sm:flex-row gap-5 items-center">
-                <div className="w-32 h-48 rounded-2xl overflow-hidden shrink-0 shadow-2xl border-2 border-white/20 relative bg-slate-800">
+                <Link
+                  href={result.href}
+                  onClick={() => setRevealed(false)}
+                  className="w-32 h-48 rounded-2xl overflow-hidden shrink-0 shadow-2xl border-2 border-white/20 relative bg-slate-800 hover:opacity-90 hover:scale-[1.02] transition-all block group"
+                  title="Xem thông số LiDex của tác phẩm"
+                >
                   {result.coverUrl && !imgErrorMap[`result-${result.id}`] ? (
                     <img
                       src={result.coverUrl}
                       alt={result.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={() => markImgError(`result-${result.id}`)}
                     />
                   ) : (
@@ -865,10 +870,17 @@ export default function HomePage() {
                       <span className="text-xs font-bold leading-tight">{result.title}</span>
                     </div>
                   )}
-                </div>
+                </Link>
 
                 <div className="space-y-2 flex-1 min-w-0 text-center sm:text-left">
-                  <h3 className="text-xl font-black text-white leading-tight">{result.title}</h3>
+                  <Link
+                    href={result.href}
+                    onClick={() => setRevealed(false)}
+                    className="hover:text-primary-400 transition-colors inline-block"
+                    title="Xem thông số LiDex của tác phẩm"
+                  >
+                    <h3 className="text-xl font-black text-white leading-tight">{result.title}</h3>
+                  </Link>
                   <p className="text-xs font-bold text-slate-300">Nhà phát hành: <strong className="text-cyan-400">{result.publisher}</strong></p>
                   
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
@@ -937,15 +949,19 @@ export default function HomePage() {
                   </>
                 ) : (
                   <>
-                    {/* Fallback 2 buttons when no affiliate link exists */}
-                    <Link
-                      href={result.href}
-                      onClick={() => setRevealed(false)}
-                      className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs py-3 rounded-xl transition-all text-center flex items-center justify-center gap-1.5 shadow-lg"
+                    {/* Fallback 2 buttons when no affiliate link exists: Button Chi tiết */}
+                    <a
+                      href={activeKuranoUrl || result.href}
+                      target={activeKuranoUrl ? "_blank" : undefined}
+                      rel={activeKuranoUrl ? "noopener noreferrer" : undefined}
+                      onClick={() => !activeKuranoUrl && setRevealed(false)}
+                      className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs py-3 px-4 rounded-xl transition-all text-center flex items-center justify-center gap-1.5 shadow-lg group active:scale-95"
+                      title={activeKuranoUrl ? "Xem thông tin phát hành trên Kurano" : "Xem chi tiết và thông số bộ truyện"}
                     >
-                      <span>Đọc ngay / Xem thông số</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                      <Info className="w-4 h-4 text-sky-200 group-hover:scale-110 transition-transform" />
+                      <span>Chi tiết</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100" />
+                    </a>
 
                     {/* Button Reroll */}
                     <button
