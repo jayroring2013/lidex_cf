@@ -52,4 +52,5 @@ scratch/
 *.zip
 __pycache__/
 cover_cache/
+data/covers/
 

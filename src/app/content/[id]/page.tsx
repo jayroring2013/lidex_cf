@@ -2038,7 +2038,7 @@ function NovelGeneralInfo({
   locale: string
 }) {
   const isVI = locale === 'vi'
-  const sortedVolumes = [...volumes].sort((a, b) => Number(b.volume_number || 0) - Number(a.volume_number || 0))
+  const sortedVolumes = [...volumes].sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
   const avgPrice = ranking?.average_price || (
     volumes.length
       ? volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((sum, price) => sum + price, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length)
@@ -2095,6 +2095,10 @@ function NovelGeneralInfo({
 function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]; latestVolume: any; locale: string }) {
   const isVI = locale === 'vi'
   const [activeIndex, setActiveIndex] = useState(0)
+
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [volumes])
 
   if (!volumes.length) {
     return (
@@ -2179,7 +2183,7 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
                 </div>
                 <div className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,.10)', border: '1px solid rgba(251,191,36,.22)' }}>
                   <p className="text-[9px] font-black uppercase" style={{ color: 'var(--foreground-muted)' }}>{isVI ? 'Mới nhất' : 'Latest'}</p>
-                  <p className="text-xs font-black mt-1" style={{ color: '#f59e0b' }}>{latestVolume?.id === active.id || safeIndex === 0 ? (isVI ? 'Có' : 'Yes') : '—'}</p>
+                  <p className="text-xs font-black mt-1" style={{ color: '#f59e0b' }}>{latestVolume?.id === active.id || safeIndex === volumes.length - 1 ? (isVI ? 'Có' : 'Yes') : '—'}</p>
                 </div>
               </div>
             </div>
@@ -3987,7 +3991,7 @@ function MangaGeneralInfo({
   locale: string
 }) {
   const isVI = locale === 'vi'
-  const sortedVolumes = [...volumes].sort((a, b) => Number(b.volume_number || 0) - Number(a.volume_number || 0))
+  const sortedVolumes = [...volumes].sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
   const prices = volumes.map(v => Number(v.price || 0)).filter(p => p > 0)
   const avgPrice = prices.length ? prices.reduce((sum, price) => sum + price, 0) / prices.length : 0
   const releaseStatus = series.status || '—'

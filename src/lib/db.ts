@@ -1348,16 +1348,16 @@ export async function fetchDashboardWatchlistData() {
         r.average_gap_months, r.months_since_last_release, r.completion_ratio, r.publisher_activity, 
         r.publisher_releases_last_24m, r.score_components, r.drop_components, 
         COALESCE(
-          -- 1. Direct Cloudflare/R2/Supabase cover from series s
-          CASE WHEN s.cover_url LIKE '%r2.dev%' OR s.cover_url LIKE '%imagedelivery.net%' OR s.cover_url LIKE '%cloudflarestorage.com%' OR s.cover_url LIKE '%supabase%' OR s.cover_url LIKE '%tana.moe%' OR s.cover_url LIKE '%pages.dev%' THEN NULLIF(TRIM(s.cover_url), '') ELSE NULL END,
-          -- 2. Canonical s.cover_url
-          NULLIF(TRIM(s.cover_url), ''),
-          -- 3. Any volume cover for matched series s or lidex_series_id or series_id
-          (SELECT v.cover_url FROM volumes v WHERE (v.series_id = s.id OR v.series_id = r.lidex_series_id OR (r.series_id ~ '^[0-9]+$' AND v.series_id = r.series_id::int)) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
-          -- 4. Volume cover matched by series title ILIKE
-          (SELECT v.cover_url FROM volumes v JOIN series s2 ON v.series_id = s2.id WHERE (LOWER(TRIM(s2.title)) = LOWER(TRIM(r.series_title)) OR LOWER(TRIM(s2.title_vi)) = LOWER(TRIM(r.series_title)) OR s2.title ILIKE '%' || TRIM(r.series_title) || '%' OR r.series_title ILIKE '%' || TRIM(s2.title_vi) || '%') AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' OR v.cover_url LIKE '%imagedelivery.net%' OR v.cover_url LIKE '%cloudflarestorage.com%' OR v.cover_url LIKE '%supabase%' OR v.cover_url LIKE '%tana.moe%' OR v.cover_url LIKE '%pages.dev%' THEN 0 ELSE 1 END), v.volume_number ASC LIMIT 1),
-          -- 5. Fallback r.cover_url
-          NULLIF(TRIM(r.cover_url), '')
+          -- 1. Direct R2 cover from ranking (matches cover_source_title / latest volume)
+          CASE WHEN r.cover_url LIKE '%r2.dev%' THEN NULLIF(TRIM(r.cover_url), '') ELSE NULL END,
+          -- 2. Latest volume cover from volumes table (highest volume_number)
+          (SELECT v.cover_url FROM volumes v WHERE (v.series_id = s.id OR v.series_id = r.lidex_series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' THEN 0 ELSE 1 END), v.volume_number DESC LIMIT 1),
+          -- 3. Any r.cover_url
+          NULLIF(TRIM(r.cover_url), ''),
+          -- 4. Direct Cloudflare/R2 cover from series s (vol 1 fallback)
+          CASE WHEN s.cover_url LIKE '%r2.dev%' OR s.cover_url LIKE '%imagedelivery.net%' THEN NULLIF(TRIM(s.cover_url), '') ELSE NULL END,
+          -- 5. Canonical s.cover_url
+          NULLIF(TRIM(s.cover_url), '')
         ) as cover_url, 
         r.cover_source_title,
         COALESCE(s.title, r.series_title) as canonical_title,
@@ -1848,7 +1848,7 @@ export async function fetchNovelNetworkData() {
         r.max_release_at,
         r.drop_percent,
         r.months_since_last_release,
-        COALESCE(s.cover_url, r.cover_url) as cover_url,
+        COALESCE(r.cover_url, s.cover_url) as cover_url,
         s.title_vi,
         s.title_native,
         s.slug,
