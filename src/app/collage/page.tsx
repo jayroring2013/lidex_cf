@@ -71,7 +71,6 @@ interface SelectedNovel {
   title: string
   publisher?: string
   coverUrl: string
-  isCustom?: boolean
   volumeTitle?: string
 }
 
@@ -125,12 +124,7 @@ export default function CollageEditorPage() {
   const [modalSearch, setModalSearch] = useState('')
   const [modalPublisher, setModalPublisher] = useState('all')
   const [modalScore, setModalScore] = useState('all')
-  const [modalTab, setModalTab] = useState<'catalog' | 'upload' | 'volumes'>('catalog')
-  
-  // Custom image upload in modal
-  const [customTitle, setCustomTitle] = useState('')
-  const [customUrl, setCustomUrl] = useState('')
-  const [customFilePreview, setCustomFilePreview] = useState<string | null>(null)
+  const [modalTab, setModalTab] = useState<'catalog' | 'volumes'>('catalog')
 
   // Volume picker sub-state
   const [inspectSeries, setInspectSeries] = useState<NovelCatalogItem | null>(null)
@@ -145,7 +139,6 @@ export default function CollageEditorPage() {
   const [showWatermark, setShowWatermark] = useState(true)
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Load saved state from localStorage on mount
   useEffect(() => {
@@ -291,9 +284,6 @@ export default function CollageEditorPage() {
     setModalPublisher('all')
     setModalScore('all')
     setModalTab('catalog')
-    setCustomTitle('')
-    setCustomUrl('')
-    setCustomFilePreview(null)
     setInspectSeries(null)
     setSeriesVolumes([])
   }
@@ -324,34 +314,7 @@ export default function CollageEditorPage() {
     }
   }
 
-  // Handle local file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const result = event.target?.result as string
-      setCustomFilePreview(result)
-    }
-    reader.readAsDataURL(file)
-  }
 
-  // Custom novel submission
-  const handleAssignCustom = () => {
-    if (activeSlotIdx === null) return
-    const coverUrl = customFilePreview || customUrl.trim()
-    if (!coverUrl) {
-      alert('Vui lòng tải ảnh lên hoặc nhập đường dẫn ảnh')
-      return
-    }
-    const title = customTitle.trim() || 'Tác phẩm tự chọn'
-    handleAssignNovel(activeSlotIdx, {
-      id: `custom-${Date.now()}`,
-      title,
-      coverUrl,
-      isCustom: true,
-    })
-  }
 
   // Count filled slots
   const filledCount = slots.filter(s => s.novel !== null).length
@@ -871,45 +834,30 @@ export default function CollageEditorPage() {
                 </button>
               </div>
 
-              {/* Tabs Switcher */}
-              <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
-                <button
-                  onClick={() => setModalTab('catalog')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                    modalTab === 'catalog'
-                      ? 'bg-amber-500 text-slate-950 shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Kho Light Novel LiDex</span>
-                </button>
-
-                <button
-                  onClick={() => setModalTab('upload')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                    modalTab === 'upload'
-                      ? 'bg-amber-500 text-slate-950 shadow'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>Tự tải ảnh / Nhập URL</span>
-                </button>
-
-                {inspectSeries && (
+              {/* Tabs / Subtitle */}
+              {inspectSeries ? (
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                   <button
-                    onClick={() => setModalTab('volumes')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                      modalTab === 'volumes'
-                        ? 'bg-amber-500 text-slate-950 shadow'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
+                    onClick={() => {
+                      setInspectSeries(null)
+                      setModalTab('catalog')
+                    }}
+                    className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
                   >
-                    <span>Bìa từng tập ({inspectSeries.title})</span>
+                    ← Quay lại tìm kiếm Light Novel
                   </button>
-                )}
-              </div>
+                  <span className="text-xs font-bold text-slate-300 truncate max-w-[280px]">
+                    Đang xem: {inspectSeries.title}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-1.5 text-amber-400 font-bold">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Chọn từ cơ sở dữ liệu Light Novel LiDex ({catalog.length} series)</span>
+                  </div>
+                </div>
+              )}
 
               {/* ── TAB 1: LIDEX CATALOG SEARCH ───────────────────────────── */}
               {modalTab === 'catalog' && (
@@ -971,7 +919,7 @@ export default function CollageEditorPage() {
                       <div className="h-48 flex flex-col items-center justify-center text-slate-400 text-xs gap-1">
                         <BookOpen className="w-8 h-8 opacity-40 mb-1" />
                         <span className="font-bold">Không tìm thấy series phù hợp</span>
-                        <span className="text-[11px] text-slate-500">Thử xóa bộ lọc hoặc chuyển sang tab "Tự tải ảnh"</span>
+                        <span className="text-[11px] text-slate-500">Thử xóa từ khóa hoặc thay đổi bộ lọc nhà phát hành</span>
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -1045,96 +993,6 @@ export default function CollageEditorPage() {
                         })}
                       </div>
                     )}
-                  </div>
-                </div>
-              )}
-
-              {/* ── TAB 2: CUSTOM UPLOAD OR URL ───────────────────────────── */}
-              {modalTab === 'upload' && (
-                <div className="space-y-4 py-2">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Tên tác phẩm / Chú thích</label>
-                    <input
-                      type="text"
-                      value={customTitle}
-                      onChange={e => setCustomTitle(e.target.value)}
-                      placeholder="VD: Cô Bạn Gái Tôi Quen Trong Kỳ Nghỉ Hè..."
-                      className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-700 bg-slate-800 text-slate-100 outline-none focus:ring-2 focus:ring-amber-500/40"
-                    />
-                  </div>
-
-                  {/* File Upload Area */}
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Tải ảnh bìa từ máy</label>
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-slate-700 hover:border-amber-500/70 rounded-2xl p-5 text-center cursor-pointer transition-colors bg-slate-950/40 hover:bg-slate-900/60"
-                    >
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                      <Upload className="w-7 h-7 mx-auto text-amber-400 mb-1.5" />
-                      <p className="text-xs font-bold text-slate-200">
-                        Bấm để chọn file ảnh từ máy (JPG, PNG, WebP)
-                      </p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Tỷ lệ tối ưu ~ 2:3 (ảnh dọc theo khổ sách)
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Or Direct Image URL */}
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Hoặc dán đường dẫn ảnh trực tiếp (URL)</label>
-                    <input
-                      type="url"
-                      value={customUrl}
-                      onChange={e => setCustomUrl(e.target.value)}
-                      placeholder="https://example.com/cover.jpg"
-                      className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-700 bg-slate-800 text-slate-100 outline-none focus:ring-2 focus:ring-amber-500/40"
-                    />
-                  </div>
-
-                  {/* Image Preview */}
-                  {(customFilePreview || customUrl) && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
-                      <div className="w-14 h-20 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 shrink-0">
-                        <img
-                          src={customFilePreview || customUrl}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none'
-                          }}
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-emerald-400">Ảnh hợp lệ ✓</p>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                          {customTitle || 'Tác phẩm tự chọn'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Modal Assign Button */}
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button
-                      onClick={closeModal}
-                      className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300"
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      onClick={handleAssignCustom}
-                      className="px-5 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shadow-md"
-                    >
-                      Áp dụng vào ô
-                    </button>
                   </div>
                 </div>
               )}
