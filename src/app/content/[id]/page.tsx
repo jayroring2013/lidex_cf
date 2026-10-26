@@ -559,7 +559,7 @@ export default function ContentDetail() {
       
       let data: any = null
       try {
-        const res = await fetch(`/api/series-enrichment?id=${seriesId}&type=${encodeURIComponent(series.item_type)}`)
+        const res = await fetch(`/api/series-enrichment?id=${seriesId}&type=${encodeURIComponent(series.item_type)}&v=4`)
         if (res.ok) {
           data = await res.json()
         } else {
@@ -2173,10 +2173,20 @@ function NovelGeneralInfo({
 function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]; latestVolume: any; locale: string }) {
   const isVI = locale === 'vi'
   const [activeIndex, setActiveIndex] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setActiveIndex(0)
   }, [volumes])
+
+  useEffect(() => {
+    if (trackRef.current && trackRef.current.children[activeIndex]) {
+      const activeEl = trackRef.current.children[activeIndex] as HTMLElement
+      if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      }
+    }
+  }, [activeIndex])
 
   if (!volumes.length) {
     return (
@@ -2200,7 +2210,10 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
     : '—'
 
   return (
-    <NovelSection icon={Layers} title={isVI ? 'Danh Sách Tập' : 'Volume List'}>
+    <NovelSection
+      icon={Layers}
+      title={isVI ? `Danh Sách Tập (${volumes.length})` : `Volume List (${volumes.length})`}
+    >
       <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--content-detail-volume-bg)', border: '1px solid var(--card-border)' }}>
         <div className="relative p-4 sm:p-5">
           {activeCover && (
@@ -2232,7 +2245,10 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs font-bold tabular-nums px-2 py-1 rounded-lg" style={{ background: 'var(--background-secondary)', color: 'var(--foreground-muted)', border: '1px solid var(--card-border)' }}>
+                    {safeIndex + 1} / {volumes.length}
+                  </span>
                   <button
                     type="button"
                     onClick={prev}
@@ -2274,6 +2290,66 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
               </div>
             </div>
           </div>
+
+          {/* ── Volume List Thumbnails Track ── */}
+          {volumes.length > 1 && (
+            <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
+              <div className="flex items-center justify-between mb-2.5 px-0.5">
+                <span className="text-[11px] font-black uppercase tracking-wider" style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? 'Tất cả các tập' : 'All volumes'}
+                </span>
+                <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
+                  {isVI ? 'Nhấn vào tập để xem chi tiết' : 'Click a volume to view details'}
+                </span>
+              </div>
+              <div ref={trackRef} className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                {volumes.map((vol, idx) => {
+                  const isCur = idx === safeIndex
+                  const vLbl = getVolumeLabel(vol, isVI)
+                  const isLast = idx === volumes.length - 1
+                  return (
+                    <button
+                      key={vol.id || idx}
+                      type="button"
+                      onClick={() => setActiveIndex(idx)}
+                      className="relative shrink-0 flex flex-col items-center gap-1.5 p-1.5 rounded-xl transition-all hover:scale-105 text-left cursor-pointer"
+                      style={{
+                        width: 76,
+                        background: isCur ? 'rgba(124,58,237,.18)' : 'var(--background-secondary)',
+                        border: isCur ? '2px solid #8b5cf6' : '1px solid var(--card-border)',
+                        boxShadow: isCur ? '0 0 0 2px rgba(139,92,246,0.25)' : 'none',
+                      }}
+                      title={`${vLbl.title}${vLbl.subtitle ? `: ${vLbl.subtitle}` : ''}`}
+                    >
+                      <div className="w-full rounded-lg overflow-hidden shadow-sm" style={{ aspectRatio: '2/3', background: 'rgba(0,0,0,0.1)' }}>
+                        {vol.cover_url ? (
+                          <img src={vol.cover_url} alt={vLbl.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <BookOpen className="w-4 h-4 opacity-40 text-primary-400" />
+                          </div>
+                        )}
+                      </div>
+                      <span
+                        className="text-[10px] font-black truncate max-w-full text-center leading-tight"
+                        style={{ color: isCur ? '#a78bfa' : 'var(--foreground-secondary)' }}
+                      >
+                        {vLbl.title}
+                      </span>
+                      {isLast && (
+                        <span
+                          className="absolute -top-1 -right-1 px-1 py-0.5 rounded text-[8px] font-black uppercase text-amber-300 shadow-sm"
+                          style={{ background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(251,191,36,0.6)' }}
+                        >
+                          {isVI ? 'Mới' : 'New'}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </NovelSection>
