@@ -5,8 +5,9 @@ import Link from 'next/link'
 import {
   Sparkles, RefreshCw, Volume2, VolumeX, BookOpen,
   ArrowRight, ExternalLink, Filter, Trophy, Star, ShieldAlert,
-  Search, LayoutGrid, List, X
+  Search, LayoutGrid, List, X, ShoppingCart, Info
 } from 'lucide-react'
+import seriesAffiliatesData from '@/data/series_affiliates.json'
 import { proxyImg } from '@/lib/imageProxy'
 import { CaseAudio, type CaseSound } from '@/lib/caseAudio'
 
@@ -66,6 +67,54 @@ const GACHA_WEIGHTS: Record<number, number> = {
   2: 0.15, // 🟣 Sử thi (Epic - Top 31-60): 15%
   1: 0.30, // 💜 Hiếm (Rare - Top 61-100): 30%
   0: 0.50, // 💙 Thông thường (Common - Còn lại): 50%
+}
+
+interface AffiliateRecord {
+  url: string
+  platform: string
+  volume: number
+  volumeTitle?: string
+  type: string
+}
+
+const affiliatesMap = seriesAffiliatesData as Record<string, AffiliateRecord>
+const normalizedAffiliateList: { normKey: string; record: AffiliateRecord }[] = []
+for (const [key, val] of Object.entries(affiliatesMap)) {
+  const normKey = key.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim()
+  normalizedAffiliateList.push({ normKey, record: val })
+}
+
+function getSeriesAffiliate(title?: string | null): AffiliateRecord | null {
+  if (!title) return null
+  const exact = affiliatesMap[title]
+  if (exact) return exact
+
+  const normTitle = title.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim()
+  const matchedExactNorm = normalizedAffiliateList.find(item => item.normKey === normTitle)
+  if (matchedExactNorm) return matchedExactNorm.record
+
+  const fuzzy = normalizedAffiliateList.find(item => normTitle.includes(item.normKey) || item.normKey.includes(normTitle))
+  return fuzzy ? fuzzy.record : null
+}
+
+function getNovelRollPercentage(novel: NovelItem | null, pool: NovelItem[]): string {
+  if (!novel) return '0.10'
+  const tierCount = Math.max(1, pool.filter(n => n.rarity === novel.rarity).length)
+  const tierWeight = GACHA_WEIGHTS[novel.rarity] ?? 0.1
+  const baseRate = (tierWeight / tierCount) * 100
+
+  // Deterministic variance based on title/id (between 0.88x and 1.12x)
+  let hash = 0
+  const str = String(novel.id || novel.title)
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) & 0xffffffff
+  }
+  const variance = 0.88 + (Math.abs(hash) % 25) / 100
+  const finalRate = baseRate * variance
+
+  if (finalRate < 0.1) return finalRate.toFixed(3)
+  if (finalRate < 1) return finalRate.toFixed(2)
+  return finalRate.toFixed(1)
 }
 
 function pickWeightedNovel(pool: NovelItem[], excludeIds: (string | number)[] = []): NovelItem {
@@ -359,6 +408,9 @@ export default function HomePage() {
     })
     return counts
   }, [eligiblePool])
+
+  const activeAffiliate = useMemo(() => getSeriesAffiliate(result?.title), [result])
+  const activeRollPercentage = useMemo(() => getNovelRollPercentage(result, eligiblePool), [result, eligiblePool])
 
   // Displayed pool filtered by search query and rarity tab
   const displayedPool = useMemo(() => {
@@ -807,32 +859,90 @@ export default function HomePage() {
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-400 line-clamp-3 pt-1">
+                  {/* Percentage Stat: Đã có ...% người dùng quay ra truyện này */}
+                  <div className="flex items-center justify-center sm:justify-start gap-1.5 py-1 text-xs font-bold text-amber-300">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>Đã có <strong className="text-amber-400 font-mono text-sm">{activeRollPercentage}%</strong> người dùng quay ra truyện này</span>
+                  </div>
+
+                  <p className="text-xs text-slate-400 line-clamp-3 pt-0.5">
                     {result.description || 'Chưa có mô tả cho series này.'}
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-2">
-                <Link
-                  href={result.href}
-                  onClick={() => setRevealed(false)}
-                  className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs py-3 rounded-xl transition-all text-center flex items-center justify-center gap-1.5 shadow-lg"
-                >
-                  <span>Đọc ngay / Xem thông số</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+              <div className="flex items-center gap-2.5 pt-2">
+                {activeAffiliate ? (
+                  <>
+                    {/* Button Mua ngay (Affiliate Link) */}
+                    <a
+                      href={activeAffiliate.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-black text-xs py-3 px-4 rounded-xl transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-orange-500/20 active:scale-95 group"
+                      title={activeAffiliate.volumeTitle ? `Mua ${activeAffiliate.volumeTitle} trên ${activeAffiliate.platform}` : `Mua ngay trên ${activeAffiliate.platform}`}
+                    >
+                      <ShoppingCart className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
+                      <span>Mua ngay</span>
+                      {activeAffiliate.volume != null && activeAffiliate.volume > 0 && (
+                        <span className="text-[10px] font-bold bg-black/20 text-slate-950 px-1.5 py-0.5 rounded">
+                          Tập {activeAffiliate.volume}
+                        </span>
+                      )}
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-950/70" />
+                    </a>
 
-                <button
-                  onClick={() => {
-                    setRevealed(false)
-                    spinCase()
-                  }}
-                  className="px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-slate-200 transition-all"
-                >
-                  Quay lại
-                </button>
+                    {/* Button Chi tiết (Icon info) */}
+                    <Link
+                      href={result.href}
+                      onClick={() => setRevealed(false)}
+                      className="px-3.5 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center justify-center gap-1.5 shrink-0"
+                      title="Xem chi tiết và thông số bộ truyện"
+                    >
+                      <Info className="w-4 h-4 text-sky-400" />
+                      <span>Chi tiết</span>
+                    </Link>
+
+                    {/* Button Reroll */}
+                    <button
+                      onClick={() => {
+                        setRevealed(false)
+                        spinCase()
+                      }}
+                      className="px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-slate-200 hover:text-amber-400 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
+                      title="Quay lại hòm (Reroll)"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Reroll</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Fallback 2 buttons when no affiliate link exists */}
+                    <Link
+                      href={result.href}
+                      onClick={() => setRevealed(false)}
+                      className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs py-3 rounded-xl transition-all text-center flex items-center justify-center gap-1.5 shadow-lg"
+                    >
+                      <span>Đọc ngay / Xem thông số</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+
+                    {/* Button Reroll */}
+                    <button
+                      onClick={() => {
+                        setRevealed(false)
+                        spinCase()
+                      }}
+                      className="px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-black text-slate-200 hover:text-amber-400 transition-all flex items-center gap-1.5 shrink-0 active:scale-95"
+                      title="Quay lại hòm (Reroll)"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Reroll</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
