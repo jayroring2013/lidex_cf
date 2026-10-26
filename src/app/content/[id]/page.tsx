@@ -1,6 +1,8 @@
 'use client'
 
-import { useRef, useState, useEffect, useId, type ReactNode } from 'react'
+import { useRef, useState, useEffect, useId, useMemo, type ReactNode } from 'react'
+import seriesAffiliatesData from '@/data/series_affiliates.json'
+import kuranoSeriesMapData from '@/data/series_kurano_map.json'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -43,6 +45,37 @@ type FanVotePoint = {
   votes: number
   rank: number | null
 }
+
+
+interface AffiliateRecord {
+  url: string
+  platform: string
+  volume: number
+  volumeTitle?: string
+  type: string
+}
+
+const affiliatesMap = seriesAffiliatesData as Record<string, AffiliateRecord>
+const normalizedAffiliateList: { normKey: string; record: AffiliateRecord }[] = []
+for (const [key, val] of Object.entries(affiliatesMap)) {
+  const normKey = key.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim()
+  normalizedAffiliateList.push({ normKey, record: val })
+}
+
+function getSeriesAffiliate(title?: string | null): AffiliateRecord | null {
+  if (!title) return null
+  const exact = affiliatesMap[title]
+  if (exact) return exact
+
+  const normTitle = title.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim()
+  const matchedExactNorm = normalizedAffiliateList.find(item => item.normKey === normTitle)
+  if (matchedExactNorm) return matchedExactNorm.record
+
+  const fuzzy = normalizedAffiliateList.find(item => normTitle.includes(item.normKey) || item.normKey.includes(normTitle))
+  return fuzzy ? fuzzy.record : null
+}
+
+const kuranoMap = kuranoSeriesMapData as Record<string, { url: string; slug: string; title: string }>
 
 type UserSeriesStatus = 'reading' | 'dropped' | 'planned' | 'finished'
 
@@ -454,6 +487,62 @@ export default function ContentDetail() {
   const isVI       = locale === 'vi'
   const seriesId   = params.id ? parseInt(params.id as string) : undefined
   const bannerImage = series?.banner_url || series?.cover_url
+
+  const seriesAffiliate = useMemo(() => {
+    if (!series) return null
+    return getSeriesAffiliate(series.title || series.title_vi)
+  }, [series])
+
+  const seriesKurano = useMemo(() => {
+    if (!seriesId) return null
+    const byId = kuranoMap[String(seriesId)]
+    if (byId) return byId
+
+    if (series?.title) {
+      const norm = series.title.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim()
+      for (const val of Object.values(kuranoMap)) {
+        if (val.title && val.title.toLowerCase().replace(/[\(\)\[\]\{\}\:\-\,\.\?\!※\s\']+/g, ' ').trim() === norm) {
+          return val
+        }
+      }
+    }
+    return null
+  }, [seriesId, series])
+
+  const allExternalLinks = useMemo(() => {
+    const list: Array<{ url: string; label: string; link_type: string; badge?: string }> = []
+
+    // 1. Affiliate Purchase Link
+    if (seriesAffiliate) {
+      const isShopee = seriesAffiliate.platform.toLowerCase().includes('shopee')
+      list.push({
+        url: seriesAffiliate.url,
+        label: isShopee ? (isVI ? 'Mua trên Shopee' : 'Buy on Shopee') : (isVI ? `Mua trên ${seriesAffiliate.platform}` : `Buy on ${seriesAffiliate.platform}`),
+        link_type: 'purchase',
+        badge: 'Affiliate'
+      })
+    }
+
+    // 2. Kurano Link
+    if (seriesKurano) {
+      list.push({
+        url: seriesKurano.url,
+        label: isVI ? 'Kurano (Thông tin phát hành)' : 'Kurano (Release info)',
+        link_type: 'kurano'
+      })
+    }
+
+    // 3. Database series links
+    if (Array.isArray(seriesLinks)) {
+      for (const l of seriesLinks) {
+        if (l && l.url && !list.some(item => item.url === l.url)) {
+          list.push(l)
+        }
+      }
+    }
+
+    return list
+  }, [seriesAffiliate, seriesKurano, seriesLinks, isVI])
 
   // ── Load series ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -1568,8 +1657,8 @@ export default function ContentDetail() {
                 <h3 className="text-sm font-bold" style={{ color: 'var(--foreground)' }}>{isVI ? 'Liên kết ngoài' : 'External Links'}</h3>
               </div>
               <div className="space-y-2">
-                {seriesLinks.length > 0 ? (
-                  seriesLinks.map((link: any, i: number) => {
+                {allExternalLinks.length > 0 ? (
+                  allExternalLinks.map((link: any, i: number) => {
                     const renderLinkIcon = () => {
                       const label = (link.label || '').toLowerCase()
                       const url = (link.url || '').toLowerCase()
@@ -1580,6 +1669,9 @@ export default function ContentDetail() {
                       }
                       if (label.includes('tiktok') || url.includes('tiktok.com')) {
                         return <Music className="w-3.5 h-3.5 text-[#ff0050] flex-shrink-0" />
+                      }
+                      if (type === 'kurano' || label.includes('kurano') || url.includes('kurano.moe')) {
+                        return <BookOpen className="w-3.5 h-3.5 text-[#f43f5e] flex-shrink-0" />
                       }
                       if (label.includes('fahasa') || url.includes('fahasa.com')) {
                         return <ShoppingBag className="w-3.5 h-3.5 text-[#c92127] flex-shrink-0" />
@@ -1603,13 +1695,18 @@ export default function ContentDetail() {
 
                     return (
                       <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center justify-between p-2.5 rounded-lg group transition-colors"
+                        className="flex items-center justify-between p-2.5 rounded-lg group transition-colors hover:border-primary-500/50"
                         style={{ background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
                         <div className="flex items-center gap-2 min-w-0">
                           {renderLinkIcon()}
                           <span className="text-xs font-medium group-hover:text-primary-500 transition-colors truncate" style={{ color: 'var(--foreground-secondary)' }}>
                             {link.label}
                           </span>
+                          {link.badge && (
+                            <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
+                              {link.badge}
+                            </span>
+                          )}
                         </div>
                         <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 ml-2 group-hover:text-primary-500" style={{ color: 'var(--foreground-muted)' }} />
                       </a>

@@ -885,11 +885,6 @@ export default function HomePage() {
                     >
                       <ShoppingCart className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
                       <span>Mua ngay</span>
-                      {activeAffiliate.volume != null && activeAffiliate.volume > 0 && (
-                        <span className="text-[10px] font-bold bg-black/20 text-slate-950 px-1.5 py-0.5 rounded">
-                          Tập {activeAffiliate.volume}
-                        </span>
-                      )}
                       <ExternalLink className="w-3.5 h-3.5 text-slate-950/70" />
                     </a>
 
