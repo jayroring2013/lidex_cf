@@ -135,7 +135,7 @@ export default function Navbar() {
   const flatLinks = [
     { href: '/',          label: 'Hôm nay đọc gì?' },
     { href: '/dashboard', label: 'Bảng theo dõi' },
-    { href: '/collage',   label: 'Tạo bảng sách' },
+    { href: '/collage',   label: 'Danh sách của tôi' },
   ]
 
   const isLinkActive = (href: string) => {

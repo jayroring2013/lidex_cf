@@ -43,7 +43,7 @@ export type NovelItem = {
 }
 
 const RARITY_COLORS = ['#4b69ff', '#8847ff', '#d32ce6', '#eb4b4b', '#e4ae39']
-const RARITY_NAMES = ['Thông thường', 'Hiếm', 'Sơ cấp', 'Huyền thoại 🔴', 'Báu vật 👑']
+const RARITY_NAMES = ['Thông thường', 'Hiếm', 'Sử thi', 'Huyền thoại 🔴', 'Báu vật 👑']
 
 function getHoloLineClass(rarity: number): string {
   if (rarity >= 4) return 'holo-line-ancient'
@@ -59,12 +59,54 @@ function easeOutQuad(p: number) {
   return 1 - Math.pow(1 - t, 3.2)
 }
 
-function pickRandomNovel(pool: NovelItem[], excludeIds: (string | number)[] = []): NovelItem {
+// Gacha Drop Rates (FGO style: 5★ SSR = 1%, 4★ SR = 4%)
+const GACHA_WEIGHTS: Record<number, number> = {
+  4: 0.01, // 👑 Báu vật (SSR - Top 10): 1%
+  3: 0.04, // 🔴 Huyền thoại (SR - Top 11-30): 4%
+  2: 0.15, // 🟣 Sử thi (Epic - Top 31-60): 15%
+  1: 0.30, // 💜 Hiếm (Rare - Top 61-100): 30%
+  0: 0.50, // 💙 Thông thường (Common - Còn lại): 50%
+}
+
+function pickWeightedNovel(pool: NovelItem[], excludeIds: (string | number)[] = []): NovelItem {
   if (!pool.length) return null as any
   const filtered = pool.filter(n => !excludeIds.includes(n.id))
   const candidates = filtered.length > 0 ? filtered : pool
-  return candidates[Math.floor(Math.random() * candidates.length)]
+
+  // Group candidates by rarity tier
+  const poolByRarity = new Map<number, NovelItem[]>()
+  for (const novel of candidates) {
+    const r = novel.rarity ?? 0
+    const list = poolByRarity.get(r) || []
+    list.push(novel)
+    poolByRarity.set(r, list)
+  }
+
+  const activeTiers = Array.from(poolByRarity.keys())
+  if (activeTiers.length === 1) {
+    const items = poolByRarity.get(activeTiers[0])!
+    return items[Math.floor(Math.random() * items.length)]
+  }
+
+  // Dynamic normalized weights based on tiers present in pool
+  const totalWeight = activeTiers.reduce((acc, t) => acc + (GACHA_WEIGHTS[t] ?? 0.1), 0)
+  let rand = Math.random() * totalWeight
+  let chosenTier = activeTiers[0]
+
+  for (const t of activeTiers) {
+    const w = GACHA_WEIGHTS[t] ?? 0.1
+    if (rand < w) {
+      chosenTier = t
+      break
+    }
+    rand -= w
+  }
+
+  const tierCandidates = poolByRarity.get(chosenTier) || candidates
+  return tierCandidates[Math.floor(Math.random() * tierCandidates.length)]
 }
+
+const pickRandomNovel = pickWeightedNovel
 
 function resolveReleaseStatus(r: any): string {
   if (r.trang_thai && typeof r.trang_thai === 'string' && r.trang_thai.trim()) {
@@ -372,8 +414,8 @@ export default function HomePage() {
         setGlobalRolls(g => g + 1)
       })
 
-    // 1. Select Winner from eligible pool
-    const winner = eligiblePool[Math.floor(Math.random() * eligiblePool.length)]
+    // 1. Select Winner from eligible pool using true Gacha weighted odds (1% SSR)
+    const winner = pickWeightedNovel(eligiblePool)
 
     // 2. Build complete card reel (Slots -10 to 50 total)
     const cardStep = 222 // 210px width + 12px gap
@@ -572,11 +614,25 @@ export default function HomePage() {
               </select>
             </div>
 
-            {/* Counter info */}
-            <div className="text-xs font-bold text-slate-400 flex flex-wrap items-center gap-3">
-              <span>Cá nhân: <strong className="text-cyan-400 text-sm">{spinCount}</strong> lần</span>
-              <span>•</span>
-              <span>Pool: <strong className="text-emerald-400 text-sm">{eligiblePool.length}</strong> bộ</span>
+            {/* Counter info & Gacha Rates */}
+            <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-400">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-700/80 text-[11px]">
+                <span className="text-amber-400 font-black">🎲 Tỉ lệ:</span>
+                <span className="text-amber-300 font-mono" title="Báu vật (Top 10)">👑 1%</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-rose-400 font-mono" title="Huyền thoại (Top 11-30)">🔴 4%</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-fuchsia-400 font-mono" title="Sử thi (Top 31-60)">🟣 15%</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-purple-400 font-mono" title="Hiếm (Top 61-100)">💜 30%</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-blue-400 font-mono" title="Thông thường">💙 50%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>Cá nhân: <strong className="text-cyan-400 text-sm">{spinCount}</strong> lần</span>
+                <span>•</span>
+                <span>Pool: <strong className="text-emerald-400 text-sm">{eligiblePool.length}</strong> bộ</span>
+              </div>
             </div>
           </div>
         </Card>
