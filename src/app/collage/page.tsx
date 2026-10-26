@@ -91,13 +91,24 @@ interface NovelCatalogItem {
   description?: string | null
 }
 
-const TEMPLATE_WIDTH = 767
+const TEMPLATE_WIDTH = 766
 const TEMPLATE_HEIGHT = 1024
+const FIXED_WATERMARK = 'LiDex • wibubros.id.vn'
 
-const GRID_COLS = [47, 186, 324, 463, 601]
-const GRID_ROWS = [110, 335, 559, 779]
-const BOX_WIDTH = 119
-const BOX_HEIGHT = 163
+const GRID_COLS = [
+  { x: 42, w: 123 },
+  { x: 183, w: 123 },
+  { x: 324, w: 121 },
+  { x: 463, w: 123 },
+  { x: 604, w: 123 },
+]
+
+const GRID_ROWS = [
+  { y: 112, h: 160 },
+  { y: 338, h: 159 },
+  { y: 562, h: 160 },
+  { y: 779, h: 159 },
+]
 
 function getCanvasImageUrl(url: string | null): string {
   if (!url) return ''
@@ -135,7 +146,6 @@ export default function CollageEditorPage() {
   const [generating, setGenerating] = useState(false)
   const [copiedToast, setCopiedToast] = useState(false)
   const [viewMode, setViewMode] = useState<'poster' | 'list'>('poster')
-  const [watermarkText, setWatermarkText] = useState('LiDex • wibubros.id.vn')
   const [showWatermark, setShowWatermark] = useState(true)
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -295,16 +305,27 @@ export default function CollageEditorPage() {
 
   // Fetch volume list for a series
   const openVolumePicker = async (series: NovelCatalogItem) => {
-    if (!series.seriesId) return
+    const targetId = series.seriesId || Number(series.id)
+    if (!targetId || isNaN(targetId)) return
     setInspectSeries(series)
     setModalTab('volumes')
     setLoadingVolumes(true)
+    setSeriesVolumes([])
     try {
-      const res = await fetch(`/api/series-enrichment?id=${series.seriesId}&type=light_novel`)
+      const res = await fetch(`/api/series-enrichment?id=${targetId}&type=novel&v=4`)
       if (res.ok) {
         const data = await res.json()
-        if (data && Array.isArray(data.volumeReleases)) {
-          setSeriesVolumes(data.volumeReleases)
+        const rawVols = data?.vols || data?.volumeReleases || []
+        if (Array.isArray(rawVols) && rawVols.length > 0) {
+          const sorted = [...rawVols].sort((a: any, b: any) => {
+            const da = a.release_date ? new Date(a.release_date).getTime() : 0
+            const db = b.release_date ? new Date(b.release_date).getTime() : 0
+            if (da !== db) return da - db
+            return (Number(a.volume_number) || 0) - (Number(b.volume_number) || 0)
+          })
+          setSeriesVolumes(sorted)
+        } else {
+          setSeriesVolumes([])
         }
       }
     } catch (e) {
@@ -349,10 +370,17 @@ export default function CollageEditorPage() {
       const r = Math.floor(i / 5)
       const c = i % 5
 
-      const targetX = (GRID_COLS[c] + 1) * scale
-      const targetY = (GRID_ROWS[r] + 1) * scale
-      const targetW = (BOX_WIDTH - 2) * scale
-      const targetH = (BOX_HEIGHT - 2) * scale
+      const box = {
+        x: GRID_COLS[c].x,
+        y: GRID_ROWS[r].y,
+        w: GRID_COLS[c].w,
+        h: GRID_ROWS[r].h,
+      }
+
+      const targetX = (box.x + 1) * scale
+      const targetY = (box.y + 1) * scale
+      const targetW = (box.w - 2) * scale
+      const targetH = (box.h - 2) * scale
 
       const imgUrl = getCanvasImageUrl(slot.novel.coverUrl)
       if (!imgUrl) continue
@@ -398,7 +426,7 @@ export default function CollageEditorPage() {
           ctx.restore()
 
           // Stroke crisp border around the cover
-          ctx.strokeStyle = '#9e927a'
+          ctx.strokeStyle = '#5a5430'
           ctx.lineWidth = 2 * scale
           ctx.strokeRect(targetX - 1, targetY - 1, targetW + 2, targetH + 2)
         }
@@ -408,9 +436,9 @@ export default function CollageEditorPage() {
     }
 
     // 3. Draw Watermark if enabled
-    if (showWatermark && watermarkText.trim()) {
+    if (showWatermark) {
       ctx.save()
-      ctx.fillStyle = 'rgba(142, 130, 108, 0.92)'
+      ctx.fillStyle = 'rgba(90, 84, 48, 0.88)'
       ctx.font = `600 ${11 * scale}px "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
@@ -418,8 +446,7 @@ export default function CollageEditorPage() {
       const wmY = (TEMPLATE_HEIGHT - 12) * scale
       const wmX = (TEMPLATE_WIDTH / 2) * scale
       
-      // Draw watermark text centered near bottom
-      ctx.fillText(watermarkText.trim(), wmX, wmY)
+      ctx.fillText(FIXED_WATERMARK, wmX, wmY)
       ctx.restore()
     }
 
@@ -507,7 +534,7 @@ export default function CollageEditorPage() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">📚</span>
               <h1 className="text-2xl sm:text-3xl font-black gradient-text">
-                Tạo Bảng Sách 20 Ô (About You: Books)
+                Tạo Bảng Sách 20 Ô (Light Novel Của Tôi)
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
@@ -573,27 +600,23 @@ export default function CollageEditorPage() {
             )}
           </div>
 
-          {/* Watermark customizer pill */}
+          {/* Watermark toggle pill */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">
-              <label className="flex items-center gap-1.5 cursor-pointer text-slate-300 font-semibold select-none">
+            <div className="flex items-center gap-2.5 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-300 font-semibold select-none">
                 <input
                   type="checkbox"
                   checked={showWatermark}
                   onChange={e => setShowWatermark(e.target.checked)}
                   className="rounded border-slate-700 text-amber-500 focus:ring-0 cursor-pointer"
                 />
-                <span>Watermark:</span>
+                <span>Watermark ảnh:</span>
               </label>
-              {showWatermark && (
-                <input
-                  type="text"
-                  value={watermarkText}
-                  onChange={e => setWatermarkText(e.target.value)}
-                  placeholder="Watermark ảnh..."
-                  className="bg-slate-800 text-slate-200 px-2 py-0.5 rounded-md border border-slate-700 text-[11px] outline-none w-36"
-                />
-              )}
+              <span className={`text-[11px] font-mono px-2 py-0.5 rounded border transition-colors ${
+                showWatermark ? 'text-amber-400 bg-amber-950/60 border-amber-500/30 font-bold' : 'text-slate-500 bg-slate-800/40 border-slate-800 line-through'
+              }`}>
+                {FIXED_WATERMARK}
+              </span>
             </div>
 
             {/* View Mode Toggle */}
@@ -644,10 +667,17 @@ export default function CollageEditorPage() {
                 const r = Math.floor(slot.index / 5)
                 const c = slot.index % 5
 
-                const leftPct = (GRID_COLS[c] / TEMPLATE_WIDTH) * 100
-                const topPct = (GRID_ROWS[r] / TEMPLATE_HEIGHT) * 100
-                const widthPct = (BOX_WIDTH / TEMPLATE_WIDTH) * 100
-                const heightPct = (BOX_HEIGHT / TEMPLATE_HEIGHT) * 100
+                const box = {
+                  x: GRID_COLS[c].x,
+                  y: GRID_ROWS[r].y,
+                  w: GRID_COLS[c].w,
+                  h: GRID_ROWS[r].h,
+                }
+
+                const leftPct = (box.x / TEMPLATE_WIDTH) * 100
+                const topPct = (box.y / TEMPLATE_HEIGHT) * 100
+                const widthPct = (box.w / TEMPLATE_WIDTH) * 100
+                const heightPct = (box.h / TEMPLATE_HEIGHT) * 100
 
                 const isFilled = slot.novel !== null
 
@@ -707,12 +737,12 @@ export default function CollageEditorPage() {
               })}
 
               {/* Watermark Preview at bottom */}
-              {showWatermark && watermarkText.trim() && (
+              {showWatermark && (
                 <div
-                  className="absolute bottom-1 inset-x-0 text-center pointer-events-none text-[10px] font-semibold text-[#8c8168]/80 select-none"
+                  className="absolute bottom-1 inset-x-0 text-center pointer-events-none text-[10px] font-semibold text-[#5a5430]/80 select-none"
                   style={{ bottom: '0.9%' }}
                 >
-                  {watermarkText.trim()}
+                  {FIXED_WATERMARK}
                 </div>
               )}
             </div>
@@ -1039,8 +1069,9 @@ export default function CollageEditorPage() {
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {seriesVolumes.map((vol, vIdx) => {
-                          const volNum = vol.volume_number || (vIdx + 1)
-                          const volCover = vol.image_url || inspectSeries.coverUrl
+                          const volNum = vol.volume_number != null ? vol.volume_number : (vIdx + 1)
+                          const volCover = vol.cover_url || vol.image_url || inspectSeries.coverUrl
+                          const volTitle = vol.title ? `${vol.title}` : `${inspectSeries.title} - Tập ${volNum}`
                           return (
                             <div
                               key={vol.id || vIdx}
@@ -1048,7 +1079,7 @@ export default function CollageEditorPage() {
                                 handleAssignNovel(activeSlotIdx, {
                                   id: `${inspectSeries.id}-v${volNum}`,
                                   seriesId: inspectSeries.seriesId,
-                                  title: `${inspectSeries.title} (Tập ${volNum})`,
+                                  title: volTitle,
                                   publisher: inspectSeries.publisher,
                                   coverUrl: volCover || '',
                                   volumeTitle: `Tập ${volNum}`,
@@ -1066,10 +1097,15 @@ export default function CollageEditorPage() {
                                   Tập {volNum}
                                 </div>
                               </div>
-                              <div className="text-center pt-1">
-                                <span className="text-[11px] font-bold text-slate-200 group-hover:text-amber-400">
+                              <div className="text-center pt-1 min-w-0">
+                                <span className="text-[11px] font-bold text-slate-200 group-hover:text-amber-400 line-clamp-1 block" title={volTitle}>
                                   Tập {volNum}
                                 </span>
+                                {vol.release_date && (
+                                  <span className="text-[9px] text-slate-400 block truncate">
+                                    {String(vol.release_date).slice(0, 10)}
+                                  </span>
+                                )}
                               </div>
                               <button
                                 type="button"

@@ -15,9 +15,10 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl
   const id = Number(searchParams.get('id'))
-  const itemType = searchParams.get('type') || ''
+  const rawType = searchParams.get('type') || ''
+  const itemType = rawType === 'light_novel' ? 'novel' : (rawType || 'novel')
 
-  if (!id || !itemType) {
+  if (!id) {
     return NextResponse.json(
       { error: 'Missing id or type parameter' },
       { status: 400, headers: { 'Cache-Control': 'no-store' } }

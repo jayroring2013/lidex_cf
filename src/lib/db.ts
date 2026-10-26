@@ -1140,6 +1140,7 @@ async function optionalEnrichmentRows(label: string, query: string, params: any[
 
 export async function fetchSeriesEnrichmentData(seriesId: number, itemType: string) {
   try {
+    const targetType = itemType === 'light_novel' ? 'novel' : itemType
     const [ratingData, libraryData] = await Promise.all([
       optionalEnrichmentRows('rating summary', `
         SELECT 
@@ -1184,7 +1185,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
     let fanVoteHistory: any[] = []
     let lidexScore = null
 
-    if (itemType === 'manga') {
+    if (targetType === 'manga') {
       const mangaMetaRows = await optionalEnrichmentRows('manga metadata', `
         SELECT series_id, demographic, original_language, vn_licensed, vn_publisher_id, updated_at
         FROM manga_meta
@@ -1197,12 +1198,12 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
           if (pub.length) publisherName = pub[0].name_vi || pub[0].name
         }
       }
-    } else if (itemType === 'novel') {
+    } else if (targetType === 'novel') {
       const novelMetaRows = await optionalEnrichmentRows('novel metadata', `SELECT * FROM novel_meta WHERE series_id = $1`, [seriesId])
       if (novelMetaRows.length) novelMeta = novelMetaRows[0]
     }
 
-    if (itemType === 'manga' || itemType === 'novel') {
+    if (targetType === 'manga' || targetType === 'novel') {
       vols = await optionalEnrichmentRows('volumes', `
         SELECT id, volume_number, title, release_date, cover_url, price, currency, page_count, is_special
         FROM volumes
@@ -1218,7 +1219,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
       ORDER BY sort_order ASC
     `, [seriesId])
 
-    if (itemType === 'novel') {
+    if (targetType === 'novel') {
       // 1. Fetch ranking rows
       const rankingRows = await optionalEnrichmentRows('LN ranking', `
         SELECT id, series_title, series_id, lidex_series_id, series_code, number_of_volumes, average_price, max_release_at, publisher, original_volumes, original_status, evalution, evaluation_basis, ln_score, trang_thai, drop_percent, drop_basis, average_gap_months, months_since_last_release, completion_ratio, publisher_activity, publisher_releases_last_24m, score_components, drop_components, cover_url, cover_source_title
@@ -1279,7 +1280,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
       }).filter(point => point.sort > 0).sort((a, b) => a.sort - b.sort)
     }
 
-    if (itemType === 'anime') {
+    if (targetType === 'anime') {
       const animeDetails = await optionalEnrichmentRows('anime details', `SELECT * FROM series WHERE id = $1`, [seriesId])
       let anime_meta: any = null
       if (animeDetails.length) {
