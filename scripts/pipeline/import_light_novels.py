@@ -343,21 +343,27 @@ def run_import(excel_path: str = DEFAULT_EXCEL, dry_run: bool = False):
             cover_url = format_r2_cover(v_row.get("Cover URL"))
 
             # Volume number & is_special handling
-            sort_order = safe_int(v_row.get("Sort Order"), 1) or 1
-            rel_type = safe_int(v_row.get("Release Type"), 1)
-            is_special = (rel_type != 1) or ("ngoại truyện" in title.lower()) or ("tuyển tập tình yêu" in title.lower()) or ("phần 2" in title.lower())
+            raw_so = v_row.get("Sort Order")
+            so_float = float(raw_so) if pd.notna(raw_so) else 1.0
 
-            vol_num = sort_order
+            # Decimal sort orders (e.g. 6.5) or explicit side stories
+            is_decimal = (so_float % 1.0 != 0.0)
+            is_side_story = any(kw in title.lower() for kw in ["ngoại truyện", "tuyển tập tình yêu", "phần 2"])
+            is_special = is_decimal or is_side_story
+
             if is_special:
-                vol_num = 100 + sort_order
+                base_vol = 100 + int(so_float)
+            else:
+                base_vol = int(so_float)
 
-            pair_key = (target_series_id, vol_num)
+            pair_key = (target_series_id, base_vol)
             if pair_key in seen_volumes:
                 # Collision detected, bump volume number
-                vol_num = 200 + sort_order + seen_volumes[pair_key]
+                vol_num = 200 + int(so_float) + seen_volumes[pair_key]
                 is_special = True
                 seen_volumes[pair_key] += 1
             else:
+                vol_num = base_vol
                 seen_volumes[pair_key] = 1
 
             volume_records.append((
