@@ -314,9 +314,9 @@ export async function fetchLatestVolCovers(ids: number[]) {
     const rows = await sql(`
       SELECT series_id, cover_url 
       FROM (
-        SELECT series_id, cover_url, ROW_NUMBER() OVER(PARTITION BY series_id ORDER BY volume_number DESC) as rn
+        SELECT series_id, cover_url, ROW_NUMBER() OVER(PARTITION BY series_id ORDER BY release_date DESC NULLS LAST, volume_number DESC) as rn
         FROM volumes
-        WHERE series_id = ANY($1) AND is_special = false AND cover_url IS NOT NULL
+        WHERE series_id = ANY($1) AND cover_url IS NOT NULL
       ) t
       WHERE rn = 1
     `, [ids])
@@ -1204,10 +1204,10 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
 
     if (itemType === 'manga' || itemType === 'novel') {
       vols = await optionalEnrichmentRows('volumes', `
-        SELECT id, volume_number, release_date, cover_url, price, currency, page_count, is_special
+        SELECT id, volume_number, title, release_date, cover_url, price, currency, page_count, is_special
         FROM volumes
-        WHERE series_id = $1 AND is_special = false AND volume_number IS NOT NULL
-        ORDER BY volume_number DESC
+        WHERE series_id = $1 AND volume_number IS NOT NULL
+        ORDER BY release_date ASC NULLS LAST, volume_number ASC NULLS LAST
       `, [seriesId])
     }
 
@@ -1325,7 +1325,7 @@ export async function fetchSeriesEnrichmentData(seriesId: number, itemType: stri
       mangaMeta,
       publisherName,
       novelMeta,
-      vols: vols.map((v: any) => ({ ...v, id: Number(v.id), volume_number: v.volume_number == null ? null : Number(v.volume_number), release_date: normalizeDbDate(v.release_date), price: Number(v.price) || 0 })),
+      vols: vols.map((v: any) => ({ ...v, id: Number(v.id), volume_number: v.volume_number == null ? null : Number(v.volume_number), cover_url: proxyImg(v.cover_url), release_date: normalizeDbDate(v.release_date), price: Number(v.price) || 0 })),
       links: links.map((l: any) => ({ ...l })),
       lnRanking,
       lnMarketRows,
@@ -1351,7 +1351,7 @@ export async function fetchDashboardWatchlistData() {
           -- 1. Direct R2 cover from ranking (matches cover_source_title / latest volume)
           CASE WHEN r.cover_url LIKE '%r2.dev%' THEN NULLIF(TRIM(r.cover_url), '') ELSE NULL END,
           -- 2. Latest volume cover from volumes table (highest volume_number)
-          (SELECT v.cover_url FROM volumes v WHERE (v.series_id = s.id OR v.series_id = r.lidex_series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' THEN 0 ELSE 1 END), v.volume_number DESC LIMIT 1),
+          (SELECT v.cover_url FROM volumes v WHERE (v.series_id = s.id OR v.series_id = r.lidex_series_id) AND v.cover_url IS NOT NULL AND TRIM(v.cover_url) != '' ORDER BY (CASE WHEN v.cover_url LIKE '%r2.dev%' THEN 0 ELSE 1 END), v.release_date DESC NULLS LAST, v.volume_number DESC LIMIT 1),
           -- 3. Any r.cover_url
           NULLIF(TRIM(r.cover_url), ''),
           -- 4. Direct Cloudflare/R2 cover from series s (vol 1 fallback)
@@ -1640,8 +1640,8 @@ export async function fetchSeriesVolumeDetails(seriesId: number) {
     const rows = await sql(`
       SELECT id, series_id, volume_number, title, price, currency, cover_url, release_date, is_special 
       FROM volumes 
-      WHERE series_id = $1 AND is_special = false AND volume_number IS NOT NULL 
-      ORDER BY volume_number ASC
+      WHERE series_id = $1 AND volume_number IS NOT NULL 
+      ORDER BY release_date ASC NULLS LAST, volume_number ASC NULLS LAST
     `, [seriesId])
 
     return rows.map((r: any) => ({

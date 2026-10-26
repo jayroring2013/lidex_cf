@@ -601,16 +601,25 @@ export default function ContentDetail() {
 
       // Volumes & latest cover
       if (data.vols && data.vols.length > 0) {
-        setAllVolumes(data.vols)
-        setVolumeCount(data.vols.length)
-        setLatestVolume(data.vols[0])
-        const withCover = data.vols.find((v: any) => v.cover_url)
-        setCoverSrc(withCover?.cover_url || series.cover_url || null)
+        const sorted = [...data.vols].sort((a: any, b: any) => {
+          const da = a.release_date ? new Date(a.release_date).getTime() : 0
+          const db = b.release_date ? new Date(b.release_date).getTime() : 0
+          if (da && db && da !== db) return da - db
+          return Number(a.volume_number || 0) - Number(b.volume_number || 0)
+        })
+        const latest = sorted[sorted.length - 1]
+        const withCover = [...sorted].reverse().find((v: any) => v.cover_url)
+        const bestCover = data.lnRanking?.cover_url || withCover?.cover_url || series.cover_url || null
+
+        setAllVolumes(sorted)
+        setVolumeCount(sorted.length)
+        setLatestVolume(latest)
+        setCoverSrc(bestCover)
       } else {
         setAllVolumes([])
         setVolumeCount(0)
         setLatestVolume(null)
-        setCoverSrc(series.cover_url || null)
+        setCoverSrc(data.lnRanking?.cover_url || series.cover_url || null)
       }
 
       // Links
@@ -2018,6 +2027,70 @@ function NovelField({ icon: Icon, label, value, accent = '#8b5cf6' }: { icon: an
   )
 }
 
+function getVolumeLabel(vol: any, isVI: boolean): { title: string; subtitle?: string } {
+  if (!vol) return { title: isVI ? 'Tập —' : 'Volume —' }
+  const rawTitle = (vol.title || '').trim()
+  let label = ''
+  let subtitle: string | undefined
+
+  if (rawTitle.includes(':')) {
+    const colonIdx = rawTitle.indexOf(':')
+    subtitle = rawTitle.slice(colonIdx + 1).trim()
+  }
+
+  // 1. Decimal volume match in title, e.g. "Tập 5.5", "Vol. 5.5", "Ep. 5.5"
+  const decMatch = rawTitle.match(/(?:Tập|Vol(?:\.|\s*)|Ep(?:\.|\s*))\s*(\d+\.\d+)/i)
+  if (decMatch) {
+    label = isVI ? `Tập ${decMatch[1]}` : `Volume ${decMatch[1]}`
+  }
+
+  // 2. Side story / Ngoại truyện match, e.g. "Ngoại Truyện Tập 1", "Ngoại Truyện - Tập 2", "Ngoại Truyện II"
+  if (!label) {
+    const extraMatch = rawTitle.match(/Ngoại\s*Truyện(?:\s*[-\s]\s*|\s*)(?:Tập\s*)?([0-9IVX]+)?/i)
+    if (extraMatch) {
+      const num = extraMatch[1]
+      label = isVI 
+        ? (num ? `Ngoại Truyện ${num}` : 'Ngoại Truyện') 
+        : (num ? `Side Story ${num}` : 'Side Story')
+    }
+  }
+
+  // 3. Short story / Tuyển tập match, e.g. "Tuyển Tập Tình Yêu - Tập 1"
+  if (!label) {
+    const collMatch = rawTitle.match(/Tuyển\s*Tập(?:\s*Tình\s*Yêu)?(?:\s*-\s*Tập\s*|\s*)(\d+)?/i)
+    if (collMatch && collMatch[1]) {
+      label = isVI ? `Tuyển Tập ${collMatch[1]}` : `Short Stories ${collMatch[1]}`
+    }
+  }
+
+  // 4. Special part match, e.g. "Phần 2 - Vu Nữ Tập Sự..."
+  if (!label && vol.is_special) {
+    const partMatch = rawTitle.match(/Phần\s*([0-9IVX]+(?:\s*-\s*[^:\-]+)?)/i)
+    if (partMatch) {
+      label = `Phần ${partMatch[1].trim()}`
+    }
+  }
+
+  // 5. Standard regular volume match from title, e.g. "Tập 1", "Ep.1"
+  if (!label) {
+    const regMatch = rawTitle.match(/(?:Tập|Vol(?:\.|\s*)|Ep(?:\.|\s*))\s*(\d+)/i)
+    if (regMatch) {
+      label = isVI ? `Tập ${regMatch[1]}` : `Volume ${regMatch[1]}`
+    }
+  }
+
+  // 6. Fallback to volume_number
+  if (!label) {
+    if (vol.is_special && vol.volume_number && vol.volume_number > 100) {
+      label = isVI ? 'Tập đặc biệt' : 'Special Volume'
+    } else {
+      label = isVI ? `Tập ${vol.volume_number ?? '—'}` : `Volume ${vol.volume_number ?? '—'}`
+    }
+  }
+
+  return { title: label, subtitle: subtitle || undefined }
+}
+
 function NovelGeneralInfo({
   series,
   ranking,
@@ -2038,7 +2111,12 @@ function NovelGeneralInfo({
   locale: string
 }) {
   const isVI = locale === 'vi'
-  const sortedVolumes = [...volumes].sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
+  const sortedVolumes = [...volumes].sort((a, b) => {
+    const da = a.release_date ? new Date(a.release_date).getTime() : 0
+    const db = b.release_date ? new Date(b.release_date).getTime() : 0
+    if (da && db && da !== db) return da - db
+    return Number(a.volume_number || 0) - Number(b.volume_number || 0)
+  })
   const avgPrice = ranking?.average_price || (
     volumes.length
       ? volumes.map(v => Number(v.price || 0)).filter(Boolean).reduce((sum, price) => sum + price, 0) / Math.max(1, volumes.filter(v => Number(v.price || 0)).length)
@@ -2114,6 +2192,7 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
   const safeIndex = Math.min(activeIndex, volumes.length - 1)
   const active = volumes[safeIndex]
   const activeCover = active?.cover_url || latestVolume?.cover_url || null
+  const volDisplay = getVolumeLabel(active, isVI)
   const prev = () => setActiveIndex(i => (i - 1 + volumes.length) % volumes.length)
   const next = () => setActiveIndex(i => (i + 1) % volumes.length)
   const releaseDate = active?.release_date
@@ -2132,7 +2211,7 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
           <div className="relative grid grid-cols-1 sm:grid-cols-[128px_1fr] gap-4 sm:gap-5 items-stretch">
             <div className="relative w-[128px] max-w-full mx-auto sm:mx-0 rounded-xl overflow-hidden shadow-xl self-start" style={{ aspectRatio: '2/3', background: 'var(--background-secondary)', border: '1px solid var(--card-border)' }}>
               {activeCover ? (
-                <img src={activeCover} alt={`Vol. ${active.volume_number}`} className="w-full h-full object-cover" />
+                <img src={activeCover} alt={volDisplay.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <BookOpen className="w-8 h-8 opacity-40 text-primary-400" />
@@ -2142,9 +2221,16 @@ function NovelVolumeCarousel({ volumes, latestVolume, locale }: { volumes: any[]
 
             <div className="min-w-0 flex flex-col justify-between">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-xl sm:text-2xl font-black leading-tight" style={{ color: 'var(--foreground)' }}>
-                  {isVI ? 'Tập' : 'Volume'} {active.volume_number ?? '—'}
-                </h3>
+                <div className="min-w-0">
+                  <h3 className="text-xl sm:text-2xl font-black leading-tight truncate" style={{ color: 'var(--foreground)' }}>
+                    {volDisplay.title}
+                  </h3>
+                  {volDisplay.subtitle && (
+                    <p className="text-xs sm:text-sm font-medium mt-1 truncate" style={{ color: 'var(--foreground-secondary)' }}>
+                      {volDisplay.subtitle}
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
@@ -3040,7 +3126,7 @@ function LnReleaseTimeline({ volumes, ranking, locale }: { volumes: any[]; ranki
                 <div key={vol.id || `${vol.volume_number}-${i}`} className="absolute top-0 -translate-x-1/2 text-center" style={{ left: `${left}%` }}>
                   <div className="h-9 flex items-end justify-center">
                     <span className="text-[10px] font-black" style={{ color: 'var(--foreground-secondary)' }}>
-                      Vol.{vol.volume_number ?? i + 1}
+                      {getVolumeLabel(vol, isVI).title}
                     </span>
                   </div>
                   <div
@@ -3050,7 +3136,7 @@ function LnReleaseTimeline({ volumes, ranking, locale }: { volumes: any[]; ranki
                       border: hasDate ? '2px solid #a78bfa' : '2px dashed #7c6af5',
                       boxShadow: hasDate ? '0 0 0 4px rgba(124,106,245,.18)' : 'none',
                     }}
-                    title={`${isVI ? 'Tập' : 'Volume'} ${vol.volume_number ?? i + 1}: ${lnFormatDateDDMM(vol.release_date)}`}
+                    title={`${getVolumeLabel(vol, isVI).title}: ${lnFormatDateDDMM(vol.release_date)}`}
                   />
                   <p className="text-[10px] mt-2 whitespace-nowrap" style={{ color: 'var(--foreground-muted)' }}>{lnFormatDateDDMM(vol.release_date)}</p>
                   {gap != null && (
@@ -3115,7 +3201,12 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
   const isVI = locale === 'vi'
   const sorted = [...volumes]
     .filter(v => v.volume_number != null || v.release_date)
-    .sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
+    .sort((a, b) => {
+      const da = a.release_date ? new Date(a.release_date).getTime() : 0
+      const db = b.release_date ? new Date(b.release_date).getTime() : 0
+      if (da && db && da !== db) return da - db
+      return Number(a.volume_number || 0) - Number(b.volume_number || 0)
+    })
 
   if (!sorted.length) {
     return (
@@ -3135,7 +3226,7 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
     if (index === 0) return null
     const prev = dated[index - 1]
     const months = Math.max(0, (new Date(vol.release_date).getTime() - new Date(prev.release_date).getTime()) / 86400000 / 30.4375)
-    return { volume: vol, months, label: `Vol.${vol.volume_number ?? index + 1}` }
+    return { volume: vol, months, label: getVolumeLabel(vol, isVI).title }
   }).filter((item): item is { volume: any; months: number; label: string } => Boolean(item))
 
   const avgGap = gaps.length ? gaps.reduce((sum, item) => sum + item.months, 0) / gaps.length : Number(ranking.average_gap_months || 0)
@@ -3174,7 +3265,7 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
             {isVI ? 'Release Timeline' : 'Release Timeline'}
           </p>
           <span className="text-[10px]" style={{ color: 'var(--foreground-muted)' }}>
-            {latestVolume?.volume_number != null ? `Vol.${latestVolume.volume_number}` : `${sorted.length} ${isVI ? 'tập' : 'volumes'}`}
+            {latestVolume ? getVolumeLabel(latestVolume, isVI).title : (sorted.length ? `${sorted.length} ${isVI ? 'tập' : 'volumes'}` : '—')}
           </span>
         </div>
 
@@ -3195,7 +3286,7 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
                 >
                   {showLabel ? (
                     <span className="text-[10px] font-black mb-2 whitespace-nowrap" style={{ color: 'var(--foreground-secondary)' }}>
-                      Vol.{vol.volume_number ?? index + 1}
+                      {getVolumeLabel(vol, isVI).title}
                     </span>
                   ) : (
                     <span className="h-[20px]" />
@@ -3208,7 +3299,7 @@ function LnVolumeAnalytics({ volumes, ranking, locale }: { volumes: any[]; ranki
                       border: hasDate ? '2px solid #c4b5fd' : '2px dashed #7c6af5',
                       boxShadow: hasDate ? '0 0 0 5px rgba(124,106,245,.16)' : 'none',
                     }}
-                    title={`Vol.${vol.volume_number ?? index + 1}: ${date}`}
+                    title={`${getVolumeLabel(vol, isVI).title}: ${date}`}
                   />
                   {showLabel ? (
                     <span className="text-[10px] mt-3 whitespace-nowrap" style={{ color: 'var(--foreground-muted)' }}>
@@ -3991,7 +4082,12 @@ function MangaGeneralInfo({
   locale: string
 }) {
   const isVI = locale === 'vi'
-  const sortedVolumes = [...volumes].sort((a, b) => Number(a.volume_number || 0) - Number(b.volume_number || 0))
+  const sortedVolumes = [...volumes].sort((a, b) => {
+    const da = a.release_date ? new Date(a.release_date).getTime() : 0
+    const db = b.release_date ? new Date(b.release_date).getTime() : 0
+    if (da && db && da !== db) return da - db
+    return Number(a.volume_number || 0) - Number(b.volume_number || 0)
+  })
   const prices = volumes.map(v => Number(v.price || 0)).filter(p => p > 0)
   const avgPrice = prices.length ? prices.reduce((sum, price) => sum + price, 0) / prices.length : 0
   const releaseStatus = series.status || '—'
@@ -4175,7 +4271,12 @@ function MangaStats({
 
 function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }) {
   const isVI = locale === 'vi'
-  const sorted = [...volumes].sort((a, b) => (a.volume_number || 0) - (b.volume_number || 0))
+  const sorted = [...volumes].sort((a, b) => {
+    const da = a.release_date ? new Date(a.release_date).getTime() : 0
+    const db = b.release_date ? new Date(b.release_date).getTime() : 0
+    if (da && db && da !== db) return da - db
+    return Number(a.volume_number || 0) - Number(b.volume_number || 0)
+  })
 
   const VISIBLE = 5 // cards shown at once
   const [startIdx, setStartIdx] = useState(0)
@@ -4282,7 +4383,7 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
                 {hasImg ? (
                   <img
                     src={vol.cover_url}
-                    alt={`Vol. ${vol.volume_number}`}
+                    alt={getVolumeLabel(vol, isVI).title}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={() => setImgErrors(prev => ({ ...prev, [globalI]: true }))}
                   />
@@ -4291,7 +4392,7 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
                     style={{ background: 'linear-gradient(135deg, #6366f115, #818cf815)' }}>
                     <BookOpen className="w-6 h-6 text-primary-400 opacity-60" />
                     <span className="text-[10px] font-bold text-primary-400 opacity-60">
-                      Vol.{vol.volume_number}
+                      {getVolumeLabel(vol, isVI).title}
                     </span>
                   </div>
                 )}
@@ -4301,7 +4402,7 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
                   className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white"
                   style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
                 >
-                  #{vol.volume_number}
+                  #{getVolumeLabel(vol, isVI).title.replace(/^(Tập|Volume|Vol\.)\s*/i, '')}
                 </div>
 
                 {/* Hover overlay */}
@@ -4317,7 +4418,7 @@ function ReleaseSchedule({ volumes, locale }: { volumes: any[]; locale: string }
                   className="text-[11px] font-semibold leading-tight mb-0.5 truncate"
                   style={{ color: isActive ? '#6366f1' : 'var(--foreground)' }}
                 >
-                  {isVI ? 'Tập' : 'Vol.'} {vol.volume_number}
+                  {getVolumeLabel(vol, isVI).title}
                 </p>
                 {date ? (
                   <p className="text-[10px] leading-tight" style={{ color: 'var(--foreground-muted)' }}>
@@ -4372,7 +4473,12 @@ function PricingLineChart({ volumes }: { volumes: Volume[] }) {
   const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, price: 0, volNumber: 0 })
   const gradId = useId().replace(/:/g, "")
  
-  const sorted = [...volumes].sort((a, b) => (a.volume_number ?? 0) - (b.volume_number ?? 0))
+  const sorted = [...volumes].sort((a: any, b: any) => {
+    const da = a.release_date ? new Date(a.release_date).getTime() : 0
+    const db = b.release_date ? new Date(b.release_date).getTime() : 0
+    if (da && db && da !== db) return da - db
+    return (a.volume_number ?? 0) - (b.volume_number ?? 0)
+  })
   const prices = sorted.map(v => parseFloat(String(v.price)) || 0)
   if (prices.length === 0) return null
  

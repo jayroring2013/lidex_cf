@@ -119,7 +119,23 @@ function displayTitle(series: { title: string; titleVi?: string | null } | null 
 }
 
 function volumeLabel(volume: VolumeOption | PurchaseEntry, isVI: boolean) {
+  if (volume.title) {
+    const rawTitle = volume.title.trim()
+    const decMatch = rawTitle.match(/(?:Tập|Vol(?:\.|\s*)|Ep(?:\.|\s*))\s*(\d+\.\d+)/i)
+    if (decMatch) return isVI ? `Tập ${decMatch[1]}` : `Vol. ${decMatch[1]}`
+
+    const extraMatch = rawTitle.match(/Ngoại\s*Truyện(?:\s*[-\s]\s*|\s*)(?:Tập\s*)?([0-9IVX]+)?/i)
+    if (extraMatch) {
+      const num = extraMatch[1]
+      return isVI ? (num ? `Ngoại Truyện ${num}` : 'Ngoại Truyện') : (num ? `Side Story ${num}` : 'Side Story')
+    }
+
+    const regMatch = rawTitle.match(/(?:Tập|Vol(?:\.|\s*)|Ep(?:\.|\s*))\s*(\d+)/i)
+    if (regMatch) return isVI ? `Tập ${regMatch[1]}` : `Vol. ${regMatch[1]}`
+  }
+
   if (volume.volumeNumber == null) return isVI ? 'Tập không rõ' : 'Unknown volume'
+  if (volume.volumeNumber > 100) return isVI ? 'Tập đặc biệt' : 'Special Vol.'
   return isVI ? `Tập ${volume.volumeNumber}` : `Vol. ${volume.volumeNumber}`
 }
 

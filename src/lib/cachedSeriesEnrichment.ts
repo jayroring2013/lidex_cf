@@ -10,7 +10,7 @@ const ONE_HOUR = 3600
 // function/closure or it will break Server Action caching.
 const cachedSeriesEnrichmentData = unstable_cache(
   async (seriesId: number, itemType: string) => fetchSeriesEnrichmentData(seriesId, itemType),
-  ['series-enrichment-v2'],
+  ['series-enrichment-v3'],
   {
     revalidate: ONE_HOUR,
     tags: ['series'],
